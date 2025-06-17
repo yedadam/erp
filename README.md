@@ -1,83 +1,79 @@
-<!-- 상단 웨이브 배너 -->
-![wave](https://capsule-render.vercel.app/api?type=wave&color=auto&height=200&section=header&text=BrickFlow&fontSize=50&animation=fadeIn)
+<!-- 상단 인터랙티브 배너 -->
+<div align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=24&pause=1000&color=F25C05&center=true&vCenter=true&width=600&lines=⚙️+BRICKFLOW+-+Smart+MES+for+LEGO+Factory;🚀+Vue+%7C+Node+%7C+MariaDB+%7C+AG-Grid+System" alt="Typing SVG" />
+</div>
+
+<br/>
+
+<!-- 메인 제목 (글리치 스타일) -->
+<h1 align="center">
+  <img src="https://img.shields.io/badge/BRICKFLOW-🔥MES_System_for_LEGO-F25C05?style=for-the-badge&logo=lego&logoColor=white"/>
+</h1>
 
 <p align="center">
-  <a href="https://git.io/typing-svg">
-    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&pause=1000&color=5DADF7&center=true&vCenter=true&width=435&lines=Welcome+to+BrickFlow;MES+System+for+LEGO+Factory" alt="Typing SVG" />
-  </a>
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=180&section=header&text=Smart%20Factory%20MES&fontAlign=50&fontSize=40&animation=fadeIn"/>
 </p>
 
 ---
 
+## 🧩 INTRO
+
+> **BrickFlow**는 레고 제조 환경에 특화된  
+> **생산 지시 · 자재 관리 · 품질 점검 · 설비 모니터링** 시스템입니다.  
+>  
+> 누구나 **직관적으로** 사용할 수 있게 UI/UX에 집중했습니다.  
+> 관리자도, 작업자도 **하루 만에 익숙해지는 MES**, 그것이 BrickFlow입니다.
+
+---
+
+## 🚀 STACK OVERVIEW
+
 <div align="center">
 
-# 🔥 PROJECT: BrickFlow 🔥  
-> **레고 제조 현장을 위한 스마트 MES 시스템**
+| **Frontend** | **Backend** | **Data / Infra** | **Style & UI** |
+|--------------|-------------|------------------|----------------|
+| Vue.js       | Node.js     | MariaDB          | Tailwind, SASS |
+| Pinia        | Express     |                  | CoreUI, AG-Grid |
+| Axios        | REST API    |                  | PrimeVue, SweetAlert2 |
 
 </div>
 
-<br/>
-
-<!-- 도넛 그래프 -->
-<div align="center">
-  <img src="https://quickchart.io/chart?c={type:'doughnut',data:{labels:['Frontend','Backend','Libraries'],datasets:[{data:[50,30,20],backgroundColor:['%234FC08D','%23339933','%23FFCE56']}]},options:{plugins:{legend:{position:'bottom'}}}}" width="250"/>
-</div>
-
-<br/>
-
-<!-- 기술 스택 -->
-<div align="center">
-
-### 🧰 Tech Stack
-
-<img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white"/>
-<img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white"/>
-<img src="https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white"/>
-<img src="https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white"/>
-<img src="https://img.shields.io/badge/Vue_CLI-42B883?style=for-the-badge&logo=vue.js&logoColor=white"/>
-<img src="https://img.shields.io/badge/Pinia-FADA5E?style=for-the-badge&logo=pinia&logoColor=white"/>
-<img src="https://img.shields.io/badge/CoreUI-E24C3F?style=for-the-badge&logo=coreui&logoColor=white"/>
-<img src="https://img.shields.io/badge/AG%20Grid-F47521?style=for-the-badge&logo=ag-grid&logoColor=white"/>
-<img src="https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white"/>
-<img src="https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white"/>
-<img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white"/>
-<img src="https://img.shields.io/badge/SweetAlert2-FF4154?style=for-the-badge&logo=sweetalert2&logoColor=white"/>
-
-</div>
+<p align="center">
+  <img src="https://quickchart.io/chart?c={type:'bar',data:{labels:['Frontend','Backend','Infra'],datasets:[{label:'Workload',data:[50,30,20],backgroundColor:['%234FC08D','%23339933','%23FFCE56']}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}}" width="400"/>
+</p>
 
 ---
 
-## ✨ 개요 (Overview)
+## 👨‍👩‍👧‍👦 TEAM
 
-> **BrickFlow**는 레고 제조 공장에서  
-**생산 관리 · 작업 지시 · 품질 검사 · 설비 모니터링** 등  
-모든 공정 단계를 **직관적 UI로 효율화**한 **MES 플랫폼**입니다.
+> **5인 협업 기반 프로젝트**  
+> 명확한 파트 분담으로 효율적 개발과 테스팅을 달성했습니다.
 
----
-
-## 👨‍👩‍👧‍👦 팀원 소개
-
-| 이름        | 역할         |  
-|-------------|--------------|  
-| 🧱 **신현욱** (팀장)   | 자재 관리 |  
-| ⚙️ **복성민** (부팀장) | 생산 담당 |  
-| 💵 **오세경**         | 영업 담당 |  
-| 🔧 **정은총**         | 설비 담당 |  
-| 🔍 **김지수**         | 검수 및 관리자 |
+| 이름        | 역할         | 한 줄 소개 |
+|-------------|--------------|------------|
+| 🧱 신현욱 (팀장) | 자재 관리 | 구조화와 로직 정리에 강점 |
+| ⚙️ 복성민       | 생산 파트 | 데이터 흐름을 정확히 잡음 |
+| 💵 오세경       | 영업 담당 | 고객 흐름에 최적화된 화면 설계 |
+| 🔧 정은총       | 설비 모니터링 | 실시간 반응형 시스템 담당 |
+| 🔍 김지수       | 관리자/검수 | QA 및 시스템 오류 체크 |
 
 ---
 
-## 🗓️ 개발 일정
+## 🛠️ TIMELINE
 
-| 단계             | 기간                  |  
-|------------------|-----------------------|  
-| 📝 설계 기간       | 2025.04.15 ~ 2025.04.22 |  
-| 🛠️ 구현 기간       | 2025.04.23 ~ 2025.05.14 |  
-| 🚀 배포 및 테스트   | 2025.05.15 ~ 2025.05.19 |  
-| 🗣️ 발표 준비       | 2025.05.20 ~ 2025.05.21 |  
-| 🎉 프로젝트 발표    | 2025.05.22             |
+| 단계 | 기간 | 주요 활동 |
+|------|------|-----------|
+| 💡 기획 | 04.15 ~ 04.22 | 와이어프레임, DB 설계 |
+| 🧱 개발 | 04.23 ~ 05.14 | API, 컴포넌트, DB 연동 |
+| 🧪 테스트 | 05.15 ~ 05.19 | QA, 테스터 피드백 |
+| 📢 발표 | 05.20 ~ 05.22 | 시연, 피칭, 발표자료 작성 |
 
 ---
 
-## 🧾 커밋 메시지 규칙
+## 💬 COMMIT RULE
 
+```bash
+[이름] / [날짜] / [한 줄 설명]
+
+예시:
+신현욱 / 20250514 / 자재 입고 로직 리팩토링
