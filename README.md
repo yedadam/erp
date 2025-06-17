@@ -1,79 +1,77 @@
-<!-- 상단 인터랙티브 배너 -->
-<div align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=24&pause=1000&color=F25C05&center=true&vCenter=true&width=600&lines=⚙️+BRICKFLOW+-+Smart+MES+for+LEGO+Factory;🚀+Vue+%7C+Node+%7C+MariaDB+%7C+AG-Grid+System" alt="Typing SVG" />
-</div>
-
-<br/>
-
-<!-- 메인 제목 (글리치 스타일) -->
 <h1 align="center">
-  <img src="https://img.shields.io/badge/BRICKFLOW-🔥MES_System_for_LEGO-F25C05?style=for-the-badge&logo=lego&logoColor=white"/>
+  🚀 구독형 ERP 시스템
 </h1>
 
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=180&section=header&text=Smart%20Factory%20MES&fontAlign=50&fontSize=40&animation=fadeIn"/>
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&center=true&vCenter=true&width=435&lines=ERP+Subscription+System+Project;Spring+Boot+%2B+Thymeleaf+%2B+MySQL" alt="Typing SVG" />
 </p>
-
----
-
-## 🧩 INTRO
-
-> **BrickFlow**는 레고 제조 환경에 특화된  
-> **생산 지시 · 자재 관리 · 품질 점검 · 설비 모니터링** 시스템입니다.  
->  
-> 누구나 **직관적으로** 사용할 수 있게 UI/UX에 집중했습니다.  
-> 관리자도, 작업자도 **하루 만에 익숙해지는 MES**, 그것이 BrickFlow입니다.
-
----
-
-## 🚀 STACK OVERVIEW
-
-<div align="center">
-
-| **Frontend** | **Backend** | **Data / Infra** | **Style & UI** |
-|--------------|-------------|------------------|----------------|
-| Vue.js       | Node.js     | MariaDB          | Tailwind, SASS |
-| Pinia        | Express     |                  | CoreUI, AG-Grid |
-| Axios        | REST API    |                  | PrimeVue, SweetAlert2 |
-
-</div>
 
 <p align="center">
-  <img src="https://quickchart.io/chart?c={type:'bar',data:{labels:['Frontend','Backend','Infra'],datasets:[{label:'Workload',data:[50,30,20],backgroundColor:['%234FC08D','%23339933','%23FFCE56']}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}}" width="400"/>
+  <img src="https://img.shields.io/badge/Java-17-007396?style=for-the-badge&logo=openjdk&logoColor=white"/>
+  <img src="https://img.shields.io/badge/SpringBoot-3.2-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Thymeleaf-3.1-005F0F?style=for-the-badge&logo=thymeleaf&logoColor=white"/>
+  <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white"/>
 </p>
 
 ---
 
-## 👨‍👩‍👧‍👦 TEAM
+## 📦 프로젝트 개요
 
-> **5인 협업 기반 프로젝트**  
-> 명확한 파트 분담으로 효율적 개발과 테스팅을 달성했습니다.
-
-| 이름        | 역할         | 한 줄 소개 |
-|-------------|--------------|------------|
-| 🧱 신현욱 (팀장) | 자재 관리 | 구조화와 로직 정리에 강점 |
-| ⚙️ 복성민       | 생산 파트 | 데이터 흐름을 정확히 잡음 |
-| 💵 오세경       | 영업 담당 | 고객 흐름에 최적화된 화면 설계 |
-| 🔧 정은총       | 설비 모니터링 | 실시간 반응형 시스템 담당 |
-| 🔍 김지수       | 관리자/검수 | QA 및 시스템 오류 체크 |
+**ERP 구독형 시스템**은 기업의 업무를 효율적으로 관리하기 위한 웹 애플리케이션입니다.  
+영업, 재고, 회계, 인사 등 주요 기능을 모듈화하여 통합적으로 처리할 수 있도록 설계되었습니다.
 
 ---
 
-## 🛠️ TIMELINE
+## 🛠️ 사용 기술
 
-| 단계 | 기간 | 주요 활동 |
-|------|------|-----------|
-| 💡 기획 | 04.15 ~ 04.22 | 와이어프레임, DB 설계 |
-| 🧱 개발 | 04.23 ~ 05.14 | API, 컴포넌트, DB 연동 |
-| 🧪 테스트 | 05.15 ~ 05.19 | QA, 테스터 피드백 |
-| 📢 발표 | 05.20 ~ 05.22 | 시연, 피칭, 발표자료 작성 |
+| 구분 | 기술 |
+|------|------|
+| 백엔드 | Java 17, Spring Boot 3.2, Spring Data JPA |
+| 프론트엔드 | Thymeleaf, HTML5, CSS3, JavaScript |
+| 데이터베이스 | MySQL |
+| 개발환경 | IntelliJ / VS Code / Git / GitHub |
 
 ---
 
-## 💬 COMMIT RULE
+## 📁 주요 기능
+
+- ✅ **영업 관리**: 견적 → 수주 → 매출까지의 흐름 자동화  
+- ✅ **재고 관리**: 입고 / 출고 / 실사 / 재고 차트 제공  
+- ✅ **회계 처리**: 매출 전표, 지급 전표, 일자별 통계  
+- ✅ **인사 관리**: 사원 등록, 휴가 신청, 급여 계산  
+- ✅ **권한 관리**: 사용자/관리자 권한 분리  
+
+---
+
+## 🎞️ 시연 영상 및 이미지
+
+![erp-demo](https://your-gif-url-here.gif)
+
+> 위 이미지는 CoreUI 기반의 관리자 화면 예시입니다.  
+> 📌 추가로 Vue, ag-Grid 기반 시연 화면이 필요하시면 여기에 삽입 가능합니다.
+
+---
+
+## ⛏️ 개발 중 이슈 및 개선 포인트
+
+- 🔧 복잡한 생산 흐름의 처리 (예: 다단계 BOM, 실시간 공정 추적)
+- 🔐 보안 처리 (JWT or Spring Security 연동)
+- 📱 반응형 UI (모바일 최적화)
+- 📦 멀티 테넌시 구독 구조에 대한 아키텍처 설계
+
+---
+
+## ✍️ 개발자 소개
+
+| 이름 | 역할 | GitHub |
+|------|------|--------|
+| 신현욱 | 전체 기획, 백엔드, 프론트 일부 | [github.com/hyunwook](https://github.com/yourusername) |
+
+---
+
+## ⭐ 프로젝트 실행 방법
 
 ```bash
-[이름] / [날짜] / [한 줄 설명]
-
-예시:
-신현욱 / 20250514 / 자재 입고 로직 리팩토링
+git clone https://github.com/yourusername/erp-subscription.git
+cd erp-subscription
+./gradlew bootRun
