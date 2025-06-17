@@ -1,0 +1,267 @@
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .pricing-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .plan-card {
+      background-color: #ffffff;
+      border-radius: 15px;
+      padding: 40px 25px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      border: 2px solid transparent;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      cursor: pointer;
+    }
+
+    .plan-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+      border-color: #007bff;
+    }
+
+    .plan-card h4 {
+      margin-bottom: 10px;
+      font-size: 1.5rem;
+    }
+
+    .plan-card p.text-muted {
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+
+    .form-select {
+      margin-bottom: 15px;
+    }
+
+    .desc {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    .price {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #007bff;
+      margin-bottom: 20px;
+    }
+
+    .pay-btn {
+      background-color: #007bff;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1rem;
+      color: white;
+      border-radius: 30px;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+    }
+
+    .pay-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .realContainer {
+      max-width: 1140px;
+      margin: auto;
+    }
+
+    /* 모달 스타일 - 계약서 문서 스타일 */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1050;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.6);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 3% auto;
+      padding: 0;
+      border-radius: 8px;
+      max-width: 800px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      position: relative;
+      max-height: 90vh;
+      overflow: hidden;
+      font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      padding: 25px 40px;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      border: none;
+      background: none;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .modal-close:hover {
+      opacity: 1;
+    }
+
+    .contract-document {
+      padding: 40px 50px;
+      max-height: 60vh;
+      overflow-y: auto;
+      background-color: #fefefe;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #2c3e50;
+    }
+
+    .contract-title {
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #1e3c72;
+      border-bottom: 2px solid #1e3c72;
+      padding-bottom: 10px;
+    }
+
+    .contract-subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: #7f8c8d;
+      margin-bottom: 30px;
+    }
+
+    .contract-section {
+      margin-bottom: 25px;
+      padding: 20px;
+      background-color: #f8f9fb;
+      border-left: 4px solid #3498db;
+      border-radius: 0 5px 5px 0;
+    }
+
+    .contract-section-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    .contract-section-title::before {
+      content: "■";
+      color: #3498db;
+      margin-right: 8px;
+      font-size: 14px;
+    }
+
+    .contract-article {
+      margin-bottom: 15px;
+      padding-left: 15px;
+    }
+
+    .contract-article-number {
+      font-weight: bold;
+      color: #2980b9;
+      margin-bottom: 5px;
+    }
+
+    .contract-content {
+      margin-left: 20px;
+      text-align: justify;
+    }
+
+    .contract-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 13px;
+    }
+
+    .contract-table th,
+    .contract-table td {
+      border: 1px solid #bdc3c7;
+      padding: 12px 15px;
+      text-align: left;
+    }
+
+    .contract-table th {
+      background-color: #34495e;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .contract-table td {
+      background-color: white;
+    }
+
+    .contract-footer {
+      padding: 25px 50px;
+      background-color: #ecf0f1;
+      border-top: 1px solid #bdc3c7;
+      text-align: center;
+    }
+
+    .contract-date {
+      font-size: 14px;
+      color: #7f8c8d;
+      margin-bottom: 20px;
+    }
+
+    .contract-signature {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+      font-size: 14px;
+    }
+
+    .signature-box {
+      text-align: center;
+      padding: 15px;
+      border: 1px dashed #bdc3c7;
+      width: 200px;
+      background-color: white;
+    }
+
+    .confirm-btn {
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+      border: none;
+      padding: 15px 40px;
+      font-size: 16px;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .confirm-btn:hover {
+      background: linear-gradient(135deg, #229954 0%, #27ae60 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+    }
+    
+    
