@@ -3,9 +3,9 @@ package com.dadam;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
+//dadam
 @SpringBootApplication
-@MapperScan(basePackages = "com.dadam.**.mapper")
+@MapperScan(basePackages = "com.dadam.**.mapper")  
 public class DadamApplication {
 
 	public static void main(String[] args) {
