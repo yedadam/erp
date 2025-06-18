@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
+<body>
+	<div class="row">
+		<h1>품목관리</h1>
+		<div class="d-grid gap-3 d-md-flex justify-content-md-end">
+			<button class="btn btn-primary mx-2 b-1 m-1" type="button">저장</button>
+			<button class="btn btn-danger me-3 b-1 m-1" type="button">삭제</button>
+		</div>
+	</div>
+	<div class="col-12">
+		<div id="itemGrid"></div>
+	</div>
+</body>
+<script>
+//toast ui 생성
+const itemGrid = new tui.Grid({
+	//toastui 아이디 가져오기
+    el: document.getElementById('itemGrid'),
+    //checkbox부여
+    rowHeaders: ['checkbox'],
+    //스크롤여부
+    scrollX: false,
+    scrollY: false,
+    //페이지네이션
+    pageOptions: {
+        perPage: 10,
+        useClient: true,
+    },
+    //필드값 구성
+    columns:[
+        // header: 필드 이름  name:객체 key값  align:정렬방법
+        // editor:true -> cell안에 등록가능
+        // width -> 크기조정
+        { header: '품목코드', name:'itemCode', align:'center', editor:'text', width:500,
+        	filter: {
+            type: 'text',
+            showClearBtn: true
+          }},
+        { header: '품목명', name:'name', align:'center',editor:'text',
+        	filter: {
+            type: 'text',
+            showClearBtn: true
+          }},
+        { header: '품목구분', name:'type', align:'center',editor:'text', filter:'select'},
+        { header: '단가', name:'price', align:'center', editor:'text', filter:'number'},
+    ],
+});
+
+function List(){
+	$.ajax({
+		url:"/erp/standard/itemAll",
+		method:"GET"
+	   ,success:
+		function(result) {
+		  result.forEach(item =>{
+			   if(item.type === 'it01'){
+				   item.type = '제품'
+			   }else if(item.type === 'it02'){
+				   item.type = '부자재'
+			   }else{
+				   item.type = '비품'
+			   }
+		   })
+		   console.log(result)
+		   itemGrid.resetData(result)
+	   }
+	})
+}
+List();
+</script>
+</html>

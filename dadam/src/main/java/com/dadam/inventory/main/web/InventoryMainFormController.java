@@ -6,7 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @RequestMapping("/erp")
 @Controller
-public class InventoryMainController {
+public class InventoryMainFormController {
+	
 	@GetMapping("/inventory")
 	public String test() {
 		return "/inventory/inventoryMain";
