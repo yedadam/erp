@@ -10,6 +10,10 @@ public class OrderController {
   
 	@GetMapping("/order")
 	public String orderList() {
-		return "";
+		return "sales/salesMain";
+	}
+	@GetMapping("/test")
+	public String test() {
+		return "sales/test";
 	}
 }

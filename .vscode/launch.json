@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-DadamApplication<dadam>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.dadam.DadamApplication",
+            "projectName": "dadam",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
