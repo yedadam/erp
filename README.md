@@ -66,7 +66,7 @@
 | 이름 | 역할 | GitHub |
 |------|------|--------|
 | 신현욱 | 전체 기획, 백엔드, 프론트 일부 | [github.com/hyunwook](https://github.com/yourusername) |
-
+| 정유환 | 개발 환경, 백엔드, 프론트 일부 | [github.com/JungYouhwan](https://github.com/JungYouhwan) |
 ---
 
 ## ⭐ 프로젝트 실행 방법
