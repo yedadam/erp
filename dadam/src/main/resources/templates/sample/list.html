@@ -30,7 +30,7 @@ const sampleGrid = new tui.Grid({
     scrollY: false,
     //페이지네이션
     pageOptions: {
-        perPage: 10,
+        perPage: 5,
         useClient: true,
     },
     //필드값 구성
@@ -38,21 +38,21 @@ const sampleGrid = new tui.Grid({
         // header: 필드 이름  name:객체 key값  align:정렬방법
         // editor:true -> cell안에 등록가능
         // width -> 크기조정
-        { header: '사원번호',name:'employeeId',align:'right',width:100,
+        { header: '사원번호',name:'employeeId',align:'center',width:500,
         //validaton 검증 해당 값이 안되면 해당셀은 빨간색으로 변함
         	validation:{
             dataType:'number',
-            min:100,
-            max:105,
+            min:1001,
+            max:1003,
          },},
         { header: '이름',name:'lastName',align:'center',editor:'text'},
         { header: '부서',name:'departmentId',align:'center',editor:'text',
         	//render -> 만약 테이블값의 style을 변경하고 싶으면 아래처럼 조정
         	renderer:{
           	  styles:{
-        		  color:(props) => props.value == '90'?  'rgba(252, 240, 3)' 
-        		  : props.value == '60'?  'rgba(252, 3, 45)' 	  
-        		  : props.value == '100'?  'rgba(3, 252, 65)':'',
+        		  color:(props) => props.value == '10'?  'rgba(252, 240, 3)' 
+        		  : props.value == '20'?  'rgba(252, 3, 45)' 	  
+        		  : props.value == '30'?  'rgba(3, 252, 65)':'',
         			fontSize :'14px',
               	    fontFamily: 'Malgun Gothic',
               	    fontWeight: 'bold'
@@ -60,7 +60,11 @@ const sampleGrid = new tui.Grid({
           },
           //formatter -> 실질적 cell안에 값을 포맷하여 보여주기만은 formmater 내용으로 보여준다 실질적으로 값을 보낼땐 cell안에 실질적 데이터를 전송한다.
           formatter: function(price){
-              return price.value+'부서';
+        	  if(price.value=='20'){
+              return price.value+'부서'
+        	  }else{
+        		  return price.value;
+        	  };
                   },                   
         },
           { header: '직무',name:'jobId',align:'right',editor:'text'},
@@ -92,7 +96,14 @@ const topOptions = {
 			  fileName: '주문 정보 조회',
 			};
 $('#excel').on('click',function(){
-	sampleGrid.export('xlsx',topOptions);
+	/* sampleGrid.export('xlsx',topOptions); */
+//체크된행을 가져오는 함수	
+const checkedRows = sampleGrid.getCheckedRows();
+console.log(checkedRows)
+//행의 총 갯수
+let count = sampleGrid.getRowCount()
+console.log(count)
+
 })
 </script>
 </html>
