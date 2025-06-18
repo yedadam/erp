@@ -1,11 +1,12 @@
 package com.dadam.security.mapper;
 
+
 import org.apache.ibatis.annotations.Param;
 
-import com.dadam.security.service.MainUserVO;
-import com.dadam.security.service.UserVO;
+import com.dadam.security.service.EmployeesVO;
+import com.dadam.security.service.ErpUserVO;
 
 public interface UserMapper {
-	MainUserVO loginForMain(@Param("userId") String userId);
-	public UserVO loginForErp(String username);
+	public ErpUserVO loginForMain(@Param("userId") String userId);
+	public EmployeesVO loginForErp(@Param("username") String username, @Param("comId") String comId);
 }

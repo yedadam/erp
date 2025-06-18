@@ -8,11 +8,17 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
+/* 
+ * @author 신현욱
+ * @since 2025.06.18
+ * @desc 로그인 권한 부여
+ * @history
+ *   - 2025.06.18 신현욱: 최초 작성
+ */
 public class LoginUserAuthority implements UserDetails {
-    private UserVO userVO;
+    private EmployeesVO userVO;
 
-    public LoginUserAuthority(UserVO userVO) {
+    public LoginUserAuthority(EmployeesVO userVO) {
         this.userVO = userVO;
     }
 
@@ -25,17 +31,14 @@ public class LoginUserAuthority implements UserDetails {
 
     @Override
     public String getPassword() {
-        return userVO.getPassword(); // userVO의 비밀번호 반환
+        return userVO.getPwd(); // userVO의 비밀번호 반환
     }
 
     @Override
     public String getUsername() {
-        return userVO.getUsername(); // userVO의 아이디 반환
+        return userVO.getEmpName(); // userVO의 아이디 반환
     }
     
-    public String getName() {
-    	return userVO.getName();
-    }
     
     public String getMainName() {
     	return ""; // userVO의 아이디 반환
