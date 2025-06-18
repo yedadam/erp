@@ -1,4 +1,4 @@
-package com.dadam.security.longinContor;
+package com.dadam.security.longin.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package com.dadam.inventory.main.Control;
+package com.dadam.inventory.main.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

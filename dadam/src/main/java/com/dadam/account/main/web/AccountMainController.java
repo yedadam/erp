@@ -1,4 +1,4 @@
-package com.dadam.standard.main.Control;
+package com.dadam.account.main.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @RequestMapping("/erp")
 @Controller
-public class StandardMainController {
+public class AccountMainController {
 	
-	@GetMapping("/standard")
+	@GetMapping("/accounting")
 	public String test() {
-		return "/standard/standardMain";
+		return "/acc/accountMain";
 	}
 }
