@@ -170,6 +170,7 @@
     </div>
   </div>
   `;
+  
   let defaultConst = null
  //계약서 렌더링
  function constFunc(type,pay,during,subsType,howMany,useFunc){
@@ -214,15 +215,19 @@
 
   //계약서 모달 버튼
   $('.pay-btn').on('click', function () {
+	//해당버튼의 인덱스번호 갖고오기
     const index = $('.pay-btn').index(this);
+	//각 클래스 인덱스의 텍스트값 가져오기
     let type = $('.plan-card h4').eq(index).text();
     let pay = $('.plan-card .price').eq(index).text();
     let during = $('.plan-card .during').eq(index).val();
     let subsType = $('.plan-card .subsType').eq(index).val();
     let howMany = $('.plan-card .howMany').eq(index).val();
     let useFunc = $('.plan-card .desc').eq(index).text();
-
+    
+	//계약서 렌더링 해서 innerHTML안에 값넣기
     contractContent.innerHTML = constFunc(type, pay, during, subsType, howMany, useFunc);
+	//모달창 열기
     modal.style.display = 'block';
 
     // 서명 패드 초기화 및 생성
