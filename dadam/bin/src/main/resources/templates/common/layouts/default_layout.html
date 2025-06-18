@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:replace="common/configs/config :: ConfigFragment"></head>
+<body id="page-top">
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-laugh-wink"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Heading -->
+            <!-- 혹시나 드랍다운 할 경우 있어 남겨놓겠음 -->
+           <!--  <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
+                재무
+            </div>
+
+            Nav Item - Components Collapse Menu
+            <li class="nav-item">
+                <a class="nav-link collapsed d-flex justify-content-between" href="#" data-bs-toggle="collapse" data-bs-target="#collapseTwo" 
+                   aria-expanded="false" aria-controls="collapseTwo">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-fw fa-dollar-sign"></i>
+                        <span>예산관리</span>
+                    </div>
+                    <i class="fas fa-fw fa-chevron-right"></i> 초기에는 '>' 아이콘
+                </a>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">예산</h6>
+                        <a class="collapse-item" href="buttons.html">예산신청</a>
+                        <a class="collapse-item" href="cards.html">예산신청상황</a>
+                    </div>
+                </div>
+            </li>
+
+            Nav Item - Utilities Collapse Menu
+            <li class="nav-item">
+                <a class="nav-link collapsed d-flex justify-content-between" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUtilities" 
+                   aria-expanded="false" aria-controls="collapseUtilities">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-fw fa-wrench"></i>
+                        <span>Utilities</span>
+                    </div>
+                    <i class="fas fa-fw fa-chevron-right"></i> 초기에는 '>' 아이콘
+                </a>
+                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-bs-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Custom Utilities:</h6>
+                        <a class="collapse-item" href="utilities-color.html">Colors</a>
+                        <a class="collapse-item" href="utilities-border.html">Borders</a>
+                        <a class="collapse-item" href="utilities-animation.html">Animations</a>
+                        <a class="collapse-item" href="utilities-other.html">Other</a>
+                    </div>
+                </div>
+            </li>
+
+            Nav Item - Pages Collapse Menu
+            <li class="nav-item">
+                <a class="nav-link collapsed d-flex justify-content-between" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" 
+                   aria-expanded="false" aria-controls="collapsePages">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-fw fa-folder"></i>
+                        <span>Pages</span>
+                    </div>
+                    <i class="fas fa-fw fa-chevron-right"></i> 초기에는 '>' 아이콘
+                </a>
+                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-bs-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Login Screens:</h6>
+                        <a class="collapse-item" href="login.html">Login</a>
+                        <a class="collapse-item" href="register.html">Register</a>
+                        <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
+                        <div class="collapse-divider"></div>
+                        <h6 class="collapse-header">Other Pages:</h6>
+                        <a class="collapse-item" href="404.html">404 Page</a>
+                        <a class="collapse-item" href="blank.html">Blank Page</a>
+                    </div>
+                </div>
+            </li> -->
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+			
+			
+			<!-- 기준정보 -->
+			<div  th:if="${activeMenu == 'standard'}">
+            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
+                기준정보
+            </div>
+            <li class="nav-item">
+                <a class="nav-link" href="charts.html">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>Charts</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="tables.html">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>Tables</span>
+                </a>
+            </li>
+			</div>
+			
+			
+			<!-- 영업 -->
+			<div  th:if="${activeMenu == 'sales'}">
+            <!-- Heading -->
+            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
+                영업
+            </div>
+            <!-- Nav Item - Charts -->
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/erp/sales}">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>견적서관리</span>
+                </a>
+                <a class="nav-link" th:href="@{/erp/sales}">
+                  <i class="fa-regular fa-check"></i>
+                    <span>주문관리</span>
+                </a>
+                <a class="nav-link" th:href="@{/erp/sales}">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>출하의뢰</span>
+                </a>
+                <a class="nav-link" th:href="@{/erp/sales}">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>수금조회</span>
+                </a>
+                <a class="nav-link" th:href="@{/erp/sales}">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>발주관리</span>
+                </a>
+            </li>
+            <!-- Nav Item - Tables -->
+           
+			</div>
+			
+			
+			<!-- 재고 -->
+			<div  th:if="${activeMenu == 'inventory'}">
+            <!-- Heading -->
+            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
+                재고
+            </div>
+            <!-- Nav Item - Charts -->
+            <li class="nav-item">
+                <a class="nav-link" href="charts.html">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>Charts</span>
+                </a>
+            </li>
+            <!-- Nav Item - Tables -->
+            <li class="nav-item">
+                <a class="nav-link" href="tables.html">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>Tables</span>
+                </a>
+            </li>
+			</div>
+			
+			
+			<!-- 인사 -->
+			<div  th:if="${activeMenu == 'hr'}">
+            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
+                인사
+            </div>
+            <li class="nav-item">
+                <a class="nav-link" href="charts.html">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>Charts</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="tables.html">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>Tables</span>
+                </a>
+            </li>
+			</div>
+			
+			
+			
+			<!-- 회계 -->
+			<div  th:if="${activeMenu == 'accounting'}">
+            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
+                회계
+            </div>
+            <li class="nav-item">
+                <a class="nav-link" href="charts.html">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>Charts</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="tables.html">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>Tables</span>
+                </a>
+            </li>
+			</div>
+			
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+            <!-- Sidebar Message -->
+            <div class="sidebar-card d-none d-lg-flex">
+                <img class="sidebar-card-illustration mb-2" src="/img/undraw_rocket.svg" alt="...">
+                <p class="text-center mb-2"><strong>SB Admin Pro</strong> is packed with premium features, components, and more!</p>
+                <a class="btn btn-success btn-sm" href="https://startbootstrap.com/theme/sb-admin-pro">Upgrade to Pro!</a>
+            </div>
+
+        </ul>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <!-- Header -->
+                <div th:replace="common/fragments/header :: HeaderFragment"></div>
+
+                <!-- Main Content -->
+                <main>
+                    <div>
+                        <th:block layout:fragment="Content"></th:block>
+                    </div>
+                </main>
+            </div>
+            <!-- Footer -->
+            <div th:replace="common/fragments/footer :: FooterFragment"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS for toggle behavior -->
+    <script src="/js/toggle.js"></script>
+</body>
+</html>

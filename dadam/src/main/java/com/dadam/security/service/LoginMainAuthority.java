@@ -8,33 +8,42 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
+/* 
+ * @author 신현욱
+ * @since 2025.06.18
+ * @desc 로그인 권한 부여
+ * @history
+ *   - 2025.06.18 신현욱: 최초 작성
+ */
 public class LoginMainAuthority implements UserDetails {
-    private MainUserVO userVO;
+    private ErpUserVO userVO;
 
-    public LoginMainAuthority(MainUserVO userVO) {
+    public LoginMainAuthority(ErpUserVO userVO) {
         this.userVO = userVO;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
     	List<GrantedAuthority> auth = new ArrayList<>();
+    	//권한부여시 작동
 		//auth.add(new SimpleGrantedAuthority(userVO.getEntMemberCode()));
 		return auth;
     }
 
     @Override
     public String getPassword() {
-        return userVO.getPwd(); // userVO의 비밀번호 반환
+        return userVO.getPassword(); // userVO의 비밀번호 반환
     }
 
     @Override
     public String getUsername() {
-        return userVO.getUserId(); // userVO의 아이디 반환
+        return userVO.getComId(); // userVO의 아이디 반환
     }
     
     public String getMainName() {
-    	return userVO.getUserId(); // userVO의 아이디 반환
+    	System.out.println("mainName");
+    	System.out.println(userVO.getName());
+    	return userVO.getName(); // userVO의 아이디 반환
     }
     
 

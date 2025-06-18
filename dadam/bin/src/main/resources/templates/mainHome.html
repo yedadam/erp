@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layouts/main_layout}" 
+  layout:fragment="MainContent">
+<body>
+   
+
+        <!-- Carousel Start -->
+<div class="header-carousel owl-carousel">
+    <!-- 첫 번째 슬라이드 -->
+    <div class="header-carousel-item" style="background: url('main_img/erpBack.jpeg') no-repeat center center / cover;">
+        <div class="carousel-caption">
+            <div class="container">
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-7 animated fadeInLeft">
+                        <div class="text-sm-center text-md-start">
+                            <h4 class="text-white text-uppercase fw-bold mb-4">Welcome to SmartERP</h4>
+                            <h1 class="display-1 text-white mb-4">DaDam ERP for Smarter Business</h1>
+                            <p class="mb-5 fs-5">
+                                통합 ERP 시스템으로 재고, 회계, 인사, 생산 관리를 하나의 플랫폼에서!
+                                효율적인 업무 처리와 정확한 데이터 분석으로 경영의 경쟁력을 높여보세요.
+                            </p>
+                            <div class="d-flex justify-content-center justify-content-md-start flex-shrink-0 mb-4">
+                                <a class="btn btn-light rounded-pill py-3 px-4 px-md-5 me-2" href="#">
+                                    <i class="fas fa-play-circle me-2"></i> 데모 보기
+                                </a>
+                                <a class="btn btn-dark rounded-pill py-3 px-4 px-md-5 ms-2" href="#">
+                                    자세히 보기
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 두 번째 슬라이드 -->
+    <div class="header-carousel-item" style="background: url('main_img/erpBack2.webp') no-repeat center center / cover;">
+        <div class="carousel-caption">
+            <div class="container">
+                <div class="row gy-4 gy-lg-0 gx-0 gx-lg-5 align-items-center">
+                   
+                    <div class="col-lg-7 animated fadeInRight">
+                        <div class="text-sm-center text-md-end">
+                            <h4 class="text-white text-uppercase fw-bold mb-4">Your Business, Upgraded</h4>
+                            <h1 class="display-1 text-white mb-4">Streamline Workflow with Our ERP</h1>
+                            <p class="mb-5 fs-5">
+                                반복적인 업무 자동화, 데이터 통합, 그리고 강력한 분석 기능까지.  
+                                우리 ERP는 복잡한 업무를 단순하게 만들어줍니다.
+                            </p>
+                            <div class="d-flex justify-content-center justify-content-md-end flex-shrink-0 mb-4">
+                                <a class="btn btn-light rounded-pill py-3 px-4 px-md-5 me-2" href="#">
+                                    <i class="fas fa-play-circle me-2"></i> 데모 보기
+                                </a>
+                                <a class="btn btn-dark rounded-pill py-3 px-4 px-md-5 ms-2" href="#">
+                                    자세히 보기
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Carousel End -->
+
+
+
+        <!-- ERP 기능 소개 시작 -->
+<div class="container-fluid blog py-5">
+    <div class="container py-5">
+        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style="max-width: 800px;">
+            <h4 class="text-primary">주요 기능</h4>
+            <h1 class="display-4 mb-4">우리 ERP 시스템의 핵심 모듈 소개</h1>
+            <p class="mb-0">
+                우리 ERP는 회계, 인사, 영업, 생산, 재고 관리 등 기업 운영에 꼭 필요한 다양한 기능을 제공합니다.<br>
+                각 모듈별로 체계적이고 효율적인 업무 처리를 지원하여 업무 생산성과 경영 효율을 극대화합니다.
+            </p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.2s">
+                <div class="blog-item">
+                    <div class="blog-img">
+                        <img src="main_img/blog-3.png" class="img-fluid rounded-top w-100" alt="회계 관리 이미지">
+                        <div class="blog-categiry py-2 px-4">
+                            <span>회계 관리</span>
+                        </div>
+                    </div>
+                    <div class="blog-content p-4">
+                        <a href="#" class="h4 d-inline-block mb-3">정확한 재무 관리</a>
+                        <p class="mb-3">
+                            전표 처리부터 결산 보고서 작성까지 자동화된 회계 관리 기능으로 신속하고 정확한 재무 관리를 지원합니다.
+                        </p>
+                        <a href="#" class="btn p-0">자세히 보기 <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.4s">
+                <div class="blog-item">
+                    <div class="blog-img">
+                        <img src="main_img/blog-1.png" class="img-fluid rounded-top w-100" alt="인사 관리 이미지">
+                        <div class="blog-categiry py-2 px-4">
+                            <span>인사 관리</span>
+                        </div>
+                    </div>
+                    <div class="blog-content p-4">
+                        <a href="#" class="h4 d-inline-block mb-3">효율적인 인사 업무</a>
+                        <p class="mb-3">
+                            직원 근태 관리, 급여 계산, 인사 평가 등 체계적인 인사 관리 시스템으로 인적 자원 운영을 최적화합니다.
+                        </p>
+                        <a href="#" class="btn p-0">자세히 보기 <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.6s">
+                <div class="blog-item">
+                    <div class="blog-img">
+                        <img src="main_img/blog-2.png" class="img-fluid rounded-top w-100" alt="영업 관리 이미지">
+                        <div class="blog-categiry py-2 px-4">
+                            <span>영업 관리</span>
+                        </div>
+                    </div>
+                    <div class="blog-content p-4">
+                        <a href="#" class="h4 d-inline-block mb-3">체계적인 영업 지원</a>
+                        <p class="mb-3">
+                            고객 관리, 견적서 작성, 수주 및 매출 관리를 통합하여 영업 프로세스를 효율적으로 관리합니다.
+                        </p>
+                        <a href="#" class="btn p-0">자세히 보기 <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ERP 기능 소개 끝 -->
+
+        <!-- Team Start -->
+        <div class="container-fluid team pb-5">
+            <div class="container pb-5">
+                <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style="max-width: 800px;">
+                    <h4 class="text-primary">Our Team</h4>
+                    <h1 class="display-4 mb-4">Meet Our Expert Team Members</h1>
+                    <p class="mb-0">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tenetur adipisci facilis cupiditate recusandae aperiam temporibus corporis itaque quis facere, numquam, ad culpa deserunt sint dolorem autem obcaecati, ipsam mollitia hic.
+                    </p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.2s">
+                        <div class="team-item">
+                            <div class="team-img">
+                                <img src="main_img/team-1.jpg" class="img-fluid rounded-top w-100" alt="">
+                                <div class="team-icon">
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-facebook-f"></i></a>
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-twitter"></i></a>
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-linkedin-in"></i></a>
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-0" href=""><i class="fab fa-instagram"></i></a>
+                                </div>
+                            </div>
+                            <div class="team-title p-4">
+                                <h4 class="mb-0">David James</h4>
+                                <p class="mb-0">Profession</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.4s">
+                        <div class="team-item">
+                            <div class="team-img">
+                                <img src="main_img/team-2.jpg" class="img-fluid rounded-top w-100" alt="">
+                                <div class="team-icon">
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-facebook-f"></i></a>
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-twitter"></i></a>
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-linkedin-in"></i></a>
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-0" href=""><i class="fab fa-instagram"></i></a>
+                                </div>
+                            </div>
+                            <div class="team-title p-4">
+                                <h4 class="mb-0">David James</h4>
+                                <p class="mb-0">Profession</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.6s">
+                        <div class="team-item">
+                            <div class="team-img">
+                                <img src="main_img/team-3.jpg" class="img-fluid rounded-top w-100" alt="">
+                                <div class="team-icon">
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-facebook-f"></i></a>
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-twitter"></i></a>
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-linkedin-in"></i></a>
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-0" href=""><i class="fab fa-instagram"></i></a>
+                                </div>
+                            </div>
+                            <div class="team-title p-4">
+                                <h4 class="mb-0">David James</h4>
+                                <p class="mb-0">Profession</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.8s">
+                        <div class="team-item">
+                            <div class="team-img">
+                                <img src="main_img/team-4.jpg" class="img-fluid rounded-top w-100" alt="">
+                                <div class="team-icon">
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-facebook-f"></i></a>
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-twitter"></i></a>
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-linkedin-in"></i></a>
+                                    <a class="btn btn-primary btn-sm-square rounded-pill mb-0" href=""><i class="fab fa-instagram"></i></a>
+                                </div>
+                            </div>
+                            <div class="team-title p-4">
+                                <h4 class="mb-0">David James</h4>
+                                <p class="mb-0">Profession</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Team End -->
+        
+        <!-- Testimonial End -->
+
+</body>
+</html>
