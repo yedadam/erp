@@ -1,5 +1,7 @@
 package com.dadam.acc.account.service;
 
-public interface AccountService {
+import java.util.List;
 
+public interface AccountService {
+	public List<AccountVO> accFindAll();
 }
