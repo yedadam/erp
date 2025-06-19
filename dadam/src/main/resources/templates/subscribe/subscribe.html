@@ -276,27 +276,41 @@ s
         alert('전자서명을 해주세요.');
         return;
       } 
-        // 서명 이미지 데이터 얻기 (예: 서버 전송 등)
+        // 서명 이미지 데이터 얻기
         const dataURL = signaturePad.toDataURL();
         const htmlContent = defaultConst;
         const fileName = `contract_${Date.now()}`;
-        await $.ajax({
-        	url:"/main/subsdown",
-        	type:"POST",
-        	data : JSON.stringify({
+        /* await $.ajax({
+            url: "/main/subsdown",
+            type: "POST",
+            data: JSON.stringify({
                 html: htmlContent,
                 fileName: fileName + '.html',
                 signatureImage: dataURL,
                 signatureImageName: fileName + '.png'
-              }),
-           success:function(result) {
-		   console.log(result)
-	   	}
+            }),
+            contentType: "application/json", 
+            success: function(result) {
+                console.log(result);
+            }
         })
-         .catch(err => {
-          alert('서버전송실패')
-          console.log(err)
-         })       
+        .catch(err => {
+            alert('서버전송실패');
+            console.log(err);
+        });      */
+        
+        $.ajax({
+            url: "/main/test-post",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({test: "hello"}),
+            success: function(result) {
+                console.log("POST 성공:", result);
+            },
+            error: function(xhr, status, error) {
+                console.log("POST 실패:", xhr.status, error);
+            }
+        });
     };
   });
 
@@ -311,7 +325,6 @@ s
       modal.style.display = 'none';
     }
   });
-  
 </script>
 </body>
 </html>

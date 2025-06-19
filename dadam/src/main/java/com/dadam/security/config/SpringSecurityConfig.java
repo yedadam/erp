@@ -65,8 +65,8 @@ public class SpringSecurityConfig {
                 .deleteCookies("MAINSESSIONID")
             )
             
-            // CSRF 보호 (필요에 따라 비활성화)
-//            .csrf(csrf -> csrf.disable()) // API나 개발 환경에서만 사용
+             
+            .csrf(csrf -> csrf.disable()) // API나 개발 환경에서만 사용
             
             // iframe 보안 설정
             .headers(headers -> headers
@@ -123,7 +123,7 @@ public class SpringSecurityConfig {
             )
             
             // CSRF 보호 (필요에 따라 비활성화)
-//            .csrf(csrf -> csrf.disable()) // API나 개발 환경에서만 사용
+            .csrf(csrf -> csrf.disable()) // API나 개발 환경에서만 사용
             
             // iframe 보안 설정
             .headers(headers -> headers
