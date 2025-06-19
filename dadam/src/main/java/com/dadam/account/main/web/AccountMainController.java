@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/erp")
 @Controller
 public class AccountMainController {
-	
+	//test
 	@GetMapping("/accounting")
 	public String test() {
 		return "/acc/accountMain";
