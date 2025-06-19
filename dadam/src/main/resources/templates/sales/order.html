@@ -9,20 +9,19 @@
 	<button id="excel">엑셀다운</button>
 	<div class="col-12">
 		<div id="orderGrid"></div>
-
+		<div id="ordDtlGrid"></div>
 	</div>
 
 </body>
 <script>
+	orderList();
 	//세션값 가져와 회원코드 가져오기
 	//toast ui 생성
 	const orderGrid = new tui.Grid({
 		//toastui 아이디 가져오기
 		el : document.getElementById('orderGrid'),
 		//checkbox부여
-		rowHeaders : [ 'checkbox' ],
-		//스크롤여부
-
+		rowHeaders : [ 'checkbox' ],	
 		//페이지네이션
 		pageOptions : {
 			perPage : 5,
@@ -33,90 +32,87 @@
 		// header: 필드 이름  name:객체 key값  align:정렬방법
 		// editor:true -> cell안에 등록가능
 		// width -> 크기조정
-		{
-			header : '주문번호',
-			name : 'ordCode',
-			align : 'center',
-			width : 500,
+	   {header : '주문번호',name : 'ordCode',	align : 'center',	width : 500,
 		//validaton 검증 해당 값이 안되면 해당셀은 빨간색으로 변함
-		}, {
-			header : '등록일자',
-			name : 'createdDate',
-			align : 'center',
-			editor : 'text'
-		}, {
-			header : '거래처이름',
-			name : 'vdrName',
-			align : 'center',
-			editor : 'text'
-		}, {
-			header : '거래처코드',
-			name : 'vdrCode',
-			align : 'center',
-			editor : 'text'
-		}, {
-			header : '납기일자',
-			name : 'reqDlvDate',
-			align : 'center',
-			editor : 'text'
-		}, {
-			header : '총금액',
-			name : 'totPrice',
-			align : 'center',
-			editor : 'text'
-		}, {
-			header : '여신한도',
-			name : 'creditPrice',
-			align : 'center',
-			editor : 'text'
-		}, {
-			header : '여신잔액',
-			name : 'creditBalPrice',
-			align : 'center',
-			editor : 'text'
-		}, {
-			header : '지불방식',
-			name : 'payMethod',
-			align : 'center',
-			editor : 'text',
-			fomatter : function(payMethod) {
-
+	}, {header : '등록일자',name : 'createdDate',align : 'center',	editor : 'text'	},
+	   {header : '거래처이름',name : 'vdrName',	align : 'center',	editor : 'text'	},
+       {header : '거래처코드',	name : 'vdrCode',	align : 'center',	editor : 'text'	},
+	   {header : '납기일자',name : 'reqDlvDate',	align : 'center',		editor : 'text'	}, 
+	   {header : '총금액', name : 'totPrice',align : 'center',editor : 'text'},
+	   {header : '여신한도',name : 'creditPrice',align : 'center',		editor : 'text'	},
+	   {header : '여신잔액',name : 'creditBalPrice',align : 'center',	editor : 'text'	},
+		{header : '지불방식',name : 'payMethod',align : 'center',editor : 'text',
+			formatter : function(payMethod) {
 				if (payMethod.value == 'opm01') {
-					return '외상매입금';
+					return payMethod.value='외상매입금';
 				} else if (payMethod.value == 'opm02') {
-					return '어음';
+					return payMethod.value='어음';
 				} else if (payMethod.value == 'opm03') {
-					return '계좌이체';
+					return payMethod.value='계좌이체';
 				} else {
-					return '기타';
+					return payMethod.value='기타';
 				}
 			}
-		}, {
-			header : '진행상태',
-			name : 'status',
-			align : 'center',
-			editor : 'text',
-			fomatter : function(status) {
+		},
+		 {	header : '진행상태',name : 'status',align : 'center',editor : 'text',
+			formatter : function(status) {
 				if (status.value == 'ost01') {
-					return '주문등록';
+					return status.value='주문등록';
 				} else if (status.value == 'ost02') {
-					return '출고대기';
+					return status.value='출고대기';
 				} else if (status.value == 'ost03') {
-					return '출고완료';
+					return status.value='출고완료';
 				} else {
-					return '기타';
+					return status.value='기타';
 				}
 			}
-		}, {
-			header : '할인율',
-			name : 'discount',
-			align : 'center',
-			editor : 'text',
-			fomatter : function(discount) {
+		}, {header : '할인율',	name : 'discount',align : 'center',	editor : 'text',
+			formatter : function(discount) {
 				return discount.value + '%';
 			}
 		} ],
 	});
+
+//체크박스눌렀을때 특정태그안에 하위요소 찾기
+//행  
+orderGrid.on('check',(ev)=>{
+	// console.log(ev.rowKey); //행번호 출력
+    //console.log($("#orderGrid").children('table'));  
+	// console.log($("#orderGrid").children('table')); //자식요소 선택 
+	// console.log($('#orderGrid').children
+	//('table').data("row-key",ev.rowKey).children('div'));.
+	let $row = $('#orderGrid').find(`[data-row-key="${ev.rowKey}"]`); //특정항목안에 data속성찾을때 활용 
+	console.log($row.last().find(`[data-column-name="ordCode"]`).text());
+	let ordcode=$row.last().find('div').text(); 
+	makeOrdDtList(ordcode); //dtl테이블생성함수
+})
+
+let ordDtlGrid;
+//주문번호를 받아와서 상세품목 조회후 테이블 생성하는 함수 	
+function makeOrdDtList (ordCode){	
+    ordDtlList(ordCode);//상세 품목정보 가져오기 ajax호출 
+//ordDtlGrid.resetData(result);
+	 ordDtlGrid=new tui.Grid({
+		el:document.getElementById('ordDtlGrid'),
+        rowHeaders:['checkbox'], 
+		pageOptions: {
+        perPage: 5,
+        useClient: true,
+    },
+	columns:[
+    {header: '주문상세정보',name:'ordDtlCode',align:'center',editor:'text'},
+	{header: '품목코드',name:'itemCode',align:'center',editor:'text'},
+	{header: '이름',name:'name',align:'center',editor:'text'},
+	{header: '가격',name:'price',align:'center',editor:'text'},
+	{header: '수량',name:'quantity',align:'center',editor:'text'},
+	{header: '공급가액',name:'supPrice',align:'center',editor:'text'},
+	{header: '부가세',name:'vatPrice',align:'center',editor:'text'},
+	{header: '총가격',name:'totprice',align:'center',editor:'text'},
+	{header: '할인금액',name:'discPrice',align:'center',editor:'text'},	
+	] 
+	})
+//	ordDtlGrid.resetData(result);
+}	
 	//데이터 불러오는 함수
 	function orderList() {
 		$.ajax({
@@ -128,7 +124,19 @@
 			}
 		})
 	}
+    //주문번호에 해당하는 상세정보 불러오는 함수
+	function ordDtlList(ordcode){
+		$.ajax({
+			url:"/erp/sales/ordDtlList",
+			method:"GET",
+			data: { ordCode: ordcode },
+			success : function(result) {
+			console.log('주문상세정보 불러오기', result);
+			ordDtlGrid.resetData(result);
+			}
+		})
+	} 
 
-	orderList();
+	
 </script>
 </html>
