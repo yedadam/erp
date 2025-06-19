@@ -1,3 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="mapper.acc.Account"></mapper>
+<mapper namespace="com.dadam.sales.order.mapper.OrderMapper">
+<!-- 주문리스트 조회 -->
+<select id="findOrderList" resultType="com.dadam.sales.order.service.OrdersVO">
+select o.ord_code, 
+       o.created_date,
+       v.vdr_name,
+       v.vdr_code,
+       o.req_dlv_date,
+       o.tot_price,
+       v.credit_price,
+       v.credit_bal_price,
+       o.pay_method,
+       o.status,
+       v.discount
+from orders o JOIN vender v ON  o.vdr_code=v.vdr_code
+</select>
+
+<!-- 주문건당 상세내역 보기  -->
+<select id="findOrdListByOrdNo" parameterType="String" resultType="com.dadam.sales.order.service.OrdDtlVO">
+SELECT  od.ord_dtl_code, 
+        od.item_code, 
+        i.name, 
+        i.price, 
+        od.quantity,
+        od.sup_price,
+        od.vat_price, 
+        od.tot_price,
+        od.disc_price 
+FROM ordersDetail od left JOIN item i on od.item_code=i.item_code
+                     JOIN orders o on o.ord_code=od.ord_code
+                     JOIN vender v on o.vdr_code=v.vdr_code
+WHERE od.ord_code=#{ordCode}
+</select>
+
+
+
+
+</mapper>
