@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layouts/default_layout}" 
+  layout:fragment="Content">
+
+<body>
+
+<h1>계정과목</h1>
+  <button id="excel">엑셀다운</button>
+      <input type="file" id="excelUpload" accept=".xlsx, .xls" />
+    <button id="addRow">행추가</button>
+
+
+<div class="col=12"> 
+	<div id="accGrid"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+accountList()
+
+const accGrid = new tui.Grid({
+	
+	el: document.getElementById('accGrid'),
+	editingEvent: 'click',	
+	
+	//스크롤여부
+	scrollX: false,
+	scrollY: false,
+	
+	pageOption:{
+		perPage: 10,
+		useClient:true,
+	},
+	//필드값 구성
+	columns:[
+		//header: 필드이름 name: 객체 key값 align 정렬방법
+		//editor: true -> cell안에 등록 가능
+		//width -> 크기조정   
+		//db acct_code, name, acct_type, acct_class, acct_yn,  note, created_date, com_id
+		{header: '계정코드',name:'acctCode',align:'center', width:200 },
+		{header: '대분류',name:'acctType',align:'center', width:200 },
+		{header: '중분류',name:'acctClass',align:'center', width:200 },
+		{header: '계정명',name:'name',align:'center',editor:'text', width:200 },
+		{header: '사용유무',name: 'acctYn',align:'center', 
+			formatter: ({ value }) => value === 'Y' ? '사용' : '미사용', 
+					width: 200 },
+		
+		{header: '비고',name:'note',align:'center'}
+	]
+})
+
+
+accGrid.on('click', ev => {
+	  if (ev.columnName === 'acctYn') {
+	    const rowKey = ev.rowKey;
+	    const prev = accGrid.getValue(rowKey, 'acctYn');
+	    const next = prev === 'Y' ? 'N' : 'Y';
+	    accGrid.setValue(rowKey, 'acctYn', next);
+  }
+});
+	
+
+console.log(accGrid);
+
+
+function accountList() {
+	$.ajax({
+		url: "/erp/accounting/accFindAll",
+		method:"GET",
+		success:function(result){
+			console.log(result)
+			allData = result; 
+			accGrid.resetData(allData)
+		}
+	})
+}
+
+//행추가
+$('#addRow').on('click',function(){
+  //행추가할 데이터 생성
+	let addRow = {acctType : '',
+			acctClass : '',
+			name: '',
+			note : ''
+               }		
+  //기존데이터 한칸식 뒤로 밀기
+  for(let i = accGrid.getRowCount()-1; i>=0; i--){
+    for(let j=1; j<=9; j++){
+      
+    }
+  }
+  //데이터 sampleGrid에 추가
+	accGrid.appendRow(addRow);
+  
+  //sampleGrid 재반영  
+  accGrid.refreshLayout();
+})
+
+
+
+//엑셀 다운로드.
+const topOptions = {
+			  includeHiddenColumns: true,
+			  onlySelected: false,
+			  fileName: '계정과목',
+			};
+$('#excel').on('click',function(){
+	accGrid.export('xlsx',topOptions);
+})
+
+
+//엑셀 업로드  https://docs.sheetjs.com
+
+document.getElementById('excelUpload').addEventListener('change',function(e){
+	const file = e.target.files[0];
+	const reader = new FileReader();
+	
+	reader.onload = function(event){
+		const data = event.target.result;
+		const workbook = XLSX.read(data, {type: 'binary'});
+		const sheet = workbook.Sheets[workbook.SheetNames[0]];
+		const json = XLSX.utils.sheet_to_json(sheet); //첫 행이 칼럼인 행 불러오기
+	accGrid.resetData(json) // 토스트ui 데이터 표시
+	};
+	
+	reader.readAsBinaryString(file);
+})
+
+</script>
+
+
+</body>
+</html>

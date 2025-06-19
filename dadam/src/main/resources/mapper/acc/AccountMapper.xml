@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="mapper.acc.Account">
-<!-- test -->
+<mapper namespace="com.dadam.acc.account.mapper.AccountMapper">
+
+<select id="accFindAll" resultType="com.dadam.acc.account.service.AccountVO">
+	SELECT acct_code, name, acct_type, acct_class, acct_yn,  note, created_date, com_id
+	FROM account 
+</select>
+
+
 
 </mapper>
