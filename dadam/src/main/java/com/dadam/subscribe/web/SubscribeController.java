@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.dadam.subscribe.service.SubscribeService;
 import com.dadam.subscribe.service.SubscribeVO;
@@ -80,5 +81,12 @@ public class SubscribeController {
 	        e.printStackTrace();
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("계약서 저장 실패");
 	    }
+	}
+	
+	@PostMapping("/test-post")
+	@ResponseBody
+	public String testPost(@RequestBody Map<String, String> data) {
+	    System.out.println("POST 작동됨: " + data);
+	    return "POST 테스트 성공";
 	}
 }
