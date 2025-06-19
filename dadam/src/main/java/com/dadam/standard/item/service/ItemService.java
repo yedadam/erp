@@ -1,0 +1,10 @@
+package com.dadam.standard.item.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+public interface ItemService {
+
+	public List<ItemVO> itemFindAll();
+}

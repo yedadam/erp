@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<link rel="icon" href="/main_img/icon.png" type="image/png">      
 <head th:replace="common/configs/config :: ConfigFragment"></head>
 <body id="page-top">
     <div id="wrapper">
@@ -12,7 +13,7 @@
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
+                <div class="sidebar-brand-text mx-3">dadam<sup>2</sup></div>
             </a>
 
             <!-- Divider -->
@@ -93,20 +94,26 @@
 			
 			
 			<!-- 기준정보 -->
-			<div  th:if="${activeMenu == 'standard'}">
+			<div th:if="${activeMenu == 'standard' or activeMenu == 'standard' or activeMenu == 'item' or activeMenu == 'warehouses'}">
             <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
                 기준정보
             </div>
             <li class="nav-item">
                 <a class="nav-link" href="charts.html">
                     <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Charts</span>
+                    <span>거래처</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="tables.html">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Tables</span>
+                <a class="nav-link" href="item">
+                    <i class="fas fa-fw fa-cube"></i>
+                    <span>품목</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="warehouses">
+                    <i class="fas fa-fw fa-cubes"></i>
+                    <span>창고</span>
                 </a>
             </li>
 			</div>
@@ -147,26 +154,45 @@
 			
 			
 			<!-- 재고 -->
-			<div  th:if="${activeMenu == 'inventory'}">
+			<div  th:if="${activeMenu == 'inventory' or activeMenu =='warehouse' or activeMenu == 'inbound' or activeMenu =='outbound' or activeMenu =='physical' or activeMenu =='history'}">
             <!-- Heading -->
-            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
-                재고
-            </div>
-            <!-- Nav Item - Charts -->
-            <li class="nav-item">
-                <a class="nav-link" href="charts.html">
-                    <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Charts</span>
-                </a>
-            </li>
-            <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="tables.html">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Tables</span>
-                </a>
-            </li>
+	            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
+	                재고
+	            </div>
+	            <!-- Nav Item - Charts -->
+	            <li class="nav-item">
+	                <a class="nav-link" href="warehouse">
+	                    <i class="fas fa-fw fa-cubes"></i>
+	                    <span>창고관리</span>
+	                </a>
+	            </li>
+	            <!-- Nav Item - Tables -->
+	            <li class="nav-item">
+	                <a class="nav-link" href="inbound">
+	                    <i class="fas fa-fw fa-industry"></i>
+	                    <span>입고관리</span>
+	                </a>
+	            </li>
+	            <li class="nav-item">
+	                <a class="nav-link" href="outbound">
+	                    <i class="fas fa-fw fa-truck"></i>
+	                    <span>출고관리</span>
+	                </a>
+	            </li>
+	            <li class="nav-item">
+	                <a class="nav-link" href="history">
+	                    <i class="fas fa-fw fa-table"></i>
+	                    <span>재고실사</span>
+	                </a>
+	            </li>
+	            <li class="nav-item">
+	                <a class="nav-link" href="physical">
+	                    <i class="fas fa-fw fa-history"></i>
+	                    <span>이력</span>
+	                </a>
+	            </li>
 			</div>
+			
 			
 			
 			<!-- 인사 -->

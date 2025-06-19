@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="MainHeaderFragment">
+<head>
+    <style>
+        .navbar-brand img {
+            width: 120px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .nav-item {
+            white-space: nowrap;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-rounded {
+            border-radius: 8px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .phone-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 1.2;
+        }
+
+        .phone-text .label {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .phone-text .number {
+            font-weight: 600;
+            color: #000;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 991px) {
+            .phone-text {
+                display: none;
+            }
+        }
+	.btn-outline-danger {
+	    transition: all 0.2s ease-in-out;
+		}
+	
+	.btn-outline-danger:hover {
+	    background-color: #dc3545;
+	    color: white;
+	}
+    </style>
+    <!-- 필요한 외부 CSS 예: Bootstrap, FontAwesome 링크 등은 생략 -->
+</head>
+<body>
+    <!-- Spinner -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <div class="container-fluid nav-bar px-0 px-lg-4 py-lg-2 bg-white shadow-sm">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-light p-0 align-items-center">
+
+                <!-- 로고 -->
+                <a href="#" class="navbar-brand me-4">
+                    <img src="/main_img/logo.png" alt="Logo">
+                </a>
+
+                <!-- 햄버거 버튼 -->
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars fa-lg"></span>
+                </button>
+
+                <!-- 메뉴 -->
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a href="/main" class="nav-link active">Home</a></li>
+                 
+                        <li class="nav-item"><a href="blog.html" class="nav-link">관리자페이지</a></li>
+                        <li class="nav-item"><a href="/main/subscribe" class="nav-link">결제</a></li>
+                        <li class="nav-item"><a href="blog.html" class="nav-link">이용권/캐시내역</a></li>
+               
+                    </ul>
+
+                    <!-- 우측 영역 -->
+                    <div class="d-flex align-items-center ms-lg-4 gap-4">
+                        
+                        <!-- 전화 아이콘 -->
+                        <a href="tel:+01234567890"
+                           class="btn btn-light btn-rounded btn-sm d-flex align-items-center justify-content-center me-2"
+                           style="width: 45px; height: 45px;">
+                            <i class="fa fa-phone-alt fa-lg"></i>
+                        </a>
+
+                        <!-- 전화 텍스트 -->
+                        <div class="phone-text me-3">
+                            <span class="label">Call Us</span>
+                            <span class="number">+0123 456 7890</span>
+                        </div>
+
+                        <!-- 로그인/로그아웃 -->
+                        <div class="user-info ms-2">
+                            <!-- 인증은 되어 있지만 mainName이 없거나 빈 경우 -->
+							<div sec:authorize="isAuthenticated()"
+								th:if="${#authentication.principal.mainName == null or #authentication.principal.mainName.isEmpty()}">
+								<!-- mainName이 없을 때 로그인 버튼 대신 띄우기 -->
+								<a href="/main/login"
+									class="btn btn-outline-primary rounded-pill px-3 py-1 d-flex align-items-center gap-2 fw-semibold">
+									<i class="fa fa-sign-in-alt"></i> 로그인
+								</a>
+							</div>
+
+							<!-- 인증도 되어 있고 mainName도 있을 때 환영 메시지와 로그아웃 -->
+							<div sec:authorize="isAuthenticated()"
+								th:if="${#authentication.principal.mainName != null and !#authentication.principal.mainName.isEmpty()}"
+								class="d-flex align-items-center gap-4">
+								<div
+									class="d-flex align-items-center px-3 py-1 rounded-pill bg-light shadow-sm"
+									style="white-space: nowrap;">
+									<i class="fa fa-user-circle text-primary me-2 fa-lg"></i> <span
+										class="fw-semibold text-dark"
+										th:text="${#authentication.principal.mainName} + '님 환영합니다.'"></span>
+								</div>
+								<a href="#"
+									class="btn btn-outline-danger rounded-pill px-3 py-1 d-flex align-items-center gap-2 fw-semibold"
+									onclick="document.getElementById('logout-form').submit();">
+									<i class="fa fa-sign-out-alt"></i> 로그아웃
+								</a>
+								<form id="logout-form" th:action="@{/main/logout}" method="post"
+									style="display: none;">
+									<input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+								</form>
+							</div>
+
+							<!-- 인증 안 된 경우 -->
+							<div sec:authorize="!isAuthenticated()">
+								<a href="/main/login"
+									class="btn btn-outline-primary rounded-pill px-3 py-1 d-flex align-items-center gap-2 fw-semibold">
+									<i class="fa fa-sign-in-alt"></i> 로그인
+								</a>
+							</div>
+
+						</div>
+
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>

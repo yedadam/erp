@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!-- =====================
+      이름    | 기능            |  등록일자    | 수정일자  |
+      신현욱   | toast ui 사용법 | 2025-06-18 
+-->
+<html xmlns:th="http://www.thymeleaf.org"
+ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layouts/default_layout}" 
+  layout:fragment="Content">
+<body>
+  <h1>Toastui</h1>
+  <button id="excel">엑셀다운</button>
+  <div class="col-12">
+	   <div id="sampleGrid"></div>
+   </div>
+  
+</body>
+<script>
+//세션값 가져와 회원코드 가져오기
+
+
+//toast ui 생성
+const sampleGrid = new tui.Grid({
+	//toastui 아이디 가져오기
+    el: document.getElementById('sampleGrid'),
+    //checkbox부여
+    rowHeaders: ['checkbox'],
+    //스크롤여부
+    scrollX: false,
+    scrollY: false,
+    //페이지네이션
+    pageOptions: {
+        perPage: 10,
+        useClient: true,
+    },
+    //필드값 구성
+    columns:[
+        // header: 필드 이름  name:객체 key값  align:정렬방법
+        // editor:true -> cell안에 등록가능
+        // width -> 크기조정
+        { header: '사원번호',name:'employeeId',align:'right',width:100,
+        //validaton 검증 해당 값이 안되면 해당셀은 빨간색으로 변함
+        	validation:{
+            dataType:'number',
+            min:100,
+            max:105,
+         },},
+        { header: '이름',name:'lastName',align:'center',editor:'text'},
+        { header: '부서',name:'departmentId',align:'center',editor:'text',
+        	//render -> 만약 테이블값의 style을 변경하고 싶으면 아래처럼 조정
+        	renderer:{
+          	  styles:{
+        		  color:(props) => props.value == '90'?  'rgba(252, 240, 3)' 
+        		  : props.value == '60'?  'rgba(252, 3, 45)' 	  
+        		  : props.value == '100'?  'rgba(3, 252, 65)':'',
+        			fontSize :'14px',
+              	    fontFamily: 'Malgun Gothic',
+              	    fontWeight: 'bold'
+        	  }
+          },
+          //formatter -> 실질적 cell안에 값을 포맷하여 보여주기만은 formmater 내용으로 보여준다 실질적으로 값을 보낼땐 cell안에 실질적 데이터를 전송한다.
+          formatter: function(price){
+              return price.value+'부서';
+                  },                   
+        },
+          { header: '직무',name:'jobId',align:'right',editor:'text'},
+    ],
+    		
+    
+});
+
+//ajax -> toastUi에 넣기
+function sampleList(){
+	$.ajax({
+		url:"/erp/sample/listAll",
+		method:"GET"
+	   ,success:function(result) {
+		   //grid값 다시 rendering
+		   console.log(result)
+		   sampleGrid.resetData(result)
+	   }
+	})
+}
+sampleList();
+//컬럼숨기기
+sampleGrid.hideColumn("jobId");
+
+//엑셀 다운로드.
+const topOptions = {
+			  includeHiddenColumns: true,
+			  onlySelected: false,
+			  fileName: '주문 정보 조회',
+			};
+$('#excel').on('click',function(){
+	sampleGrid.export('xlsx',topOptions);
+})
+</script>
+</html>

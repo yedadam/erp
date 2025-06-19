@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dimension by HTML5 UP</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link th:href="@{/css/main.css}" rel="stylesheet" />
+</head>
+<body class="is-preload">
+
+    <!-- Wrapper -->
+    <div id="wrapper">
+
+        <!-- Header -->
+        <header id="header">
+            <div class="logo">
+                <span class="icon fa-gem"></span>
+            </div>
+            <div class="content">
+                <div class="inner">
+                    <h1>Dimension</h1>
+                    <div th:if="${param.error}">
+                        <h3 style="color: red;">아이디 또는 비밀번호가 일치하지 않습니다.</h3>
+                    </div>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li id="login1"><a href="#contact">로그인</a></li>
+                    <li><a href="#">돌아가기</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Main -->
+        <div id="main">
+            <!-- Contact -->
+            <article id="contact">
+                <h2 class="major">Login</h2>
+                <form method="post" th:action="@{/account/login}">
+                    <div class="fields">
+                        <div class="field">
+                            <label for="uersername">아이디</label>
+                            <input type="text" name="username" id="username" autocomplete="username" required autofocus />
+                        </div>
+                        <div class="field">
+                            <label for="password">비밀번호</label>
+                            <input type="password" name="password" id="password" autocomplete="current-password" required />
+                        </div>
+                    </div>
+                    <ul class="actions">
+                        <li><input type="submit" value="Login" class="primary" /></li>
+                    </ul>
+                </form>
+            </article>
+        </div>
+
+        <!-- Footer -->
+        <footer id="footer">
+            <p class="copyright">
+                &copy; Untitled. Design: <a href="#">erp</a>.
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- BG -->
+    <div id="bg"></div>
+
+    <!-- Scripts -->
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/browser.min.js}"></script>
+    <script th:src="@{/js/breakpoints.min.js}"></script>
+    <script th:src="@{/js/util.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // Q 키 입력 시 이동
+            $(document).on("keyup", function(event) {
+                if (event.key === '`' || event.keyCode === 192) { 
+                	
+                	window.location.href = "http://localhost:8080/account/login#contact"; 
+                	$('#username').focus();
+                }
+            });
+            
+        });
+    </script>
+</body>
+</html>
