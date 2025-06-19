@@ -47,7 +47,7 @@ public class SubscribeController {
 	//html다운로드
 	@PostMapping("/subsdown")
 	public ResponseEntity<String> subsDown(@RequestBody Map<String,String> payload) {
-		System.out.println("작동됨");
+		
 		String html = payload.get("html");
 	    String fileName = payload.get("fileName");
 	    String signatureImage = payload.get("signatureImage"); // base64 PNG
@@ -63,7 +63,7 @@ public class SubscribeController {
 	            Files.write(imagePath, imageBytes);
 
 	            // HTML 안에 이미지 삽입 (static 경로로 접근 가능)
-	            String imageTag = "<img src=\"/signatures/" + signatureImageName + "\" alt=\"전자서명\" style=\"width:200px;height:auto;\">";
+	            String imageTag = "<img src=\"/signatures/" + signatureImageName + "style=\"width:200px;height:auto;\">";
 	            html = html.replace("</div></div></div>", imageTag + "</div></div></div>"); // 계약서 서명 영역 끝에 삽입
 	        }
 	    } catch (IOException e) {
@@ -83,10 +83,8 @@ public class SubscribeController {
 	    }
 	}
 	
-	@PostMapping("/test-post")
-	@ResponseBody
-	public String testPost(@RequestBody Map<String, String> data) {
-	    System.out.println("POST 작동됨: " + data);
-	    return "POST 테스트 성공";
+	@GetMapping("/test-post")
+	public String testPost() {
+	    return "/contracts/contract_1750334247555";
 	}
 }
