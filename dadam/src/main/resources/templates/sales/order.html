@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
+<body>
+	<h1>Toastui</h1>
+	<button id="excel">엑셀다운</button>
+	<div class="col-12">
+		<div id="orderGrid"></div>
+
+	</div>
+
+</body>
+<script>
+	//세션값 가져와 회원코드 가져오기
+	//toast ui 생성
+	const orderGrid = new tui.Grid({
+		//toastui 아이디 가져오기
+		el : document.getElementById('orderGrid'),
+		//checkbox부여
+		rowHeaders : [ 'checkbox' ],
+		//스크롤여부
+
+		//페이지네이션
+		pageOptions : {
+			perPage : 5,
+			useClient : true,
+		},
+		//필드값 구성
+		columns : [
+		// header: 필드 이름  name:객체 key값  align:정렬방법
+		// editor:true -> cell안에 등록가능
+		// width -> 크기조정
+		{
+			header : '주문번호',
+			name : 'ordCode',
+			align : 'center',
+			width : 500,
+		//validaton 검증 해당 값이 안되면 해당셀은 빨간색으로 변함
+		}, {
+			header : '등록일자',
+			name : 'createdDate',
+			align : 'center',
+			editor : 'text'
+		}, {
+			header : '거래처이름',
+			name : 'vdrName',
+			align : 'center',
+			editor : 'text'
+		}, {
+			header : '거래처코드',
+			name : 'vdrCode',
+			align : 'center',
+			editor : 'text'
+		}, {
+			header : '납기일자',
+			name : 'reqDlvDate',
+			align : 'center',
+			editor : 'text'
+		}, {
+			header : '총금액',
+			name : 'totPrice',
+			align : 'center',
+			editor : 'text'
+		}, {
+			header : '여신한도',
+			name : 'creditPrice',
+			align : 'center',
+			editor : 'text'
+		}, {
+			header : '여신잔액',
+			name : 'creditBalPrice',
+			align : 'center',
+			editor : 'text'
+		}, {
+			header : '지불방식',
+			name : 'payMethod',
+			align : 'center',
+			editor : 'text',
+			fomatter : function(payMethod) {
+
+				if (payMethod.value == 'opm01') {
+					return '외상매입금';
+				} else if (payMethod.value == 'opm02') {
+					return '어음';
+				} else if (payMethod.value == 'opm03') {
+					return '계좌이체';
+				} else {
+					return '기타';
+				}
+			}
+		}, {
+			header : '진행상태',
+			name : 'status',
+			align : 'center',
+			editor : 'text',
+			fomatter : function(status) {
+				if (status.value == 'ost01') {
+					return '주문등록';
+				} else if (status.value == 'ost02') {
+					return '출고대기';
+				} else if (status.value == 'ost03') {
+					return '출고완료';
+				} else {
+					return '기타';
+				}
+			}
+		}, {
+			header : '할인율',
+			name : 'discount',
+			align : 'center',
+			editor : 'text',
+			fomatter : function(discount) {
+				return discount.value + '%';
+			}
+		} ],
+	});
+	//데이터 불러오는 함수
+	function orderList() {
+		$.ajax({
+			url : "/erp/sales/orderList",
+			method : "GET",
+			success : function(result) {
+				console.log('주문정보 불러오기', result);
+				orderGrid.resetData(result);
+			}
+		})
+	}
+
+	orderList();
+</script>
+</html>
