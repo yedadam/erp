@@ -10,5 +10,6 @@ public class HrMainController {
 	@GetMapping("/hr")
 	public String test() {
 		return "/hr/hrMain";
-	}
+
+  }
 }
