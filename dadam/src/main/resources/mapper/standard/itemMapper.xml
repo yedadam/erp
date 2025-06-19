@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.standard.item.mapper.ItemMapper">
-	<select id="itemFindAll" resultType="com.dadam.standard.item.service.ItemVO">
+	<select id="itemFindAll" resultType="ItemVO">
 		SELECT item_code,
 		       name,
 		       type,

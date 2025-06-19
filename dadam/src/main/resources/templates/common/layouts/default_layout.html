@@ -94,7 +94,7 @@
 			
 			
 			<!-- 기준정보 -->
-			<div th:if="${activeMenu == 'standard' or activeMenu == 'standard' or activeMenu == 'item' or activeMenu == 'warehouses'}">
+			<div th:if="${activeMenu == 'standard'}">
             <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
                 기준정보
             </div>
@@ -154,39 +154,39 @@
 			
 			
 			<!-- 재고 -->
-			<div  th:if="${activeMenu == 'inventory' or activeMenu =='warehouse' or activeMenu == 'inbound' or activeMenu =='outbound' or activeMenu =='physical' or activeMenu =='history'}">
+			<div  th:if="${activeMenu == 'inventory'}">
             <!-- Heading -->
 	            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
 	                재고
 	            </div>
 	            <!-- Nav Item - Charts -->
 	            <li class="nav-item">
-	                <a class="nav-link" href="warehouse">
+	                <a class="nav-link" href="/erp/inventory/warehouse">
 	                    <i class="fas fa-fw fa-cubes"></i>
 	                    <span>창고관리</span>
 	                </a>
 	            </li>
 	            <!-- Nav Item - Tables -->
 	            <li class="nav-item">
-	                <a class="nav-link" href="inbound">
+	                <a class="nav-link" href="/erp/inventory/inbound">
 	                    <i class="fas fa-fw fa-industry"></i>
 	                    <span>입고관리</span>
 	                </a>
 	            </li>
 	            <li class="nav-item">
-	                <a class="nav-link" href="outbound">
+	                <a class="nav-link" href="/erp/inventory/outbound">
 	                    <i class="fas fa-fw fa-truck"></i>
 	                    <span>출고관리</span>
 	                </a>
 	            </li>
 	            <li class="nav-item">
-	                <a class="nav-link" href="history">
+	                <a class="nav-link" href="/erp/inventory/history">
 	                    <i class="fas fa-fw fa-table"></i>
 	                    <span>재고실사</span>
 	                </a>
 	            </li>
 	            <li class="nav-item">
-	                <a class="nav-link" href="physical">
+	                <a class="nav-link" href="/erp/inventory/physical">
 	                    <i class="fas fa-fw fa-history"></i>
 	                    <span>이력</span>
 	                </a>

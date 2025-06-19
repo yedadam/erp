@@ -3,6 +3,76 @@
  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{common/layouts/default_layout}" 
   layout:fragment="Content">
-<h1>inbound</h1>
+<div class="row">
+	<h1>inbound</h1>
+	<div class="d-grid gap-2 d-md-block m-2">
+	  <button class="btn btn-secondary" type="button">입고</button>
+	  <button class="btn btn-secondary" type="button">생산입고</button>
+	</div>
+	<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+	  <button class="btn btn-primary" type="button">저장</button>
+	</div>
+  	<div class="col-12">
+	   <div id="Grids"></div>
+   	</div>
+</div>
 </body>
+<script>
+const purcharsegrid = new tui.Grid({
+	//toastui 아이디 가져오기
+    el: document.getElementById('Grids'),
+    //checkbox부여
+    rowHeaders: ['checkbox'],
+    //스크롤여부
+    scrollX: false,
+    scrollY: false,
+    //페이지네이션
+    pageOptions: {
+        perPage: 5,
+        useClient: true,
+    },
+    //필드값 구성
+    columns:[
+        // header: 필드 이름  name:객체 key값  align:정렬방법
+        // editor:true -> cell안에 등록가능
+        // width -> 크기조정
+        { header: '발주서코드',name:'purOrdCode', align:'center'},
+        { header: '발주서상세코드',name:'purOrdDtlCode',align:'center'},
+        { header: '제품명',name:'itemCode',align:'center',editor:'text'},
+        { header: '수량',name:'quantity',align:'center',editor:'text'},
+        { header: '상태',name:'status',align:'center',editor:'text',
+        	formatter: function(status){
+        		if(status.value == 'PDS-01'){
+        			return status.value = '입고대기'
+        		}else if(status.value == 'PDS-02'){
+        			return status.value = '부분입고'
+        		}else{
+        			return status.value = '입고완료'
+        		}
+        	},
+        	filter: 'select'
+        	},
+        { header: '입고예정일자',name:'expDlvDate',align:'center',editor:'text'},
+        { header: '입고일자',name:'reccvDate',align:'center',editor:'text'},
+        { header: '담당자',name:'empId',align:'center',editor:'text'},
+        { header: '거래처',name:'vdrCode',align:'center',editor:'text'},
+    ],
+    		
+    
+});
+
+//ajax -> toastUi에 넣기
+function purchaseList(){
+	$.ajax({
+		url:"/erp/inventory/purchaseList",
+		method:"GET"
+	   ,success:function(result) {
+		   //grid값 다시 rendering
+		   console.log(result)
+		   purcharsegrid.resetData(result)
+	   }
+	})
+}
+purchaseList();
+</script>
 </html>
