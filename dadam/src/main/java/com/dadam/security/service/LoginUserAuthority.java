@@ -25,7 +25,7 @@ public class LoginUserAuthority implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
     	List<GrantedAuthority> auth = new ArrayList<>();
-		//auth.add(new SimpleGrantedAuthority(userVO.getEntMemberCode()));
+		auth.add(new SimpleGrantedAuthority(userVO.getEmpName()));
 		return auth;
     }
 

@@ -1,3 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="mapper.acc.Account"></mapper>
+<mapper namespace="com.dadam.subscribe.mapper.SubscribeMapper">
+
+<select id="menuList" resultType="SubscribeVO">
+	SELECT option_code,
+	       option_name,
+	       price,
+	       discount,
+	       content,
+	       content_detail
+	  FROM erpSubsOption	
+</select>
+	
+</mapper>

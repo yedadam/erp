@@ -18,7 +18,7 @@
    </div>
   
 </body>
-<script>
+<script th:inline="javascript">
 //세션값 가져와 회원코드 가져오기
 
 
@@ -111,7 +111,7 @@ $('#addRow').on('click',function(){
                }		
   
   //데이터 sampleGrid 첫줄에 추가
-	sampleGrid.prependRow(addRow);
+  sampleGrid.prependRow(addRow);
   
   //데이터 samplGrid 맨 뒷줄에 추가
   sampleGrid.appendRow(addRow);
@@ -122,7 +122,6 @@ $('#addRow').on('click',function(){
 
 //행삭제
 $('#deleteRow').on('click',function(){
-  alert('e')
 	//체크된행을 가져오는 함수	
 	const checkedRows = sampleGrid.getCheckedRows();
 	console.log(checkedRows)
@@ -132,13 +131,13 @@ $('#deleteRow').on('click',function(){
   //행삭제
 	checkedRows.forEach(item => {
     console.log(item)
-    sampleGrid.removeRow(item.rowKey)
+    sampleGrid.removeRow(wwitem.rowKey)
   })
 })
 
 //모든 수정된행 보기
 $('#saveBtn').on('click',function(){
-	alert('e')
+	//움직임감지
 	const changes = sampleGrid.getModifiedRows();
 	//생성된행
 	console.log(changes.createdRows);
@@ -147,5 +146,9 @@ $('#saveBtn').on('click',function(){
 	//삭제된행
 	console.log(changes.deletedRows);
 })
+//세션정보가져오는법
+let userID = [[${#authentication.principal.username}]];
+console.log(userID);
+
 </script>
 </html>
