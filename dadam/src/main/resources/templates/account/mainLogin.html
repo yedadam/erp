@@ -37,7 +37,7 @@
             <!-- Contact -->
             <article id="contact">
                 <h2 class="major">Login</h2>
-                <form method="post" th:action="@{/main/login}">
+                <form method="post" th:action="@{/main/login}" id="loginForm">
                     <div class="fields">
                         <div class="field">
                             <label for="uersername">아이디</label>
@@ -46,7 +46,7 @@
                         </div>
                         <div class="field">
                             <label for="password">비밀번호</label>
-                            <input type="password" name="pwd" id="pwd" autocomplete="current-password" required />
+                            <input type="password" name="pwd" id="pwd" autocomplete="current-password" onkeypress="enterLogin(event)" required />
                         </div>
                     </div>
                     <ul class="actions">
@@ -86,6 +86,14 @@
             });
             
         });
+        
+      //엔터시 발동
+        function enterLogin(e){
+     	   if(e.keyCode == 13){
+     			let form = document.querySelector('#loginForm')
+     	 		form.submit();
+     	   }
+        }
     </script>
 </body>
 </html>
