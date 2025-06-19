@@ -16,65 +16,35 @@
   </div>
 
   <div class="row g-4 text-center">
-    <div class="col-md-4">
+  
+    <div class="col-md-4" th:each="item : ${list}">
       <div class="plan-card h-100">
-        <h4>Lite</h4>
-        <p class="text-muted">인사 + 회계</p>
+        <h4>[[${item.optionName}]]</h4>
+        <p class="text-muted">[[${item.content}]]</p>
         <p>구독 기간</p>
-        <select class="form-select text-center during"><option>30일</option></select>
+        <select class="form-select text-center during">
+      		  <option value='30'>30일</option>
+      		  <option value='60'>60일</option>
+      		  <option value='180'>180일</option>
+        </select>
         <p>사원수</p>
-        <select class="form-select text-center howMany"><option>50명</option></select>
+        <select class="form-select text-center howMany">
+       		 <option value='50'>50명</option>
+       		 <option value='100'>100명</option>
+       		 <option value='9999999999'>무제한</option>
+        </select>
         <p>구독타입</p>
         <select class="form-select text-center subsType">
-          <option>-선택-</option>
-          <option>정기구독</option>
-          <option>기간구독</option>
+          <option value=''>-선택-</option>
+          <option value='sb01'>정기구독</option>
+          <option value='sb02'>기간구독</option>
         </select>
-        <p class="desc">기본적인 기능만 제공되는 최소형 요금제입니다.</p>
-        <p class="price">60,000 <span style="font-size: 0.8rem;">원</span></p>
+        <p class="desc">[[${item.contentDetail}]]</p>
+        <p class="price" th:text="${#numbers.formatInteger(item.price,3,'COMMA')+'원'}"> </p>
         <button class="pay-btn">결제하기</button>
       </div>
     </div>
-
-    <div class="col-md-4">
-      <div class="plan-card h-100">
-        <h4>Standard</h4>
-        <p class="text-muted">재고 + 영업</p>
-        <p>구독 기간</p>
-        <select class="form-select text-center during"><option>30일</option></select>
-        <p>사원수</p>
-        <select class="form-select text-center howMany"><option>50명</option></select>
-        <p>구독타입</p>
-        <select class="form-select text-center subsType">
-          <option>-선택-</option>
-          <option>정기구독</option>
-          <option>기간구독</option>
-        </select>
-        <p class="desc">중간 규모 기업을 위한 재고/영업 포함 요금제</p>
-        <p class="price">90,000 <span style="font-size: 0.8rem;">원</span></p>
-        <button class="pay-btn">결제하기</button>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="plan-card h-100">
-        <h4>Premium</h4>
-        <p class="text-muted">모든 기능 포함</p>
-        <p>구독 기간</p>
-        <select class="form-select text-center during"><option>30일</option></select>
-        <p>사원수</p>
-        <select class="form-select text-center howMany"><option>50명</option></select>
-        <p>구독타입</p>
-        <select class="form-select text-center subsType">
-          <option>-선택-</option>
-          <option>정기구독</option>
-          <option>기간구독</option>
-        </select>
-        <p class="desc">ERP의 모든 기능을 자유롭게 사용할 수 있습니다.</p>
-        <p class="price">120,000 <span style="font-size: 0.8rem;">원</span></p>
-        <button class="pay-btn">결제하기</button>
-      </div>
-    </div>
+s
   </div>
 </div>
 
@@ -99,8 +69,59 @@
   let closeBtn = modal.querySelector('.modal-close');
   //결제진행 버튼
   let confirmBtn = document.getElementById('confirmPaymentBtn');
-  //
+  //계약서내용
   let contractContent = document.getElementById('contractContent');
+  
+  //option 기간 바뀔때마다 가격 렌더링
+  $('.during').on('change',function(){
+	  const index = $('.during').index(this);
+	  resultPrice(index)
+  })
+  //option 인원 바뀔때마다 가격 렌더링
+  $('.howMany').on('change',function(){
+	  const index = $('.howMany').index(this);
+	  resultPrice(index)
+  })
+  
+  //가격값 렌더링
+  function resultPrice(index){
+	//바뀐값에 index값 가져오기	
+	  
+	  //기간
+	  let during = $('.during').eq(index).val();
+	  
+	  //사원수
+	  let quantity = $('.howMany').eq(index).val();
+	  
+	  //가격에 맞게 렌더링
+	  if(during.trim()=='30' && quantity.trim()=='50'){
+		  $('.price').eq(index).text('30,000원')
+	  }else if(during.trim()=='60' && quantity.trim()=='50'){
+		  $('.price').eq(index).text('50,000원')
+	  }else if(during.trim()=='180' && quantity.trim()=='50'){
+		  $('.price').eq(index).text('70,000원')
+	  }else if(during.trim()=='60' && quantity.trim()=='100'){
+		  $('.price').eq(index).text('60,000원')
+	  }else if(during.trim()=='60' && quantity.trim()=='9999999999'){
+		  $('.price').eq(index).text('70,000원')
+	  }else if(during.trim()=='180' && quantity.trim()=='100'){
+		  $('.price').eq(index).text('80,000원')
+	  }else if(during.trim()=='180' && quantity.trim()=='9999999999'){
+		  $('.price').eq(index).text('90,000원')
+	  }else if(during.trim()=='30' && quantity.trim()=='9999999999'){
+		  $('.price').eq(index).text('50,000원')
+	  }else if(during.trim()=='30' && quantity.trim()=='100'){
+		  $('.price').eq(index).text('40,000원')
+	  }
+  }
+
+  //가격 넘버 포맷
+  function numberFormat(number){
+	  let numbers = number.replaceAll(",","");
+	  let parseNumbers = numbers.replaceAll("원","")
+	  return Number(parseNumbers);
+  }
+  
   
   //계약서 header
   let constractHeader = `
@@ -215,15 +236,22 @@
 
   //계약서 모달 버튼
   $('.pay-btn').on('click', function () {
+	 
 	//해당버튼의 인덱스번호 갖고오기
     const index = $('.pay-btn').index(this);
 	//각 클래스 인덱스의 텍스트값 가져오기
     let type = $('.plan-card h4').eq(index).text();
     let pay = $('.plan-card .price').eq(index).text();
-    let during = $('.plan-card .during').eq(index).val();
-    let subsType = $('.plan-card .subsType').eq(index).val();
-    let howMany = $('.plan-card .howMany').eq(index).val();
+    let during = $('.plan-card .during').eq(index).val()+'일';
+    let subsType = $('.plan-card .subsType').eq(index).val()=='sb01'?'정기구독':'기간구독';
+    let howMany = $('.plan-card .howMany').eq(index).val()+'명';
     let useFunc = $('.plan-card .desc').eq(index).text();
+    
+    if($('.plan-card .subsType').eq(index).val()==''){
+    	alert('리턴')
+    	return;
+    }
+    
     
 	//계약서 렌더링 해서 innerHTML안에 값넣기
     contractContent.innerHTML = constFunc(type, pay, during, subsType, howMany, useFunc);
@@ -243,16 +271,32 @@
     };
 
     // confirmBtn 클릭 시 서명 확인 예시
-    confirmBtn.onclick = () => {
+    confirmBtn.onclick = async() => {
       if (signaturePad.isEmpty()) {
         alert('전자서명을 해주세요.');
-      } else {
+        return;
+      } 
         // 서명 이미지 데이터 얻기 (예: 서버 전송 등)
         const dataURL = signaturePad.toDataURL();
-        console.log('서명 이미지:', dataURL);
-        alert('결제가 진행됩니다.');
-        modal.style.display = 'none';
-      }
+        const htmlContent = defaultConst;
+        const fileName = `contract_${Date.now()}`;
+        await $.ajax({
+        	url:"/main/subsdown",
+        	type:"POST",
+        	data : JSON.stringify({
+                html: htmlContent,
+                fileName: fileName + '.html',
+                signatureImage: dataURL,
+                signatureImageName: fileName + '.png'
+              }),
+           success:function(result) {
+		   console.log(result)
+	   	}
+        })
+         .catch(err => {
+          alert('서버전송실패')
+          console.log(err)
+         })       
     };
   });
 
@@ -267,6 +311,7 @@
       modal.style.display = 'none';
     }
   });
+  
 </script>
 </body>
 </html>
