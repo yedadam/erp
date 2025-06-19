@@ -4,12 +4,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@RequestMapping("/erp")
+@RequestMapping("/erp/inventory")
 @Controller
-public class InventoryWarehouseFormController {
+public class InventoryInboundFormController {
 	
-	@GetMapping("/warehouse")
+	@GetMapping("/inbound")
 	public String warehouse() {
-		return "/inventory/warehouse";
+		return "/inventory/inbound";
 	}
 }
