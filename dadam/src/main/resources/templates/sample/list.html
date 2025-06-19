@@ -12,6 +12,7 @@
   <button id="excel">엑셀다운</button>
   <button id="addRow">행추가</button>
   <button id="deleteRow">행삭제</button>
+  <button id="saveBtn">모든변경사항보기</button>
   <div class="col-12">
 	   <div id="sampleGrid"></div>
    </div>
@@ -108,31 +109,43 @@ $('#addRow').on('click',function(){
                 jobId: '',
                 departmentId : ''
                }		
-  //기존데이터 한칸식 뒤로 밀기
-  for(let i = sampleGrid.getRowCount()-1; i>=0; i--){
-    for(let j=1; j<=9; j++){
-      
-    }
-  }
-  //데이터 sampleGrid에 추가
-	sampleGrid.appendRow(addRow);
   
+  //데이터 sampleGrid 첫줄에 추가
+	sampleGrid.prependRow(addRow);
+  
+  //데이터 samplGrid 맨 뒷줄에 추가
+  sampleGrid.appendRow(addRow);
+
   //sampleGrid 재반영  
   sampleGrid.refreshLayout();
 })
 
 //행삭제
 $('#deleteRow').on('click',function(){
+  alert('e')
 	//체크된행을 가져오는 함수	
 	const checkedRows = sampleGrid.getCheckedRows();
 	console.log(checkedRows)
 	//행의 총 갯수
 	let count = sampleGrid.getRowCount()
 	console.log(count)
-  //행
+  //행삭제
 	checkedRows.forEach(item => {
-
+    console.log(item)
+    sampleGrid.removeRow(item.rowKey)
   })
+})
+
+//모든 수정된행 보기
+$('#saveBtn').on('click',function(){
+	alert('e')
+	const changes = sampleGrid.getModifiedRows();
+	//생성된행
+	console.log(changes.createdRows);
+	//수정된행
+	console.log(changes.updatedRows);
+	//삭제된행
+	console.log(changes.deletedRows);
 })
 </script>
 </html>
