@@ -20,7 +20,10 @@ public class InboundServiceImpl implements InboundService{
 		List<PurchaseOrderVO> list = inboundMapper.inboundPurchaseFindAll();
 		return list;
 	}
-	
-	
+
+	@Override
+	public void purchaseInbound(PurchaseOrderVO purchaseVO) {
+		inboundMapper.purchaseInbound(purchaseVO);
+	}
 	
 }

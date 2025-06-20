@@ -147,8 +147,8 @@ $('#saveBtn').on('click',function(){
 	console.log(changes.deletedRows);
 })
 //세션정보가져오는법
-let userID = [[${#authentication.principal.username}]];
-console.log(userID);
+let userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.username : ''}]];
+//console.log(userID);
 
 </script>
 </html>

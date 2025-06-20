@@ -10,12 +10,11 @@
 		  <button class="btn btn-secondary" type="button">생산입고</button>
 		  <button class="btn btn-secondary" type="button">발주의뢰</button>
 		</div>
-		
+	
 	<div class="row card">
-		<div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3 p-4">
-		  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inboundModal" type="button">입고처리</button>
+		<div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3 p-4"> 
+		  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inboundModal" id="inModal" type="button">입고처리</button>
 		</div>
-		
 	  	<div class="col-12">
 		   <div id="Grids"></div>
 	   	</div>
@@ -31,21 +30,15 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="row card  w-75 mb-3">
+        <div class="row card">
         	<div class="form-floating mb-3">
 			  <input type="date" class="form-control" id="floatingInput" placeholder="name@example.com">
 			  <label for="floatingInput">일자</label>
 			</div>
         </div>
-        <div class="row card">
-        <table>
-        	w
-        </table>
-        	<ul>
-        		<li>내용을 넣어볼까나</li>
-        		<li>내용을 넣어볼까나</li>
-        		<li>내용을 넣어볼까나</li>
-        	</ul>
+        <div class="container-fluid">
+        <div id="modal">
+        </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -56,7 +49,19 @@
   </div>
 </div>
 </body>
-<script>
+<script th:inline="javascript">
+const inboundGrid = new tui.Grid({
+	el: document.getElementById('modal'),
+	rowHeaders: ['rowNum'],
+    columns:[
+    	{header: '발주상세코드', name: 'purOrdDtlCode', align:'center'},
+    	{header: '품목명', name: 'itemCode', align:'center'},
+    	{header: '수량', name: 'quantity', align:'center', editer: 'number'},
+    	{header: '구분', name: 'status', align:'center', editer: 'text'},
+    	{header: '비고', name: 'note', align:'center', editer: 'text'}
+    	]
+})
+
 const purcharsegrid = new tui.Grid({
 	//toastui 아이디 가져오기
     el: document.getElementById('Grids'),
@@ -117,14 +122,38 @@ function purchaseList(){
 	   }
 	})
 }
+let data = {};
+purcharsegrid.on('check', () => {
+  data = purcharsegrid.getCheckedRows();
+  console.log(data);
+  /* inboundGrid.appendRow(data); */
+  inboundGrid.resetData(data);
+  inboundGrid.refreshLayout();
+})
+
+ // 모달안에서 그리드부를떄 참고.
+$('#inboundModal').on('shown.bs.modal',function(e){
+	inboundGrid.refreshLayout();
+})
+
+//모든 수정된행 보기
+/* function check(){
+	//움직임감지
+	const changes = sampleGrid.getModifiedRows();
+	//생성된행
+	console.log(changes.createdRows);
+	//수정된행
+	console.log(changes.updatedRows);
+	//삭제된행
+	console.log(changes.deletedRows);
+} */
 // 발주서 입고 처리
-function purchaseRegister(){
+/* function purchaseRegister(){
 	$.ajax({
 		url:"",
 		method:"POST",
 		success: alert('등록성공')
 	})
-}
-$('.tui-grid-table-container')
+} */
 </script>
 </html>
