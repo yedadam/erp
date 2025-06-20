@@ -7,6 +7,6 @@
 		       type,
 		       price
 			   FROM item
-		WHERE com_id = 'test'
+		WHERE com_id = 'com-101'
 	</select>
 </mapper>
