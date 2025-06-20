@@ -83,8 +83,11 @@ public class SubscribeController {
 	    }
 	}
 	
+	//테스트내용
 	@GetMapping("/test-post")
 	public String testPost() {
 	    return "/contracts/contract_1750334247555";
 	}
+	
+	
 }

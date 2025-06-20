@@ -11,5 +11,32 @@
 	       content_detail
 	  FROM erpSubsOption	
 </select>
+
+<insert id="subsAdd">
+ <selectKey resultType="string" keyProperty="subsCode" order="BEFORE">
+        SELECT 'subs_' || (NVL(MAX(TO_NUMBER(SUBSTR(subs_code,3))),100)+1)
+FROM erpSubs
+    </selectKey>
+   INSERT INTO erpsubs(subs_code,
+                       subs_type,
+                       subs_expiration,
+                       subs_start,
+                       subs_term,
+                       subs_price,
+                       subs_quantity,
+                       subs_state,
+                       option_code,
+                       billing_key)
+       VALUES(#{subsCode},
+              #{subsType},
+              sysdate+#{subsTerm},
+              sysdate,
+              #{subsTerm},
+              #{subsPrice},
+              #{subsQuantity},
+              'C02',
+              #{optionCode},
+              #{billingKey})
+</insert>
 	
 </mapper>
