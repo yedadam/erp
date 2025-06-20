@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.inventory.inbound.mapper.InboundMapper">
-<!-- 발주서 조회 -->
+
+<!-- 주문입고를 위한 발주서 조회 -->
 	<select id="inboundPurchaseFindAll" resultType="PurchaseOrderVO">
-	SELECT 
-		pod.pur_ord_code,
-        pod.pur_ord_dtl_code,
-        getitemName(pod.item_code) item_code,
-        pod.quantity,
-        pod.status,
-        pod.reccv_date,
-        po.exp_dlv_date,
-        getEmpName(po.emp_id) emp_id,
-        getvdrName(po.vdr_code) vdr_code
-FROM purchaseOrderDetail pod join purchaseOrder po
-                                    on(pod.pur_ord_code=po.pur_ord_code)
-WHERE pod.com_id = 'com-101'
+			SELECT 
+				pod.pur_ord_code,
+		        pod.pur_ord_dtl_code,
+		        getitemName(pod.item_code) item_code,
+		        pod.quantity,
+		        pod.status,
+		        pod.reccv_date,
+		        po.exp_dlv_date,
+		        getEmpName(po.emp_id) emp_id,
+		        getvdrName(po.vdr_code) vdr_code
+		FROM purchaseOrderDetail pod join purchaseOrder po
+		                                    on(pod.pur_ord_code=po.pur_ord_code)
+		WHERE pod.com_id = 'com-101'
 	</select>
 	
-	<!-- 입고 처리
+	<!-- 입고 처리 -->
 	<insert id="insertInbound" parameterType="InboundVO">
-		INSERT INTO inbound()
-		VALUES()
+		INSERT INTO inbound(in_code, in_wh, out_wh, emp_id, created_date, note, com_id)
+		VALUES #{inCode}, #{inWh}, #{outWh}, #{empId}, #{createdDate}, #{note}, 'com-101'
 	</insert>
 	
-	입고 수정
+	<!-- 입고 수정
 	<update id="updateInbound" parameterType="InboundVO">
 		UPDATE inbound
 		SET 

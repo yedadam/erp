@@ -2,6 +2,10 @@ package com.dadam.sales.purchaseorder.service;
 
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 @Data
@@ -14,9 +18,12 @@ public class PurchaseOrderVO {
 		// 발주서
 		private String purOrdCode;
 		private String vdrCode;
+		@JsonFormat(pattern = "yyyy/MM/dd")
 		private Date purOrdDate;
+		@JsonFormat(pattern = "yyyy/MM/dd")
 		private Date expDlvDate;
 		private String purOrdReqCode;
+		@JsonFormat(pattern = "yyyy/MM/dd")
 		private Date purOrdUdtDate;
 		private String status;
 		private String vatYn;
@@ -32,5 +39,6 @@ public class PurchaseOrderVO {
 		private int supPrice;
 		private int vatPrice;
 		private int totPrice;
+		@JsonFormat(pattern = "yyyy/MM/dd")
 		private Date reccvDate;
 }
