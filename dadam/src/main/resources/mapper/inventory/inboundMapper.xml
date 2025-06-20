@@ -20,9 +20,9 @@
 	</select>
 	
 	<!-- 입고 처리 -->
-	<insert id="insertInbound" parameterType="InboundVO">
-		INSERT INTO inbound(in_code, in_wh, out_wh, emp_id, created_date, note, com_id)
-		VALUES #{inCode}, #{inWh}, #{outWh}, #{empId}, #{createdDate}, #{note}, 'com-101'
+	<insert id="purchaseInbound" parameterType="PurchaseOrderVO">
+		INSERT INTO purchase
+		VALUES (#{lot}, #{itemCode}, #{purOrdDtlCode}, #{empId}, #{createDate}, #{quantity}, #{currQty}, #{price},#{status}, #{note}, #{comId}, #{locCode})
 	</insert>
 	
 	<!-- 입고 수정
