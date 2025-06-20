@@ -46,7 +46,7 @@
         <button class="pay-btn">결제하기</button>
       </div>
     </div>
-s
+    
   </div>
 </div>
 
@@ -238,13 +238,14 @@ s
     ${constractFooter}
     `
     return defaultConst;
- } 
-
+ }
+//클릭인덱스
+let index;
  //계약서 모달 버튼
 $('.pay-btn').on('click', function () {
-
   //해당버튼의 인덱스번호 갖고오기
-  const index = $('.pay-btn').index(this);
+  index = $('.pay-btn').index(this);
+  
   //각 클래스 인덱스의 텍스트값 가져오기
   let type = $('.plan-card h4').eq(index).text();
   let pay = $('.plan-card .price').eq(index).text();
@@ -307,8 +308,8 @@ $('.pay-btn').on('click', function () {
     	    console.log('qwe')
     	  }
     	});  */
-     // 결제
-     IMP.init('imp77256221'); // 고객사
+     // 결제 넣으곳
+    IMP.init('imp77256221'); // 고객사
     IMP.request_pay({
       pg: "kakaopay", // 테스트용
       pay_method: "card", // 결제 방식
@@ -323,8 +324,6 @@ $('.pay-btn').on('click', function () {
       buyer_postcode: "12345"
     }, async function (rsp) {
       if (rsp.success) {
-    	  console.log(rsp.customer_uid);
-    	  console.log(rsp)
         // 서명 이미지 데이터 얻기
         //이미지 주소
         let dataURL = signaturePad.toDataURL();
@@ -332,6 +331,8 @@ $('.pay-btn').on('click', function () {
         let htmlContent = defaultConst;
         //파일이름
         let fileName = `contract_${Date.now()}`;
+        //빌링키
+        let custo
         // canvas와 버튼을 <img>로 교체
         let signatureImgTag = `<img src="/signatures/${fileName}.png" alt="서명 이미지" style="width: 200px; height: auto;">`;
         htmlContent = htmlContent
@@ -349,6 +350,8 @@ $('.pay-btn').on('click', function () {
           }),
           contentType: "application/json",
           success: function (result) {
+        	//빌링키 및 각종 정보 db저장
+        	subsAdd(rsp.customer_uid);
             console.log(result);
             alert('계약서가 저장되었습니다.');
             modal.style.display = 'none';
@@ -364,8 +367,45 @@ $('.pay-btn').on('click', function () {
         return;
       }
     }); 
+   
    };
 });
+ 
+//빌링키 및 db 저장
+function subsAdd(billingkey){
+	 
+	  //등록할 해당값 가져오기	 
+	  let type = $('.plan-card h4').eq(index).text();
+	  let pay = $('.plan-card .price').eq(index).text();
+	  let during = $('.plan-card .during').eq(index).val();
+	  let subsType = $('.plan-card .subsType').eq(index).val();
+	  let howMany = $('.plan-card .howMany').eq(index).val();
+	  
+	  //금액 형변환
+	  pay = numberFormat(pay);
+	   
+	  //등록 ajax
+	   $.ajax({
+		url:"/main/billingSave",
+	    type: "POST",
+      data: JSON.stringify({
+    	  optionCode : type,
+    	  subsType : subsType,
+          subsTerm : during,
+          subsPrice : pay,
+          subsQuantity : howMany,
+          billingKey : billingkey
+      }),
+      contentType: "application/json",
+      
+      success:function(result) {
+        console.log(result)
+      },
+      error:function (xhr, status, error) {
+            console.log("POST 실패:", xhr.status, error);
+      }
+	}) 
+}
 
 
   // 모달 닫기 버튼
