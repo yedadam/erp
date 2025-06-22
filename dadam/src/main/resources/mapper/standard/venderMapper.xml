@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.standard.vender.mapper.VenderMapper">
+<select id="venderFindAll" resultType="com.dadam.standard.vender.service.VenderVO">
+SELECT 
+        vdr_code,
+		type,
+		vdr_name,
+		biz_no,
+		ceo_name,
+		addr,
+		addr_detail,
+		email,
+		tel,
+		bank,
+		acct_no,
+		credit_period,
+		credit_price,
+		credit_bal_price,
+		discount,
+		com_id
+FROM vender
+</select>
+
+</mapper>

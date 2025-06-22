@@ -7,10 +7,9 @@
 <body>
 	<h1>Toastui</h1>
 	<button id="excel">엑셀다운</button>
-	<a id="newForm" href="#" class="btn btn-success btn-icon-split"> <span
-		class="text">신규</span>
-	</a>
 	<button id="addRow">행추가</button>
+	<button id="ordreg">주문등록</button>
+	<button id="ordreg2">주문등록2</button>
 	<button id="deleteRow">행삭제</button>
 	<div class="col-12">
 		<div id="orderGrid"></div>
@@ -29,10 +28,6 @@
 						<button type="button" class="btn-close" data-bs-dismiss="modal"
 							aria-label="Close"></button>
 					</div>
-				<!--  	<div class="modal-body">Show a second modal and hide this one
-						with the button below.</div>--> 
-						<!-- 아이템품목을 보여줌 -->
-						<div>아이템나와야함...</div>
 			        <div id="itemList"></div> 
 					<div class="modal-footer">
 						<button class="btn btn-primary"
@@ -43,17 +38,59 @@
 			</div>
 		</div>
 	</div>
+   
+<!--거래처가져오는모달-->	
+<div class="modal fade" id="vdrModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">거래처목록</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+	  <!--vdrGrid 들어올곳-->
+	  <div id="vdrList"></div>
+	  <!--vdrGrid 들어오는곳-->
+      <div class="modal-body">
+        <div class="row card">
+        	<div class="form-floating mb-3">
+			  <input type="date" class="form-control" id="floatingInput" placeholder="name@example.com">
+			  <label for="floatingInput">일자</label>
+			</div>
+        </div>
+        <div class="container-fluid">
+        <div id="modal">
+        </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 <script>
-	orderList();
-	//세션값 가져와 회원코드 가져오기
-	//toast ui 생성
+	let vdrAll; //모든 vdr을담는 리스트 
+	let newOrdRowNo; //
+	let newNo; // dtl 주문신규행을 추가했을때 받아오는 행번호
+	let newItemInfoList=new Map(); //[{1:['itemCode''name','price',],2:{}] 
+	let orderTotprice=new Map(); //[1:['totprice','discPrice'],2:['totPrice','discPrice']]  orderDtl의 총금액과 할인금액을 가져옴 
+	let vdrdiscount; //거래처할인율
+	let newOrdPlus; //상단헤더에서  새로추가한 행번호
+	let newDtlList=[]; //[] 새로운 주문상세 행번호를 받아옴  
+
+	orderList();//주문조회  
+	itemList();//제품조회 
+	vdrList(); //거래처조회 
+
 	const orderGrid = new tui.Grid({
 		//toastui 아이디 가져오기
 		el : document.getElementById('orderGrid'),
 		//checkbox부여
-		rowHeaders : [ 'checkbox' ],	
+		rowHeaders : [ 'checkbox' ],
+		//editingEvent: 'click',	
 		//페이지네이션
 		pageOptions : {
 			perPage : 5,
@@ -61,33 +98,36 @@
 		},
 		//필드값 구성
 		columns : [
-		// header: 필드 이름  name:객체 key값  align:정렬방법
-		// editor:true -> cell안에 등록가능
-		// width -> 크기조정
 	   {header : '주문번호',name : 'ordCode',	align : 'center',	width : 500,
 		//validaton 검증 해당 값이 안되면 해당셀은 빨간색으로 변함
-	}, {header : '등록일자',name : 'createdDate',align : 'center',	editor : 'text'	},
+	}, {header : '등록일자',name : 'createdDate',align : 'center',	editor : 'text',editor: 'datePicker',
+        formatter:function(createdDate){
+				if(createdDate.value ==null){
+				var today = new Date(); 
+				var dateString=	dateformatyymmdd(today);  	
+					return createdDate.value=dateString;  //등록일자의 값이 비면 오늘날짜로 자동입력
+				} else if(createdDate.value !=null){
+					return createdDate.value=createdDate.value; 
+				}
+		} },
 	   {header : '거래처이름',name : 'vdrName',	align : 'center',	editor : 'text'	},
-       {header : '거래처코드',	name : 'vdrCode',	align : 'center',editor : 'text',
-		   onAfterChange(ev) {
-           console.log('거래처코드:' + ev);
-       },},
-	   {header : '납기일자',name : 'reqDlvDate',	align : 'center',editor : 'text'	}, 
+       {header : '거래처코드',	name : 'vdrCode',	align : 'center',editor : 'text'},
+	   {header : '납기일자',name : 'reqDlvDate',align : 'center',editor : 'text', editor: 'datePicker'}, 
 	   {header : '총금액', name : 'totPrice',align : 'center',editor:'text'},
-	   {header : '여신한도',name : 'creditPrice',align : 'center',	editor : 'text'	},
-	   {header : '여신잔액',name : 'creditBalPrice',align : 'center',editor : 'text'	},
-	   {header : '지불방식',name : 'payMethod',align : 'center',editor:'text',
-			formatter : function(payMethod) {
+	   {header : '여신한도',name : 'creditPrice',align : 'center',	editor : 'text'},
+	   {header : '여신잔액',name : 'creditBalPrice',align : 'center',editor : 'text'},
+	   {header : '지불방식',name : 'payMethod',align : 'center',editor: 'text',	
+	   formatter : function(payMethod) {
 				if (payMethod.value == 'opm01') {
 					return payMethod.value='외상매입금';
 				} else if (payMethod.value == 'opm02') {
 					return payMethod.value='어음';
 				} else if (payMethod.value == 'opm03') {
 					return payMethod.value='계좌이체';
-				} else {
-					return payMethod.value=' ';
+				} else if(payMethod.value==null){
+					return payMethod.value='외상매입금';
 				}
-			}
+			},	
 		},
 		 {	header : '진행상태',name : 'status',align : 'center',editor : 'text',
 			formatter : function(status) {
@@ -98,12 +138,16 @@
 				} else if (status.value == 'ost03') {
 					return status.value='출고완료';
 				} else {
-					return status.value='기타';
+					return status.value=' ';
 				}
 			}
 		}, {header : '할인율',	name : 'discount',align : 'center',	editor : 'text',
 			formatter : function(discount) {
-				return discount.value + '%';
+				if(discount.value==null){
+					return discount.value=' '; 
+				} else if(discount.value !=null){
+				return discount.value=discount.value + '%';
+			}
 			}
 		} ],
 	});
@@ -111,32 +155,42 @@
 //체크박스눌렀을때 특정태그안에 하위요소 찾기
 //행클릭시 작동
 orderGrid.on('click',(ev)=>{
-	
-	/* let $row = $('#orderGrid').find(`[data-row-key="${ev.rowKey}"]`); //특정항목안에 data속성찾을때 활용
-	let td=$row[1]; //html 요소로 나옴 td행의 첫번째요소 주문      
-	console.log(ev)
-	let ordCode = $(td).find('div').text();  //jquery 로 한번더 감싸야함 div요소안의 text값 나옴  
-	console.log(ordCode);     
-	makeOrdDtList(ordCode); //dtl테이블생성함수 */
-	 const checkedRows = orderGrid.getCheckedRowKeys();
+	 const checkedRows = orderGrid.getCheckedRowKeys(); //행번호 가져오는 
      console.log(checkedRows)
-
+	 	
      // 현재 클릭한 rowKey가 유일하지 않으면 전부 해제 후 현재 행만 체크
      if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
        orderGrid.uncheckAll(); // 전체 해제
        orderGrid.check(ev.rowKey); // 현재 행만 체크
      }
 
+	 if(ev.columnName=="vdrCode" || ev.columnName=="vdrName" ){
+	//	vdrList(); //거래처조회
+		openVdrmodal(); //모달여는함수
+	 }
      const rowData = orderGrid.getRow(ev.rowKey);
      const ordCode = rowData.ordCode;
   //   console.log('선택된 주문번호:', ordCode);
      ordDtlList(ordCode);
 })
-//체크풀때 작동
-	orderGrid.on('click', (ev) => {
-	//	console.log(ev.rowkey)
-	 // console.log(`uncheck: ${ev.rowKey}`);
-});
+//orderGrid 
+//
+orderGrid.on('afterChange',ev=>{
+	if(ev.changes[0].columnName=='vdrCode'){
+	  let vdrCode=ev.changes[0].value; //거래처번호  
+		for(let i=0; i<vdrAll.length; i++){ //[{},{},{}] 거래처리스트중에 해당하는 
+			console.log(vdrAll.length); 
+		   	if(vdrAll[i].vdrCode==vdrCode){
+	      	  orderGrid.setValue(ev.changes[0].rowKey,"vdrName",vdrAll[i].vdrName);
+			  orderGrid.setValue(ev.changes[0].rowKey,"creditPrice",vdrAll[i].creditPrice);
+			  orderGrid.setValue(ev.changes[0].rowKey,"creditBalPrice",vdrAll[i].creditBalPrice);
+			  orderGrid.setValue(ev.changes[0].rowKey,"discount",vdrAll[i].discount); 
+			  vdrdiscount=vdrAll[i].discount/100; //거래처 추가할때 할인율을 변수로 지정해서 받아옴
+			  console.log('할인율',vdrdiscount);      
+		   } 
+		}
+	}
+})
 
 //주문번호를 받아와서 상세품목 조회후 테이블 생성하는 함수 	
 // ordDtlGrid.resetData(result);
@@ -152,15 +206,21 @@ orderGrid.on('click',(ev)=>{
 	{header: '품목코드',name:'itemCode',align:'center',editor:'text'},
 	{header: '이름',name:'name',align:'center',editor:'text'},
 	{header: '가격',name:'price',align:'center',editor:'text'},
-	{header: '수량',name:'quantity',align:'center',editor:'text'},
-	{header: '공급가액',name:'supPrice',align:'center',editor:'text'},
+	{header: '수량',name:'quantity',align:'center',editor:'text',
+	    formatter:function(quantity){
+			if(quantity.value==null){
+				return quantity.value='1'; 
+			}else if(quantity.value !=null){
+				return quantity.value=quantity.value; 
+			}	
+	}
+},
+	{header: '공급가액',name:'supPrice',align:'center',editor:'text'},		
 	{header: '부가세',name:'vatPrice',align:'center',editor:'text'},
-	{header: '총가격',name:'totprice',align:'center',editor:'text'},
+	{header: '총가격',name:'totPrice',align:'center',editor:'text'},
 	{header: '할인금액',name:'discPrice',align:'center',editor:'text'},	
 	] 
-	})
-//	ordDtlGrid.resetData(result);
-	
+	})	
     //아이템 모달안에 아이템그리드 생성  
     let itemGrid=new tui.Grid({
     	el:document.getElementById('itemList'), //아이템그리드 아이디 찾기 
@@ -176,7 +236,49 @@ orderGrid.on('click',(ev)=>{
         	{header:'가격',name:'price',align:'center',editor:'text'} 
         ]
     })
- 
+   //vdr 모달안에  vdrGrid 생성  
+	let vdrGrid=new tui.Grid({
+		el:document.getElementById('vdrList'),
+		rowHeaders:['checkbox'], //체크박스
+		pageOptions:{
+			perPage:10,
+			useClient: true, 
+		},
+		 columns:[
+        	{header:'거래처코드',name:'vdrCode',align:'center',editor:'text'},
+        	{header:'거래처구분',name:'type',align:'center',editor:'text'}, 
+        	{header:'거래처명',name:'vdrName',align:'center',editor:'text'},
+        	{header:'할인율',name:'discount',align:'center',editor:'text'} 
+        ]
+	})
+
+//item 항목 선택 했을때 항목 적용 newItemInfoList 에 추가할 품목과 해당 행의 번호가 모두 저장됨 
+ itemGrid.on('click', (ev) => {
+	console.log(ev); 
+    console.log('신규 추가된 해당 행', newNo); // 행추가할때마다 newNo는 계속 바뀜 
+	newDtlList.push(newNo); //등록할때 배열에 담김 
+	console.log(newDtlList);   
+    const checkedRows = itemGrid.getCheckedRowKeys(); //아이템그리드 체크된 행번호 가져오기
+    if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
+    	itemGrid.uncheckAll(); // 전체 해제
+    	itemGrid.check(ev.rowKey); // 현재 행만 체크
+      }
+    const rowData = itemGrid.getRow(ev.rowKey); //행의 값을 가져옴 
+     // console.log('아이템정보 :',itemCode,name,price); //모달에서 체크 표시하면 
+	 //초기화된 주문상세행에  아이템코드,이름,가격 입력 시켜야함 
+	let newitemInfo=itemInfo(rowData.itemCode,rowData.name,rowData.price); //itemInfo값 반환
+	newItemInfoList.set(newNo,newitemInfo); //품목추가된 정보를 계속 담음   
+	console.log(newItemInfoList);  //새로 추가한 행의 아이템 정보의 행과 아이템정보 저장함 {1:[itemCode,name,price],2:[]}
+
+    ordDtlGrid.setValue(newNo,"itemCode",rowData.itemCode);
+	ordDtlGrid.setValue(newNo,"name",rowData.name);
+	ordDtlGrid.setValue(newNo,"price",rowData.price); // 
+	ordDtlGrid.setValue(newNo,"supPrice",rowData.price); //공급가액 
+	ordDtlGrid.setValue(newNo,"vatPrice",rowData.price/10);//부가세 
+	ordDtlGrid.setValue(newNo,"totprice",rowData.price+rowData.price/10); //총가격 아이템 선택시 기본세팅 수량 1기준으로 자동입력됨
+	ordDtlGrid.setValue(newNo,"discPrice",(rowData.price+rowData.price/10)*vdrdiscount ); // 총금액 * 할인율  
+	  
+});
 	//데이터 불러오는 함수
 	function orderList() {
 		$.ajax({
@@ -206,56 +308,111 @@ orderGrid.on('click',(ev)=>{
     		url:"/erp/standard/itemAll",
     		method:"GET", 
     		success:function(result){
-    			console.log(result);
+    		//	console.log(result);
     			itemGrid.resetData(result);
     		}
     	})
     }
-  itemList();
+	function vdrList(){ //거래처리스트조회 
+		$.ajax({
+			url:"/erp/standard/venderAll",
+			method:"GET",
+			success:function(result){
+				vdrAll=result; 
+				//console.log(vdrAll);
+				vdrGrid.resetData(result); 
+			}
+		})
+	}
     let ordDtlForm;
 	$('#addRow').on('click',function(){
 		  //행추가할 데이터 생성
-		  let addRow = { }
-		  orderGrid.appendRow(addRow); 
-		  ordDtlForm.prependRow(addDtlRow);  
-		  //sampleGrid 재반영  
-		  orderGrid.refreshLayout();
-		})
-		
+		 let addRow = {}
+		 orderGrid.appendRow(addRow);
+
+		const rowCount = orderGrid.getRowCount();  // 전체 행 수
+  		const newRow = orderGrid.getRow(rowCount - 1);  // 마지막 행 데이터
+ 	    console.log("추가된 행의 rowKey:", newRow.rowKey);
+		newOrdPlus=newRow.rowKey; //새로추가된 행번호 정의
+		console.log('새로추가된행번호',newOrdPlus); //newOrdPlus 
+
+		//sampleGrid 재반영  
+		orderGrid.refreshLayout();
+	})
 	//주문상세 행추가 반영 
 	$('#addRowdtl').on('click',function(){
-		let addDtlrow={}
-
-		ordDtlGrid.appendRow(addDtlrow); // 
+		let addDtlrow={} //		
+		ordDtlGrid.appendRow(addDtlrow); //
 		ordDtlGrid.refreshLayout(); // 
 	})	
+	 //새로운행번호 선언
      ordDtlGrid.on('click',(ev)=> {
     	 console.log(ev.columnName)
+    	 console.log(ev.rowKey); //행번호 반환 
+    	 newNo= ordDtlrowNo(ev.rowKey); //ordDtlrow 
+    	 console.log('새로추가한행번호',newNo); 
     	 if(ev.columnName=='itemCode'){
-    		
     		 openItemmodal();//모달을 띄워줌  
     	 }
      })
-     
+	$('#ordreg2').on('click', function() {
+	let regdtlmap=new Map(); //주문상세하단에 해당하는 map   
+	newDtlList.forEach(item => {
+		regdtlmap.set(item,getdtlplusInfo(item));  //상세 해당 행의번호를 가져옴  //getdtlplusInfo(2) item행의  
+			//console.log(regdtlmap);
+		});		
+		let regHeader=getOrdHeadplusInfo(newOrdPlus); //헤더부분 해당 행의 새로운정보를 읽어옴 
+		console.log('등록헤더부분',regHeader); 
+		const dtlObj = Object.fromEntries(regdtlmap);  // Map → Object 변환
+		const dataToSend = {
+  			header: regHeader,      // 일반 객체
+  			details: dtlObj         // Map → Object 변환된 값
+		};
+		console.log(dataToSend); 
+		$.ajax({
+		url: '/erp/sales/ord/register',
+		type: 'POST',
+		contentType: 'application/json',
+		data: JSON.stringify(dataToSend),
+		success: function(res) {
+			console.log('전송 성공', res);
+			},
+			error: function(err) {
+			console.error('에러 발생', err);
+			}
+			});
+	});
+	 //[1:{}] 
+	 //ordDtlRow의 수량 입력시 총금액,공급가액,부가세 계산되어 자동입력됨 
      ordDtlGrid.on('afterChange',ev=>{
-    	 
     	 console.log(ev);
-    	 if(ev.columnName=='price'){
-    		 
-    	 }
-     })
-
-	//행의 값 을 바꿨을때 바뀌는      
-    orderGrid.on('afterChange', ev => {
-      //console.log('check!', ev);
-    });
-	
+		 console.log('수량변경하고 값 가져옴');
+		 console.log(ordDtlGrid.getRow(ev.changes[0].rowKey)); //바뀐 행의값을 읽어옴 {ordDtlCode:'ODTL-101',itemCode:'item-101',name:'이름이',...}
+		 let supPrice= ev.changes[0].value*ordDtlGrid.getRow(ev.changes[0].rowKey).price;
+		 let discPrice= (supPrice+supPrice/10)*vdrdiscount; //할인가격 거래처정보 불러온뒤 계산 반영	
+		 if(ev.changes[0].columnName=='quantity'){  //바뀐행의 열이 quantity 일때  
+ 		 ordDtlGrid.setValue(ev.changes[0].rowKey,"supPrice",supPrice);//공급가액의 가격을 (수량*가격) 으로 바꿈
+		 ordDtlGrid.setValue(ev.changes[0].rowKey,"vatPrice",supPrice/10);//부가세를 넘김
+		 ordDtlGrid.setValue(ev.changes[0].rowKey,"totprice",(supPrice+supPrice/10)-discPrice); //총가격  
+		 ordDtlGrid.setValue(ev.changes[0].rowKey,"discPrice",discPrice); //할인금액
+		 orderTotprice.set(ev.changes[0].rowKey,(supPrice+supPrice/10)-discPrice);
+		 console.log(orderTotprice);
+		 let total=0; 
+		 for(let value of orderTotprice.values()){
+			console.log('map에서  값가져오기',value);
+			total+=value; 
+			console.log(total);
+		 }
+		 //orderGrid에 새로추가된 행의 총금액 가격에 세팅됨 
+		   orderGrid.setValue(newOrdPlus,"totPrice",total);
+		 }   
+     }) 
+	//모달 객체 선언 
 	var modalToggle = document.getElementById('exampleModalToggle')
-	
 	var myModal = new bootstrap.Modal(modalToggle, {
 		  keyboard: false
 	})	
-
+	//jquery로 바꿔준후  
 	 $(modalToggle).on('shown.bs.modal',function(e){
 		 itemGrid.refreshLayout();
 	 })
@@ -263,12 +420,54 @@ orderGrid.on('click',(ev)=>{
 	 myModalEl.addEventListener('hidden.bs.modal', function (event) {
 	   // do something...
 	 })
-
-	// 모달띄워주는 함수
-    function openItemmodal(){	
+ 	//vdrmodal 객체를 가져옴 
+	var vdrmodalToggle = document.getElementById('vdrModal');
+	var vdrmymodal = new bootstrap.Modal(vdrmodalToggle, { 
+  		keyboard: false
+	});
+	 $(vdrmodalToggle).on('shown.bs.modal',function(e){
+		 vdrGrid.refreshLayout();
+	 })
+	 var vdrmyModalEl = document.getElementById('vdrmymodal') //여기서  
+	 vdrmyModalEl.addEventListener('hidden.bs.modal', function (event) {
+	   // do something...
+	 })
+	//아이템정보를 돌려주는 함수,모달버튼 닫으면 원래 내가 선택한행의 빈칸에  
+	function itemInfo(itemCode,name,price){
+		console.log('itemInfo함수호출',itemCode,name,price); 
+		return [itemCode,name,price];
+	}
+	//행번호 전달하는 함수 
+	function ordDtlrowNo(rowNo){
+		newOrdRowNo=rowNo;
+		return newOrdRowNo;  
+	}
+	//모달띄우는함수모음 //아이템모달
+	 function openItemmodal(){	 
 		myModal.show(modalToggle); 
-	}       	
-	
-	
+	}
+	 function openVdrmodal(){  //거래처모달 띄우는함수 
+		vdrmymodal.show(vdrmodalToggle); 
+	 }
+	 //날짜 포맷바꾸는 함수 Sun May 30 2021 15:47:29 GMT+0900 (대한민국 표준시) => yyyy-MM-dd 
+	 function dateformatyymmdd(today){
+				var today = today;
+				var year = today.getFullYear();
+				var month = ('0' + (today.getMonth() + 1)).slice(-2);
+				var day = ('0' + today.getDate()).slice(-2);
+				var dateString = year + '-' + month  + '-' + day;
+				return dateString; 
+	 }
+	 function getdtlplusInfo(item){ //getdtlplusInfo 
+		 const info= ordDtlGrid.getRow(item); 
+		 return info;
+	 }
+	function  getOrdHeadplusInfo(newNo){
+		const  info=orderGrid.getRow(newNo); 
+		return info; 
+	}
+
+
+
 </script>
 </html>
