@@ -36,14 +36,13 @@
 			  <label for="floatingInput">일자</label>
 			</div>
         </div>
-        <div class="container-fluid">
-        <div id="modal">
-        </div>
+        <div id="gridModal">
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-danger">초기화</button>
+        <button type="button" class="btn btn-primary">입고</button>
       </div>
     </div>
   </div>
@@ -51,16 +50,54 @@
 </body>
 <script th:inline="javascript">
 const inboundGrid = new tui.Grid({
-	el: document.getElementById('modal'),
-	rowHeaders: ['rowNum'],
+	el: document.getElementById('gridModal'),
+	rowHeaders: ['checkbox'],
     columns:[
-    	{header: '발주상세코드', name: 'purOrdDtlCode', align:'center'},
-    	{header: '품목명', name: 'itemCode', align:'center'},
-    	{header: '수량', name: 'quantity', align:'center', editer: 'number'},
-    	{header: '구분', name: 'status', align:'center', editer: 'text'},
-    	{header: '비고', name: 'note', align:'center', editer: 'text'}
-    	]
+		    	{ header: '발주상세코드', name: 'purOrdDtlCode', align:'center'},
+		    	{ header: '품목명', name: 'itemCode', align:'center'},
+		    	{ header: '입고된수량', name: 'quantity', align:'center'},
+		    	{ header: '위치', name: 'loc', align:'center', editor: 'text'},
+		    	{ header: '입고수량', name: 'qty', align:'center', editor: 'text'},
+		    	{ header: '비고', name: 'note', align:'center', editor: 'text'},
+		    	{ header: '추가', name: 'btn',align:'center'
+		    		, formatter: (props) => {
+		    			console.log(props.row._attributes.rowNum)
+		    			  if (props.row._attributes.rowNum > 1) {
+		    			    return `<button class="btn btn-sm btn-danger add-btn">-</button>`;
+		    			  } else {
+		    			    return `<button class="btn btn-sm btn-primary add-btn">+</button>`;
+		    			  } 
+		    			}
+		    	}
+    		],
+    		columnOptions: {
+			frozenCount: 3,
+			frozenBorderWidth: 2
+    		}
+});
+inboundGrid.on('click', ev =>{
+	//이벤트에서 index와 컬럼의 이름을 각 저장
+	let { rowKey, columnName } = ev;
+	// 누른 컬럼이 버튼인지 확인
+	if(columnName === 'btn'){
+		
+		let btnData = inboundGrid.getRow(rowKey);
+		
+	    let addData = {
+				      purOrdDtlCode: btnData.purOrdDtlCode,
+				      itemCode: btnData.itemCode,
+				      quantity: '',
+				      loc: '',
+				      qty: '',
+				      note: '',
+				      btn: '' // 하위 여부 표시용
+				    };
+		let idx = inboundGrid.getIndexOfRow(rowKey);
+		inboundGrid.appendRow(addData, { focus: true });
+		//inboundGrid.refreshLayout();
+	};
 })
+
 
 const purcharsegrid = new tui.Grid({
 	//toastui 아이디 가져오기
@@ -86,6 +123,7 @@ const purcharsegrid = new tui.Grid({
         { header: '수량',name:'quantity',align:'center'},
         { header: '상태',name:'status',align:'center',
         	formatter: function(status){
+        		console.log(status)
         		if(status.value == 'pds-01'){
         			return status.value = '입고대기'
         		}else if(status.value == 'pds-02'){
@@ -97,14 +135,15 @@ const purcharsegrid = new tui.Grid({
         	filter: 'select'
         	},
         { header: '입고예정일자',name:'expDlvDate',align:'center'},
-        { header: '입고일자',name:'reccvDate',align:'center',
-    		formatter: function(expDlvDate){
+        { header: '입고일자',name:'reccvDate',align:'center'
+    		/* ,formatter: function(expDlvDate){
     			if(expDlvDate.value == null){
     				return expDlvDate.value = '입고대기';
     			}else{
     				return expDlvDate.value;
     			}
-    		}},
+    		} */
+        },
         { header: '담당자',name:'empId',align:'center'},
         { header: '거래처',name:'vdrCode',align:'center'},
     ],
@@ -116,24 +155,42 @@ function purchaseList(){
 		url:"/erp/inventory/purchaseList",
 		method:"GET"
 	   ,success:function(result) {
-		   //grid값 다시 rendering
-		   console.log(result)
-		   purcharsegrid.resetData(result)
+		   purcharsegrid.resetData(result);
 	   }
 	})
 }
-let data = {};
-purcharsegrid.on('check', () => {
+
+
+let data = [];
+// 체크한경우 데이터 넣기
+  purcharsegrid.on('check', () => {
   data = purcharsegrid.getCheckedRows();
-  console.log(data);
-  /* inboundGrid.appendRow(data); */
   inboundGrid.resetData(data);
-  inboundGrid.refreshLayout();
+})
+
+
+purcharsegrid.on('checkAll', () => {
+  data = purcharsegrid.getCheckedRows();
+  inboundGrid.resetData(data);
+})
+
+
+// 체크아웃한경우 데이터 뺴기
+purcharsegrid.on('uncheck', () => {
+  data = [];
+  data = purcharsegrid.getCheckedRows();
+  inboundGrid.resetData(data);
+})
+purcharsegrid.on('uncheckAll', () => {
+  data = [];
+  data = purcharsegrid.getCheckedRows();
+  inboundGrid.resetData(data);
 })
 
  // 모달안에서 그리드부를떄 참고.
-$('#inboundModal').on('shown.bs.modal',function(e){
+$('#inboundModal').on('shown.bs.modal',function(){
 	inboundGrid.refreshLayout();
+	
 })
 
 //모든 수정된행 보기
