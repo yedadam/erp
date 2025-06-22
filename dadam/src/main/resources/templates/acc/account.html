@@ -12,6 +12,7 @@
   <button id="excelTemplate">양식다운</button>
   <input type="file" id="excelUpload" accept=".xlsx, .xls" />
   <button id="addRow">행추가</button>
+  <button id="saveBtn">저장</button>
 </div>
 
 <div class="col-10"> 
@@ -41,9 +42,9 @@ const accGrid = new tui.Grid({
       //width -> 크기조정   
       //db acct_code, name, acct_type, acct_class, acct_yn,  note, created_date, com_id
       {header: '계정코드',name:'acctCode',align:'center', width:100 },
-      {header: '대분류',name:'acctType',align:'center', width:100 },
-      {header: '중분류',name:'acctClass',align:'center', width:100 },
-      {header: '소분류',name:'acctSubclass',align:'center', width:100 },
+      {header: '대분류',name:'acctType',align:'center',editor:'text', width:100 },
+      {header: '중분류',name:'acctClass',align:'center',editor:'text', width:100 },
+      {header: '소분류',name:'acctSubclass',align:'center',editor:'text', width:100 },
       {header: '계정명',name:'name',align:'center',editor:'text', width:200 },
       {header: '사용유무',name: 'acctYn',align:'center', width:200, 
     	    renderer: {
@@ -122,6 +123,34 @@ $('#addRow').on('click',function(){
   //sampleGrid 재반영  
   accGrid.refreshLayout();
 })
+
+
+// 입력된 자료를 업데이트
+$('#saveBtn').on('click', function () {
+    const changes = accGrid.getModifiedRows();
+
+    const payload = {
+        createdRows: changes.createdRows,
+        updatedRows: changes.updatedRows,
+        deletedRows: changes.deletedRows
+    };
+
+    fetch("/erp/accounting/saveAll", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.result === "success") {
+            alert(data.message);
+            accountList(); // 새로고침
+        } else {
+            alert("실패: " + data.message);
+        }
+    })
+
+});
 
 //엑셀 다운로드.
 const topOptions = {

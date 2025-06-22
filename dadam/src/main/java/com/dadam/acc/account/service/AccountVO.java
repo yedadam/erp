@@ -1,6 +1,7 @@
 package com.dadam.acc.account.service;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -17,6 +18,9 @@ public class AccountVO {
 	private Date updateDate; //수정일자
 	private String comId; //회사id
 	
+	private List<AccountVO> createdRows;
+    private List<AccountVO> updatedRows;
+    private List<AccountVO> deletedRows;
 }
 
 

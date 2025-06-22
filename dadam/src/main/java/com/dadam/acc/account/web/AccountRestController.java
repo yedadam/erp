@@ -1,10 +1,15 @@
 package com.dadam.acc.account.web;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dadam.acc.account.service.AccountService;
@@ -27,4 +32,20 @@ public class AccountRestController {
 		return accountService.accFindAll();
 	}
 	
+	@PostMapping("/saveAll")
+	@ResponseBody
+	public Map<String, Object> saveAccounts(@RequestBody AccountVO requestVO) {
+	    Map<String, Object> result = new HashMap<>();
+	    
+	    try {
+	        accountService.saveAll(requestVO);
+	        result.put("result", "success");
+	        result.put("message", "저장이 완료되었습니다.");
+	    } catch (IllegalArgumentException e) {
+	        result.put("result", "fail");
+	        result.put("message", "유효성 오류: " + e.getMessage());
+	    }
+
+	    return result;
+	}
 }

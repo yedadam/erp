@@ -9,5 +9,11 @@ public interface AccountMapper {
 	public List<AccountVO> accFindAll();
 	public String codeFind(AccountCodeVO accountCode);
 	public void insert(AccountVO acct);
+	public String findTypeCodeByName(String typeName);
+	public String findClassCodeByName(String className);
+	public String findSubclassCodeByName(String subclassName);
+	
+	public void update(AccountVO acct);
+	public void delete(String acctCode);
 
 }
