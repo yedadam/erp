@@ -61,149 +61,139 @@
         <!-- 구독 정보 및 내역 섹션 -->
         <div class="subscription-section">
             <!-- 구독 정보 -->
-            <div class="info-card">
-                <div class="row mb-3 align-items-center">
-                    <h2 class="section-title col-6 mb-0">
-                        <i class="fas fa-cog me-2"></i>구독 정보
-                    </h2>
-                    <div class="col-6 text-end">
-                        <button type="button" class="btn btn-save w-auto">
-                            <i class="fas fa-save me-2"></i>저장하기
-                        </button>
-                    </div>
-                </div>
-                <form>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">회사코드</label>
-                            <input type="text" class="form-control" value="COM-101" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">회사영문명</label>
-                            <input type="text" class="form-control" value="YEDAM Corp">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">대표자명</label>
-                            <input type="text" class="form-control" value="신현욱">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">담당자 전화번호</label>
-                            <input type="text" class="form-control" value="101-3333-2222">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">사업자등록증</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" value="business_license.jpg (7KB)" readonly>
-                                <button class="btn btn-outline-primary" type="button">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">이메일</label>
-                            <input type="email" class="form-control" value="contact@yedam.com">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">주소</label>
-                            <input type="text" class="form-control" value="대구 수성구">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">우편번호</label>
-                            <input type="text" class="form-control" value="42123">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">서비스 상태</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><span class="status-dot"></span></span>
-                                <input type="text" class="form-control" value="정기구독" readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">기간 선택</label>
-                            <select class="form-control">
-                                <option value="14">14일</option>
-                                <option value="30">30일</option>
-                                <option value="90">90일</option>
-                                <option value="365">1년</option>
-                            </select>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">만료일</label>
-                            <input type="date" class="form-control" value="2025-06-16">
-                        </div>
-                    </div>
-                </form>
-            </div>
+			<div class="info-card">
+				<div class="row mb-3 align-items-center">
+					<h2 class="section-title col-6 mb-0">
+						<i class="fas fa-cog me-2"></i>구독 정보
+					</h2>
+					<div class="col-6 text-end">
+						<button type="button" class="btn btn-save w-auto" id="saveBtn">
+							<i class="fas fa-save me-2"></i>저장하기
+						</button>
+					</div>
+				</div>
+				<form>
+					<div class="row g-3">
+						<!-- 회사코드 / 회사영문명 / 대표자명 -->
+						<div class="col-sm-6 col-md-4">
+							<label class="form-label">회사코드</label> <input type="text"
+								class="form-control" id="comId" readonly>
+						</div>
+						<div class="col-sm-6 col-md-4">
+							<label class="form-label">사업자번호</label> <input type="text"
+								class="form-control" id="busTel">
+						</div>
+						<div class="col-sm-6 col-md-4">
+							<label class="form-label">대표자명</label> <input type="text"
+								class="form-control" id="name">
+						</div>
 
-            <!-- 구독 내역 -->
-            <div class="info-card">
-                <h2 class="section-title">
+						<!-- 담당자 전화번호 / 이메일 / 우편번호 -->
+						<div class="col-sm-6 col-md-4">
+							<label class="form-label">담당자 전화번호</label> <input type="text"
+								class="form-control" id="tel">
+						</div>
+						<div class="col-sm-6 col-md-4">
+							<label class="form-label">이메일</label> <input type="email"
+								class="form-control" id="email">
+						</div>
+						<div class="col-sm-6 col-md-4">
+							<label class="form-label">주소</label> <input type="text"
+								class="form-control" id="address">
+						</div>
+
+
+
+						<!-- 사업자등록증 (단독) -->
+						<div class="col-4">
+							<label class="form-label">사업자등록증</label>
+							<div class="input-group">
+								<input type="file" class="form-control" id="inputgroupfile02">
+								<button class="btn btn-outline-primary" type="button">
+									<i class="fas fa-download"></i>
+								</button>
+							</div>
+						</div>
+
+						<!-- 서비스 상태 / 기간 선택 -->
+						<div class="col-4">
+							<label class="form-label">서비스 상태</label>
+							<div class="input-group">
+								<span class="input-group-text"><span class="status-dot"></span></span>
+								<select class="form-select" id="optionCode">
+									<option value="oc-101">Lite</option>
+									<option value="oc-102">Standard</option>
+									<option value="oc-103">Premium</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-4">
+							<label class="form-label">기간 선택</label> <select
+								class="form-select" id=subsTerm>
+								<option value=30>30일</option>
+								<option value=90>90일</option>
+								<option value=99999999999999>무제한</option>
+							</select>
+						</div>
+						<!-- 시작일-->
+						<div class="col-6">
+							<label class="form-label">구독시작일</label> <input type="date"
+								class="form-control" id="subsStart" readonly>
+						</div>
+						<!-- 만료일-->
+						<div class="col-6">
+							<label class="form-label">구독만료일</label> <input type="date"
+								class="form-control" id="subsExpiration" readonly>
+						</div>
+					</div>
+				</form>
+			</div>
+
+			<div class="info-card">
+            <h2 class="section-title">
                     <i class="fas fa-history me-2"></i>구독 내역
                 </h2>
                 <div class="table-responsive">
-                    <table class="table table-sm table-hover">
-                        <thead>
-                            <tr>
-                                <th>번호</th>
-                                <th>구독상태</th>
-                                <th>구독금액</th>
-                                <th>구독일시</th>
-                                <th>명세서</th>
-                                <th>계산서</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>99</strong></td>
-                                <td>
-                                    <span class="status-indicator">
-                                        <span class="status-dot"></span>
-                                        기간구독
-                                    </span>
-                                </td>
-                                <td><span class="subscription-amount">110,000원</span></td>
-                                <td>2025-03-15</td>
-                                <td>
-                                    <button class="btn btn-outline-primary btn-sm btn-document">
-                                        <i class="fas fa-file-alt me-1"></i>명세서
-                                    </button>
-                                </td>
-                                <td>
-                                    <button class="btn btn-outline-secondary btn-sm btn-document">
-                                        <i class="fas fa-calculator me-1"></i>계산서
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div id="detailGrid"></div>
                 </div>
             </div>
+			<!-- 배경 회색 오버레이 (디테일 그리드용) -->
+			<div id="overlayBackground"
+				style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.4); z-index: 500;"></div>
+			<!-- 구독 내역 -->
         </div>
     </div>
+	<!-- 미리보기 모달 -->
+	<div id="toastPopup"
+	style="
+		display: none;
+		position: fixed;
+		top: 10%;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 50%;
+		height: 80%;
+		background: #fff;
+		border: 1px solid #ddd;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+		z-index: 1000;">
+		<div style="padding: 10px; text-align: right;">
+			<button id="pdfDown" class="btn btn-sm btn-primary">pdf 저장</button>
+			<button id="closeToastPopup" class="btn btn-sm btn-danger">닫기</button>
+		</div>
+			<iframe id="toastPopupFrame" style="width: 100%; height: 90%; border: none;"></iframe>
+	</div>
 
-    <script>
-        // 간단한 인터랙션 추가
-        document.addEventListener('DOMContentLoaded', function() {
-            // 검색 버튼 클릭 이벤트
-            const searchBtn = document.querySelector('.btn-search');
-            searchBtn.addEventListener('click', function() {
-                console.log('검색 실행');
-            });
-
-            // 저장 버튼 클릭 이벤트
-            const saveBtn = document.querySelector('.btn-save');
-            saveBtn.addEventListener('click', function() {
-                alert('저장되었습니다!');
-            });
-        });
-
+	<script>
+        
+        
         // 그리드생성
         const userGrid = new tui.Grid({
             el: document.getElementById('userGrid'),
             scrollX: false,
             scrollY: false,
             pageOptions: {
-                perPage: 2,
+                perPage: 5,
                 useClient: true,
             },
             columns:[
@@ -211,8 +201,8 @@
                 { header: '신청자',name:'name',align:'center'},
                 { header: '회사명',name:'comName',align:'center'},
                 { header: '전화번호',name:'tel',align:'center'},
-                { header: '주소',name:'address',align:'center',editor:'text'},
-                { header: '구독서비스',name:'subsType',align:'center',editor:'text',
+                { header: '주소',name:'address',align:'center'},
+                { header: '구독서비스',name:'subsType',align:'center',
                 	formatter: function(param){
                 		if(param.value =='S01'){
                 			return "정기결제"
@@ -222,13 +212,13 @@
                     	return '';
                     },
                 },
-                { header: '남은기간',name:'remaining',align:'center',editor:'text',
+                { header: '남은기간',name:'remaining',align:'center',
                 	formatter: function(param){
                 		return param.value+'일'
                 	}
                 },
-                { header: '만료일',name:'subsExpiration',align:'center',editor:'text'},
-                { header: '계약서',name:'constImage',align:'center',editor:'text',
+                { header: '만료일',name:'subsExpiration',align:'center'},
+                { header: '계약서',name:'constImage',align:'center',
                 	formatter: function(param){
                 		  if(param.value && param.value.length > 0) {
                 			  return `<button class="btn btn-primary btn-sm btn-download" data-com-id="${param.row.comId}">
@@ -237,19 +227,65 @@
                 			  }
                 			  return '';
                 	}	
-                }
+                },
+                { header: '시작일',name:'subsStart',align:'center'},
+                { header: '사업자번호',name:'busTel',align:'center'},
+                { header: '구독타입',name:'optionCode',align:'center'},
+            ],
+        });
+
+
+       //구독 정보 상세그리드
+        const detailGrid= new tui.Grid({
+            el: document.getElementById('detailGrid'),
+            scrollX: false,
+            scrollY: false,
+            columns:[
+            	{ header : '회사코드' ,name:'comId',align:'center',width:200 },
+                { header: '구독종류',name:'optionCode',align:'center',
+                formatter: function(param){
+                		if(param.value=='oc-101'){
+                            return 'Lite'
+                        }else if(param.value=='oc-102'){
+                            return 'Standard'
+                        }else if(param.value=='oc-103'){
+                            return 'Primeum'
+                        }
+                        return '';
+                	}
+                },
+                { header: '시작일자',name:'subsStart',align:'center',},
+                { header: '만기일자',name:'subsExpiration',align:'center'},
+                { header: '구독기간', name: 'subsTerm', align: 'center',
+                    formatter: function (param) {
+                        return param.value + '일'
+                    }
+                },
+                { header: '구독타입', name: 'subsType', align: 'center',
+                    formatter: function (param) {
+                        if (param.value == 'S01') {
+                            return '정기구독';
+                        } else if (param.value == 'S02') {
+                            return '기간구독';
+                        }
+                        return '';
+                    }
+                },
+                { header: '가격',name:'subsPrice',align:'center'},
+               
             ],
         });
 
         // 그리드 Render
         function userList(){
         	$.ajax({
-        		url:"/erp/userList",
+        		url:"/main/userList",
         		method:"GET",
         		success:function(result) {
         		   const flattenData = [];
-
+				//반복문 실행
         		   result.forEach(item => {
+        			   //만약 구독 정보가 있다면 subList값을 넣음
         		     if (item.subsList.length > 0) {
         		       item.subsList.forEach(sub => {
         		         flattenData.push({
@@ -261,18 +297,23 @@
         		           comName: item.comName,
         		           subsType: sub.subsType,
         		           subsTerm: sub.subsTerm,
+        		           subsStart : sub.subsStart,
         		           subsExpiration : sub.subsExpiration,
         		           remaining : sub.remaining,
-        		           constImage : sub.constImage  
+        		           constImage : sub.constImage,  
+        		           optionCode : sub.optionCode,
+        		           busTel : item.busTel
         		         });
         		       });
         		     } else {
+        		       //구독정보가없다면 값을 사용자 정보만 등록
         		       flattenData.push({
         		         comId: item.comId,
         		         name: item.name,
         		         email: item.email,
         		         comName : item.comName,
         		         tel: item.tel,
+        		         busTel : item.busTel,
         		         subsType: null,
         		         subsTerm: null
         		       });
@@ -284,18 +325,229 @@
         }
         //초기실행
         userList();
-       /*  $(document).on('click', '.btn-download', function () {
-        	  const comId = $(this).data('com-id');
-        	  alert(`회사 코드: ${comId}`);
+    
+        //컬럼 숨기기
+        userGrid.hideColumn("subsStart");
+        userGrid.hideColumn("busTel");
+        userGrid.hideColumn("optionCode");
+        //첫번쨰 그리드 클릭시 발동
+        userGrid.on('click', async(ev) => {
+            //클릭한 행이 몇행인지 조회
+            let rowKey = ev.rowKey
+            //null 값 체크
+        	if (!userGrid.getRow(rowKey)) {
+        	  return;
+        	}
+            let comId = userGrid.getRow(rowKey).comId;
+        	//클릭시 input에 렌더링
+        	$('#comId').val(userGrid.getRow(rowKey).comId)
+        	$('#busTel').val( userGrid.getRow(rowKey).busTel)
+        	$('#name').val( userGrid.getRow(rowKey).name)
+        	$('#tel').val( userGrid.getRow(rowKey).tel)
+        	$('#address').val( userGrid.getRow(rowKey).address)
+        	$('#email').val( userGrid.getRow(rowKey).email)
+        	let subsTerm =  userGrid.getRow(rowKey).subsTerm
+        	$('#subsTerm').val(subsTerm).prop("selected",true)
+			let optionCode = userGrid.getRow(rowKey).optionCode;        	
+            $('#optionCode').val(optionCode).prop("selected",true)
+            $("#subsStart").val(userGrid.getRow(rowKey).subsStart);
+            $("#subsExpiration").val(userGrid.getRow(rowKey).subsExpiration);
+
+        	await $.ajax({
+                url : "/main/subsDetailList",
+                method:"GET",
+                data:{param : comId},
+                success:function(result) {
+                    detailGrid.resetData(result)
+                },
+                error: function (xhr, status, error) {
+                    console.log("실패:", xhr.status, error);
+                }
+
+            })
+        	//날짜 더하기 함수
+            function calculateExpirationDate(startDateStr, termDays) {
+ 			  const startDate = new Date(startDateStr);
+  				  if (isNaN(startDate)) return '';
+
+    			const expirationDate = new Date(startDate);
+   				expirationDate.setDate(expirationDate.getDate() + parseInt(termDays));
+
+    			const yyyy = expirationDate.getFullYear();
+    			const mm = String(expirationDate.getMonth() + 1).padStart(2, '0');
+    			const dd = String(expirationDate.getDate()).padStart(2, '0');
+
+    			return `${yyyy}-${mm}-${dd}`;
+			}
+        	//기간 값 변경될때 마다 변경
+        	$('#subsTerm').on('change', function () {
+        	    const term = $(this).val(); // 기간 (일 수)
+        	    const startDate = $('#subsStart').val(); // 시작일
+        	    if (startDate && term) {
+				console.log('eee')
+        	        const expirationDate = calculateExpirationDate(startDate, term);
+        	        $('#subsExpiration').val(expirationDate);
+        	    }
         	});
-         */
-        
-        //클릭시
-        userGrid.on('click', ev => {
+            
+            
+        	//const Image클릭시 발동 계약서미리보기 기능
             if(ev.columnName=='constImage'){
-            	console.log(ev.getRowKey())
+            	//userGrid의 클릭한 행의 데이터 가져오기
+            	let imageData = userGrid.getRow(rowKey).constImage
+            	console.log(imageData)
+            	//팝업창 열기
+            	const popup = $('#toastPopup');
+            	const iframe = $('#toastPopupFrame')
+            	iframe.attr('src', `/main/preview?constImage=${imageData}`);
+            	popup.show(); // 팝업 표시
+            	$('#overlayBackground').show();
+            	$('#closeToastPopup').on('click',ev => {
+            		popup.hide();
+            		$('#overlayBackground').hide();
+            	})
             }
           });
+        
+        //pdf 다운로드
+        $('#pdfDown').on('click', function () {
+            const iframe = document.getElementById('toastPopupFrame');
+            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+            // iframe이 로드되었는지 확인
+            if (!iframeDocument || !iframeDocument.body) {
+                alert("계약서가 아직 로드되지 않았습니다.");
+                return;
+            }
+
+            // 임시로 iframe에 PDF용 스타일 추가
+            const style = iframeDocument.createElement('style');
+            style.textContent = `
+                @media print {
+                    * {
+                        -webkit-print-color-adjust: exact !important;
+                        color-adjust: exact !important;
+                    }
+                    body {
+                        margin: 0 !important;
+                        padding: 10px !important;
+                    }
+                    .contract-section {
+                        page-break-inside: avoid !important;
+                        margin-bottom: 15px !important;
+                    }
+                    .contract-table {
+                        page-break-inside: avoid !important;
+                    }
+                    .contract-signature {
+                        page-break-inside: avoid !important;
+                    }
+                }
+            `;
+            //head 값 추가
+            iframeDocument.head.appendChild(style);
+            
+            //ifram의 헤더값만 추출
+            const headHtml = iframeDocument.head.outerHTML;
+            //ifram의 바디값만 추출
+            const bodyHtml = iframeDocument.body.outerHTML;
+            //헤더 마디값 더하기
+            const fullHtml = `<!DOCTYPE html><html>${headHtml}${bodyHtml}</html>`;
+            
+            // 개선된 html2pdf 설정
+            const opt = {
+                margin: [0.2, 0.2, 0.2, 0.2], // 여백 최소화
+                filename: '계약서.pdf',
+                image: { 
+                    type: 'jpeg', 
+                    quality: 0.98 
+                },
+                html2canvas: { 
+                    scale: 1.2, // 스케일 조정
+                    useCORS: true,
+                    allowTaint: true,
+                    letterRendering: true,
+                    height: iframeDocument.body.scrollHeight, // 전체 높이에 여유분 추가
+                    width: iframeDocument.body.scrollWidth-150,
+                    scrollX: 0,
+                    scrollY: 0
+                },
+                jsPDF: { 
+                    unit: 'in', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                },
+                pagebreak: { 
+                    mode: ['avoid-all', 'css', 'legacy'],
+                    avoid: ['.contract-section', '.contract-table', '.contract-signature']
+                }
+            };
+		
+            html2pdf().set(opt).from(fullHtml).save().then(() => {
+                // PDF 생성 후 임시 스타일 제거
+                iframeDocument.head.removeChild(style);
+            });
+        });
+        //변경값 저장하기
+       $('#saveBtn').on('click',ev => {
+
+    	  let comId =  $('#comId').val()
+	      let busTel = $('#busTel').val()
+	      let name =  $('#name').val()
+	      let tel =  $('#tel').val()
+	      let address =  $('#address').val()
+	      let email =  $('#email').val()
+	      let subsTerm = $('#subsTerm').val()
+          let optionCode =  $('#optionCode').val()
+          let subsStart = $("#subsStart").val();
+          let subsExpiration =  $("#subsExpiration").val();
+
+          if(comId=='' || busTel == '' || name == '' || tel == '' || address == '' ||email =='' ){
+            Swal.fire('실패','필수항목들을 기입 후 입력하세요','error');
+            return;
+          }
+          
+          $.ajax({
+                url : "/main/subsDetailList",
+                method:"GET",
+                data:{param : comId},
+                success:function(result) {
+                    detailGrid.resetData(result)
+                },
+                error: function (xhr, status, error) {
+                    console.log("실패:", xhr.status, error);
+                }
+
+            })
+            info = {
+                comId : comId,
+                busTel : busTel,
+                name : name,
+                tel : tel,
+                address : address,
+                email : email,
+                subsList: [{
+                    subsTerm: subsTerm,
+                    optionCode: optionCode,
+                    subsTerm: subsTerm,
+                    subsStart: subsStart,
+                    subsExpiration: subsExpiration
+                }]
+            }
+          $.ajax({
+            url:  `/main/subsModify/${comId}`,
+            method : "PUT",
+            contentType: "application/json",
+            data:JSON.stringify(info),
+            success : result => {
+                if(result > 0 ){
+                    Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success')
+                }else{
+                    Swal.fire('저장','저장이 정상적으로 실패하였습니다.','error')
+                }
+            }
+          })
+       })
     </script>
 </body>
 </html>

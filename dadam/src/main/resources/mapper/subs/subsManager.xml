@@ -51,12 +51,29 @@
        		const_image,
        		subs_expiration,
        		subs_type,
-       		subs_term
+       		subs_term,
+       		option_code
 	FROM erpUser e LEFT JOIN erpSubs s ON(e.com_id = s.com_id)
 	WHERE subs_expiration = (
                          SELECT max(s2.subs_expiration)
                          FROM erpSubs s2
                          WHERE s2.com_id = e.com_id)
 	OR subs_expiration IS NULL
+</select>
+<select id="subsInfo" resultType="SubsListVO">
+	SELECT SUBS_CODE,
+     	   SUBS_TYPE,
+     	   SUBS_EXPIRATION,
+     	   SUBS_START,
+      	   SUBS_TERM,
+      	   SUBS_PRICE,
+      	   SUBS_QUANTITY,
+      	   SUBS_STATE,
+      	   COM_ID,
+      	   OPTION_CODE,
+      	   BILLING_KEY,
+      	   CONST_IMAGE
+FROM erpSubs
+WHERE com_id =#{comId}
 </select>
 </mapper>
