@@ -1,6 +1,7 @@
 package com.dadam.sales.order.service;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -24,5 +25,7 @@ public class OrdersVO {
 	private int totDisc; 
 	private int discount; 
 	private int totPrice; 
-	private String quoCode; 	
+	private String quoCode; 
+	
+	private List<OrdDtlVO> detailList; 
 }

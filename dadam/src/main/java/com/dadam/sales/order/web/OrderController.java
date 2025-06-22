@@ -54,8 +54,10 @@ public class OrderController {
 		   // Jackson의 ObjectMapper 사용해서 OrdersVO로 변환
 		  ObjectMapper mapper = new ObjectMapper();
 		  OrdersVO order = mapper.convertValue(header, OrdersVO.class);
-
-		    System.out.println(order.getOrdCode());
+		 
+		  
+		  
+		  System.out.println(order.getOrdCode());
 		
 		
 	    return "ok";
