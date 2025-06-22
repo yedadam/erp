@@ -7,6 +7,7 @@
 		 , name
 		 , acct_type
 		 , acct_class
+		 , acct_subclass
 		 , acct_yn
 		 , note
 		 , created_date
@@ -27,7 +28,29 @@
 	
 	<!-- 계정 분류 코드 조회 AccountCategoryDTO -->
 <select id="codeFind" resultType="string">
-	SELECT getAccCode(#{typeCode}, #{classCode}, #{subclassCode}) FROM dual
+	SELECT getAccCode(
+	       #{typeCode}
+		 , #{classCode}
+		 , #{subclassCode}) 
+	  FROM dual
+</select>
+
+<select id="findTypeCodeByName" resultType="string">
+    SELECT type_code 
+      FROM acct_type 
+     WHERE type_name = #{typeName}
+</select>
+
+<select id="findClassCodeByName" resultType="string">
+    SELECT class_code 
+      FROM acct_class 
+     WHERE class_name = #{className}
+</select>
+
+<select id="findSubclassCodeByName" resultType="string">
+    SELECT subclass_code 
+      FROM acct_subclass 
+     WHERE subclass_name = #{subclassName}
 </select>
 	
 	
@@ -41,19 +64,34 @@
 		 , acct_yn
 		 , note
 		 , created_date
+		 , update_date
 		 , com_id)
     VALUES (
-    	   #{acct_code}
+    	   #{acctCode}
 		 , #{name}
-		 , #{acct_type}
-		 , #{acct_class}
-		 , #{#{acct_subclass}
-		 , #{acct_yn}
+		 , #{acctType}
+		 , #{acctClass}
+		 , #{acctSubclass}
+		 , #{acctYn, jdbcType=VARCHAR}
 		 , #{note}
-		 , #{created_date}
-		 , #{com_id}
+		 , SYSDATE
+		 , SYSDATE
+		 , 'COM-101'
 		)
 </insert>
+
+<update id="update">
+    UPDATE account
+           SET name = #{name},
+            acct_yn = #{acctYn},
+               note = #{note},
+        update_date = SYSDATE
+    WHERE acct_code = #{acctCode}
+</update>
+
+<delete id="delete">
+    DELETE FROM account WHERE acct_code = #{acctCode}
+</delete>
 
 
 
