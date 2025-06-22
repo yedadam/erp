@@ -6,7 +6,10 @@
             --danger-color: #ef4444;
             --info-color: #3b82f6;
             --light-bg: #f8fafc;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),   /* 아래 */
+						    0 2px 4px -1px rgba(0, 0, 0, 0.06),  /* 아래 */
+						    0 -4px 6px -1px rgba(0, 0, 0, 0.1),  /* 위 */
+						    0 -2px 4px -1px rgba(0, 0, 0, 0.06); /* 위 */
             --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
@@ -64,8 +67,6 @@
         .form-control {
             border-radius: 10px;
             border: 2px solid #e5e7eb;
-            padding: 12px 16px;
-            font-size: 0.95rem;
             transition: all 0.3s ease;
         }
 
@@ -102,25 +103,9 @@
             margin-bottom: 0;
         }
 
-        .table thead th {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            border: none;
-            padding: 15px;
-            font-weight: 600;
-            color: #374151;
-            font-size: 0.9rem;
-        }
+       
 
-        .table tbody td {
-            padding: 15px;
-            border-color: #f1f5f9;
-            vertical-align: middle;
-        }
-
-        .table tbody tr:hover {
-            background-color: #f8fafc;
-            transition: background-color 0.2s ease;
-        }
+       
 
         .badge-status {
             padding: 6px 12px;
@@ -171,10 +156,7 @@
         }
 
         .form-label {
-            font-weight: 600;
             color: #374151;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
         }
 
         .btn-save {

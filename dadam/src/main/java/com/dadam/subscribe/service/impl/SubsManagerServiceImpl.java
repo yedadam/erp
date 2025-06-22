@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.dadam.subscribe.mapper.SubsManagerMapper;
 import com.dadam.subscribe.service.ErpUsersVO;
+import com.dadam.subscribe.service.SubsListVO;
 import com.dadam.subscribe.service.SubsManagerService;
 
 @Service
@@ -18,6 +19,12 @@ public class SubsManagerServiceImpl implements SubsManagerService{
 	@Override
 	public List<ErpUsersVO> erpUserList() {
         List<ErpUsersVO> result = managerMapper.erpUserList();	  
+		return result;
+	}
+	
+	@Override
+	public List<SubsListVO> subsList(String comId) {
+	   List<SubsListVO> result = managerMapper.subsInfo(comId);
 		return result;
 	}
 }

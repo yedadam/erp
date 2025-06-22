@@ -4,10 +4,15 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dadam.subscribe.service.ErpUsersVO;
+import com.dadam.subscribe.service.SubsListVO;
 import com.dadam.subscribe.service.SubsManagerService;
 
 /* 
@@ -18,7 +23,7 @@ import com.dadam.subscribe.service.SubsManagerService;
  *   - 2025.06.21 신현욱: 최초 작성
  */
 
-@RequestMapping("/erp")
+@RequestMapping("/main")
 @RestController
 public class SubsManagerRestController {
 	
@@ -30,5 +35,19 @@ public class SubsManagerRestController {
 	public List<ErpUsersVO> userList() {
 		List<ErpUsersVO> result = service.erpUserList();
 		return result;
+	}
+	
+	@GetMapping("/subsDetailList")
+	public List<SubsListVO> subsList(@RequestParam String param){
+		List<SubsListVO> result = service.subsList(param);
+		return result;
+	}
+	
+	//수정
+	@PutMapping("/subsModify/{comId}")
+	public int subsModify(@PathVariable String comId, @RequestBody ErpUsersVO info) {
+			System.out.println("comId" +comId);
+			System.out.println(info);
+		return 1;
 	}
 }
