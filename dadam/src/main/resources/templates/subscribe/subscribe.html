@@ -38,21 +38,21 @@
         <p>구독타입</p>
         <select class="form-select text-center subsType">
           <option value=''>-선택-</option>
-          <option value='sb01'>정기구독</option>
-          <option value='sb02'>기간구독</option>
+          <option value='S01'>정기구독</option>
+          <option value='S02'>기간구독</option>
         </select>
         <p class="desc">[[${item.contentDetail}]]</p>
         <p class="price" th:text="${#numbers.formatInteger(item.price,3,'COMMA')+'원'}"> </p>
         <button class="pay-btn">결제하기</button>
       </div>
     </div>
-    
+       
   </div>
 </div>
 
 <!-- 모달 -->
 <div id="paymentModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal-content">
+  <div class="modal-content">   
     <div class="modal-header">
       <button class="modal-close" aria-label="Close modal">&times;</button>
       <div id="modalTitle">ERP 시스템 이용계약서</div>
@@ -73,7 +73,8 @@
   let confirmBtn = document.getElementById('confirmPaymentBtn');
   //계약서내용
   let contractContent = document.getElementById('contractContent');
-  
+  //세션값 가져오기
+  let comId = '[[${#authentication.principal != 'anonymousUser' ? #authentication.principal.mainId : ''}]]';
   //option 기간 바뀔때마다 가격 렌더링
   $('.during').on('change',function(){
 	  const index = $('.during').index(this);
@@ -242,7 +243,33 @@
 //클릭인덱스
 let index;
  //계약서 모달 버튼
-$('.pay-btn').on('click', function () {
+$('.pay-btn').on('click', async function () {
+	if(comId == ''){
+		Swal.fire({
+		    title: '실패',
+		    text: '로그인 후 사용하세요',
+		    icon: 'error',
+		    confirmButtonText: '확인'
+		  }).then(() => {
+		    location.href = '/main/login';
+		  });
+		  return;
+	}
+	
+  // 중복체크
+  let result = await $.ajax({
+                              url: "/main/sameCheck",
+                              type: "GET",
+                              data: { param: comId },
+                              contentType: "application/json"
+                      }).catch((xhr) => {
+                            console.log("GET 실패:", xhr.status);
+                                return -1; // 에러 시 -1 반환
+                        });
+  if (result > 0) {
+    await Swal.fire('결제 실패', '이미 결제한 상품입니다.', 'error');
+    return;
+  }
   //해당버튼의 인덱스번호 갖고오기
   index = $('.pay-btn').index(this);
   
@@ -255,7 +282,7 @@ $('.pay-btn').on('click', function () {
   let useFunc = $('.plan-card .desc').eq(index).text();
 
   if ($('.plan-card .subsType').eq(index).val() == '') {
-    alert('리턴')
+	  Swal.fire('결제 실패', '구독 결제항목을 선택하세요.', 'error');
     return;
   }
 
@@ -351,7 +378,7 @@ $('.pay-btn').on('click', function () {
           contentType: "application/json",
           success: function (result) {
         	//빌링키 및 각종 정보 db저장
-        	subsAdd(rsp.customer_uid);
+        	subsAdd(rsp.customer_uid,fileName);
             console.log(result);
             alert('계약서가 저장되었습니다.');
             modal.style.display = 'none';
@@ -372,7 +399,7 @@ $('.pay-btn').on('click', function () {
 });
  
 //빌링키 및 db 저장
-function subsAdd(billingkey){
+function subsAdd(billingkey,fileName){
 	 
 	  //등록할 해당값 가져오기	 
 	  let type = $('.plan-card h4').eq(index).text();
@@ -394,7 +421,9 @@ function subsAdd(billingkey){
           subsTerm : during,
           subsPrice : pay,
           subsQuantity : howMany,
-          billingKey : billingkey
+          billingKey : billingkey,
+          comId : comId,
+          constImage:fileName+'.html'
       }),
       contentType: "application/json",
       

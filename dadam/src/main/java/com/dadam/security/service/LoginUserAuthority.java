@@ -2,7 +2,6 @@ package com.dadam.security.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -41,6 +40,9 @@ public class LoginUserAuthority implements UserDetails {
     
     
     public String getMainName() {
+    	return ""; // userVO의 아이디 반환
+    }
+    public String getMainId() {
     	return ""; // userVO의 아이디 반환
     }
     @Override

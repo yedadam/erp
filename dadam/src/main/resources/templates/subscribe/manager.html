@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/main_layout}"
+      layout:fragment="MainContent">
+<head>
+   <link th:href="@{/main_css/subsInfo.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="main-container">
+        <!-- 사용자 관리 섹션 -->
+        <div class="mb-4">
+            <h1 class="section-title">
+                <i class="fas fa-users icon-wrapper"></i>
+                사용자 관리
+            </h1>
+            
+            <!-- 검색 폼 -->
+            <div class="search-card">
+                <form class="row gx-3 gy-3">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="position-relative">
+                            <i class="fas fa-user position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                            <input type="text" class="form-control ps-5" placeholder="신청자명 검색">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="position-relative">
+                            <i class="fas fa-crown position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                            <input type="text" class="form-control ps-5" placeholder="대표자명 검색">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="position-relative">
+                            <i class="fas fa-building position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                            <input type="text" class="form-control ps-5" placeholder="회사명 검색">
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <div class="position-relative">
+                            <i class="fas fa-phone position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                            <input type="text" class="form-control ps-5" placeholder="전화번호">
+                        </div>
+                    </div>
+                    <div class="col-lg-1 col-md-12">
+                        <button type="button" class="btn btn-search">
+                            <i class="fas fa-search me-2"></i>검색
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 사용자 테이블 -->
+            <div class="table-card">
+                <div class="table-responsive">
+                   	<div id="userGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 구독 정보 및 내역 섹션 -->
+        <div class="subscription-section">
+            <!-- 구독 정보 -->
+            <div class="info-card">
+                <div class="row mb-3 align-items-center">
+                    <h2 class="section-title col-6 mb-0">
+                        <i class="fas fa-cog me-2"></i>구독 정보
+                    </h2>
+                    <div class="col-6 text-end">
+                        <button type="button" class="btn btn-save w-auto">
+                            <i class="fas fa-save me-2"></i>저장하기
+                        </button>
+                    </div>
+                </div>
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">회사코드</label>
+                            <input type="text" class="form-control" value="COM-101" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">회사영문명</label>
+                            <input type="text" class="form-control" value="YEDAM Corp">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">대표자명</label>
+                            <input type="text" class="form-control" value="신현욱">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">담당자 전화번호</label>
+                            <input type="text" class="form-control" value="101-3333-2222">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">사업자등록증</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="business_license.jpg (7KB)" readonly>
+                                <button class="btn btn-outline-primary" type="button">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">이메일</label>
+                            <input type="email" class="form-control" value="contact@yedam.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">주소</label>
+                            <input type="text" class="form-control" value="대구 수성구">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">우편번호</label>
+                            <input type="text" class="form-control" value="42123">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">서비스 상태</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><span class="status-dot"></span></span>
+                                <input type="text" class="form-control" value="정기구독" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">기간 선택</label>
+                            <select class="form-control">
+                                <option value="14">14일</option>
+                                <option value="30">30일</option>
+                                <option value="90">90일</option>
+                                <option value="365">1년</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">만료일</label>
+                            <input type="date" class="form-control" value="2025-06-16">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 구독 내역 -->
+            <div class="info-card">
+                <h2 class="section-title">
+                    <i class="fas fa-history me-2"></i>구독 내역
+                </h2>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>번호</th>
+                                <th>구독상태</th>
+                                <th>구독금액</th>
+                                <th>구독일시</th>
+                                <th>명세서</th>
+                                <th>계산서</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>99</strong></td>
+                                <td>
+                                    <span class="status-indicator">
+                                        <span class="status-dot"></span>
+                                        기간구독
+                                    </span>
+                                </td>
+                                <td><span class="subscription-amount">110,000원</span></td>
+                                <td>2025-03-15</td>
+                                <td>
+                                    <button class="btn btn-outline-primary btn-sm btn-document">
+                                        <i class="fas fa-file-alt me-1"></i>명세서
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-secondary btn-sm btn-document">
+                                        <i class="fas fa-calculator me-1"></i>계산서
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 간단한 인터랙션 추가
+        document.addEventListener('DOMContentLoaded', function() {
+            // 검색 버튼 클릭 이벤트
+            const searchBtn = document.querySelector('.btn-search');
+            searchBtn.addEventListener('click', function() {
+                console.log('검색 실행');
+            });
+
+            // 저장 버튼 클릭 이벤트
+            const saveBtn = document.querySelector('.btn-save');
+            saveBtn.addEventListener('click', function() {
+                alert('저장되었습니다!');
+            });
+        });
+
+        // 그리드생성
+        const userGrid = new tui.Grid({
+            el: document.getElementById('userGrid'),
+            scrollX: false,
+            scrollY: false,
+            pageOptions: {
+                perPage: 2,
+                useClient: true,
+            },
+            columns:[
+            	{ header : '회사코드' ,name:'comId',align:'center',width:200 },
+                { header: '신청자',name:'name',align:'center'},
+                { header: '회사명',name:'comName',align:'center'},
+                { header: '전화번호',name:'tel',align:'center'},
+                { header: '주소',name:'address',align:'center',editor:'text'},
+                { header: '구독서비스',name:'subsType',align:'center',editor:'text',
+                	formatter: function(param){
+                		if(param.value =='S01'){
+                			return "정기결제"
+                		}else if (param.value=='S02'){
+                			return "기간결제"
+                		}
+                    	return '';
+                    },
+                },
+                { header: '남은기간',name:'remaining',align:'center',editor:'text',
+                	formatter: function(param){
+                		return param.value+'일'
+                	}
+                },
+                { header: '만료일',name:'subsExpiration',align:'center',editor:'text'},
+                { header: '계약서',name:'constImage',align:'center',editor:'text',
+                	formatter: function(param){
+                		  if(param.value && param.value.length > 0) {
+                			  return `<button class="btn btn-primary btn-sm btn-download" data-com-id="${param.row.comId}">
+                              <i class="fas fa-download"></i> 다운로드
+                            </button>`;
+                			  }
+                			  return '';
+                	}	
+                }
+            ],
+        });
+
+        // 그리드 Render
+        function userList(){
+        	$.ajax({
+        		url:"/erp/userList",
+        		method:"GET",
+        		success:function(result) {
+        		   const flattenData = [];
+
+        		   result.forEach(item => {
+        		     if (item.subsList.length > 0) {
+        		       item.subsList.forEach(sub => {
+        		         flattenData.push({
+        		           comId: item.comId,
+        		           name: item.name,
+        		           email: item.email,
+        		           tel: item.tel,
+        		           address: item.address,
+        		           comName: item.comName,
+        		           subsType: sub.subsType,
+        		           subsTerm: sub.subsTerm,
+        		           subsExpiration : sub.subsExpiration,
+        		           remaining : sub.remaining,
+        		           constImage : sub.constImage  
+        		         });
+        		       });
+        		     } else {
+        		       flattenData.push({
+        		         comId: item.comId,
+        		         name: item.name,
+        		         email: item.email,
+        		         comName : item.comName,
+        		         tel: item.tel,
+        		         subsType: null,
+        		         subsTerm: null
+        		       });
+        		     }
+        		   });
+        		   userGrid.resetData(flattenData);
+        	   }
+        	});
+        }
+        //초기실행
+        userList();
+       /*  $(document).on('click', '.btn-download', function () {
+        	  const comId = $(this).data('com-id');
+        	  alert(`회사 코드: ${comId}`);
+        	});
+         */
+        
+        //클릭시
+        userGrid.on('click', ev => {
+            if(ev.columnName=='constImage'){
+            	console.log(ev.getRowKey())
+            }
+          });
+    </script>
+</body>
+</html>

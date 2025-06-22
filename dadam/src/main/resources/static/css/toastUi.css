@@ -1,0 +1,52 @@
+     /* Toast UI Grid 커스텀 스타일 */
+        .tui-grid-container {
+            border-radius: 12px !important;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important; /* 부드러운 그림자 */
+        }
+        
+         .tui-grid-header-area {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0) !important;
+            border-bottom: 2px solid #e5e7eb !important;
+        }
+         .tui-grid-header-area .tui-grid-cell {
+            background: transparent !important;
+            border-right: 1px solid #e5e7eb !important;
+            color: #374151 !important;
+            
+        }
+          .tui-grid-body-area .tui-grid-row:hover .tui-grid-cell {
+            background-color: #f8fafc !important;
+        }
+        .tui-grid-body-area .tui-grid-row.tui-grid-row-selected .tui-grid-cell {
+            background-color: rgba(99, 102, 241, 0.1) !important;
+        }
+        .tui-is-selected {
+    background-color: #6366f1 !important; /* 인디고 색상 */
+    color: #fff !important;
+    font-weight: bold;
+    border: 1px solid #6366f1 !important;
+}
+.tui-page-btn.tui-prev-is-disabled,
+.tui-page-btn.tui-next-is-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.tui-page-btn.tui-prev,
+.tui-page-btn.tui-next,
+.tui-page-btn.tui-first,
+.tui-page-btn.tui-last {
+    color: #6b7280;  /* 중간 회색 */
+    font-weight: bold;
+}
+.tui-page-btn:not(.tui-is-selected):hover {
+    color: #4f46e5; /* 진한 인디고 */
+    border-color: #c7d2fe;
+    background-color: #eef2ff;
+}
+.tui-grid-border-line-top {
+  display: none !important;
+}
+.tui-grid-border-line-bottom {
+  border-bottom: none !important;
+}
