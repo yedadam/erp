@@ -41,11 +41,12 @@ public class LoginMainAuthority implements UserDetails {
     }
     
     public String getMainName() {
-    	System.out.println("mainName");
-    	System.out.println(userVO.getName());
     	return userVO.getName(); // userVO의 아이디 반환
     }
     
+    public String getMainId() {
+    	return userVO.getComId(); // userVO의 아이디 반환
+    }
 
     @Override
     public boolean isAccountNonExpired() {

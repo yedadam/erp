@@ -14,7 +14,7 @@
 
 <insert id="subsAdd">
  <selectKey resultType="string" keyProperty="subsCode" order="BEFORE">
-        SELECT 'subs_' || (NVL(MAX(TO_NUMBER(SUBSTR(subs_code,3))),100)+1)
+        SELECT 'subs_' || (NVL(MAX(TO_NUMBER(SUBSTR(subs_code,6))),100)+1)
 FROM erpSubs
     </selectKey>
    INSERT INTO erpsubs(subs_code,
@@ -26,7 +26,9 @@ FROM erpSubs
                        subs_quantity,
                        subs_state,
                        option_code,
-                       billing_key)
+                       com_id,
+                       billing_key,
+                       const_image)
        VALUES(#{subsCode},
               #{subsType},
               sysdate+#{subsTerm},
@@ -36,7 +38,51 @@ FROM erpSubs
               #{subsQuantity},
               'C02',
               #{optionCode},
-              #{billingKey})
+              #{comId},
+              #{billingKey},
+              #{constImage})
 </insert>
-	
+<!-- 결제일자 조회 후 다시 결제  -->
+<select id="selectSubs" resultType="SubsListVO">
+	SELECT billing_key,
+	       com_id,
+	       subs_term, 
+	       subs_price,  
+	       subs_quantity,
+	       option_code
+	FROM erpSubs 
+	WHERE subs_type='S01'
+	AND subs_state = 'C02'
+	AND TO_CHAR(subs_expiration,'yy/mm/dd') =TO_CHAR(sysdate,'yy/mm/dd')
+</select>
+
+<!-- 계약만료 없데이트 -->
+<update id="subsEnd">
+	UPDATE erpSubs
+	SET SUBS_STATE = 'CO1'
+	WHERE billing_key = #{billingKey} 
+</update>
+<!-- 첫결제 추가 -->
+<insert id="firstAdd" >
+  INSERT INTO employees (EMP_ID,
+                     COM_ID,
+       		         PWD,
+            		EMP_NAME,
+            		POSITION,
+            		EMP_STATUS)
+VALUES ('e1001',
+       #{comId},
+       '$2a$10$6SyT5kux10Cl9ZAAzWDkT.Fv523NRs6PdYXqQ6fseai/Y.RD39Tfy',
+       #{empName},
+       'LV01',
+       'GJ01')
+</insert>
+<!-- 결제 중복 조회 -->
+<select id="sameCheck" resultType="int">
+SELECT COUNT(*)
+FROM erpSUbs
+	  WHERE com_id = #{comId}
+	  AND subs_state='C02'
+	  AND subs_expiration>sysdate
+</select>
 </mapper>

@@ -13,8 +13,10 @@ public class SubsListVO {
 	private int subsTerm;
 	private int subsPrice;
 	private int subsQuantity;
-	private int subsState;
+	private String subsState;
 	private String comId;
 	private String optionCode;
 	private String billingKey;
+	private String constImage;
+	private int remaining;
 }
