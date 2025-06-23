@@ -14,6 +14,11 @@ public class PurchaseOrderVO {
 		private String note;   // 메모
 		private String empId;  // 담당자 
 		private String comId;  // 회사id 혹시몰라서
+		private String lot;
+		private int price;
+		@JsonFormat(pattern = "yyyy/MM/dd")
+		private Date createDate;
+		private String locCode;
 
 		// 발주서
 		private String purOrdCode;
@@ -30,6 +35,7 @@ public class PurchaseOrderVO {
 		private int totSupPrice;
 		private int totVatPrice;
 		private int quantity;
+		private int currQty;
 		
 		
 		// 발주서상세

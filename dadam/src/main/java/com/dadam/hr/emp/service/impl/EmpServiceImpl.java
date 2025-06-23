@@ -1,45 +1,47 @@
 package com.dadam.hr.emp.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.dadam.hr.emp.mapper.EmpMapper;
 import com.dadam.hr.emp.service.EmpService;
 import com.dadam.hr.emp.service.EmpVO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmpServiceImpl implements EmpService {
 
-	@Autowired
-	EmpMapper empMapper;
+    @Autowired
+    private EmpMapper empMapper;
 
-	// 사원 전체 조회
-	@Override
-	public List<EmpVO> getEmpList() {
-		return empMapper.getEmpList();
-	}
+    @Override
+    public List<EmpVO> findEmpList(String keyword, String status) {
+        java.util.Map<String, Object> param = new java.util.HashMap<>();
+        param.put("keyword", keyword);
+        param.put("status", status);
+        return empMapper.findEmpList(param);
+    }
 
-	// 사원 상세 조회
-	@Override
-	public EmpVO getEmpDetail(String empId) {
-		return empMapper.getEmpDetail(empId);
-	}
+    @Override
+    public EmpVO findEmpDetail(String empId) {
+        return empMapper.findEmpDetail(empId);
+    }
 
-	// 사원 등록/수정 (신규/수정 통합)
-	@Override
-	public int saveEmp(EmpVO empVO) {
-		if(empVO.getEmpId() == null || empVO.getEmpId().isEmpty()) {
-			return empMapper.insertEmp(empVO);
-		} else {
-			return empMapper.updateEmp(empVO);
-		}
-	}
+    @Override
+    public int insertEmp(EmpVO empVO) {
+        // TODO: 비밀번호 암호화 등 추가 비즈니스 로직 필요
+        return empMapper.insertEmp(empVO);
+    }
 
-	// 사원 삭제
-	@Override
-	public int deleteEmp(String empId) {
-		return empMapper.deleteEmp(empId);
-	}
-}
+    @Override
+    public int updateEmp(EmpVO empVO) {
+        return empMapper.updateEmp(empVO);
+    }
+
+    @Override
+    public int deleteEmp(String empId) {
+        // 논리적 삭제 (퇴사 처리)
+        return empMapper.deleteEmp(empId);
+    }
+} 

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.dadam.sales.order.service.OrdDtlVO;
+import com.dadam.sales.order.service.OrdReqVO;
 import com.dadam.sales.order.service.OrderService;
 import com.dadam.sales.order.service.OrdersVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,24 +45,18 @@ public class OrderController {
 		List<OrdDtlVO> result=orderService.findOrdListByOrdNo(ordCode);
 		return result;
 	}
-	
+	@ResponseBody
 	@PostMapping("/ord/register")
-	public String registerOrder(@RequestBody  Map<String, Object> data) {  
-		System.out.println(data.get("header"));
-		System.out.println(data.get("details"));
+	public String registerOrder(@RequestBody OrdReqVO req) {
 		
-		  Map<String, Object> header = (Map<String, Object>) data.get("header");
-		   // Jackson의 ObjectMapper 사용해서 OrdersVO로 변환
-		  ObjectMapper mapper = new ObjectMapper();
-		  OrdersVO order = mapper.convertValue(header, OrdersVO.class);
-		 
-		  
-		  
-		  System.out.println(order.getOrdCode());
-		
+	req.getOrd().setEmpId("emp-101");
+	String vdrcode=req.getOrd().getVdrCode();
+	Long totPrice=req.getOrd().getTotPrice(); // 총금액 해당 거래처코드에 가서 credit_bal_price-totPrice 여신잔액  
+	orderService.orderInsert(req); //insert 처리 
 		
 	    return "ok";
 	}
+
 	@GetMapping("/test")
 	public String test() {
 		return "sales/test";

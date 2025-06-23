@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.dadam.inventory.inbound.mapper.InboundMapper;
 import com.dadam.inventory.inbound.service.InboundService;
+import com.dadam.inventory.inbound.service.PurchaseVO;
 import com.dadam.sales.purchaseorder.service.PurchaseOrderVO;
 
 @Service
@@ -16,13 +17,13 @@ public class InboundServiceImpl implements InboundService{
 	InboundMapper inboundMapper;
 
 	@Override
-	public List<PurchaseOrderVO> inboundPurchaseFindAll() {
-		List<PurchaseOrderVO> list = inboundMapper.inboundPurchaseFindAll();
+	public List<PurchaseVO> inboundPurchaseFindAll() {
+		List<PurchaseVO> list = inboundMapper.inboundPurchaseFindAll();
 		return list;
 	}
 
 	@Override
-	public void purchaseInbound(PurchaseOrderVO purchaseVO) {
+	public void purchaseInbound(PurchaseVO purchaseVO) {
 		inboundMapper.purchaseInbound(purchaseVO);
 	}
 	
