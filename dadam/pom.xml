@@ -127,10 +127,14 @@
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 
+
+		<!-- jasper -->
 		<dependency>
-			<groupId>com.example</groupId>
-			<artifactId>mybais-1</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>6.4.0</version>
+
+
 		</dependency>
 	</dependencies>
 

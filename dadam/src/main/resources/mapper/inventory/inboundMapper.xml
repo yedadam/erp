@@ -15,14 +15,14 @@
 		        getEmpName(po.emp_id) emp_id,
 		        getvdrName(po.vdr_code) vdr_code
 		FROM purchaseOrderDetail pod join purchaseOrder po
-		                                    on(pod.pur_ord_code=po.pur_ord_code)
+		                               on(pod.pur_ord_code=po.pur_ord_code)
 		WHERE pod.com_id = 'com-101'
 	</select>
 	
 	<!-- 입고 처리 -->
-	<insert id="purchaseInbound" parameterType="PurchaseOrderVO">
+	<insert id="purchaseInbound" parameterType="PurchaseVO">
 		INSERT INTO purchase
-		VALUES (#{lot}, #{itemCode}, #{purOrdDtlCode}, #{empId}, #{createDate}, #{quantity}, #{currQty}, #{price},#{status}, #{note}, #{comId}, #{locCode})
+		VALUES (#{lot}, #{itemCode}, #{purOrdDtlCode}, #{empId}, #{createDate}, #{quantity}, #{currQty}, #{price}, #{status}, #{note}, #{comId}, #{locCode})
 	</insert>
 	
 	<!-- 입고 수정

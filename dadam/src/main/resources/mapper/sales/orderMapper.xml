@@ -33,9 +33,64 @@ FROM ordersDetail od left JOIN item i on od.item_code=i.item_code
                      JOIN vender v on o.vdr_code=v.vdr_code
 WHERE od.ord_code=#{ordCode}
 </select>
-
-
-
-
-
+<insert id="orderInsert" parameterType="com.dadam.sales.order.service.OrdersVO">
+INSERT INTO orders(ORD_CODE,
+VDR_CODE,
+STATUS,
+CREATED_DATE,
+PAY_METHOD,
+TOT_QUANTITY,
+REQ_DLV_DATE,
+EMP_ID,
+COM_ID,
+TOT_SUP_PRICE,
+TOT_VAT_PRICE,
+TOT_DISC,
+DISCOUNT,
+TOT_PRICE,
+QUO_CODE) values(getNextOrdCode(),
+#{vdrCode},
+#{status},
+#{createdDate},   
+#{payMethod},
+#{totQuantity},
+#{reqDlvDate},
+#{empId},
+#{comId},
+#{totSupPrice},
+#{totVatPrice},
+#{totDisc},
+#{discount},
+#{totPrice},
+'quoCode')  
+</insert>
+<insert id="odtlInsert" parameterType="com.dadam.sales.order.service.OrdDtlVO" >
+INSERT INTO ordersdetail (
+  ORD_DTL_CODE,
+  ITEM_CODE,
+  QUANTITY,
+  SUP_PRICE,
+  VAT_PRICE,
+  DISC_PRICE,
+  TOT_PRICE,
+  COM_ID,
+  ORD_CODE
+) 
+VALUES (
+  getNextOrdDtlCode(),     
+  #{itemCode},
+  #{quantity},
+  #{supPrice},
+  #{vatPrice},
+  #{discPrice},
+  #{totPrice},
+  #{comId},
+  getNextOrdCode()
+) 
+</insert>
+<update id="updVdrcreditBalPrice">
+update vender 
+set credit_bal_price=#{creditBalPrice}-#{totPrice}
+where vdr_code= #{vdrCode}
+</update>
 </mapper>

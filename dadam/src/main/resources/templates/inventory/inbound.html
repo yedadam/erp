@@ -1,75 +1,75 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
- xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{common/layouts/default_layout}" 
-  layout:fragment="Content">
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
 <div class="container text-center">
-		<div class="d-grid gap-2 d-md-block m-2 text-start">
-		  <h1>입고관리</h1>
-		  <button class="btn btn-secondary" type="button">주문입고</button>
-		  <button class="btn btn-secondary" type="button">생산입고</button>
-		  <button class="btn btn-secondary" type="button">발주의뢰</button>
-		</div>
-	
+	<div class="d-grid gap-2 d-md-block m-2 text-start">
+		<h1>입고관리</h1>
+		<button class="btn btn-secondary" id="purchasePage" type="button">주문입고</button>
+		<button class="btn btn-secondary" id="inboundPage" type="button">생산입고</button>
+		<button class="btn btn-secondary" id="purchasePage" type="button">발주의뢰</button>
+	</div>
+
 	<div class="row card">
-		<div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3 p-4"> 
-		  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inboundModal" id="inModal" type="button">입고처리</button>
+		<div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3 p-4">
+			<button class="btn btn-primary" data-bs-toggle="modal"
+				data-bs-target="#inboundModal" id="inModal" type="button">입고처리</button>
 		</div>
-	  	<div class="col-12">
-		   <div id="Grids"></div>
-	   	</div>
-   	</div>
+		<div class="col-12">
+			<div id="Grids"></div>
+		</div>
+	</div>
 </div>
 
 <!-- 입고를 위한 모달 -->
-<div class="modal fade" id="inboundModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">주문 입고</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row card">
-        	<div class="form-floating mb-3">
-			  <input type="date" class="form-control" id="floatingInput" placeholder="name@example.com">
-			  <label for="floatingInput">일자</label>
+<div class="modal fade" id="inboundModal" tabindex="-1"
+	aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="exampleModalLabel">주문 입고</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"
+					aria-label="Close"></button>
 			</div>
-        </div>
-        <div class="container-fluid">
-        <div id="modal">
-        </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
+			<div class="modal-body">
+				<div class="row card">
+					<div class="form-floating mb-3">
+						<input type="date" class="form-control" id="floatingInput"
+							placeholder="name@example.com"> <label
+							for="floatingInput">일자</label>
+					</div>
+					<div class="modal-footer">
+						<button type="button" id="resetBtn" class="btn btn-danger">초기화</button>
+						<button type="button" id="registerBtn" class="btn btn-primary">입고</button>
+						<button type="button" id="addBtn" class="btn btn-info">추가하기</button>
+					</div>
+				</div>
+				<div id="gridModal"></div>
+			</div>
+		</div>
+	</div>
 </div>
 </body>
 <script th:inline="javascript">
-const inboundGrid = new tui.Grid({
-	el: document.getElementById('modal'),
-	rowHeaders: ['rowNum'],
-    columns:[
-    	{header: '발주상세코드', name: 'purOrdDtlCode', align:'center'},
-    	{header: '품목명', name: 'itemCode', align:'center'},
-    	{header: '수량', name: 'quantity', align:'center', editer: 'number'},
-    	{header: '구분', name: 'status', align:'center', editer: 'text'},
-    	{header: '비고', name: 'note', align:'center', editer: 'text'}
-    	]
-})
+purchaseList();
+//ajax -> toastUi에 넣기
+async function purchaseList(){
+	await $.ajax({
+		url:"/erp/inventory/purchaseList",
+		method:"GET"
+	   ,success:function(result) {
+		   purcharsegrid.resetData(result);
+	   } // ajax호출 끝
+	})
+}
 
+//메인그리드 그리기
 const purcharsegrid = new tui.Grid({
 	//toastui 아이디 가져오기
     el: document.getElementById('Grids'),
     //checkbox부여
     rowHeaders: ['checkbox'],
-    //스크롤여부
-    scrollX: false,
-    scrollY: false,
     //페이지네이션
     pageOptions: {
         perPage: 5,
@@ -97,63 +97,124 @@ const purcharsegrid = new tui.Grid({
         	filter: 'select'
         	},
         { header: '입고예정일자',name:'expDlvDate',align:'center'},
-        { header: '입고일자',name:'reccvDate',align:'center',
-    		formatter: function(expDlvDate){
+        { header: '입고일자',name:'reccvDate',align:'center'
+    		/* ,formatter: function(expDlvDate){
     			if(expDlvDate.value == null){
     				return expDlvDate.value = '입고대기';
     			}else{
     				return expDlvDate.value;
     			}
-    		}},
+    		} */
+        },
         { header: '담당자',name:'empId',align:'center'},
         { header: '거래처',name:'vdrCode',align:'center'},
     ],
 });
-purchaseList();
-//ajax -> toastUi에 넣기
-function purchaseList(){
-	$.ajax({
-		url:"/erp/inventory/purchaseList",
-		method:"GET"
-	   ,success:function(result) {
-		   //grid값 다시 rendering
-		   console.log(result)
-		   purcharsegrid.resetData(result)
-	   }
-	})
-}
-let data = {};
-purcharsegrid.on('check', () => {
-  data = purcharsegrid.getCheckedRows();
-  console.log(data);
-  /* inboundGrid.appendRow(data); */
-  inboundGrid.resetData(data);
-  inboundGrid.refreshLayout();
-})
 
- // 모달안에서 그리드부를떄 참고.
-$('#inboundModal').on('shown.bs.modal',function(e){
-	inboundGrid.refreshLayout();
-})
-
-//모든 수정된행 보기
-/* function check(){
-	//움직임감지
-	const changes = sampleGrid.getModifiedRows();
-	//생성된행
-	console.log(changes.createdRows);
-	//수정된행
-	console.log(changes.updatedRows);
-	//삭제된행
-	console.log(changes.deletedRows);
-} */
-// 발주서 입고 처리
-/* function purchaseRegister(){
-	$.ajax({
-		url:"",
-		method:"POST",
-		success: alert('등록성공')
+	let data = [];
+	// 체크한경우 데이터 넣기
+	purcharsegrid.on('check', checkRow)
+	purcharsegrid.on('checkAll', checkRow)
+	// 체크아웃한경우 데이터 뺴기
+	purcharsegrid.on('uncheck', checkRow);
+	purcharsegrid.on('uncheckAll', checkRow);
+	
+	// check 처리
+	function checkRow(){
+		  let rowCheck = purcharsegrid.getCheckedRows();
+		  rowCheck.filter(item =>{
+			  ee = {
+				  purOrdDtlCode: item.purOrdDtlCode,
+				  itemCode: item.itemCode,
+				  quantity : '',
+				  loc : '',
+				  qty : '',
+				  note: '',
+				  btn: ''
+			  }
+			  data.push(ee);
+		  })
+		  console.log(data)
+		  /* data = JSON.parse(JSON.stringify(rowCheck)); */
+		  inboundGrid.resetData(data);
+	}
+	
+	// inboundGrid 그리기
+	const inboundGrid = new tui.Grid({
+		el: document.getElementById('gridModal'),
+	    columns:[
+			    	{ header: '발주상세코드', name: 'purOrdDtlCode', align:'center'},
+			    	{ header: '품목명', name: 'itemCode', align:'center'},
+			    	{ header: '입고예정수량', name: 'quantity', align:'center'},
+			    	{ header: '위치', name: 'loc', align:'center', editor: 'text'},
+			    	{ header: '입고수량', name: 'qty', align:'center', editor: 'text'},
+			    	{ header: '비고', name: 'note', align:'center', editor: 'text'},
+			    	{ header: '삭제', name: 'btn',align:'center'
+			    		/* , renderer: { type: renderer}} */
+			    	, formatter: () => {
+			    		return `<button class="btn btn-sm btn-danger add-btn">-</button>`;
+			    			  } 
+			    	}
+	    		],
+	    		columnOptions: {
+				frozenCount: 3,
+				frozenBorderWidth: 2
+	    		}
+	});
+	
+	// 초기화
+	$('#resetBtn').on('click', ()=>{
+		inboundGrid.refreshLayout();
 	})
-} */
+	// 입고 등록
+	$('#registerBtn').on('click', ()=>{
+		let param = {};
+		
+		$.ajax({
+			url:"/erp/inventory/purchaseRegister",
+			method:"POST",
+			contentType: 'application/json',
+			data: JSON.stringify(param),
+			success: alert('등록성공')
+			}
+		)})
+	
+	// 행추가
+	$('#addBtn').on('click', ()=>{
+		let addData = {
+				      purOrdDtlCode: '',
+				      itemCode: '',
+				      quantity: '',
+				      loc: '',
+				      qty: '',
+				      note: '',
+				      btn: ''
+				    };
+		console.log(addData)
+		
+		inboundGrid.appendRow(addData, {
+			  at: 2,          // 2번째 인덱스 위치에 추가 (0부터 시작)
+			  focus: true     // 포커스를 자동으로 줄지 여부
+			});
+	});
+	
+	//행삭제
+inboundGrid.on('click',function(ev){
+		let { rowKey, columnName } = ev;
+		console.log(rowKey)
+		// 누른 컬럼이 버튼인지 확인
+		if(columnName === 'btn' && rowKey > 0){
+		//체크된행을 가져오는 함수	
+		//행의 총 갯수
+		let count = inboundGrid.getRowCount()
+		 //행삭제
+		 inboundGrid.removeRow(rowKey);
+		}
+	})
+
+	 // 모달안에서 그리드부를떄 참고.
+	$('#inboundModal').on('shown.bs.modal',function(){
+		inboundGrid.refreshLayout();
+	})
 </script>
 </html>

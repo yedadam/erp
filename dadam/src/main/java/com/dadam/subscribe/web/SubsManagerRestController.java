@@ -1,14 +1,33 @@
 package com.dadam.subscribe.web;
 
+import java.io.InputStream;
+import java.sql.Connection;
+import java.util.HashMap;
 import java.util.List;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
+import com.dadam.common.JasperPreviewCommon;
 import com.dadam.subscribe.service.ErpUsersVO;
+import com.dadam.subscribe.service.SubsListVO;
 import com.dadam.subscribe.service.SubsManagerService;
+
+import jakarta.servlet.http.HttpServletResponse;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
 
 /* 
  * @author 신현욱
@@ -18,7 +37,7 @@ import com.dadam.subscribe.service.SubsManagerService;
  *   - 2025.06.21 신현욱: 최초 작성
  */
 
-@RequestMapping("/erp")
+@RequestMapping("/main")
 @RestController
 public class SubsManagerRestController {
 	
@@ -31,4 +50,21 @@ public class SubsManagerRestController {
 		List<ErpUsersVO> result = service.erpUserList();
 		return result;
 	}
+	
+	@GetMapping("/subsDetailList")
+	public List<SubsListVO> subsList(@RequestParam String param){
+		List<SubsListVO> result = service.subsList(param);
+		return result;
+	}
+	
+	//수정
+	@PutMapping("/subsModify/{comId}")
+	public int subsModify(@PathVariable String comId, @RequestBody ErpUsersVO info) {
+			System.out.println("comId" +comId);
+			System.out.println(info);
+		return 1;
+	}
+	
+	
+	
 }
