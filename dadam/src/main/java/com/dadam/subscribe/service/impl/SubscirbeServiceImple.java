@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -53,9 +54,10 @@ public class SubscirbeServiceImple implements SubscribeService{
 		}
 		
 		System.out.println(param.getOptionCode());
-		//등록
+		//구독권 등록
 	    int result = subsMapper.subsAdd(param);
-	    
+	    //세금계산서등록
+	    result = subsMapper.taxAdd(param);
 	    
 	    //로그인 객체값 연결
 	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -146,6 +148,8 @@ public class SubscirbeServiceImple implements SubscribeService{
 		  subsMapper.subsEnd(sub.getBillingKey());
 		  //다시 결제 진행
 		  subsMapper.subsAdd(sub);
+		  //세금계산서 발행
+		  subsMapper.taxAdd(sub);
 	  });
   }
   

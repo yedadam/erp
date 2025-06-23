@@ -131,8 +131,9 @@
 							<label class="form-label">기간 선택</label> <select
 								class="form-select" id=subsTerm>
 								<option value=30>30일</option>
-								<option value=90>90일</option>
-								<option value=99999999999999>무제한</option>
+								<option value=60>60일</option>
+								<option value=180>180일</option>
+								<option value=2147483647>무제한</option>
 							</select>
 						</div>
 						<!-- 시작일-->
@@ -258,6 +259,9 @@
                 { header: '만기일자',name:'subsExpiration',align:'center'},
                 { header: '구독기간', name: 'subsTerm', align: 'center',
                     formatter: function (param) {
+                    	if(Number(param.value) > 99999){
+                    		return '무제한';
+                    	}
                         return param.value + '일'
                     }
                 },
@@ -274,9 +278,10 @@
                 { header: '가격',name:'subsPrice',align:'center'},
                 { header: '세금계산서',name:'subsCode',align:'center',
                 	formatter: function(param){
-              		  if(param.value && param.value.length > 0) {
-              			  return `<button class="btn btn-primary btn-sm btn-download" data-com-id="${param.row.comId}">
-                            <i class="fas fa-download"></i> 다운로드
+              		  if(param.value && param.value.length > 0 && param.row.subsPrice > 0) {
+              			  return `<button class="btn btn-primary btn-sm btn-download"
+              			                         data-com-id="${param.row.comId}">
+                            	  <i class="fas fa-download"></i> 다운로드
                           </button>`;
               			  }
               			  return '';
@@ -394,7 +399,6 @@
         	    const term = $(this).val(); // 기간 (일 수)
         	    const startDate = $('#subsStart').val(); // 시작일
         	    if (startDate && term) {
-				console.log('eee')
         	        const expirationDate = calculateExpirationDate(startDate, term);
         	        $('#subsExpiration').val(expirationDate);
         	    }
@@ -498,6 +502,20 @@
                 iframeDocument.head.removeChild(style);
             });
         });
+        
+        //초괴화
+        function inputResetDate(){
+        	$('#comId').val('');
+    	    $('#busTel').val('');
+    	    $('#name').val('');
+    	    $('#tel').val('');
+    	    $('#address').val('');
+    	    $('#email').val('');
+    	    $('#subsTerm').val('');
+            $('#optionCode').val('');
+            $("#subsStart").val('');
+            $("#subsExpiration").val('');
+        }
         //변경값 저장하기
        $('#saveBtn').on('click',ev => {
 
@@ -511,7 +529,7 @@
           let optionCode =  $('#optionCode').val()
           let subsStart = $("#subsStart").val();
           let subsExpiration =  $("#subsExpiration").val();
-
+		  
           if(comId=='' || busTel == '' || name == '' || tel == '' || address == '' ||email =='' ){
             Swal.fire('실패','필수항목들을 기입 후 입력하세요','error');
             return;
@@ -542,6 +560,8 @@
             success : result => {
                 if(result > 0 ){
                     Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success')
+                    userList();
+                    inputResetDate();
                 }else{
                     Swal.fire('저장','저장이 정상적으로 실패하였습니다.','error')
                 }
@@ -550,10 +570,9 @@
        })
        //세금계산서 다운로드
        detailGrid.on('click', ev => {
-    	   
     	   if(ev.columnName == 'subsCode'){
-    		   let subsCode = detailGrid.getRow(ev.rowKey).subsCode;
-    		   location.href=`/main/report?subsCode=${subsCode}`;
+    		   let detailSubsCode = detailGrid.getRow(ev.rowKey).subsCode;
+    		   location.href=`/main/report?subsCode=${detailSubsCode}`;
     	   }
        })
     </script>

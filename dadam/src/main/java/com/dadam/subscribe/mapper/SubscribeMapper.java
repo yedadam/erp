@@ -26,4 +26,7 @@ public interface SubscribeMapper {
 	
 	//중복확인
 	public int sameCheck(String param);
+	
+	//계산서등록
+	public int taxAdd (SubsListVO param);
 }

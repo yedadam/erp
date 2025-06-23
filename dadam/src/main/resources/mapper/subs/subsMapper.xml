@@ -85,4 +85,21 @@ FROM erpSUbs
 	  AND subs_state='C02'
 	  AND subs_expiration>sysdate
 </select>
+
+<!-- 세금계산서 등록 -->
+<insert id="taxAdd">
+  <selectKey resultType="string" keyProperty="billCode" order="BEFORE">
+         SELECT 'bill_' || (NVL(MAX(TO_NUMBER(SUBSTR(bill_code,6))),100)+1)
+		FROM erpTax
+    </selectKey>
+INSERT INTO erpTax(BILL_CODE,
+                   COM_ID,
+                    CREATED_DATE,
+                    PRICE,
+                    SURTAX,
+                    SUP_PRICE,
+                    SUBS_CODE)
+                    
+VALUES (#{billCode},#{comId},sysdate,#{subsPrice},#{subsPrice}/10,#{subsPrice}-#{subsPrice}/10,#{subsCode})
+</insert>
 </mapper>
