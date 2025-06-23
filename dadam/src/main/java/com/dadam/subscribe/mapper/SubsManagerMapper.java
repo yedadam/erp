@@ -12,4 +12,16 @@ public interface SubsManagerMapper {
 	
 	//구독 정보 상세 조회
 	public List<SubsListVO> subsInfo(String cid);
+	
+	//매니저가 직접 구독정보 넣기
+    public int subsManagerAdd(SubsListVO param);
+    
+    //매니저가 직접 정보 수정
+    public int erpManagerUpdate(ErpUsersVO vo);
+    
+    
+    //매니저가 직접 구독권 수정
+    public int subsManagerUpdate(SubsListVO param);
+    //구독권있는지 조회
+    public String subsCheck(String param);
 }

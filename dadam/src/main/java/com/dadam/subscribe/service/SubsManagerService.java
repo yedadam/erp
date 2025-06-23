@@ -9,4 +9,7 @@ public interface SubsManagerService {
 	
 	//구독 정보 상세 조회
 	public List<SubsListVO> subsList(String comId);
+	
+	//매니저가 직접 수정
+	public int managerUpdate(ErpUsersVO vo);
 }

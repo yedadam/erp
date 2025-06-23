@@ -60,9 +60,9 @@ public class SubsManagerRestController {
 	//수정
 	@PutMapping("/subsModify/{comId}")
 	public int subsModify(@PathVariable String comId, @RequestBody ErpUsersVO info) {
-			System.out.println("comId" +comId);
-			System.out.println(info);
-		return 1;
+			
+		int result = service.managerUpdate(info);
+		return result;
 	}
 	
 	

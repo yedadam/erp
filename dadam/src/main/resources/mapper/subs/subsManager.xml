@@ -37,6 +37,7 @@
 
     <collection property="subsList" ofType="com.dadam.subscribe.service.SubsListVO" resultMap="erpSubsResultMap"/>
   </resultMap>
+ <!-- empUser구독정보조히 -->
 <select id="erpUserList" resultMap="erpUserResultMap">
 	SELECT  e.com_id,
     	    name,
@@ -73,7 +74,62 @@
       	   OPTION_CODE,
       	   BILLING_KEY,
       	   CONST_IMAGE
-FROM erpSubs
-WHERE com_id =#{comId}
+	FROM erpSubs
+	WHERE com_id =#{comId}
+</select>
+
+<insert id="subsManagerAdd">
+	<selectKey resultType="string" keyProperty="subsCode"
+	order="BEFORE">
+		SELECT 'subs_' || (NVL(MAX(TO_NUMBER(SUBSTR(subs_code,6))),100)+1)
+		FROM erpSubs
+	</selectKey>
+	   INSERT INTO erpsubs(subs_code,
+                       subs_expiration,
+                       subs_start,
+                       subs_term,
+                       subs_price,
+                       subs_quantity,
+                       option_code,
+                       com_id,
+                       subs_type,
+                       subs_state)
+       VALUES(#{subsCode},
+              sysdate+#{subsTerm},
+              sysdate,
+              #{subsTerm},
+              #{subsPrice},
+              #{subsQuantity},
+              #{optionCode},
+              #{comId},
+              'S02',
+              'C02')
+</insert>
+
+<!-- 매니저가 직접 정보 수정 -->
+<update id="erpManagerUpdate">
+	UPDATE erpUser
+	SET name=#{name},
+	     tel=#{tel},
+	     email=#{email},
+	     address=#{address},
+	     bus_tel=#{busTel}
+	WHERE com_id = #{comId}
+</update>
+<!-- 매니저가 직접 구독권 정보 수정 -->
+<update id ="subsManagerUpdate">
+    UPDATE erpSubs
+	SET subs_expiration=#{subsExpiration},
+   		 subs_start = #{subsStart},
+    	 subs_term=#{subsTerm},
+    	 com_id=#{comId},
+    	 option_code=#{optionCode}
+	WHERE subs_code = #{subsCode}
+</update>
+<!-- 구독권이 있는지 확인 -->
+<select id="subsCheck" resultType="String">
+	SELECT MAX(subs_code)
+	FROM erpSubs
+	WHERE com_id=#{comId}
 </select>
 </mapper>

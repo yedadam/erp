@@ -20,5 +20,5 @@ public class ErpUsersVO {
 	private String authority;
 	
 	//SubsList와 일대다 관게
-	List<SubsListVO> subsList;
+	private List<SubsListVO> subsList;
 }

@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -53,9 +54,10 @@ public class SubscirbeServiceImple implements SubscribeService{
 		}
 		
 		System.out.println(param.getOptionCode());
-		//등록
+		//구독권 등록
 	    int result = subsMapper.subsAdd(param);
-	    
+	    //세금계산서등록
+	    result = subsMapper.taxAdd(param);
 	    
 	    //로그인 객체값 연결
 	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -100,7 +102,7 @@ public class SubscirbeServiceImple implements SubscribeService{
 	 
     String BASE_URL = "https://api.iamport.kr";
     @Autowired
-    private RestTemplate restTemplate; // 이제 오류 안남
+    private RestTemplate restTemplate; 
     @Autowired
     private ObjectMapper objectMapper; // com.fasterxml.jackson.databind.ObjectMapper
     
@@ -136,7 +138,6 @@ public class SubscirbeServiceImple implements SubscribeService{
     }
     
   //정기결제 조회
-//@Scheduled(fixedRate=2000)
   public void subsCriptionList() {
 	  List<SubsListVO> subs = subsMapper.selectSubs();
 	  
@@ -147,6 +148,8 @@ public class SubscirbeServiceImple implements SubscribeService{
 		  subsMapper.subsEnd(sub.getBillingKey());
 		  //다시 결제 진행
 		  subsMapper.subsAdd(sub);
+		  //세금계산서 발행
+		  subsMapper.taxAdd(sub);
 	  });
   }
   
@@ -174,8 +177,8 @@ public class SubscirbeServiceImple implements SubscribeService{
             HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
             ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
             System.out.println(response.getBody());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) { 
+            e.printStackTrace(); 
         }
     }
 	

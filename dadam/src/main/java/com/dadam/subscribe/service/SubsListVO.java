@@ -18,5 +18,6 @@ public class SubsListVO {
 	private String optionCode;
 	private String billingKey;
 	private String constImage;
+	private String billCode;
 	private int remaining;
 }
