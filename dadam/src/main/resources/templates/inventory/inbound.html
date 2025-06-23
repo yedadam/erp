@@ -121,6 +121,7 @@ const purcharsegrid = new tui.Grid({
 	
 	// check 처리
 	function checkRow(){
+		data= [];
 		  let rowCheck = purcharsegrid.getCheckedRows();
 		  rowCheck.filter(item =>{
 			  ee = {
@@ -130,15 +131,53 @@ const purcharsegrid = new tui.Grid({
 				  loc : '',
 				  qty : '',
 				  note: '',
-				  btn: ''
+				  origin: true
 			  }
 			  data.push(ee);
+			  console.log(data);
 		  })
-		  console.log(data)
-		  /* data = JSON.parse(JSON.stringify(rowCheck)); */
 		  inboundGrid.resetData(data);
 	}
 	
+	/* class CustomButton{
+		constructor(props) {
+			
+			const el = document.createElement('button');
+			
+			console.log(props.row);
+			
+		    if (props.row.origin === true) {
+		      el.className = 'btn btn-primary';
+		      el.textContent = '+';
+		    } else {
+		      el.className = 'btn btn-danger';
+		      el.textContent = '-';
+		    }
+			console.log(el);
+			el.addEventListener('click',()=>{
+			const rowKey = props.rowKey;
+			const grid = props.grid;
+				
+			if(btnType) {
+				grid.appendRow({
+				      purOrdDtlCode: '',
+				      itemCode: '',
+				      quantity: '',
+				      loc: '',
+				      qty: '',
+				      note: '',
+				      origin: false
+				});
+			} else {
+				grid.removeRow(rowKey);
+			}
+			});
+			this.el = el;
+		}
+		getElement() {
+			return this.el;
+		}
+	} */
 	// inboundGrid 그리기
 	const inboundGrid = new tui.Grid({
 		el: document.getElementById('gridModal'),
@@ -149,12 +188,15 @@ const purcharsegrid = new tui.Grid({
 			    	{ header: '위치', name: 'loc', align:'center', editor: 'text'},
 			    	{ header: '입고수량', name: 'qty', align:'center', editor: 'text'},
 			    	{ header: '비고', name: 'note', align:'center', editor: 'text'},
-			    	{ header: '삭제', name: 'btn',align:'center'
-			    		/* , renderer: { type: renderer}} */
-			    	, formatter: () => {
-			    		return `<button class="btn btn-sm btn-danger add-btn">-</button>`;
-			    			  } 
-			    	}
+			    	{ header: '추가/삭제', name: 'origin', align:'center'
+			    		/* , renderer: CustomButton} */
+			    	, formatter: (rowKey) => {
+			    		console.log(rowKey);
+			    		if(rowKey){
+			    			
+			    		}
+			    		return `<bu tton class="btn btn-sm btn-danger add-btn">-</button>`;
+			    			  }}
 	    		],
 	    		columnOptions: {
 				frozenCount: 3,
@@ -188,22 +230,17 @@ const purcharsegrid = new tui.Grid({
 				      loc: '',
 				      qty: '',
 				      note: '',
-				      btn: ''
+				      origin: false
 				    };
-		console.log(addData)
-		
 		inboundGrid.appendRow(addData, {
-			  at: 2,          // 2번째 인덱스 위치에 추가 (0부터 시작)
-			  focus: true     // 포커스를 자동으로 줄지 여부
+			  at: 2          // 2번째 인덱스 위치에 추가 (0부터 시작)
 			});
 	});
-	
 	//행삭제
-inboundGrid.on('click',function(ev){
+inboundGrid.on('click',(ev)=>{
 		let { rowKey, columnName } = ev;
-		console.log(rowKey)
 		// 누른 컬럼이 버튼인지 확인
-		if(columnName === 'btn' && rowKey > 0){
+		if(columnName === 'origin' && rowKey > 0){
 		//체크된행을 가져오는 함수	
 		//행의 총 갯수
 		let count = inboundGrid.getRowCount()
@@ -214,6 +251,19 @@ inboundGrid.on('click',function(ev){
 
 	 // 모달안에서 그리드부를떄 참고.
 	$('#inboundModal').on('shown.bs.modal',function(){
+		if (inboundGrid.getRowCount() === 0) {
+			inboundGrid.resetData([
+				{
+					purOrdDtlCode: '',
+					itemCode: '',
+					quantity: '',
+					loc: '',
+					qty: '',
+					note: '',
+					origin: false
+				}
+			]);
+		}
 		inboundGrid.refreshLayout();
 	})
 </script>
