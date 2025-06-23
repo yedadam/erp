@@ -32,6 +32,21 @@ public class AccountServiceImpl implements AccountService{
 		String result = accountMapper.codeFind(accountCode);
 		return result;
 	}
+
+	@Override
+	public List<String> getAcctTypes() {
+	    return accountMapper.selectAcctTypes();
+	}
+
+	@Override
+	public List<String> getAcctClasses(String acctType) {
+	    return accountMapper.selectAcctClasses(acctType);
+	}
+
+	@Override
+	public List<String> getAcctSubclasses(String acctType, String acctClass) {
+	    return accountMapper.selectAcctSubclasses(acctType, acctClass);
+	}
 	
 	// 인설트 IMPL
 	@Override

@@ -6,14 +6,20 @@
 
 <body>
 
-	<h1>계정과목</h1>
+	<h2>계정과도 관리</h2>
+
 	<div>
-		<button id="excel">엑셀다운</button>
-		<button id="excelTemplate">양식다운</button>
-		<input type="file" id="excelUpload" accept=".xlsx, .xls" />
-		<button id="addRow">계정과목추가</button>
-		<button id="saveBtn">저장</button>
+		<button onclick="changeMode('read')">조회</button>
+		<button onclick="changeMode('edit')">수정</button>
+		<button onclick="changeMode('create')">등록</button>
+		<button id="addRow" style="display: none;">행 추가</button>
+		<button id="saveBtn" style="display: none;">저장</button>
+		<button id="excel" style="display: none;">엑셀다운</button>
+		<button id="excelTemplate" style="display: none;">양식다운</button>
+		<input type="file" id="excelUpload" accept=".xlsx, .xls" style="display: none;" />
 	</div>
+
+	<hr>
 
 	<div>
 		<button class="typeBtn" data-type="">모두</button>
@@ -24,137 +30,182 @@
 		<button class="typeBtn" data-type="5">비용</button>
 	</div>
 
-	<div class="col-12">
+	<hr>
+
+	<div class="col-10">
 		<div id="accGrid" class="mx-4"></div>
 	</div>
 
-	<script
-		src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 	<script>
-accountList()
+//텍스트 자동 완성
+	function createAutoCompleteEditor({ urlBuilder, deps = [], onSelectClear = [] }) {
+  function CustomEditor(props) {
+    const el = document.createElement('input');
+    el.type = 'text';
+    el.className = 'form-control';
 
-const accGrid = new tui.Grid({
-   
-   el: document.getElementById('accGrid'),
+    el.value = props.value || '';
 
-   //스크롤여부
-   scrollX: false,
-   scrollY: false,
-//   pagination: true,
-//   pageOptions: {
-//	   useClient: true,
-//	   perPage: 5
-//	 },
-   //필드값 구성
-   columns:[
-      //header: 필드이름 name	: 객체 key값 align 정렬방법
-      //editor: true -> cell안에 등록 가능
-      //width -> 크기조정   
-      //db acct_code, name, acct_type, acct_class, acct_yn,  note, created_date, com_id
-      {header: '계정코드',name:'acctCode',align:'center', width:100},
-      {header: '대분류',name:'acctType',align:'center',editor:'text', width:100,
-    	  editable:(props)=>{
-    		  if(props.rowKey >= newRowStartKey) return true;
-    		  return editableRowKeys.has(props.rowKey);
-    	  }},
-      {header: '중분류',name:'acctClass',align:'center',editor:'text', width:100 },
-      {header: '소분류',name:'acctSubclass',align:'center',editor:'text', width:100 },
-      {header: '계정명',name:'name',align:'center',editor:'text', width:200 },
-      {header: '사용유무',name: 'acctYn',align:'center', width:200, 
-    	    renderer: {
-    	        type: ToggleRenderer
-    	      }
+    $(el).autocomplete({
+      source: function (request, response) {
+        const depValues = deps.map(dep => props.grid.getValue(props.rowKey, dep));
+        if (depValues.includes('') || depValues.includes(undefined)) {
+          return response([]);
+        }
+        const url = urlBuilder(...depValues);
+        $.getJSON(url, function (data) {
+          const results = data.filter(v => v.startsWith(request.term));
+          response(results);
+        });
       },
-      {header: '비고',name:'note',align:'center',editor:'text', width:300 }
-   ]
-})
-
-
-function ToggleRenderer(props) {
-	  const el = document.createElement('input');
-	  el.type = 'checkbox';
-	  el.checked = props.value === 'Y';
-
-	  el.addEventListener('change', () => {
-	    const newValue = el.checked ? 'Y' : 'N';
-	    props.grid.setValue(props.rowKey, props.columnInfo.name, newValue);
-	  });
-
-	  this.el = el;
-	}
-	ToggleRenderer.prototype.getElement = function () {
-	  return this.el;
-};
-
-	
-	
-/*
- * 
- accGrid.on('click', ev => {
-     if (ev.columnName === 'acctYn' && ev.target.classList.contains('use-toggle')) {
-       const rowKey = ev.rowKey;
-       const prev = accGrid.getValue(rowKey, 'acctYn');
-       const next = prev === 'Y' ? 'N' : 'Y';
-       accGrid.setValue(rowKey, 'acctYn', next);
-  }
-});
-
- */    
-
-
-
-//전체 조회
- function accountList() {
-    $.ajax({
-       url: "/erp/accounting/accFindAll",
-       method: "GET",
-       success: function(result){
-          console.log(result)
-          accGrid.resetData(result);
-       }
+      minLength: 0,
+      select: function () {
+        onSelectClear.forEach(col => props.grid.setValue(props.rowKey, col, ''));
+      }
+    }).focus(function () {
+      $(this).autocomplete("search", "");
     });
- }
 
- // 필터 조회
- $('.typeBtn').on('click', function () {
-   const type = $(this).data('type'); // ✔️ 올바른 속성명 사용
-   const url = type ? `/erp/accounting/accFindByType?acctType=${type}` : `/erp/accounting/accFindAll`;
-
-   $.get(url, function (data) {
-     accGrid.resetData(data);
-   });
- });
-
-//행추가
-$('#addRow').on('click',function(){
-  //행추가할 데이터 생성
-   let addRow = {acctType : '',
-         acctClass : '',
-         acctSubclass:'',
-         name: '',
-         acctYn:'Y',
-         note : ''
-               }      
-  //기존데이터 한칸식 뒤로 밀기
-  for(let i = accGrid.getRowCount()-1; i>=0; i--){
-    for(let j=1; j<=9; j++){
-    }
+    this.el = el;
   }
-  //데이터 sampleGrid에 추가
-   accGrid.appendRow(addRow);
-  //sampleGrid 재반영  
-  accGrid.refreshLayout();
-})
+  // 반드시 getElement 메서드 추가!
+  CustomEditor.prototype.getElement = function () {
+    return this.el;
+  };
+  // 반드시 getValue 메서드 추가!
+  CustomEditor.prototype.getValue = function () {
+    return this.el.value;
+  };
+  return CustomEditor;
+}
 
-accGrid.on('click',ev => {
-	console.log(accGrid.getRow(ev.rowKey));
-})
+	// 대분류 조회 
+	const TypeEditor = createAutoCompleteEditor({
+	  urlBuilder: () => "/erp/accounting/api/account/type",
+	  deps: [],
+	  onSelectClear: ['classCode', 'subclassCode']
+	});
 
-// 입력된 자료를 업데이트(저장)
+	// 중분류 조회 
+	const ClassEditor = createAutoCompleteEditor({
+	  urlBuilder: (typeCode) => `/erp/accounting/api/account/class?typeCode=${typeCode}`,
+	  deps: ['typeCode'],
+	  onSelectClear: ['subclassCode']
+	});
+
+	// 소분류 조회 
+	const SubclassEditor = createAutoCompleteEditor({
+	  urlBuilder: (typeCode, classCode) => `/erp/accounting/api/account/subclass?typeCode=${typeCode}&classCode=${classCode}`,
+	  deps: ['typeCode', 'classCode']
+	});
+	
+	
+  let accGrid;
+  let currentMode = 'read';
+
+  const columnsBase = [
+    { header: '계정코드', name: 'acctCode', align: 'center', width: 100 },
+    { header: '대분류',name:'acctType',align:'center', editor: { type: TypeEditor }, width:100 },
+    { header: '중분류',name:'acctClass',align:'center',editor: { type: ClassEditor }, width:100 },
+    { header: '소분류',name:'acctSubclass',align:'center',editor: { type: SubclassEditor }, width:100 },
+    { header: '계정명', name: 'name', align: 'center', width: 200 },
+    {
+      header: '사용유무',
+      name: 'acctYn',
+      align: 'center',
+      width: 200,
+      formatter: ({ value }) => value === 'Y' ? '사용' : '무사용',
+      renderer: {
+        type: ToggleRenderer
+      }
+    },
+    { header: '비고', name: 'note', align: 'center', width: 300 }
+  ];
+
+  function ToggleRenderer(props) {
+    const el = document.createElement('input');
+    el.type = 'checkbox';
+    el.checked = props.value === 'Y';
+    el.disabled = currentMode === 'read';
+
+    el.addEventListener('change', () => {
+      const newValue = el.checked ? 'Y' : 'N';
+      props.grid.setValue(props.rowKey, props.columnInfo.name, newValue);
+    });
+
+    this.el = el;
+  }
+  ToggleRenderer.prototype.getElement = function () {
+    return this.el;
+  };
+
+// 텝효과로 그리드 상태 변경
+  function initGrid(mode) {
+    const isEditable = mode !== 'read';
+    const isCreate = mode === 'create';
+
+    const columns = columnsBase.map(col => {
+      if (['name', 'note'].includes(col.name)) {
+        return { ...col, editor: isEditable ? 'text' : undefined };
+      }
+      if (['acctType', 'acctClass', 'acctSubclass'].includes(col.name)) {
+    	  return { ...col, editor: isEditable ? col.editor : undefined };
+    	}
+      return col;
+    });
+
+    if (accGrid) accGrid.destroy();
+
+    accGrid = new tui.Grid({
+      el: document.getElementById('accGrid'),
+      scrollX: false,
+      scrollY: false,
+//      pagination: true,
+//     pageOptions: {
+//        useClient: true,
+//        perPage: 10,
+//      },
+      columns
+    });
+
+    loadData();
+  }
+
+
+  function loadData() {
+    fetch('/erp/accounting/accFindAll')
+      .then(res => res.json())
+      .then(data => accGrid.resetData(data));
+  }
+
+  //상태 변경
+  function changeMode(mode) {
+    currentMode = mode;
+    document.getElementById('addRow').style.display = mode === 'create' ? '' : 'none';
+    document.getElementById('saveBtn').style.display = mode !== 'read' ? '' : 'none';
+    initGrid(mode);
+  }
+  
+
+			
+
+  // 행 추가
+  document.getElementById('addRow').addEventListener('click', () => {
+    accGrid.appendRow({
+      acctCode: '',
+      acctType: '',
+      acctClass: '',
+      acctSubclass: '',
+      name: '',
+      acctYn: 'Y',
+      note: ''
+    });
+  });
+
+  // 저장
 $('#saveBtn').on('click', function () {
     const changes = accGrid.getModifiedRows();
-	
-    console.log(changes.createdRows)
+
     const payload = {
         createdRows: changes.createdRows,
         updatedRows: changes.updatedRows,
@@ -176,85 +227,103 @@ $('#saveBtn').on('click', function () {
         }
     })
 });
+  
 
+//전체 조회
+  function accountList() {
+     $.ajax({
+        url: "/erp/accounting/accFindAll",
+        method: "GET",
+        success: function(result){
+           console.log(result)
+           accGrid.resetData(result);
+        }
+     });
+  }
 
+  // 필터 조회
+  $('.typeBtn').on('click', function () {
+    const type = $(this).data('type'); // ✔️ 올바른 속성명 사용
+    const url = type ? `/erp/accounting/accFindByType?acctType=${type}` : `/erp/accounting/accFindAll`;
 
+    $.get(url, function (data) {
+      accGrid.resetData(data);
+    });
+  });
+  // 페이지 로드 시 조회목록 시작
+  window.onload = () => changeMode('read');
+  
+  
 //엑셀 다운로드.
-const topOptions = {
-           includeHiddenColumns: true,
-           onlySelected: false,
-           fileName: '계정과목',
-         };
-$('#excel').on('click',function(){
-   accGrid.export('xlsx',topOptions);
-})
+  const topOptions = {
+             includeHiddenColumns: true,
+             onlySelected: false,
+             fileName: '계정과목',
+           };
+  $('#excel').on('click',function(){
+     accGrid.export('xlsx',topOptions);
+  })
 
 
 
-//양식 다운/////
-$('#excelTemplate').on('click', function () {
-  const header = [
-    ["대분류", "중분류","소분류", "계정명", "사용유무", "비고"]
-  ];
+  //양식 다운/////
+  $('#excelTemplate').on('click', function () {
+    const header = [
+      ["대분류", "중분류","소분류", "계정명", "사용유무", "비고"]
+    ];
 
-  const ws = XLSX.utils.aoa_to_sheet(header); // 엑셀 시트 생성
-  const wb = XLSX.utils.book_new();// 엑셀 워크북 생성
-  XLSX.utils.book_append_sheet(wb, ws, "업로드양식"); // 시트 추가
-  XLSX.writeFile(wb, "계정과목_업로드양식.xlsx");// 파일 저장
-});
-
-
-//엑셀폼의 한글컬럼과 데이터베이스 컬럼명을 멥핑
-function mapKeysToInternal(data){
-	const columnMap = {
-			  '대분류': 'acctType',
-			  '중분류': 'acctClass',
-			  '소분류': 'acctSubclass',
-			  '계정명': 'name',
-			  '사용유무': 'acctYn',
-			  '비고': 'note'
-	};
-	
-	return data.map(row => {
-		const newRow = {};
-		for(let key in row){
-			const mappedKey = columnMap[key];
-			if (mappedKey){
-				newRow[mappedKey] = row[key];
-			}
-		}
-		return newRow;
-	})
-}
+    const ws = XLSX.utils.aoa_to_sheet(header); // 엑셀 시트 생성
+    const wb = XLSX.utils.book_new();// 엑셀 워크북 생성
+    XLSX.utils.book_append_sheet(wb, ws, "업로드양식"); // 시트 추가
+    XLSX.writeFile(wb, "계정과목_업로드양식.xlsx");// 파일 저장
+  });
 
 
-//엑셀 업로드  https://docs.sheetjs.com
-document.getElementById('excelUpload').addEventListener('change',function(e){
-   const file = e.target.files[0];
-   const reader = new FileReader();
-   
-   reader.onload = function(event){
-      const data = event.target.result;
-      const workbook = XLSX.read(data, {type: 'binary'});
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(sheet); //첫 행이 칼럼인 행 불러오기
-      
-      //한글과 영어 매핑
-      const mapped = mapKeysToInternal(json)
-      
-      // 토스트ui 데이터 표시
-      console.log(mapped)
-    mapped.forEach(item =>{
-  	 accGrid.appendRow(item) 
-    	
-    })
-   };
-   
-   reader.readAsBinaryString(file);
-})
+  //엑셀폼의 한글컬럼과 데이터베이스 컬럼명을 멥핑
+  function mapKeysToInternal(data){
+  	const columnMap = {
+  			  '대분류': 'acctType',
+  			  '중분류': 'acctClass',
+  			  '소분류': 'acctSubclass',
+  			  '계정명': 'name',
+  			  '사용유무': 'acctYn',
+  			  '비고': 'note'
+  	};
+  	
+  	return data.map(row => {
+  		const newRow = {};
+  		for(let key in row){
+  			const mappedKey = columnMap[key];
+  			if (mappedKey){
+  				newRow[mappedKey] = row[key];
+  			}
+  		}
+  		return newRow;
+  	})
+  }
 
+
+  //엑셀 업로드  https://docs.sheetjs.com
+  document.getElementById('excelUpload').addEventListener('change',function(e){
+     const file = e.target.files[0];
+     const reader = new FileReader();
+     
+     reader.onload = function(event){
+        const data = event.target.result;
+        const workbook = XLSX.read(data, {type: 'binary'});
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet); //첫 행이 칼럼인 행 불러오기
+        
+        //한글과 영어 매핑
+        const mapped = mapKeysToInternal(json)
+        
+        // 토스트ui 데이터 표시
+     accGrid.resetData(mapped) 
+     };
+     
+     reader.readAsBinaryString(file);
+  })
 </script>
-
 
 </body>
 </html>

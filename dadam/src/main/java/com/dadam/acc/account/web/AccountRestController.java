@@ -55,4 +55,22 @@ public class AccountRestController {
 
 	    return result;
 	}
+	
+	// 대분류 자동완성 코드 조회
+	@GetMapping("/api/account/type")
+	public List<String> getAcctTypes() {
+	    return accountService.getAcctTypes();  // ["자산", "부채", "자본", ...]
+	}
+	// 중분류 자동완성 코드 조회
+	@GetMapping("/api/account/class")
+	public List<String> getAcctClasses(@RequestParam String typeCode) {
+	    return accountService.getAcctClasses(typeCode);
+	}
+	
+	// 소분류 자동완성 코드 조회
+	@GetMapping("/api/account/subclass")
+	public List<String> getAcctSubclasses(@RequestParam String typeCode,
+	                                      @RequestParam String classCode) {
+	    return accountService.getAcctSubclasses(typeCode, classCode);
+	}
 }
