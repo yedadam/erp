@@ -93,4 +93,11 @@ update vender
 set credit_bal_price=#{creditBalPrice}-#{totPrice}
 where vdr_code= #{vdrCode}
 </update>
+<update id="callUpdateCreditBal" statementType="CALLABLE">
+    { CALL update_credit_bal(
+        #{vdrId, mode=IN, jdbcType=VARCHAR},
+        #{totPrice, mode=IN, jdbcType=NUMERIC}
+    ) }
+</update>
+
 </mapper>

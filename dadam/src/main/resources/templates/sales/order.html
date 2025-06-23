@@ -5,7 +5,6 @@
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
 <body>
-	<h1>Toastui</h1>
 	<button id="excel">엑셀다운</button>
 	<button id="addRow">행추가</button>
 	<button id="ordupd">주문수정</button>
@@ -85,7 +84,7 @@
 	orderList();//주문조회  
 	itemList();//제품조회 
 	vdrList(); //거래처조회 
-
+//	setTimeout(); //초기설정
 	const orderGrid = new tui.Grid({
 		//toastui 아이디 가져오기
 		el : document.getElementById('orderGrid'),
@@ -112,7 +111,7 @@
 				}
 		} },
 	   {header : '거래처이름',name : 'vdrName',	align : 'center',	editor : 'text'	},
-     {header : '거래처코드',	name : 'vdrCode',	align : 'center',editor : 'text'},
+       {header : '거래처코드',	name : 'vdrCode',	align : 'center',editor : 'text'},
 	   {header : '납기일자',name : 'reqDlvDate',align : 'center',editor : 'text', editor: 'datePicker'}, 
 	   {header : '총금액', name : 'totPrice',align : 'center',editor:'text'},
 	   {header : '여신한도',name : 'creditPrice',align : 'center',	editor : 'text'},
@@ -152,7 +151,6 @@
 			}
 		} ],
 	});
-
 //체크박스눌렀을때 특정태그안에 하위요소 찾기
 //행클릭시 작동
 orderGrid.on('click',(ev)=>{
@@ -182,10 +180,10 @@ orderGrid.on('afterChange',ev=>{
 		for(let i=0; i<vdrAll.length; i++){ //[{},{},{}] 거래처리스트중에 해당하는 
 			console.log(vdrAll.length); 
 		   	if(vdrAll[i].vdrCode==vdrCode){
-	      	  orderGrid.setValue(ev.changes[0].rowKey,"vdrName",vdrAll[i].vdrName);
-			  orderGrid.setValue(ev.changes[0].rowKey,"creditPrice",vdrAll[i].creditPrice);
-			  orderGrid.setValue(ev.changes[0].rowKey,"creditBalPrice",vdrAll[i].creditBalPrice);
-			  orderGrid.setValue(ev.changes[0].rowKey,"discount",vdrAll[i].discount); 
+	      	  orderGrid.setValue(ev.changes[0].rowKey,"vdrName",vdrAll[i].vdrName); //이름 
+			  orderGrid.setValue(ev.changes[0].rowKey,"creditPrice",vdrAll[i].creditPrice); //여신가격 
+			  orderGrid.setValue(ev.changes[0].rowKey,"creditBalPrice",vdrAll[i].creditBalPrice); //여신잔액 
+			  orderGrid.setValue(ev.changes[0].rowKey,"discount",vdrAll[i].discount);  //할인율 
 			  vdrdiscount=vdrAll[i].discount/100; //거래처 추가할때 할인율을 변수로 지정해서 받아옴
 			  console.log('할인율',vdrdiscount);      
 		   } 
@@ -361,32 +359,11 @@ orderGrid.on('afterChange',ev=>{
 	//	});		
 		let regHeader= orderGrid.getModifiedRows().createdRows[0]; //getOrdHeadplusInfo(newOrdPlus); //헤더부분 해당 행의 새로운정보를 읽어옴 
 		console.log('등록헤더부분',regHeader); 
-		const dtlObj = ordDtlGrid.getModifiedRows();//Object.fromEntries(regdtlmap);  // Map → Object 변환
+		const dtlObj = ordDtlGrid.getModifiedRows();//Object.fromEntries(regdtlmap); 
 		const dataToSend = {
   			ord: regHeader,      // 일반 객체
-  			dtl: dtlObj         // Map → Object 변환된 값
+  			dtl: dtlObj         
 		};
-
-		$('#ordupd').on('click',function(){
-			if(orderGrid.getModifiedRows().createdRows.getRowCount()>0){ //만들어진 행수가 0보다 큰경우만 등록임 
-				console.log('수정불가능'); 
-			}	
-		// 		$.ajax({
-		// url: '/erp/sales/ord/register',
-		// type: 'POST',
-		// contentType: 'application/json',
-		// data: JSON.stringify(dataToSend),
-		// success: function(res) {
-		// 	console.log('전송 성공', res);
-		// 	},
-		// 	error: function(err) {
-		// 	console.error('에러 발생', err);
-		// 	}
-		// 	});
-
-
-		})
-
 		//console.log(dataToSend); 
 		$.ajax({
 		url: '/erp/sales/ord/register',
@@ -401,6 +378,15 @@ orderGrid.on('afterChange',ev=>{
 			}
 			});
 	});
+	
+	$('#ordupd').on('click',function(){
+		//	if(orderGrid.getModifiedRows().createdRows !=null){ //만들어진 행수가 0보다 큰경우만 등록임 
+		//		console.log('수정불가능'); 
+		//	}
+			console.log('수정버튼눌림');	
+			console.log(ordDtlGrid.getModifiedRows().updatedRows); 
+	})
+
 	 //[1:{}] 
 	 //ordDtlRow의 수량 입력시 총금액,공급가액,부가세 계산되어 자동입력됨 
      ordDtlGrid.on('afterChange',ev=>{
@@ -484,6 +470,25 @@ orderGrid.on('afterChange',ev=>{
 		const  info=orderGrid.getRow(newNo); 
 		return info; 
 	}
+
+
+	setTimeout(() => {
+	const rows = orderGrid.getData();
+	rows.forEach((row, i) => {
+		if (row.vdrCode) fillVendorFields(i, row.vdrCode);
+	});
+}, 0);
+
+	function fillVendorFields(rowKey, vdrCode) {
+	const match = vdrAll.find(v => v.vdrCode === vdrCode);
+	if (match) {
+		orderGrid.setValue(rowKey, "vdrName", match.vdrName);
+		orderGrid.setValue(rowKey, "creditPrice", match.creditPrice);
+		orderGrid.setValue(rowKey, "creditBalPrice", match.creditBalPrice);
+		orderGrid.setValue(rowKey, "discount", match.discount);
+		vdrdiscount = match.discount / 100;
+	}
+}
 
 
 
