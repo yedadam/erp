@@ -4,14 +4,16 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dadam.sales.order.mapper.OrderMapper;
 import com.dadam.sales.order.service.OrdDtlVO;
+import com.dadam.sales.order.service.OrdReqVO;
 import com.dadam.sales.order.service.OrderService;
 import com.dadam.sales.order.service.OrdersVO;
 
 @Service
-public class OrderServiceImpl implements OrderService {
+public  class OrderServiceImpl implements OrderService {
 	
 	@Autowired
 	OrderMapper orderMapper;
@@ -27,6 +29,26 @@ public class OrderServiceImpl implements OrderService {
 	public List<OrdDtlVO> findOrdListByOrdNo(String ordCode) {
 		List<OrdDtlVO> result=orderMapper.findOrdListByOrdNo(ordCode); 
 		return result;
+	}
+
+	@Transactional
+	@Override
+	public int orderInsert(OrdReqVO ord) {
+		//헤더 등록 
+		orderMapper.orderInsert(ord.getOrd()); 
+		
+		String vdrcode=ord.getOrd().getVdrCode(); //vdrCode 거래처코드
+		Long totPrice=ord.getOrd().getTotPrice(); //totPrice 
+		
+		
+		//디테일 등록 
+		for(int i=0;i<ord.getDtl().getCreatedRows().size(); i++) {
+			orderMapper.odtlInsert(ord.getDtl().getCreatedRows().get(i));
+		}
+		
+		
+		
+		return 0;
 	} 
 	
 	

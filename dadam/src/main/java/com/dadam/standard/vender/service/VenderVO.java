@@ -15,9 +15,9 @@ public class VenderVO {
 	private String tel;
 	private String bank;
 	private String acctNo;
-	private int  creditPeriod;
-	private int  creditPrice;
-	private int creditBalPrice;
-	private int discount;
+	private Long  creditPeriod;
+	private Long  creditPrice;
+	private Long creditBalPrice;
+	private Long discount;
 	private String comId;
 }
