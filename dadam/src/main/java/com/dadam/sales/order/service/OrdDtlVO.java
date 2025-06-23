@@ -8,10 +8,12 @@ public class OrdDtlVO {
 	private String ordDtlCode;//상세정보 
 	private String itemCode; //품목정보
 	private String name; //이름
-	private int price; //가격
-	private int quantity; //수량
-	private int supPrice; //공급가액
-	private int vatPrice; //부가세
-	private int totPrice; //총가격 
-	private int discPrice; //할인금액 
+	private Long price; //가격
+	private Long quantity; //수량
+	private Long supPrice; //공급가액
+	private Long vatPrice; //부가세
+	private Long totPrice; //총가격 
+	private Long discPrice; //할인금액 
+	private String comId; //회사 
+	private String ordCode; //주문번호 
 }

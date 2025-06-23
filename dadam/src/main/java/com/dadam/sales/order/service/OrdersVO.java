@@ -3,6 +3,10 @@ package com.dadam.sales.order.service;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 @Data
@@ -11,21 +15,23 @@ public class OrdersVO {
 	private String ordCode;
 	private String vdrCode; 
 	private String status;
+	@JsonFormat(pattern = "yyyy/MM/dd")
 	private Date createdDate;
-	private String payMethod; 
+	private String payMethod;
+	@JsonFormat(pattern = "yyyy/MM/dd")
 	private Date payDate; 
-	private int totQuantity; 
+	private Long totQuantity; 
 	private Date reqDlvDate; 
 	private String empId; 
 	private String updateId; 
 	private Date updateDate; 
 	private String comId; 
-	private int totSupPrice;
-	private int totVatPrice; 
-	private int totDisc; 
-	private int discount; 
-	private int totPrice; 
+	private Long totSupPrice;
+	private Long totVatPrice; 
+	private Long totDisc; 
+	private Long discount; 
+	private Long totPrice; 
 	private String quoCode; 
 	
-	private List<OrdDtlVO> detailList; 
+	//private List<OrdDtlVO> detailList; 
 }
