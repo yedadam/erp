@@ -100,7 +100,7 @@ public class SubscirbeServiceImple implements SubscribeService{
 	 
     String BASE_URL = "https://api.iamport.kr";
     @Autowired
-    private RestTemplate restTemplate; // 이제 오류 안남
+    private RestTemplate restTemplate; 
     @Autowired
     private ObjectMapper objectMapper; // com.fasterxml.jackson.databind.ObjectMapper
     
@@ -136,7 +136,6 @@ public class SubscirbeServiceImple implements SubscribeService{
     }
     
   //정기결제 조회
-//@Scheduled(fixedRate=2000)
   public void subsCriptionList() {
 	  List<SubsListVO> subs = subsMapper.selectSubs();
 	  
