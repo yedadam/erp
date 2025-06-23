@@ -13,6 +13,8 @@ public interface OrderMapper {
         public int orderInsert(OrdersVO ord); //주문헤더 insert
         public int odtlInsert(OrdDtlVO dtl); 
         public int updVdrcreditBalPrice( @Param("vdrCode") String vdrCode,@Param ("totPrice") Long totPrice);
-           
+        // 프로시저 호출
+        void callUpdateCreditBal(@Param("vdrId") String vdrId, @Param("totPrice") Long totPrice); 
+        
            
 }
