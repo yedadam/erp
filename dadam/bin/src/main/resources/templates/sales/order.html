@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
+<body>
+	<h1>Toastui</h1>
+	<button id="excel">엑셀다운</button>
+	<a id="newForm" href="#" class="btn btn-success btn-icon-split"> <span
+		class="text">신규</span>
+	</a>
+	<button id="addRow">행추가</button>
+	<button id="deleteRow">행삭제</button>
+	<div class="col-12">
+		<div id="orderGrid"></div>
+		<button id="addRowdtl">주문상세행추가</button>
+		<div id="ordDtlGrid"></div>
+		<div id="ordDtlForm"></div>
+
+
+		<!-- 품목 보여주는 모달 -->
+		<div class="modal fade" id="exampleModalToggle" aria-hidden="true"
+			aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalToggleLabel">Modal 1</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+				<!--  	<div class="modal-body">Show a second modal and hide this one
+						with the button below.</div>--> 
+						<!-- 아이템품목을 보여줌 -->
+						<div>아이템나와야함...</div>
+			        <div id="itemList"></div> 
+					<div class="modal-footer">
+						<button class="btn btn-primary"
+							data-bs-target="#exampleModalToggle2" data-bs-toggle="modal"
+							data-bs-dismiss="modal">Open second modal</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+<script>
+	orderList();
+	//세션값 가져와 회원코드 가져오기
+	//toast ui 생성
+	const orderGrid = new tui.Grid({
+		//toastui 아이디 가져오기
+		el : document.getElementById('orderGrid'),
+		//checkbox부여
+		rowHeaders : [ 'checkbox' ],	
+		//페이지네이션
+		pageOptions : {
+			perPage : 5,
+			useClient : true,
+		},
+		//필드값 구성
+		columns : [
+		// header: 필드 이름  name:객체 key값  align:정렬방법
+		// editor:true -> cell안에 등록가능
+		// width -> 크기조정
+	   {header : '주문번호',name : 'ordCode',	align : 'center',	width : 500,
+		//validaton 검증 해당 값이 안되면 해당셀은 빨간색으로 변함
+	}, {header : '등록일자',name : 'createdDate',align : 'center',	editor : 'text'	},
+	   {header : '거래처이름',name : 'vdrName',	align : 'center',	editor : 'text'	},
+       {header : '거래처코드',	name : 'vdrCode',	align : 'center',editor : 'text',
+		   onAfterChange(ev) {
+           console.log('거래처코드:' + ev);
+       },},
+	   {header : '납기일자',name : 'reqDlvDate',	align : 'center',editor : 'text'	}, 
+	   {header : '총금액', name : 'totPrice',align : 'center',editor:'text'},
+	   {header : '여신한도',name : 'creditPrice',align : 'center',	editor : 'text'	},
+	   {header : '여신잔액',name : 'creditBalPrice',align : 'center',editor : 'text'	},
+	   {header : '지불방식',name : 'payMethod',align : 'center',editor:'text',
+			formatter : function(payMethod) {
+				if (payMethod.value == 'opm01') {
+					return payMethod.value='외상매입금';
+				} else if (payMethod.value == 'opm02') {
+					return payMethod.value='어음';
+				} else if (payMethod.value == 'opm03') {
+					return payMethod.value='계좌이체';
+				} else {
+					return payMethod.value=' ';
+				}
+			}
+		},
+		 {	header : '진행상태',name : 'status',align : 'center',editor : 'text',
+			formatter : function(status) {
+				if (status.value == 'ost01') {
+					return status.value='주문등록';
+				} else if (status.value == 'ost02') {
+					return status.value='출고대기';
+				} else if (status.value == 'ost03') {
+					return status.value='출고완료';
+				} else {
+					return status.value='기타';
+				}
+			}
+		}, {header : '할인율',	name : 'discount',align : 'center',	editor : 'text',
+			formatter : function(discount) {
+				return discount.value + '%';
+			}
+		} ],
+	});
+
+//체크박스눌렀을때 특정태그안에 하위요소 찾기
+//행클릭시 작동
+orderGrid.on('click',(ev)=>{
+	
+	/* let $row = $('#orderGrid').find(`[data-row-key="${ev.rowKey}"]`); //특정항목안에 data속성찾을때 활용
+	let td=$row[1]; //html 요소로 나옴 td행의 첫번째요소 주문      
+	console.log(ev)
+	let ordCode = $(td).find('div').text();  //jquery 로 한번더 감싸야함 div요소안의 text값 나옴  
+	console.log(ordCode);     
+	makeOrdDtList(ordCode); //dtl테이블생성함수 */
+	 const checkedRows = orderGrid.getCheckedRowKeys();
+     console.log(checkedRows)
+
+     // 현재 클릭한 rowKey가 유일하지 않으면 전부 해제 후 현재 행만 체크
+     if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
+       orderGrid.uncheckAll(); // 전체 해제
+       orderGrid.check(ev.rowKey); // 현재 행만 체크
+     }
+
+     const rowData = orderGrid.getRow(ev.rowKey);
+     const ordCode = rowData.ordCode;
+  //   console.log('선택된 주문번호:', ordCode);
+     ordDtlList(ordCode);
+})
+//체크풀때 작동
+	orderGrid.on('click', (ev) => {
+	//	console.log(ev.rowkey)
+	 // console.log(`uncheck: ${ev.rowKey}`);
+});
+
+//주문번호를 받아와서 상세품목 조회후 테이블 생성하는 함수 	
+// ordDtlGrid.resetData(result);
+    let ordDtlGrid=new tui.Grid({
+		el:document.getElementById('ordDtlGrid'),
+        rowHeaders:['checkbox'], 
+		pageOptions: {
+        perPage: 5,
+        useClient: true,
+    },
+	columns:[
+    {header: '주문상세정보',name:'ordDtlCode',align:'center',editor:'text'},
+	{header: '품목코드',name:'itemCode',align:'center',editor:'text'},
+	{header: '이름',name:'name',align:'center',editor:'text'},
+	{header: '가격',name:'price',align:'center',editor:'text'},
+	{header: '수량',name:'quantity',align:'center',editor:'text'},
+	{header: '공급가액',name:'supPrice',align:'center',editor:'text'},
+	{header: '부가세',name:'vatPrice',align:'center',editor:'text'},
+	{header: '총가격',name:'totprice',align:'center',editor:'text'},
+	{header: '할인금액',name:'discPrice',align:'center',editor:'text'},	
+	] 
+	})
+//	ordDtlGrid.resetData(result);
+	
+    //아이템 모달안에 아이템그리드 생성  
+    let itemGrid=new tui.Grid({
+    	el:document.getElementById('itemList'), //아이템그리드 아이디 찾기 
+    	rowHeaders:['checkbox'], //체크박스 
+    	pageOptions: {
+            perPage: 10,     //10개씩 보여주기 
+            useClient: true, 
+        }, 
+        columns:[
+        	{header:'종류',name:'type',align:'center',editor:'text'},
+        	{header:'품목코드',name:'itemCode',align:'center',editor:'text'}, 
+        	{header:'품목명',name:'name',align:'center',editor:'text'},
+        	{header:'가격',name:'price',align:'center',editor:'text'} 
+        ]
+    })
+ 
+	//데이터 불러오는 함수
+	function orderList() {
+		$.ajax({
+			url : "/erp/sales/orderList",
+			method : "GET",
+			success : function(result) {
+				//console.log('주문정보 불러오기', result);
+				orderGrid.resetData(result);
+			}
+		})
+	}
+    //주문번호에 해당하는 상세정보 불러오는 함수
+	function ordDtlList(ordcode){
+		$.ajax({
+			url:"/erp/sales/ordDtlList",
+			method:"GET",
+			data: { ordCode: ordcode },
+			success : function(result) {
+			//console.log('주문상세정보 불러오기', result);
+			ordDtlGrid.resetData(result);
+			}
+		})
+	} 
+   //아이템리스트 불러오는 함수  
+    function itemList(){
+    	$.ajax({
+    		url:"/erp/standard/itemAll",
+    		method:"GET", 
+    		success:function(result){
+    			console.log(result);
+    			itemGrid.resetData(result);
+    		}
+    	})
+    }
+  itemList();
+    let ordDtlForm;
+	$('#addRow').on('click',function(){
+		  //행추가할 데이터 생성
+		  let addRow = { }
+		  orderGrid.appendRow(addRow); 
+		  ordDtlForm.prependRow(addDtlRow);  
+		  //sampleGrid 재반영  
+		  orderGrid.refreshLayout();
+		})
+		
+	//주문상세 행추가 반영 
+	$('#addRowdtl').on('click',function(){
+		let addDtlrow={}
+
+		ordDtlGrid.appendRow(addDtlrow); // 
+		ordDtlGrid.refreshLayout(); // 
+	})	
+     ordDtlGrid.on('click',(ev)=> {
+    	 console.log(ev.columnName)
+    	 if(ev.columnName=='itemCode'){
+    		
+    		 openItemmodal();//모달을 띄워줌  
+    	 }
+     })
+     
+     ordDtlGrid.on('afterChange',ev=>{
+    	 
+    	 console.log(ev);
+    	 if(ev.columnName=='price'){
+    		 
+    	 }
+     })
+
+	//행의 값 을 바꿨을때 바뀌는      
+    orderGrid.on('afterChange', ev => {
+      //console.log('check!', ev);
+    });
+	
+	var modalToggle = document.getElementById('exampleModalToggle')
+	
+	var myModal = new bootstrap.Modal(modalToggle, {
+		  keyboard: false
+	})	
+
+	 $(modalToggle).on('shown.bs.modal',function(e){
+		 itemGrid.refreshLayout();
+	 })
+	 var myModalEl = document.getElementById('myModal')
+	 myModalEl.addEventListener('hidden.bs.modal', function (event) {
+	   // do something...
+	 })
+
+	// 모달띄워주는 함수
+    function openItemmodal(){	
+		myModal.show(modalToggle); 
+	}       	
+	
+	
+</script>
+</html>

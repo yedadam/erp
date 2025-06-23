@@ -23,5 +23,4 @@ public class AccountFormController {
 	public String getAccount() {
 		return "acc/account";
 	}
-
 }

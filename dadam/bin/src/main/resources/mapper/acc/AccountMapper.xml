@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.acc.account.mapper.AccountMapper">
+
+<select id="accFindAll" resultType="com.dadam.acc.account.service.AccountVO">
+	SELECT acct_code
+		 , name
+		 , acct_type
+		 , acct_class
+		 , acct_subclass
+		 , acct_yn
+		 , note
+		 , created_date
+		 , update_date
+		 , com_id
+	  FROM account 
+</select>
+
+
+	<!-- 코드 기준
+		대분류 자산 100000 부채 200000 자본 300000 수익 400000 비용 500000
+		중분류 10000단위씩 증가
+		소분류 100단위씩 증가
+		컬럼명 1씩 증가	 
+		getAccCode(p_type_code, p_class_code, p_subclass_code)-->
+<!-- acct_code 만들때 함수 써서? 분류 테이블의 값을 분류명으로 조회하여 번호를 코드에 넣는 형태로
+	저장하면 110100까지는 등록. 계정명은 1씩 증가 -->
+	
+	<!-- 계정 분류 코드 조회 AccountCategoryDTO -->
+<select id="codeFind" resultType="string">
+	SELECT getAccCode(
+	       #{typeCode}
+		 , #{classCode}
+		 , #{subclassCode}) 
+	  FROM dual
+</select>
+
+<select id="findTypeCodeByName" resultType="string">
+    SELECT type_code 
+      FROM acct_type 
+     WHERE type_name = #{typeName}
+</select>
+
+<select id="findClassCodeByName" resultType="string">
+    SELECT class_code 
+      FROM acct_class 
+     WHERE class_name = #{className}
+</select>
+
+<select id="findSubclassCodeByName" resultType="string">
+    SELECT subclass_code 
+      FROM acct_subclass 
+     WHERE subclass_name = #{subclassName}
+</select>
+	
+	
+<insert id="insert" >
+	INSERT into account(
+		   acct_code
+		 , name
+		 , acct_type
+		 , acct_class
+		 , acct_subclass
+		 , acct_yn
+		 , note
+		 , created_date
+		 , update_date
+		 , com_id)
+    VALUES (
+    	   #{acctCode}
+		 , #{name}
+		 , #{acctType}
+		 , #{acctClass}
+		 , #{acctSubclass}
+		 , #{acctYn, jdbcType=VARCHAR}
+		 , #{note}
+		 , SYSDATE
+		 , SYSDATE
+		 , 'COM-101'
+		)
+</insert>
+
+<update id="update">
+    UPDATE account
+           SET name = #{name},
+            acct_yn = #{acctYn},
+               note = #{note},
+        update_date = SYSDATE
+    WHERE acct_code = #{acctCode}
+</update>
+
+<delete id="delete">
+    DELETE FROM account WHERE acct_code = #{acctCode}
+</delete>
+
+
+
+
+</mapper>

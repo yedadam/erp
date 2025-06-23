@@ -3,7 +3,7 @@
 	<appender name="STDOUT"
 		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>%d{HH:mm:ss} [%thread] %-3level %logger{5} - %msg %n</pattern>
+			<pattern> %d{HH:mm:ss}  %cyan(%-5level) %boldGreen(%msg)%n</pattern>
 		</encoder>
 	</appender>
 	<logger name="jdbc" level="OFF" />
@@ -11,10 +11,11 @@
 	<logger name="jdbc.sqltiming" level="DEBUG" />
 	<logger name="jdbc.audit" level="OFF" />
 	<logger name="jdbc.resultset" level="OFF" />
-	<logger name="jdbc.resultsettable" level="DEBUG" />
+	<logger name="jdbc.resultsettable" level="info" />
 	<logger name="jdbc.connection" level="OFF" />
 	
-	<root level="INFO">
+	
+	<root level="info">
 		<appender-ref ref="STDOUT" />
 	</root>
 <typeAliases></typeAliases>

@@ -1,26 +1,36 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
- xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{common/layouts/default_layout}" 
-  layout:fragment="Content">
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
 
 <body>
 
-<h1>계정과목</h1>
-<div>
-  <button id="excel">엑셀다운</button>
-  <button id="excelTemplate">양식다운</button>
-  <input type="file" id="excelUpload" accept=".xlsx, .xls" />
-  <button id="addRow">행추가</button>
-  <button id="saveBtn">저장</button>
-</div>
+	<h1>계정과목</h1>
+	<div>
+		<button id="excel">엑셀다운</button>
+		<button id="excelTemplate">양식다운</button>
+		<input type="file" id="excelUpload" accept=".xlsx, .xls" />
+		<button id="addRow">계정과목추가</button>
+		<button id="saveBtn">저장</button>
+	</div>
 
-<div class="col-10"> 
-   <div id="accGrid" class="mx-4" ></div>
-</div>
+	<div>
+		<button class="typeBtn" data-type="">모두</button>
+		<button class="typeBtn" data-type="1">자산</button>
+		<button class="typeBtn" data-type="2">부채</button>
+		<button class="typeBtn" data-type="3">자본</button>
+		<button class="typeBtn" data-type="4">수익</button>
+		<button class="typeBtn" data-type="5">비용</button>
+	</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script>
+	<div class="col-12">
+		<div id="accGrid" class="mx-4"></div>
+	</div>
+
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+	<script>
 accountList()
 
 const accGrid = new tui.Grid({
@@ -30,19 +40,23 @@ const accGrid = new tui.Grid({
    //스크롤여부
    scrollX: false,
    scrollY: false,
-   
-   pageOption:{
-      perPage: 10,
-      useClient:true,
-   },
+//   pagination: true,
+//   pageOptions: {
+//	   useClient: true,
+//	   perPage: 5
+//	 },
    //필드값 구성
    columns:[
-      //header: 필드이름 name: 객체 key값 align 정렬방법
+      //header: 필드이름 name	: 객체 key값 align 정렬방법
       //editor: true -> cell안에 등록 가능
       //width -> 크기조정   
       //db acct_code, name, acct_type, acct_class, acct_yn,  note, created_date, com_id
-      {header: '계정코드',name:'acctCode',align:'center', width:100 },
-      {header: '대분류',name:'acctType',align:'center',editor:'text', width:100 },
+      {header: '계정코드',name:'acctCode',align:'center', width:100},
+      {header: '대분류',name:'acctType',align:'center',editor:'text', width:100,
+    	  editable:(props)=>{
+    		  if(props.rowKey >= newRowStartKey) return true;
+    		  return editableRowKeys.has(props.rowKey);
+    	  }},
       {header: '중분류',name:'acctClass',align:'center',editor:'text', width:100 },
       {header: '소분류',name:'acctSubclass',align:'center',editor:'text', width:100 },
       {header: '계정명',name:'name',align:'center',editor:'text', width:200 },
@@ -89,46 +103,58 @@ function ToggleRenderer(props) {
 
 
 
+//전체 조회
+ function accountList() {
+    $.ajax({
+       url: "/erp/accounting/accFindAll",
+       method: "GET",
+       success: function(result){
+          console.log(result)
+          accGrid.resetData(result);
+       }
+    });
+ }
 
-function accountList() {
-   $.ajax({
-      url: "/erp/accounting/accFindAll",
-      method:"GET",
-      success:function(result){
-         console.log(result)
-         allData = result; 
-         accGrid.resetData(allData)
-      }
-   })
-}
+ // 필터 조회
+ $('.typeBtn').on('click', function () {
+   const type = $(this).data('type'); // ✔️ 올바른 속성명 사용
+   const url = type ? `/erp/accounting/accFindByType?acctType=${type}` : `/erp/accounting/accFindAll`;
+
+   $.get(url, function (data) {
+     accGrid.resetData(data);
+   });
+ });
 
 //행추가
 $('#addRow').on('click',function(){
   //행추가할 데이터 생성
    let addRow = {acctType : '',
          acctClass : '',
+         acctSubclass:'',
          name: '',
+         acctYn:'Y',
          note : ''
                }      
   //기존데이터 한칸식 뒤로 밀기
   for(let i = accGrid.getRowCount()-1; i>=0; i--){
     for(let j=1; j<=9; j++){
-      
     }
   }
-  
   //데이터 sampleGrid에 추가
    accGrid.appendRow(addRow);
-  
   //sampleGrid 재반영  
   accGrid.refreshLayout();
 })
 
+accGrid.on('click',ev => {
+	console.log(accGrid.getRow(ev.rowKey));
+})
 
-// 입력된 자료를 업데이트
+// 입력된 자료를 업데이트(저장)
 $('#saveBtn').on('click', function () {
     const changes = accGrid.getModifiedRows();
-
+	
+    console.log(changes.createdRows)
     const payload = {
         createdRows: changes.createdRows,
         updatedRows: changes.updatedRows,
@@ -149,8 +175,9 @@ $('#saveBtn').on('click', function () {
             alert("실패: " + data.message);
         }
     })
-
 });
+
+
 
 //엑셀 다운로드.
 const topOptions = {
@@ -161,6 +188,8 @@ const topOptions = {
 $('#excel').on('click',function(){
    accGrid.export('xlsx',topOptions);
 })
+
+
 
 //양식 다운/////
 $('#excelTemplate').on('click', function () {
@@ -214,7 +243,11 @@ document.getElementById('excelUpload').addEventListener('change',function(e){
       const mapped = mapKeysToInternal(json)
       
       // 토스트ui 데이터 표시
-   accGrid.resetData(mapped) 
+      console.log(mapped)
+    mapped.forEach(item =>{
+  	 accGrid.appendRow(item) 
+    	
+    })
    };
    
    reader.readAsBinaryString(file);
