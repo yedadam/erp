@@ -1,6 +1,11 @@
 package com.dadam.subscribe.web;
 
+import java.io.InputStream;
+import java.sql.Connection;
+import java.util.HashMap;
 import java.util.List;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,10 +15,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
+import com.dadam.common.JasperPreviewCommon;
 import com.dadam.subscribe.service.ErpUsersVO;
 import com.dadam.subscribe.service.SubsListVO;
 import com.dadam.subscribe.service.SubsManagerService;
+
+import jakarta.servlet.http.HttpServletResponse;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
 
 /* 
  * @author 신현욱
@@ -50,4 +64,7 @@ public class SubsManagerRestController {
 			System.out.println(info);
 		return 1;
 	}
+	
+	
+	
 }

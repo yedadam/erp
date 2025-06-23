@@ -241,7 +241,7 @@
             scrollX: false,
             scrollY: false,
             columns:[
-            	{ header : '회사코드' ,name:'comId',align:'center',width:200 },
+            	{ header : '회사코드' ,name:'comId',align:'center'},
                 { header: '구독종류',name:'optionCode',align:'center',
                 formatter: function(param){
                 		if(param.value=='oc-101'){
@@ -272,7 +272,16 @@
                     }
                 },
                 { header: '가격',name:'subsPrice',align:'center'},
-               
+                { header: '세금계산서',name:'subsCode',align:'center',
+                	formatter: function(param){
+              		  if(param.value && param.value.length > 0) {
+              			  return `<button class="btn btn-primary btn-sm btn-download" data-com-id="${param.row.comId}">
+                            <i class="fas fa-download"></i> 다운로드
+                          </button>`;
+              			  }
+              			  return '';
+              		}	
+                },
             ],
         });
 
@@ -352,7 +361,8 @@
             $('#optionCode').val(optionCode).prop("selected",true)
             $("#subsStart").val(userGrid.getRow(rowKey).subsStart);
             $("#subsExpiration").val(userGrid.getRow(rowKey).subsExpiration);
-
+			
+            //상세그리드 조회
         	await $.ajax({
                 url : "/main/subsDetailList",
                 method:"GET",
@@ -507,18 +517,7 @@
             return;
           }
           
-          $.ajax({
-                url : "/main/subsDetailList",
-                method:"GET",
-                data:{param : comId},
-                success:function(result) {
-                    detailGrid.resetData(result)
-                },
-                error: function (xhr, status, error) {
-                    console.log("실패:", xhr.status, error);
-                }
-
-            })
+         //넘길 정보값 조회
             info = {
                 comId : comId,
                 busTel : busTel,
@@ -534,6 +533,7 @@
                     subsExpiration: subsExpiration
                 }]
             }
+         //수정작동
           $.ajax({
             url:  `/main/subsModify/${comId}`,
             method : "PUT",
@@ -547,6 +547,14 @@
                 }
             }
           })
+       })
+       //세금계산서 다운로드
+       detailGrid.on('click', ev => {
+    	   
+    	   if(ev.columnName == 'subsCode'){
+    		   let subsCode = detailGrid.getRow(ev.rowKey).subsCode;
+    		   location.href=`/main/report?subsCode=${subsCode}`;
+    	   }
        })
     </script>
 </body>

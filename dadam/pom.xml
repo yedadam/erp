@@ -127,10 +127,12 @@
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 
+		<!-- jasper -->
 		<dependency>
-			<groupId>com.yedam</groupId>
-			<artifactId>egov</artifactId>
-			<version>1.0.0</version>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>6.4.0</version>
+
 		</dependency>
 	</dependencies>
 
