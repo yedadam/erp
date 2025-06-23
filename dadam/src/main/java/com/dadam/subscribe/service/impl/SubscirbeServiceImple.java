@@ -173,7 +173,7 @@ public class SubscirbeServiceImple implements SubscribeService{
             HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
             ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
             System.out.println(response.getBody());
-        } catch (Exception e) {
+        } catch (Exception e) { 
             e.printStackTrace(); 
         }
     }
