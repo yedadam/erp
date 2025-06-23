@@ -27,6 +27,32 @@
 	 ORDER BY acct_code
 </select>
 
+<!-- 대분류 조회 -->
+<select id="selectAcctTypes" resultType="string">
+  SELECT type_name 
+    FROM acct_type 
+   ORDER BY type_code
+</select>
+
+<!-- 중분류 조회 -->
+<select id="selectAcctClasses" resultType="string">
+  SELECT class_name 
+    FROM acct_class
+   WHERE type_code  = #{typeCode}
+   ORDER BY class_code
+</select>
+
+<!-- 소분류 조회 -->
+<select id="selectAcctSubclasses" resultType="string">
+  SELECT subclass_name
+    FROM acct_subclass
+   WHERE class_code = #{classCode}
+     AND class_code IN (
+         SELECT class_code FROM acct_class WHERE type_code = #{typeCode}
+     )
+   ORDER BY subclass_code
+</select>
+
 
 	<!-- 코드 기준
 		대분류 자산 100000 부채 200000 자본 300000 수익 400000 비용 500000
@@ -38,6 +64,8 @@
 	저장하면 110100까지는 등록. 계정명은 1씩 증가 -->
 	
 	<!-- 계정 분류 코드 조회 AccountCategoryDTO -->
+	
+<!-- 계정코드 조회 함수 -->
 <select id="codeFind" resultType="string">
 	SELECT getAccCode(
 	       #{typeCode}
@@ -46,25 +74,28 @@
 	  FROM dual
 </select>
 
+<!-- 대분류 유효성검사 -->
 <select id="findTypeCodeByName" resultType="string">
     SELECT type_code 
       FROM acct_type 
      WHERE type_name = #{typeName}
 </select>
 
+<!-- 중분류 유효성검사 -->
 <select id="findClassCodeByName" resultType="string">
     SELECT class_code 
       FROM acct_class 
      WHERE class_name = #{className}
 </select>
 
+<!-- 소분류 유효성검사 -->
 <select id="findSubclassCodeByName" resultType="string">
     SELECT subclass_code 
       FROM acct_subclass 
      WHERE subclass_name = #{subclassName}
 </select>
 	
-	
+<!-- 계정코드 입력 -->
 <insert id="insert" >
 	INSERT into account(
 		   acct_code
@@ -91,6 +122,7 @@
 		)
 </insert>
 
+<!-- 계정코드 수정 -->
 <update id="update">
     UPDATE account
            SET name = #{name},
@@ -100,6 +132,7 @@
     WHERE acct_code = #{acctCode}
 </update>
 
+<!-- 계정코드 삭제 -->
 <delete id="delete">
     DELETE FROM account WHERE acct_code = #{acctCode}
 </delete>

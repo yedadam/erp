@@ -8,4 +8,7 @@ public interface AccountService {
 	public void saveAll(AccountVO accountVO);
 	List<AccountVO> accFindAll(); // 
 	List<AccountVO> accFindByType(String acctType); // 
+	public List<String> getAcctTypes();
+	public List<String> getAcctClasses(String acctType);
+	public List<String> getAcctSubclasses(String acctType, String acctClass);
 }
