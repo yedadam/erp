@@ -19,8 +19,12 @@ public class AccountServiceImpl implements AccountService{
 	// 리스트 IMPL
 	@Override
 	public List<AccountVO> accFindAll() {
-		List<AccountVO> result = accountMapper.accFindAll();
-		return result;
+	    return accountMapper.accFindAll();
+	}
+
+	@Override
+	public List<AccountVO> accFindByType(String acctType) {
+	    return accountMapper.accFindByType(acctType); // ✔️ 반드시 Mapper에 구현되어야 함
 	}
 
 	@Override
@@ -34,27 +38,41 @@ public class AccountServiceImpl implements AccountService{
 	public void insert(AccountVO acct) {
 		accountMapper.insert(acct);
 	}
-
+	
+	
 	@Override
-    public void saveAll(AccountVO container) {
-    	 List<AccountVO> rows = container.getCreatedRows();
+    public void saveAll(AccountVO account) {
+    	 List<AccountVO> rows = account.getCreatedRows();
+    	 
 
     	 for (AccountVO acct : rows) {
-
+//    		    if (acct.getNote() == null) acct.setNote("");
+//    		    if (acct.getAcctSubclass() == null) acct.setAcctSubclass("");
+//    		    if (acct.getAcctYn() == null) acct.setAcctYn("Y"); // 기본값 설정도 가능	
+    		    
              // 분류명 기반 코드 조회
              String typeCode = accountMapper.findTypeCodeByName(acct.getAcctType());
              if (typeCode == null) {
-                 throw new IllegalArgumentException("❌ 대분류 '" + acct.getAcctType() + "'에 해당하는 코드가 없습니다.");
+                 throw new IllegalArgumentException("대분류 '" + acct.getAcctType() + "'에 해당하는 코드가 없습니다.");
              }
 
              String classCode = accountMapper.findClassCodeByName(acct.getAcctClass());
              if (classCode == null) {
-                 throw new IllegalArgumentException("❌ 중분류 '" + acct.getAcctClass() + "'에 해당하는 코드가 없습니다.");
+                 throw new IllegalArgumentException("중분류 '" + acct.getAcctClass() + "'에 해당하는 코드가 없습니다.");
              }
+             
+             
+             String subclassCode = null;
 
-             String subclassCode = accountMapper.findSubclassCodeByName(acct.getAcctSubclass());
-             if (subclassCode == null) {
-                 throw new IllegalArgumentException("❌ 소분류 '" + acct.getAcctSubclass() + "'에 해당하는 코드가 없습니다.");
+             String subclassName = acct.getAcctSubclass();
+
+             // 1. 소분류 값이 있으면 → 코드 조회 + 유효성 검사
+             if (subclassName != null && !subclassName.isBlank()) {
+                 subclassCode = accountMapper.findSubclassCodeByName(subclassName);
+
+                 if (subclassCode == null) {
+                     throw new IllegalArgumentException("소분류 '" + subclassName + "'에 해당하는 코드가 없습니다.");
+                 }
              }
 
              // 코드 세팅 및 acct_code 생성
@@ -78,20 +96,22 @@ public class AccountServiceImpl implements AccountService{
          }
     	 
     	// 2. 수정
-    	 if (container.getUpdatedRows() != null) {
-    		 for (AccountVO acct : container.getUpdatedRows()) {
+    	 if (account.getUpdatedRows() != null) {
+    		 for (AccountVO acct : account.getUpdatedRows()) {
     	         accountMapper.update(acct);
     	     }
     	 }
 
     	 // 3. 삭제
-    	 if (container.getDeletedRows() != null) {
-    	     for (AccountVO acct : container.getDeletedRows()) {
+    	 if (account.getDeletedRows() != null) {
+    	     for (AccountVO acct : account.getDeletedRows()) {
     	         accountMapper.delete(acct.getAcctCode());
     	     }
     	 }
     	    
     }
+
+
 
 
 

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<link rel="icon" href="/main_img/icon.png" type="image/png">      
 <head th:replace="common/configs/config :: ConfigFragment"></head>
 <body id="page-top">
     <div id="wrapper">
@@ -12,7 +13,7 @@
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
+                <div class="sidebar-brand-text mx-3">dadam<sup>2</sup></div>
             </a>
 
             <!-- Divider -->
@@ -93,20 +94,26 @@
 			
 			
 			<!-- 기준정보 -->
-			<div  th:if="${activeMenu == 'standard'}">
+			<div th:if="${activeMenu == 'standard'}">
             <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
                 기준정보
             </div>
             <li class="nav-item">
                 <a class="nav-link" href="charts.html">
                     <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Charts</span>
+                    <span>거래처</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="tables.html">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Tables</span>
+                <a class="nav-link" href="item">
+                    <i class="fas fa-fw fa-cube"></i>
+                    <span>품목</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="warehouses">
+                    <i class="fas fa-fw fa-cubes"></i>
+                    <span>창고</span>
                 </a>
             </li>
 			</div>
@@ -120,15 +127,15 @@
             </div>
             <!-- Nav Item - Charts -->
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/erp/sales}">
+                <a class="nav-link" th:href="@{/erp/sales/quote}">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>견적서관리</span>
                 </a>
-                <a class="nav-link" th:href="@{/erp/sales}">
+                <a class="nav-link" th:href="@{/erp/sales/sales}">
                   <i class="fa-regular fa-check"></i>
                     <span>주문관리</span>
                 </a>
-                <a class="nav-link" th:href="@{/erp/sales}">
+                <a class="nav-link" th:href="@{/erp/sales/shipreq}">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>출하의뢰</span>
                 </a>
@@ -149,24 +156,43 @@
 			<!-- 재고 -->
 			<div  th:if="${activeMenu == 'inventory'}">
             <!-- Heading -->
-            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
-                재고
-            </div>
-            <!-- Nav Item - Charts -->
-            <li class="nav-item">
-                <a class="nav-link" href="charts.html">
-                    <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Charts</span>
-                </a>
-            </li>
-            <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="tables.html">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Tables</span>
-                </a>
-            </li>
+	            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
+	                재고
+	            </div>
+	            <!-- Nav Item - Charts -->
+	            <li class="nav-item">
+	                <a class="nav-link" href="/erp/inventory/warehouse">
+	                    <i class="fas fa-fw fa-cubes"></i>
+	                    <span>창고관리</span>
+	                </a>
+	            </li>
+	            <!-- Nav Item - Tables -->
+	            <li class="nav-item">
+	                <a class="nav-link" href="/erp/inventory/inbound">
+	                    <i class="fas fa-fw fa-industry"></i>
+	                    <span>입고관리</span>
+	                </a>
+	            </li>
+	            <li class="nav-item">
+	                <a class="nav-link" href="/erp/inventory/outbound">
+	                    <i class="fas fa-fw fa-truck"></i>
+	                    <span>출고관리</span>
+	                </a>
+	            </li>
+	            <li class="nav-item">
+	                <a class="nav-link" href="/erp/inventory/history">
+	                    <i class="fas fa-fw fa-table"></i>
+	                    <span>재고실사</span>
+	                </a>
+	            </li>
+	            <li class="nav-item">
+	                <a class="nav-link" href="/erp/inventory/physical">
+	                    <i class="fas fa-fw fa-history"></i>
+	                    <span>이력</span>
+	                </a>
+	            </li>
 			</div>
+			
 			
 			
 			<!-- 인사 -->
@@ -196,17 +222,49 @@
                 회계
             </div>
             <li class="nav-item">
-                <a class="nav-link" href="charts.html">
+                <a class="nav-link" href="accounting/account">
                     <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Charts</span>
+                    <span>계정과목</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="acc/chit">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>Tables</span>
+                    <span>전표</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Chit">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>세금계산서</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Chit">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>여신관리</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Chit">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>매입매출조회</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Chit">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>재무제표</span>
+                </a>
+            </li>            
+            <li class="nav-item">
+                <a class="nav-link" href="Chit">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>손익계산서</span>
+                </a>
+            </li>
+            
+            
 			</div>
 			
             <!-- Divider -->
@@ -217,12 +275,12 @@
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
 
-            <!-- Sidebar Message -->
-            <div class="sidebar-card d-none d-lg-flex">
+           <!-- Sidebar Message -->
+            <!-- <div class="sidebar-card d-none d-lg-flex">
                 <img class="sidebar-card-illustration mb-2" src="/img/undraw_rocket.svg" alt="...">
                 <p class="text-center mb-2"><strong>SB Admin Pro</strong> is packed with premium features, components, and more!</p>
                 <a class="btn btn-success btn-sm" href="https://startbootstrap.com/theme/sb-admin-pro">Upgrade to Pro!</a>
-            </div>
+            </div> -->
 
         </ul>
 
@@ -244,7 +302,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS for toggle behavior -->
     <script src="/js/toggle.js"></script>
 </body>

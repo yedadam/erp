@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.subscribe.mapper.SubsManagerMapper">
+
+  <!-- subsListVO 매핑 -->
+  <!-- 매핑할 이름과 경로를 설정 -->
+  <resultMap id="erpSubsResultMap" type="com.dadam.subscribe.service.SubsListVO">
+  <!-- 해당 VO의 프라이머리키 지정 -->
+    <id property="subsCode" column="subs_code"/>
+    <!-- 조회해야할 항목의 컬럼을 매핑작업 -->
+    <result property="comId" column="com_id"/>
+    <result property="subsExpiration" column="subs_expiration"/>
+    <result property="subsType" column="subs_type"/>
+    <result property="subsStart" column="subs_start"/>
+    <result property="subsTerm" column="subs_term"/>
+    <result property="subsPrice" column="subs_price"/>
+    <result property="subsQuantity" column="subs_quantity"/>
+    <result property="subsState" column="subs_state"/>
+    <result property="optionCode" column="option_code"/>
+    <result property="constImage" column="const_image"/>
+    <result property="remaining" column="remaining"/>
+  </resultMap>
+ 
+ 
+ <!-- ErpUserVO + subsList 매핑 -->
+  <resultMap id="erpUserResultMap" type="com.dadam.subscribe.service.ErpUsersVO">
+      <id property="comId" column="com_id"/>
+  	  <result property="password" column="password"/>
+  	  <result property="comName" column="com_name"/>
+ 	  <result property="name" column="name"/>
+  	  <result property="tel" column="tel"/>
+  	  <result property="email" column="email"/>
+  	  <result property="address" column="address"/>
+  	  <result property="busTel" column="bus_tel"/>
+  	  <result property="createdDate" column="created_date"/>
+  	  <result property="authority" column="authority"/>
+
+    <collection property="subsList" ofType="com.dadam.subscribe.service.SubsListVO" resultMap="erpSubsResultMap"/>
+  </resultMap>
+<select id="erpUserList" resultMap="erpUserResultMap">
+	SELECT  e.com_id,
+    	    name,
+       		e.com_name,
+      		subs_start,
+       		subs_expiration,
+       		FLOOR(subs_expiration-sysdate) AS remaining,
+       		tel,
+       		email,
+       		address,
+       		bus_tel,
+       		const_image,
+       		subs_expiration,
+       		subs_type,
+       		subs_term
+	FROM erpUser e LEFT JOIN erpSubs s ON(e.com_id = s.com_id)
+	WHERE subs_expiration = (
+                         SELECT max(s2.subs_expiration)
+                         FROM erpSubs s2
+                         WHERE s2.com_id = e.com_id)
+	OR subs_expiration IS NULL
+</select>
+</mapper>

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,17 +29,23 @@ public class AccountRestController {
 	AccountService accountService;
 	
 	@GetMapping("/accFindAll")
-	public  List<AccountVO> getAccFindAll() {
-		return accountService.accFindAll();
+	public List<AccountVO> getAccFindAll() {
+	    return accountService.accFindAll();  // ✔️ 파라미터 제거
 	}
+
+	@GetMapping("/accFindByType")
+	public List<AccountVO> getAccByType(@RequestParam(required = false) String acctType) {
+	    return accountService.accFindByType(acctType);
+	}
+	
 	
 	@PostMapping("/saveAll")
 	@ResponseBody
-	public Map<String, Object> saveAccounts(@RequestBody AccountVO requestVO) {
+	public Map<String, Object> saveAccounts(@RequestBody AccountVO accountVO) {
 	    Map<String, Object> result = new HashMap<>();
-	    
+
 	    try {
-	        accountService.saveAll(requestVO);
+	        accountService.saveAll(accountVO);
 	        result.put("result", "success");
 	        result.put("message", "저장이 완료되었습니다.");
 	    } catch (IllegalArgumentException e) {

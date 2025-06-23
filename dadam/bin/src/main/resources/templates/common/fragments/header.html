@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:fragment="HeaderFragment">
-<head>
-</head>
+<link rel="icon" href="/img/bg2.png" type="image/png">
+<title>Dadam</title>
 <body>
 	<!-- Topbar -->
 	<nav class="navbar navbar-expand navbar-light bg-light topbar mb-4 static-top shadow">
@@ -14,19 +14,19 @@
 		<!-- Main Menu (Center aligned) -->
 		<div class="mx-auto d-flex">
 			<ul class="navbar-nav flex-row align-items-center">
-				<li class="nav-item mx-2">
+				<li class="nav-item mx-3">
 					<a class="nav-link text-dark fw-bold" th:href="@{/erp/standard}">기준정보</a>
 				</li>
-				<li class="nav-item mx-2">
+				<li class="nav-item mx-3">
 					<a class="nav-link text-dark fw-bold" th:href="@{/erp/sales}">영업</a>
 				</li>
-				<li class="nav-item mx-2">
+				<li class="nav-item mx-3">
 					<a class="nav-link text-dark fw-bold" th:href="@{/erp/inventory}">재고</a>
 				</li>
-				<li class="nav-item mx-2">
+				<li class="nav-item mx-3">
 					<a class="nav-link text-dark fw-bold" th:href="@{/erp/hr}">인사</a>
 				</li>
-				<li class="nav-item mx-2">
+				<li class="nav-item mx-3">
 					<a class="nav-link text-dark fw-bold" th:href="@{/erp/accounting}">회계</a>
 				</li>
 			</ul>
@@ -85,8 +85,8 @@
 			<!-- 로그인 사용자 -->
 			<li class="nav-item dropdown no-arrow" sec:authorize="isAuthenticated()">
 				<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-					<span class="me-2 d-none d-lg-inline text-gray-600 small" th:text="${#authentication.principal.name}"></span>
-					<img class="img-profile rounded-circle" src="img/undraw_profile.svg">
+					<span class="me-2 d-none d-lg-inline text-gray-600 small" th:text="${#authentication.principal.username}"></span>
+					<img class="img-profile rounded-circle" src="/img/undraw_profile.svg">
 				</a>
 				<div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
 					<a class="dropdown-item" href="#"><i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Profile</a>
@@ -97,7 +97,6 @@
 						<i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Logout
 					</a>
 					<form id="logout-form" th:action="@{/logoutForm}" method="post" style="display: none;">
-						<input type="hidden" name="_csrf" th:value="${_csrf.token}" />
 					</form>
 				</div>
 			</li>

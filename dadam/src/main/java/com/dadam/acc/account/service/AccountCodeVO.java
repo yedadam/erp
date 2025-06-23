@@ -22,4 +22,7 @@ public class AccountCodeVO {
     //계정과목
     private String accountName;
     private String accountNote; // 계정과목(account)의 비고
+	private String acctType; // 대분류
+	private String acctClass; //중분류
+	private String acctSubclass; //소분류
 }
