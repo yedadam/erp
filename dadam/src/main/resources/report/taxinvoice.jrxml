@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 7.2.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="taxinvoice" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9a33a3ac-3aaf-4dfc-bebc-818633dcd447">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="local_hr"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<style name="han_font" fontName="훈민정음"/>
+	<parameter name="p_subsCode" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT bill_code,
+       com_name,
+       name,
+       address,
+       email,
+       sup_price supPrice,
+       surtax,
+       t.created_date createdDate,
+       price
+FROM erpTax  t JOIN erpUser u ON(t.com_id = u.com_id)
+               JOIN erpSubs s ON (s.subs_code = t.subs_code)
+WHERE t.subs_code =  $P{p_subsCode}]]>
+	</queryString>
+	<field name="BILL_CODE" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="BILL_CODE"/>
+	</field>
+	<field name="COM_NAME" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="COM_NAME"/>
+	</field>
+	<field name="NAME" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="NAME"/>
+	</field>
+	<field name="ADDRESS" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="ADDRESS"/>
+	</field>
+	<field name="EMAIL" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="EMAIL"/>
+	</field>
+	<field name="SUPPRICE" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="SUPPRICE"/>
+	</field>
+	<field name="SURTAX" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="SURTAX"/>
+	</field>
+	<field name="CREATEDDATE" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="CREATEDDATE"/>
+	</field>
+	<field name="PRICE" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="PRICE"/>
+	</field>
+	<background>
+		<band height="802" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<image>
+				<reportElement x="1" y="0" width="554" height="800" uuid="82be5e79-6694-478b-a8b0-c367a24f3f33">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<imageExpression><![CDATA["C:/Users/admin/Downloads/taxinvoice.jpg"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement style="han_font" x="21" y="478" width="101" height="19" uuid="90461ec4-1138-479a-9948-47c45f470bb1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{PRICE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="han_font" x="342" y="76" width="88" height="19" uuid="d88dd8f6-f113-4d36-b929-76bd6abc15ff">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{BILL_CODE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="han_font" x="85" y="76" width="89" height="18" uuid="f66dea5a-7a80-4947-815b-b4d64164879b"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{BILL_CODE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="han_font" x="21" y="212" width="62" height="17" uuid="68e6b648-b473-4d8c-8455-a7eae654d473">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{CREATEDDATE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="han_font" x="470" y="95" width="63" height="23" uuid="6cf99a51-b7bc-4c4c-8a50-f62ab0be917f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{NAME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="han_font" x="342" y="119" width="191" height="23" uuid="dfcc0141-80fa-4e81-b4f4-677354c0a768"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{ADDRESS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="han_font" x="342" y="95" width="88" height="23" uuid="a7757cb0-f2e1-4b79-b4e0-45d4e1f71593">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{COM_NAME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="han_font" x="347" y="163" width="184" height="15" uuid="7a9b66ff-15bb-45a8-aaca-e654aa599e8b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{EMAIL}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="han_font" x="343" y="52" width="190" height="21" uuid="c0fa4c16-8499-47ea-8810-9c677b2abce5">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{BILL_CODE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="han_font" x="481" y="471" width="40" height="18" uuid="406cf02d-eb80-48b7-8359-5a3019db4805"/>
+				<text><![CDATA[영수]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="han_font" x="85" y="143" width="50" height="20" uuid="081958bc-1c74-4f2d-83b6-5d80f76072cd"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[서비스업]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="han_font" x="175" y="143" width="100" height="20" uuid="52d28e31-7a79-4e8a-bfb5-51a9fd531649"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[정보서비스업]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="han_font" x="85" y="95" width="89" height="23" uuid="a028c989-2fd7-4fc5-adca-4ac2e42aeed7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Dadam]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="han_font" x="214" y="95" width="62" height="23" uuid="76e1e62d-88b2-4c00-8d70-2621808de063"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[신현욱]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="han_font" x="85" y="120" width="190" height="21" uuid="d9dae27b-8df8-4b1d-b9bd-e5032086a1aa"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[대구 중구 중앙대로 403 5층]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="han_font" x="89" y="163" width="184" height="28" uuid="6c59d884-1b57-48f4-ad40-0e13bfe34a3b"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[gusdnr654321@naver.com]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="han_font" x="84" y="212" width="102" height="17" uuid="f7e58385-aa18-4d98-ab8e-3bc21541f57b">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{SUPPRICE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="han_font" x="188" y="212" width="88" height="17" uuid="5191b5f1-def5-4848-b869-06a336201b68">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{SURTAX}]]></textFieldExpression>
+			</textField>
+		</band>
+	</background>
+	<title>
+		<band height="249" splitType="Stretch"/>
+	</title>
+	<detail>
+		<band height="21" splitType="Stretch"/>
+	</detail>
+</jasperReport>

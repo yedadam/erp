@@ -1,0 +1,3 @@
+ttf 파일은 resource/font 폴더에 복사
+
+<font size="14" isBold="false" pdfFontName="fonts/malgun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
