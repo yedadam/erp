@@ -17,13 +17,12 @@ public interface AccountMapper {
 	public String findClassCodeByName(String className);
 	public String findSubclassCodeByName(String subclassName);
 	
-    List<String> selectAcctTypes();
+	public List<String> selectAcctTypes();
 
-    List<String> selectAcctClasses(@Param("typeCode") String typeCode);
+	public List<String> selectAcctClasses(@Param("acctType") String typeCode );
 
-    List<String> selectAcctSubclasses(@Param("typeCode") String typeCode, @Param("classCode") String classCode);
+	public List<String> selectAcctSubClasses(@Param("acctClass") String classCode);
 	
 	public void update(AccountVO acct);
 	public void delete(String acctCode);
-
 }

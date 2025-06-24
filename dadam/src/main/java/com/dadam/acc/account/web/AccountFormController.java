@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dadam.acc.account.service.AccountService;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 //controller 빈등록  
 @Controller
@@ -16,11 +18,19 @@ import com.dadam.acc.account.service.AccountService;
 @RequestMapping("/erp/accounting")  
 public class AccountFormController {
 	
-	@Autowired
-	AccountService accountService;
 	
 	@GetMapping("/account")
 	public String getAccount() {
 		return "acc/account";
 	}
+	
+	@GetMapping("/chit")
+	public String getChit() {
+		return "acc/chit";
+	}
+	@GetMapping("/create")
+	public String getCreate() {
+		return "acc/create";
+	}
+	
 }

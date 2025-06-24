@@ -39,13 +39,13 @@ public class AccountServiceImpl implements AccountService{
 	}
 
 	@Override
-	public List<String> getAcctClasses(String acctType) {
-	    return accountMapper.selectAcctClasses(acctType);
+	public List<String> getAcctClasses(String acctCode) {
+	    return accountMapper.selectAcctClasses(acctCode);
 	}
 
 	@Override
-	public List<String> getAcctSubclasses(String acctType, String acctClass) {
-	    return accountMapper.selectAcctSubclasses(acctType, acctClass);
+	public List<String> getAcctSubClasses(String classCode) {
+		return accountMapper.selectAcctSubClasses(classCode);
 	}
 	
 	// 인설트 IMPL
@@ -125,6 +125,8 @@ public class AccountServiceImpl implements AccountService{
     	 }
     	    
     }
+
+
 
 
 

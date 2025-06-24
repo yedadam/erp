@@ -38,19 +38,17 @@
 <select id="selectAcctClasses" resultType="string">
   SELECT class_name 
     FROM acct_class
-   WHERE type_code  = #{typeCode}
+   WHERE type_code  = (SELECT type_code FROM acct_type WHERE type_name = #{acctType})
    ORDER BY class_code
 </select>
 
 <!-- 소분류 조회 -->
-<select id="selectAcctSubclasses" resultType="string">
-  SELECT subclass_name
-    FROM acct_subclass
-   WHERE class_code = #{classCode}
-     AND class_code IN (
-         SELECT class_code FROM acct_class WHERE type_code = #{typeCode}
-     )
-   ORDER BY subclass_code
+<select id="selectAcctSubClasses" resultType="string">
+SELECT s.subclass_name
+  FROM acct_subclass s
+  JOIN acct_class c ON s.class_code = c.class_code
+ WHERE c.class_name = #{acctClass}
+ ORDER BY s.subclass_code
 </select>
 
 

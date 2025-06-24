@@ -9,6 +9,6 @@ public interface AccountService {
 	List<AccountVO> accFindAll(); // 
 	List<AccountVO> accFindByType(String acctType); // 
 	public List<String> getAcctTypes();
-	public List<String> getAcctClasses(String acctType);
-	public List<String> getAcctSubclasses(String acctType, String acctClass);
+	public List<String> getAcctClasses(String typeCode);
+	public List<String> getAcctSubClasses(String classCode);
 }
