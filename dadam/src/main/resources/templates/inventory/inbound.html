@@ -261,13 +261,13 @@ const purcharsegrid = new tui.Grid({
 	inboundGrid.on('click', (ev)=>{
 		
 		const idxData = idx();
-		console.log(idxData);
-		
+		console.log(ev)
+		idxData.forEach((item,idx) => {
+			ev.rowKey = idx
+		})
 		/* const changes = inboundGrid.getModifiedRows(); */
 		// rowKey = 키값, columnName = 셀의 이름
 		let { rowKey, columnName } = ev;
-		console.log(rowKey);
-		console.log(columnName);
 		let addData = {
 				      purOrdDtlCode: '',
 				      itemCode: '',
