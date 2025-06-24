@@ -78,13 +78,6 @@
 			<version>3.0.4</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- MyBatis Test도 호환 버전으로 업데이트 -->
-		<dependency>
-			<groupId>org.mybatis.spring.boot</groupId>
-			<artifactId>mybatis-spring-boot-starter-test</artifactId>
-			<version>3.0.4</version>
-			<scope>test</scope>
-		</dependency>
 		<!-- 로그에 필요한 라이브러리 - Spring Boot 3.x 호환 버전 -->
 		<dependency>
 			<groupId>org.bgee.log4jdbc-log4j2</groupId>
