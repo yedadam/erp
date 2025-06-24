@@ -1,10 +1,12 @@
 package com.dadam.sales.order.web;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.dadam.common.service.CodeService;
+import com.dadam.common.service.CodeVO;
 import com.dadam.sales.order.service.OrdDtlVO;
 import com.dadam.sales.order.service.OrdReqVO;
 import com.dadam.sales.order.service.OrderService;
@@ -25,10 +29,14 @@ import lombok.RequiredArgsConstructor;
 public class OrderController {
 	
 	final OrderService orderService;
+	final CodeService codeService; 
 	
 	@GetMapping("/order")
-	public String orderList() {
+	public String order(Model model) {
 		
+		model.addAttribute("payMethod",codeService.getCodeMap("opm"));
+		model.addAttribute("status",codeService.getCodeMap("ost")); 
+
 		return "sales/order";
 	}
 	
@@ -48,19 +56,20 @@ public class OrderController {
 	@ResponseBody
 	@PostMapping("/ord/register")
 	public String registerOrder(@RequestBody OrdReqVO req) {
-		
-	req.getOrd().setEmpId("emp-101");
-	String vdrcode=req.getOrd().getVdrCode();
-	Long totPrice=req.getOrd().getTotPrice(); // 총금액 해당 거래처코드에 가서 credit_bal_price-totPrice 여신잔액  
-	orderService.orderInsert(req); //insert 처리 
-		
+		req.getOrd().setEmpId("emp-101");
+		String vdrcode=req.getOrd().getVdrCode();
+		Long totPrice=req.getOrd().getTotPrice(); // 총금액 해당 거래처코드에 가서 credit_bal_price-totPrice 여신잔액  
+		orderService.orderInsert(req); //insert 처리 		
 	    return "ok";
 	}
-
+	@ResponseBody
+	@DeleteMapping("/ord/delete")
+	public String deleteOrder(@RequestParam(name="ordCode") String ordCode) {
+		orderService.removeOrders(ordCode); 
+		return "deleteok"; 
+	}
 	@GetMapping("/test")
 	public String test() {
 		return "sales/test";
 	}
-	
-	
 }
