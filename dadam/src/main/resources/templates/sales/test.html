@@ -1,167 +1,213 @@
 <!DOCTYPE html>
-<!-- =====================
-      이름    | 기능            |  등록일자    | 수정일자  |
-      신현욱   | toast ui 사용법 | 2025-06-18 
--->
 <html xmlns:th="http://www.thymeleaf.org"
- xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{common/layouts/default_layout}" 
-  layout:fragment="Content">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/default_layout}"
+      layout:fragment="Content">
+
 <body>
-  <h1>Toastui</h1>
-  <button id="excel">엑셀다운</button>
-  <div class="col-12">
-	   <div id="sampleGrid"></div>
-     <div id="sampleTable"></div>
-   </div>
-  
+  <h2 class="text-xl font-bold my-4">출하의뢰</h2>
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <input type="text" id="searchInput" class="form-control w-25" placeholder="거래처 검색">
+      <div id="actionButtons" style="display:none">
+        <button class="btn btn-outline-primary" id="addHeaderRowBtn">헤더 행추가</button>
+        <button class="btn btn-outline-secondary" id="addDetailRowBtn">상세 행추가</button>
+        <button class="btn btn-success" id="saveBtn">저장</button>
+      </div>
+      <div>
+        <button class="btn btn-warning" id="importOrderBtn">주문서 불러오기</button>
+        <button class="btn btn-secondary" id="searchBtn">조회</button>
+        <button class="btn btn-success" id="createBtn">전표생성</button>
+        <button class="btn btn-primary" id="newBtn">신규</button>
+        <button class="btn btn-info" id="editBtn">수정</button>
+        <button class="btn btn-danger" id="deleteBtn">삭제</button>
+      </div>
+    </div>
+
+    <div id="deliveryGrid" class="mb-5"></div>
+    <h5 class="mt-4">출하 상세내역</h5>
+    <div id="deliveryDetailGrid"></div>
+  </div>
+
+  <!-- 창고/품목 선택 모달 -->
+  <div class="modal fade" id="vdrmymodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">선택</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row card">
+            <div class="form-floating mb-3">
+              <input type="date" class="form-control" id="floatingInput" placeholder="날짜">
+              <label for="floatingInput">일자</label>
+            </div>
+          </div>
+          <div class="container-fluid">
+            <div id="vdrList">여기에 창고 또는 품목 리스트</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentHeaderKey = null;
+    const headerDetailMap = new Map();
+    const headerList = [];
+
+    const deliveryGrid = new tui.Grid({
+      el: document.getElementById('deliveryGrid'),
+      rowHeaders: ['checkbox'],
+      bodyHeight: 200,
+      pageOptions: { perPage: 5, useClient: true },
+      columns: [
+        { header: '거래처명', name: 'vdrName', align: 'center', editor: 'text' },
+        { header: '금액합계', name: 'totalAmount', align: 'right', editor: 'text' },
+        { header: '출고창고', name: 'outWarehouse', align: 'center', editor: 'text' },
+        { header: '출고예정일', name: 'expectedDate', align: 'center', editor: { type: 'datePicker' } },
+        { header: '일자', name: 'regDate', align: 'center', editor: { type: 'datePicker' } }
+      ]
+    });
+
+    const deliveryDetailGrid = new tui.Grid({
+      el: document.getElementById('deliveryDetailGrid'),
+      rowHeaders: ['checkbox'],
+      bodyHeight: 200,
+      pageOptions: { perPage: 5, useClient: true },
+      columns: [
+        { header: '품목코드', name: 'itemCode', align: 'center', editor: 'text' },
+        { header: '품목명', name: 'itemName', align: 'center', editor: 'text' },
+        { header: '출고창고', name: 'outWarehouse', align: 'center', editor: 'text' },
+        { header: '수량', name: 'quantity', align: 'right', editor: 'text' },
+        { header: '단가', name: 'price', align: 'right', editor: 'text' },
+        { header: '공급가액', name: 'supplyPrice', align: 'right', editor: 'text' },
+        { header: '부가세', name: 'vat', align: 'right', editor: 'text' },
+        { header: '결제금액', name: 'paymentAmount', align: 'right', editor: 'text' },
+        { header: '할인율', name: 'discountRate', align: 'right', editor: 'text' },
+        { header: '할인금액', name: 'discountAmount', align: 'right', editor: 'text' }
+      ]
+    });
+
+    function loadDummyData() {
+      currentHeaderKey = null;
+      headerList.length = 0;
+      headerDetailMap.clear();
+      const dummyHeader = [
+        {
+          key: 1, vdrName: '오케이유통', totalAmount: 36000,
+          outWarehouse: '본사창고', expectedDate: '2025-06-17', regDate: '2025-06-13'
+        },
+        {
+          key: 2, vdrName: '한빛상사', totalAmount: 45000,
+          outWarehouse: '2창고', expectedDate: '2025-06-20', regDate: '2025-06-14'
+        }
+      ];
+      headerList.push(...dummyHeader);
+      deliveryGrid.resetData([...headerList]);
+      headerDetailMap.set(1, [
+        {
+          itemCode: 'P001', itemName: '볼트M8', outWarehouse: '본사창고',
+          quantity: 20, price: 1500, supplyPrice: 30000, vat: 3000,
+          paymentAmount: 33000, discountRate: '0%', discountAmount: 0
+        }
+      ]);
+      headerDetailMap.set(2, [
+        {
+          itemCode: 'P002', itemName: '너트M8', outWarehouse: '2창고',
+          quantity: 10, price: 300, supplyPrice: 3000, vat: 300,
+          paymentAmount: 3300, discountRate: '0%', discountAmount: 0
+        }
+      ]);
+      deliveryDetailGrid.resetData([]);
+      document.getElementById('actionButtons').style.display = 'none';
+    }
+
+    window.addEventListener('DOMContentLoaded', loadDummyData);
+
+    deliveryGrid.on('click', function(ev) {
+      const rowKey = ev.rowKey;
+      const row = deliveryGrid.getRow(rowKey);
+      if (!row) return;
+      if (currentHeaderKey !== null) {
+        const currentDetail = deliveryDetailGrid.getData();
+        headerDetailMap.set(currentHeaderKey, [...currentDetail]);
+      }
+      currentHeaderKey = row.key;
+      const detailList = headerDetailMap.get(currentHeaderKey) || [];
+      deliveryDetailGrid.resetData([...detailList]);
+    });
+
+    document.getElementById('searchInput').addEventListener('input', function () {
+      const keyword = this.value.toLowerCase();
+      const filtered = headerList.filter(row => row.vdrName.toLowerCase().includes(keyword));
+      deliveryGrid.resetData(filtered);
+    });
+
+    document.getElementById('searchBtn').addEventListener('click', loadDummyData);
+
+    document.getElementById('newBtn').addEventListener('click', function () {
+      headerList.length = 0;
+      headerDetailMap.clear();
+      deliveryGrid.resetData([]);
+      deliveryDetailGrid.resetData([]);
+      document.getElementById('actionButtons').style.display = 'inline-block';
+    });
+
+    document.getElementById('addHeaderRowBtn').addEventListener('click', function () {
+      const newKey = new Date().getTime();
+      if (currentHeaderKey !== null) {
+        const currentDetail = deliveryDetailGrid.getData();
+        headerDetailMap.set(currentHeaderKey, [...currentDetail]);
+      }
+      currentHeaderKey = newKey;
+      const newHeader = { key: newKey, vdrName: '', totalAmount: '', outWarehouse: '', expectedDate: '', regDate: '' };
+      headerList.push(newHeader);
+      deliveryGrid.resetData([...headerList]);
+      deliveryGrid.focusAt(headerList.length - 1, 0, true);
+      headerDetailMap.set(currentHeaderKey, []);
+      deliveryDetailGrid.resetData([]);
+    });
+
+    document.getElementById('addDetailRowBtn').addEventListener('click', function () {
+      if (currentHeaderKey !== null) {
+        const currentDetails = headerDetailMap.get(currentHeaderKey) || [];
+        const newRow = { itemCode: '', itemName: '', outWarehouse: '', quantity: '', price: '', supplyPrice: '', vat: '', paymentAmount: '', discountRate: '', discountAmount: '' };
+        currentDetails.push(newRow);
+        headerDetailMap.set(currentHeaderKey, [...currentDetails]);
+        deliveryDetailGrid.resetData([...currentDetails]);
+      } else {
+        alert('먼저 헤더를 추가해주세요.');
+      }
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', function () {
+      if (currentHeaderKey !== null) {
+        const headerRows = deliveryGrid.getData();
+        const currentHeader = headerRows.find(row => row.key === currentHeaderKey);
+        const currentDetail = deliveryDetailGrid.getData();
+        headerDetailMap.set(currentHeaderKey, [...currentDetail]);
+        console.log('저장 완료:', currentHeader, currentDetail);
+      } else {
+        alert('저장할 헤더가 없습니다.');
+      }
+    });
+
+    deliveryDetailGrid.on('click', function(ev) {
+      if (ev.columnName === 'itemName') {
+        const modal = new bootstrap.Modal(document.getElementById('vdrmymodal'));
+        modal.show();
+      }
+    });
+
+    document.getElementById('importOrderBtn').addEventListener('click', function () {
+      const modal = new bootstrap.Modal(document.getElementById('vdrmymodal'));
+      modal.show();
+    });
+  </script>
 </body>
-<script>
-//세션값 가져와 회원코드 가져오기
-
-
-//toast ui 생성
-const sampleGrid = new tui.Grid({
-	//toastui 아이디 가져오기
-    el: document.getElementById('sampleGrid'),
-    //checkbox부여
-    rowHeaders: ['checkbox'],
-    //스크롤여부
-    scrollX: false,
-    scrollY: false,
-    //페이지네이션
-    pageOptions: {
-        perPage: 5,
-        useClient: true,
-    },
-    //필드값 구성
-    columns:[
-        // header: 필드 이름  name:객체 key값  align:정렬방법
-        // editor:true -> cell안에 등록가능
-        // width -> 크기조정
-        { header: '사원번호',name:'employeeId',align:'center',width:500,
-        //validaton 검증 해당 값이 안되면 해당셀은 빨간색으로 변함
-        	validation:{
-            dataType:'number',
-            min:1001,
-            max:1003,
-         },},
-        { header: '이름',name:'lastName',align:'center',editor:'text'},
-        { header: '부서',name:'departmentId',align:'center',editor:'text',
-        	//render -> 만약 테이블값의 style을 변경하고 싶으면 아래처럼 조정
-        	renderer:{
-          	  styles:{
-        		  color:(props) => props.value == '10'?  'rgba(252, 240, 3)' 
-        		  : props.value == '20'?  'rgba(252, 3, 45)' 	  
-        		  : props.value == '30'?  'rgba(3, 252, 65)':'',
-        			fontSize :'14px',
-              	    fontFamily: 'Malgun Gothic',
-              	    fontWeight: 'bold'
-        	  }
-          },
-          //formatter -> 실질적 cell안에 값을 포맷하여 보여주기만은 formmater 내용으로 보여준다 실질적으로 값을 보낼땐 cell안에 실질적 데이터를 전송한다.
-          formatter: function(price){
-        	  if(price.value=='20'){
-              return price.value+'부서'
-        	  }else{
-        		  return price.value;
-        	  };
-                  },                   
-        },
-          { header: '직무',name:'jobId',align:'right',editor:'text'},
-    ],
-    		
-    
-});
-
-const sampleTable = new tui.Grid({
-	//toastui 아이디 가져오기
-    el: document.getElementById('sampleTable'),
-    //checkbox부여
-    rowHeaders: ['checkbox'],
-    //스크롤여부
-    scrollX: true,
-    scrollY: false,
-    //페이지네이션
-    pageOptions: {
-        perPage: 5,
-        useClient: true,
-    },
-    //필드값 구성
-    columns:[
-        // header: 필드 이름  name:객체 key값  align:정렬방법
-        // editor:true -> cell안에 등록가능
-        // width -> 크기조정
-        { header: '사원번호',name:'employeeId',align:'center',width:500,
-        //validaton 검증 해당 값이 안되면 해당셀은 빨간색으로 변함
-        	validation:{
-            dataType:'number',
-            min:1001,
-            max:1003,
-         },},
-       // { header: '이름',name:'lastName',align:'center',editor:'text'},
-        { header: '부서',name:'departmentId',align:'center',editor:'text',
-        	//render -> 만약 테이블값의 style을 변경하고 싶으면 아래처럼 조정
-        	renderer:{
-          	  styles:{
-        		  color:(props) => props.value == '10'?  'rgba(252, 240, 3)' 
-        		  : props.value == '20'?  'rgba(252, 3, 45)' 	  
-        		  : props.value == '30'?  'rgba(3, 252, 65)':'',
-        			fontSize :'14px',
-              	    fontFamily: 'Malgun Gothic',
-              	    fontWeight: 'bold'
-        	  }
-          },
-          //formatter -> 실질적 cell안에 값을 포맷하여 보여주기만은 formmater 내용으로 보여준다 실질적으로 값을 보낼땐 cell안에 실질적 데이터를 전송한다.
-          formatter: function(price){
-        	  if(price.value=='20'){
-              return price.value+'부서'
-        	  }else{
-        		  return price.value;
-        	  };
-                  },                   
-        },
-          { header: '직무',name:'jobId',align:'center',editor:'text'},
-    ],
-        
-    
-});
-
-
-//ajax -> toastUi에 넣기
-function sampleList(){
-	$.ajax({
-		url:"/erp/sample/listAll",
-		method:"GET"
-	   ,success:function(result) {
-		   //grid값 다시 rendering
-		   console.log(result)
-		   sampleGrid.resetData(result)
-       sampleTable.resetData(result);
-	   }
-	})
-}
-sampleList();
-//컬럼숨기기
-sampleGrid.hideColumn("jobId");
-sampleTable.hideColumn("lastName");
-
-//엑셀 다운로드.
-const topOptions = {
-			  includeHiddenColumns: true,
-			  onlySelected: false,
-			  fileName: '주문 정보 조회',
-			};
-$('#excel').on('click',function(){
-	/* sampleGrid.export('xlsx',topOptions); */
-//체크된행을 가져오는 함수	
-const checkedRows = sampleGrid.getCheckedRows();
-console.log(checkedRows)
-//행의 총 갯수
-let count = sampleGrid.getRowCount()
-console.log(count)
-
-})
-sampleTable.hideColumn("jobId");  
-</script>
 </html>

@@ -52,8 +52,7 @@ public  class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public int removeOrders(String ordCode) {
-		
+	public int removeOrders(String ordCode) {	
 		orderMapper.deleteOrders(ordCode); //주문삭제   
 		return 0;
 	} 
