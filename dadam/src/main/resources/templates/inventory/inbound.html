@@ -11,7 +11,7 @@
 		<button class="btn btn-secondary" id="purchasePage" type="button">발주의뢰</button>
 	</div>
 
-	<div class="row card">
+	<div id="screen1" class="row card">
 		<div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3 p-4">
 			<button class="btn btn-primary" data-bs-toggle="modal"
 				data-bs-target="#inboundModal" id="inModal" type="button">입고처리</button>
@@ -19,6 +19,10 @@
 		<div class="col-12">
 			<div id="Grids"></div>
 		</div>
+	</div>
+	<div id="screen2" class="row card">
+	</div>
+	<div id="screen3" class="row card">
 	</div>
 </div>
 
@@ -157,45 +161,6 @@ const purcharsegrid = new tui.Grid({
 		  inboundGrid.resetData(data);
 	}
 	
-	/* class CustomButton{
-		constructor(props) {
-			
-			const el = document.createElement('button');
-			
-			console.log(props.row);
-			
-		    if (props.row.origin === true) {
-		      el.className = 'btn btn-primary';
-		      el.textContent = '+';
-		    } else {
-		      el.className = 'btn btn-danger';
-		      el.textContent = '-';
-		    }
-			console.log(el);
-			el.addEventListener('click',()=>{
-			const rowKey = props.rowKey;
-			const grid = props.grid;
-				
-			if(btnType) {
-				grid.appendRow({
-				      purOrdDtlCode: '',
-				      itemCode: '',
-				      quantity: '',
-				      loc: '',
-				      qty: '',
-				      note: '',
-				      origin: false
-				});
-			} else {
-				grid.removeRow(rowKey);
-			}
-			});
-			this.el = el;
-		}
-		getElement() {
-			return this.el;
-		}
-	} */
 	// inboundGrid 그리기
 	const inboundGrid = new tui.Grid({
 		el: document.getElementById('gridModal'),
@@ -253,21 +218,15 @@ const purcharsegrid = new tui.Grid({
 		) */
 		})
 	
-	function idx(){
+	/* function idx(){
 		let idxData = inboundGrid.getData();
 		return idxData;
-	}
+	} */
 	// 행추가 rowKey값이 고정이 아니라서 문제가 있음.
 	inboundGrid.on('click', (ev)=>{
-		
-		const idxData = idx();
-		console.log(ev)
-		idxData.forEach((item,idx) => {
-			ev.rowKey = idx
-		})
-		/* const changes = inboundGrid.getModifiedRows(); */
-		// rowKey = 키값, columnName = 셀의 이름
 		let { rowKey, columnName } = ev;
+		
+		// rowKey = 키값, columnName = 셀의 이름
 		let addData = {
 				      purOrdDtlCode: '',
 				      itemCode: '',
@@ -279,20 +238,13 @@ const purcharsegrid = new tui.Grid({
 				      note: '',
 				      origin: false
 				    };
-	/* 	//생성된행
-		console.log(changes.createdRows);
-		//수정된행
-		console.log('수정된행' + changes.updatedRows);
-		//삭제된행
-		console.log('삭제된행' + changes.deletedRows);
-		
-		console.log(inboundGrid.getData()); */
 		
 		// 컬럼명과 값을 확인 후 추가 진행
 		if(columnName === 'origin' &&
 				inboundGrid.getValue(rowKey, columnName) === true){
+		let idx = inboundGrid.getIndexOfROw(rowKey);
 		inboundGrid.appendRow(addData, {
-			  at: rowKey + 1
+			  at: idx + 1
 			});
 		}
 	});
