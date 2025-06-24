@@ -21,6 +21,7 @@ public class OrdersVO {
 	@JsonFormat(pattern = "yyyy/MM/dd")
 	private Date payDate; 
 	private Long totQuantity; 
+	@JsonFormat(pattern = "yyyy/MM/dd")
 	private Date reqDlvDate; 
 	private String empId; 
 	private String updateId; 
@@ -32,6 +33,4 @@ public class OrdersVO {
 	private Long discount; 
 	private Long totPrice; 
 	private String quoCode; 
-	
-	//private List<OrdDtlVO> detailList; 
 }
