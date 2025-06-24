@@ -55,7 +55,27 @@
 
 
 	<!-- Back to Top -->
-        <a href="#" class="btn btn-primary btn-lg-square rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
+        <a href='javascript:void(0);' class="btn btn-primary btn-lg-square rounded-circle back-to-top" id="back-to-top"><i class="fa fa-comment-dots"></i></a>
+        <!-- Chatbox 시작 -->
+		<div id="chatbox" style="display:none; position:fixed; bottom:80px; right:30px; width:400px; height:600px; background:#f8f9fa; border:1px solid #ccc; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2); z-index:9999;">
+    <div style="background:#6c5ce7; color:#fff; padding:10px; border-top-left-radius:10px; border-top-right-radius:10px;">
+        챗봇과 상담하기
+        <button id="closeChat" style="float:right; background:none; border:none; color:#fff;">×</button>
+    </div>
+
+    <div id="chatMessages" style="padding: 10px; height: 440px; overflow-y: auto;">
+        <p class="fw-bold mb-1">Dadam</p>
+        <p>
+            <span style="background: #dfe6e9; padding: 5px; border-radius: 5px;">무엇을 도와드릴까요?</span>
+        </p>
+    </div>
+
+    <!-- 여기에 채팅 입력창과 버튼 추가 -->
+    <div style="padding: 10px; border-top: 1px solid #ccc;">
+        <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." style="width: 80%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        <button id="sendBtn" style="padding: 8px 10px; background: #6c5ce7; color: #fff; border: none; border-radius: 5px;">전송</button>
+    </div>
+</div>
 
         
         <!-- JavaScript Libraries -->
@@ -71,6 +91,76 @@
 
         <!-- Template Javascript -->
         <script src="/main_js/main.js"></script>
-    </body>
+	<script>
+		  $('.back-to-top').on('click', ev => {
+		      ev.preventDefault();
+		      ev.stopPropagation();
+		      $('.back-to-top').fadeOut();
+		      // 채팅창 표시
+		      $('#chatbox').fadeIn();
+		  });
+		
+		  // 닫기 버튼
+		  $('#closeChat').on('click', function() {
+			  $('.back-to-top').fadeIn();
+		      $('#chatbox').fadeOut();
+		  });
+		  
+		
+		// 전송 버튼 클릭 또는 엔터 눌렀을 때
+		function sendMessage() {
+		    const message = $("#chatInput").val().trim();
+		    if (message === "") return;
+		
+		    // 1) 사용자 메시지 화면에 추가
+		    const userMsg = $("<p>", { css: { textAlign: "right" } }).html(
+		        `<span style="background: #a29bfe; color: #fff; padding: 5px; border-radius: 5px;">${message}</span>`
+		    );
+		    $("#chatMessages").append(userMsg);
+		    $("#chatMessages").scrollTop($("#chatMessages")[0].scrollHeight);
+		    $("#chatInput").val("");
+		
+		    // 2) AJAX로 서버에 메시지 전송
+		    $.ajax({
+		        url: "/main/chat",      // @PostMapping("/chat")
+		        method: "POST",
+		        data: { param: message },
+		        success: function(response) {
+		        	const botReply = response.text;
+		            const botMsg = $("<p>").html(
+		                `<p class="fw-bold mb-1">Dadam</p>
+		                <span style="background: #dfe6e9; padding: 5px; border-radius: 5px;">${botReply}</span>`
+		            );
+		            $("#chatMessages").append(botMsg);
+		            $("#chatMessages").scrollTop($("#chatMessages")[0].scrollHeight);
+		        },
+		        error: function() {
+		            const errorMsg = $("<p>").html(
+		                `<span style="background: #ff6b6b; padding: 5px; border-radius: 5px;">서버와 통신 중 오류가 발생했습니다.</span>`
+		            );
+		            $("#chatMessages").append(errorMsg);
+		            $("#chatMessages").scrollTop($("#chatMessages")[0].scrollHeight);
+		        }
+		    });
+		}
+		
+	
+		// 이벤트에 바인딩
+		$("#sendBtn").on("click", sendMessage);
+		$("#chatInput").on("keydown", function(ev) {
+		    if (ev.keyCode === 13) { // Enter key
+		        sendMessage();
+		        ev.preventDefault(); // 줄바꿈 방지
+		    }
+		});
+		// 닫기 버튼 클릭 시
+	     $("#closeChat").on("click", function () {
+			   $("#chatbox").hide();
+		  });
+		
+		 
+	</script>
+
+</body>
 
 </html>
