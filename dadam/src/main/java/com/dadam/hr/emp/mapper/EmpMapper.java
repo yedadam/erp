@@ -1,15 +1,30 @@
 package com.dadam.hr.emp.mapper;
 
-import com.dadam.hr.emp.service.EmpVO;
-import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Mapper;
+
+import com.dadam.hr.emp.service.EmpVO;
+
 @Mapper
 public interface EmpMapper {
-    List<EmpVO> findEmpList(java.util.Map<String, Object> param);
-    EmpVO findEmpDetail(String empId);
-    int insertEmp(EmpVO empVO);
-    int updateEmp(EmpVO empVO);
-    int deleteEmp(String empId);
-} 
+
+    // 사원 전체 조회
+    public List<EmpVO> findEmpList(Map<String, Object> param);  // XML과 일치시킴
+
+    // 사원 상세 조회
+    public EmpVO findEmpDetail(String empId);
+
+    // 사원 등록
+    public int insertEmp(EmpVO empVO);
+
+    // 사원 수정
+    public int updateEmp(EmpVO empVO);
+
+    // 사원 삭제
+    public int deleteEmp(String empId);
+
+    // 사원번호 최대값 조회
+    String getMaxEmpId();
+}

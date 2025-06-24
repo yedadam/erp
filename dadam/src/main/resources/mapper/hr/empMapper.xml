@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.hr.emp.mapper.EmpMapper">
 
-    <!-- 사원 전체 조회 -->
+	<!-- 사원 전체 조회 -->
     <select id="findEmpList" resultType="com.dadam.hr.emp.service.EmpVO" parameterType="map">
         SELECT
             e.emp_id,
@@ -30,9 +30,9 @@
         LEFT JOIN departments d ON e.dept_code = d.dept_code
         <where>
             <if test="keyword != null and keyword != ''">
-                (e.emp_id LIKE CONCAT('%', #{keyword}, '%')
-                OR e.emp_name LIKE CONCAT('%', #{keyword}, '%')
-                OR d.dept_name LIKE CONCAT('%', #{keyword}, '%'))
+                (e.emp_id LIKE '%' || #{keyword} || '%'
+                OR e.emp_name LIKE '%' || #{keyword} || '%'
+                OR d.dept_name LIKE '%' || #{keyword} || '%')
             </if>
             <if test="status != null and status != ''">
                 AND e.emp_status = #{status}
@@ -41,69 +41,66 @@
         ORDER BY e.emp_id
     </select>
 
-    <!-- 사원 상세 조회 -->
-    <select id="findEmpDetail" parameterType="string" resultType="com.dadam.hr.emp.service.EmpVO">
-        SELECT
-            e.emp_id,
-            e.com_id,
-            e.dept_code,
-            d.dept_name,
-            e.pwd,
-            e.emp_name,
-            e.email,
-            e.tel,
-            e.addr,
-            e.hire_date,
-            e.position,
-            e.resign_date,
-            e.emp_status,
-            e.work_type,
-            e.resign_reason,
-            e.sal,
-            e.bank,
-            e.acct_no,
-            e.birth_date,
-            e.profile_img_path,
-            e.note
-        FROM employees e
-        JOIN departments d ON e.dept_code = d.dept_code
-        WHERE e.emp_id = #{empId}
-    </select>
+	<!-- 사원 상세 조회 -->
+	<select id="getEmpDetail" parameterType="string"
+		resultType="com.dadam.hr.emp.service.EmpVO">
+		SELECT e.emp_id, e.com_id, e.dept_code, d.dept_name, e.pwd, e.emp_name,
+		e.email, e.tel, e.addr, e.hire_date, e.position, e.resign_date,
+		e.emp_status, e.work_type, e.resign_reason,
+		e.sal, e.bank, e.acct_no, e.birth_date, e.profile_img_path, e.note
+		FROM employees e
+		JOIN departments d ON e.dept_code = d.dept_code
+		WHERE e.emp_id = #{empId}
+	</select>
 
-    <!-- 사원 등록 -->
-    <insert id="insertEmp" parameterType="com.dadam.hr.emp.service.EmpVO">
-        INSERT INTO EMPLOYEES (
-            EMP_ID, COM_ID, DEPT_CODE, PWD, EMP_NAME, EMAIL, TEL,
-            HIRE_DATE, POSITION, EMP_STATUS, WORK_TYPE, ADDR
-        ) VALUES (
-            #{empId}, #{comId}, #{deptCode}, #{pwd}, #{empName}, #{email}, #{tel},
-            CURDATE(), #{position}, #{empStatus}, #{workType}, #{addr}
-        )
-    </insert>
+	<!-- 사원 등록 -->
+	<insert id="insertEmp"
+		parameterType="com.dadam.hr.emp.service.EmpVO">
+		INSERT INTO employees (
+		emp_id, com_id, dept_code, pwd, emp_name, email, tel, addr, hire_date,
+		position, resign_date, emp_status, work_type, resign_reason, sal,
+		bank, acct_no, birth_date, profile_img_path, note
+		) VALUES (
+		#{empId}, #{comId}, #{deptCode}, #{pwd}, #{empName}, #{email}, #{tel}, #{addr},
+		#{hireDate}, #{position}, #{resignDate}, #{empStatus}, #{workType},
+		#{resignReason}, #{sal}, #{bank}, #{acctNo}, #{birthDate},
+		#{profileImgPath}, #{note}
+		)
+	</insert>
 
-    <!-- 사원 수정 -->
-    <update id="updateEmp" parameterType="com.dadam.hr.emp.service.EmpVO">
-        UPDATE EMPLOYEES
-        SET
-            DEPT_CODE = #{deptCode},
-            EMP_NAME = #{empName},
-            EMAIL = #{email},
-            TEL = #{tel},
-            POSITION = #{position},
-            EMP_STATUS = #{empStatus},
-            WORK_TYPE = #{workType},
-            ADDR = #{addr}
-            -- 필요한 다른 필드들 추가
-        WHERE EMP_ID = #{empId}
-    </update>
+	<!-- 사원 수정 -->
+	<update id="updateEmp"
+		parameterType="com.dadam.hr.emp.service.EmpVO">
+		UPDATE employees
+		SET com_id = #{comId},
+		dept_code = #{deptCode},
+		pwd = #{pwd},
+		emp_name = #{empName},
+		email = #{email},
+		tel = #{tel},
+		addr = #{addr},
+		hire_date = #{hireDate},
+		position = #{position},
+		resign_date = #{resignDate},
+		emp_status = #{empStatus},
+		work_type = #{workType},
+		resign_reason = #{resignReason},
+		sal = #{sal},
+		bank = #{bank},
+		acct_no = #{acctNo},
+		birth_date = #{birthDate},
+		profile_img_path = #{profileImgPath},
+		note = #{note}
+		WHERE emp_id = #{empId}
+	</update>
 
-    <!-- 사원 삭제 (논리적 삭제: 퇴사 처리) -->
-    <update id="deleteEmp" parameterType="string">
-        UPDATE EMPLOYEES
-        SET
-            EMP_STATUS = 'stt02', -- '퇴사' 상태 코드
-            RESIGN_DATE = CURDATE()
-        WHERE EMP_ID = #{empId}
-    </update>
+	<!-- 사원 삭제 -->
+	<delete id="deleteEmp" parameterType="string">
+		DELETE FROM employees WHERE emp_id = #{empId}
+	</delete>
 
-</mapper> 
+	<select id="getMaxEmpId" resultType="string">
+		SELECT MAX(emp_id) FROM employees
+	</select>
+
+</mapper>

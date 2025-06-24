@@ -8,4 +8,5 @@ public interface EmpService {
     int insertEmp(EmpVO empVO); // 사원 등록
     int updateEmp(EmpVO empVO); // 사원 수정
     int deleteEmp(String empId); // 사원 삭제(퇴사)
+    String getMaxEmpId();
 } 

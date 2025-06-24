@@ -1,13 +1,13 @@
 package com.dadam.hr.emp.service.impl;
 
-import com.dadam.hr.emp.mapper.EmpMapper;
-import com.dadam.hr.emp.service.EmpService;
-import com.dadam.hr.emp.service.EmpVO;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
+import com.dadam.hr.emp.mapper.EmpMapper;
+import com.dadam.hr.emp.service.EmpService;
+import com.dadam.hr.emp.service.EmpVO;
 
 @Service
 public class EmpServiceImpl implements EmpService {
@@ -41,7 +41,11 @@ public class EmpServiceImpl implements EmpService {
 
     @Override
     public int deleteEmp(String empId) {
-        // 논리적 삭제 (퇴사 처리)
         return empMapper.deleteEmp(empId);
+    }
+
+    @Override
+    public String getMaxEmpId() {
+        return empMapper.getMaxEmpId();
     }
 } 
