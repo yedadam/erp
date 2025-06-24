@@ -3,7 +3,7 @@
 <mapper namespace="com.dadam.inventory.inbound.mapper.InboundMapper">
 
 <!-- 주문입고를 위한 발주서 조회 -->
-	<select id="inboundPurchaseFindAll" resultType="PurchaseOrderVO">
+	<select id="inboundPurchaseFindAll" resultType="PurchaseVO">
 			SELECT 
 				pod.pur_ord_code,
 		        pod.pur_ord_dtl_code,
@@ -13,10 +13,20 @@
 		        pod.reccv_date,
 		        po.exp_dlv_date,
 		        getEmpName(po.emp_id) emp_id,
-		        getvdrName(po.vdr_code) vdr_code
+		        getvdrName(po.vdr_code) vdr_code,
+                p.quantity pquantity,
+                pod.quantity - nvl(p.quantity, 0) notStock
 		FROM purchaseOrderDetail pod join purchaseOrder po
 		                               on(pod.pur_ord_code=po.pur_ord_code)
+                                     left join purchase p
+                                       on(pod.pur_ord_dtl_code = p.pur_ord_dtl_code)
 		WHERE pod.com_id = 'com-101'
+	</select>
+	
+	<select id="warehouseList" resultType="InboundVO">
+		SELECT w.name||' '|| nvl(l.name, ' ') name, l.loc_code locCode
+		FROM warehouse w join warehouseLocation l
+                   		   on(w.wh_code = l.wh_code)
 	</select>
 	
 	<!-- 입고 처리 -->
