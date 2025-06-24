@@ -5,98 +5,123 @@
 	layout:fragment="Content">
 
 <body>
+<h6>대,중,소 분류 추가 기능 만들어야함!!!!! (후순위로 배정)</h6> 
+	<h2 class="mt-4 mb-3">계정과목 관리</h2>
 
-	<h2>계정과도 관리</h2>
+	<div class="container" style="max-width: 1200px; margin: 0 auto;">
+		<!-- 상단 버튼: 좌측 (조회/수정/등록), 우측 (동적 버튼들) -->
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<!-- 왼쪽: 모드 버튼 -->
+			<div class="btn-group" role="group">
+				<button class="btn btn-dark" onclick="changeMode('read')">조회</button>
+				<button class="btn btn-warning" onclick="changeMode('edit')">수정</button>
+				<button class="btn btn-success" onclick="changeMode('create')">등록</button>
+			</div>
 
-	<div>
-		<button onclick="changeMode('read')">조회</button>
-		<button onclick="changeMode('edit')">수정</button>
-		<button onclick="changeMode('create')">등록</button>
-		<button id="addRow" style="display: none;">행 추가</button>
-		<button id="saveBtn" style="display: none;">저장</button>
-		<button id="excel" style="display: none;">엑셀다운</button>
-		<button id="excelTemplate" style="display: none;">양식다운</button>
-		<input type="file" id="excelUpload" accept=".xlsx, .xls" style="display: none;" />
+			<!-- 오른쪽: 모드별 동적 버튼 -->
+			<div class="btn-group" role="group">
+				<button id="addRow" class="btn btn-info" style="display: none;">행
+					추가</button>
+				<button id="saveBtn" class="btn btn-primary" style="display: none;">저장</button>
+				<button id="excel" class="btn btn-outline-dark"
+					style="display: none;">엑셀다운</button>
+				<button id="excelTemplate" class="btn btn-outline-dark"
+					style="display: none;">양식다운</button>
+				<input type="file" id="excelUpload" accept=".xlsx, .xls"
+					style="display: none;" />
+			</div>
+		</div>
+
+		<!-- 필터 버튼: 대분류별 구분 -->
+		<div class="btn-group mb-4" role="group" aria-label="계정 분류 필터">
+			<button class="btn btn-outline-secondary typeBtn" data-type="">모두</button>
+			<button class="btn btn-outline-primary typeBtn" data-type="1">자산</button>
+			<button class="btn btn-outline-primary typeBtn" data-type="2">부채</button>
+			<button class="btn btn-outline-primary typeBtn" data-type="3">자본</button>
+			<button class="btn btn-outline-primary typeBtn" data-type="4">수익</button>
+			<button class="btn btn-outline-primary typeBtn" data-type="5">비용</button>
+		</div>
+
+		<hr />
+
+		<!-- Toast UI Grid 영역 -->
+		<div class="col-14">
+			<div id="accGrid" class="mx-4"></div>
+		</div>
 	</div>
-
-	<hr>
-
-	<div>
-		<button class="typeBtn" data-type="">모두</button>
-		<button class="typeBtn" data-type="1">자산</button>
-		<button class="typeBtn" data-type="2">부채</button>
-		<button class="typeBtn" data-type="3">자본</button>
-		<button class="typeBtn" data-type="4">수익</button>
-		<button class="typeBtn" data-type="5">비용</button>
-	</div>
-
-	<hr>
-
-	<div class="col-10">
-		<div id="accGrid" class="mx-4"></div>
-	</div>
-
-	<script>
+</body>
+<script>
 //텍스트 자동 완성
-	function createAutoCompleteEditor({ urlBuilder, deps = [], onSelectClear = [] }) {
+function createAutoCompleteEditor({ urlBuilder, deps = [], onSelectClear = [] }) {
   function CustomEditor(props) {
-    const el = document.createElement('input');
+	//인풋 기능 활성화(행 클릭으로 활성화시 편집기 오픈)  
+    const el = document.createElement('input'); 
     el.type = 'text';
     el.className = 'form-control';
 
     el.value = props.value || '';
-
-    $(el).autocomplete({
-      source: function (request, response) {
+  	// 자동완성 기능 : source로 자동완성으 Ajax로 받아옴.
+    $(el).autocomplete({ 
+      // 코어기능 : 활성화된 행(row) deps에 해당하는 값을 가져옴.	
+      source: function (request, response) { 
         const depValues = deps.map(dep => props.grid.getValue(props.rowKey, dep));
-        if (depValues.includes('') || depValues.includes(undefined)) {
+        // if문은 예외 처리 : 
+        // 상위 필드가 비어있을때 비활성화 // 상위 값을 먼저 입력하도록 ux 추가 
+        if (depValues.includes('') || depValues.includes(undefined)) { 
           return response([]);
-        }
-        const url = urlBuilder(...depValues);
+        } //if문 종료
+        
+        // url생성-Ajax 요청
+        // urlBuilder를 실행하여 API 주소생성
+        // 조회된 결과를 JSON 으로 받음.
+        const url = urlBuilder(...depValues); 
         $.getJSON(url, function (data) {
           const results = data.filter(v => v.startsWith(request.term));
           response(results);
-        });
-      },
+        }); // $.getJSON(url, function 종료
+      }, // source: function  종료
       minLength: 0,
+      
+      // 항목 선택 : 항목 선택시 지정된 onSelectClear에 등록된 셀들을 비우기.
       select: function () {
         onSelectClear.forEach(col => props.grid.setValue(props.rowKey, col, ''));
-      }
+      } // select: function 종료
+      
+      //셀 클릭시 자동으로 목록 출력
     }).focus(function () {
       $(this).autocomplete("search", "");
-    });
-
+    }); // focus(function () 종료
     this.el = el;
-  }
-  // 반드시 getElement 메서드 추가!
+  }// function CustomEditor(props) 종료
+  // getElement 메서드 추가
   CustomEditor.prototype.getElement = function () {
     return this.el;
   };
-  // 반드시 getValue 메서드 추가!
+  // getValue 메서드 추가
   CustomEditor.prototype.getValue = function () {
     return this.el.value;
   };
   return CustomEditor;
-}
+} // function createAutoCompleteEditor 종료
 
 	// 대분류 조회 
 	const TypeEditor = createAutoCompleteEditor({
-	  urlBuilder: () => "/erp/accounting/api/account/type",
-	  deps: [],
-	  onSelectClear: ['classCode', 'subclassCode']
+	  urlBuilder: () => "/erp/accounting/api/account/type",  // API URL 만드는 함수
+	  deps: [],												 // 의존 필드 (상위 값들) -> 필드 명으로 적기
+	  onSelectClear: ['acctClass', 'acctSubclass']			 // 값 선택 시 초기화할 필드들 -> 필드 명으로 적기
 	});
 
 	// 중분류 조회 
 	const ClassEditor = createAutoCompleteEditor({
-	  urlBuilder: (typeCode) => `/erp/accounting/api/account/class?typeCode=${typeCode}`,
-	  deps: ['typeCode'],
-	  onSelectClear: ['subclassCode']
+	  urlBuilder: (acctType) => `/erp/accounting/api/account/class?typeCode=${acctType}`,
+	  deps: ['acctType'], 
+	  onSelectClear: ['acctSubclass']
 	});
 
 	// 소분류 조회 
 	const SubclassEditor = createAutoCompleteEditor({
-	  urlBuilder: (typeCode, classCode) => `/erp/accounting/api/account/subclass?typeCode=${typeCode}&classCode=${classCode}`,
-	  deps: ['typeCode', 'classCode']
+	  urlBuilder: (acctClass) => `/erp/accounting/api/account/subclass?&classCode=${acctClass}`,
+	  deps: ['acctClass']
 	});
 	
 	
@@ -113,13 +138,13 @@
       header: '사용유무',
       name: 'acctYn',
       align: 'center',
-      width: 200,
+      width: 100,
       formatter: ({ value }) => value === 'Y' ? '사용' : '무사용',
       renderer: {
         type: ToggleRenderer
       }
     },
-    { header: '비고', name: 'note', align: 'center', width: 300 }
+    { header: '비고', name: 'note', align: 'center', width: 450 }
   ];
 
   function ToggleRenderer(props) {
@@ -178,20 +203,22 @@
       .then(data => accGrid.resetData(data));
   }
 
-  //상태 변경
+  //상태 변경 [조회/ 수정 / 등록]
   function changeMode(mode) {
     currentMode = mode;
     document.getElementById('addRow').style.display = mode === 'create' ? '' : 'none';
+    document.getElementById('excel').style.display = mode === 'create' ? '' : 'none';
+    document.getElementById('excelTemplate').style.display = mode === 'create' ? '' : 'none';
+    document.getElementById('excelUpload').style.display = mode === 'create' ? '' : 'none';
     document.getElementById('saveBtn').style.display = mode !== 'read' ? '' : 'none';
     initGrid(mode);
   }
   
-
 			
 
   // 행 추가
   document.getElementById('addRow').addEventListener('click', () => {
-    accGrid.appendRow({
+    accGrid.prependRow({
       acctCode: '',
       acctType: '',
       acctClass: '',
@@ -318,12 +345,15 @@ $('#saveBtn').on('click', function () {
         const mapped = mapKeysToInternal(json)
         
         // 토스트ui 데이터 표시
-     accGrid.resetData(mapped) 
+           console.log(mapped)
+    mapped.forEach(item =>{
+  	 accGrid.prependRow(item) 
+    });
      };
      
      reader.readAsBinaryString(file);
   })
 </script>
 
-</body>
+
 </html>
