@@ -37,6 +37,8 @@ public class PurchaseVO {
 	private int totSupPrice;
 	private int totVatPrice;
 	private int quantity;
+	private int pquantity;
+	private int notStock;
 	private int currQty;
 	
 	
