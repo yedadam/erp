@@ -20,6 +20,10 @@ import com.dadam.hr.emp.service.DeptService;
 import com.dadam.hr.emp.service.EmpService;
 import com.dadam.hr.emp.service.EmpVO;
 
+// 사원관리 컨트롤러
+// - 사원 전체조회, 상세조회, 등록, 수정, 삭제, 사번생성 등
+// - /erp/hr/emp-all, /erp/hr/empList 등 매핑
+// - 부서 목록 조회(등록/수정 폼용)
 @Controller
 @RequestMapping("/erp/hr")
 public class EmpController {
@@ -44,8 +48,9 @@ public class EmpController {
     @GetMapping("/empList")
     @ResponseBody
     public List<EmpVO> empList(@RequestParam(required = false) String keyword,
-                               @RequestParam(required = false) String status) {
-        return empService.findEmpList(keyword, status);
+                               @RequestParam(required = false) String status,
+                               @RequestParam(required = false) String dept) {
+        return empService.findEmpList(keyword, status, dept);
     }
 
     @GetMapping("/empDetail")
