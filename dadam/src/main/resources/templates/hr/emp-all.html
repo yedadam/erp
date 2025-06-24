@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>사원 전체 조회</title>
+  <link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <style>
+    body { font-family: 'Noto Sans KR', '맑은 고딕', Arial, sans-serif; background: #f8fafc; margin: 0; }
+    .dashboard { display: flex; align-items: center; gap: 8px; margin: 32px 0 16px 0; }
+    .dash-card { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 90px; padding: 10px 18px; border-radius: 8px; color: #fff; font-weight: 600; font-size: 1.1rem; }
+    .dash-red { background: #f87171; }
+    .dash-blue { background: #60a5fa; }
+    .dash-gray { background: #6b7280; }
+    .dash-black { background: #222; }
+    .dash-card .count { font-size: 2rem; font-weight: bold; margin-top: 2px; }
+    .action-btns { margin-left: auto; display: flex; gap: 8px; }
+    .btn { border: none; border-radius: 6px; padding: 8px 18px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-new { background: #2563eb; color: #fff; }
+    .btn-del { background: #ef4444; color: #fff; }
+    .btn-reset { background: #6b7280; color: #fff; }
+    .btn-edit { background: #2dd4bf; color: #fff; }
+    .btn-excel { background: #22c55e; color: #fff; }
+    .search-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .search-bar select, .search-bar input { height: 36px; border-radius: 6px; border: 1px solid #e5e7eb; font-size: 15px; padding: 0 10px; }
+    .search-bar .btn { height: 36px; padding: 0 16px; }
+    #empAllGrid { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #e5e7eb; }
+    .tui-grid-row, .tui-grid-cell { height: 40px !important; max-height: 40px !important; overflow: hidden; white-space: nowrap; }
+    @media (max-width: 900px) { .dashboard { flex-wrap: wrap; } }
+  </style>
+</head>
+<body>
+  <div style="max-width:1200px;margin:0 auto;padding:24px;">
+    <h2 style="margin-bottom:0;">사원현황</h2>
+    <div class="dashboard">
+      <div class="dash-card dash-red">재직자<div class="count" id="cntActive">0</div></div>
+      <div class="dash-card dash-blue">정규직<div class="count" id="cntFull">0</div></div>
+      <div class="dash-card dash-blue">계약직<div class="count" id="cntContract">0</div></div>
+      <div class="dash-card dash-blue">임시직<div class="count" id="cntTemp">0</div></div>
+      <div class="dash-card dash-blue">일용직<div class="count" id="cntDaily">0</div></div>
+      <div class="dash-card dash-gray">퇴사자<div class="count" id="cntRetired">0</div></div>
+      <div class="dash-card dash-black">전체<div class="count" id="cntTotal">0</div></div>
+      <div class="action-btns">
+        <button class="btn btn-new" id="btnNew">신규</button>
+        <button class="btn btn-del" id="btnDelete">삭제</button>
+        <button class="btn btn-reset" id="btnReset">초기화</button>
+        <button class="btn btn-edit" id="btnEdit">수정</button>
+        <button class="btn btn-excel" id="btnExcel">엑셀다운</button>
+      </div>
+    </div>
+    <div class="search-bar">
+      <select id="filterAll"><option value="">전체</option></select>
+      <select id="filterDept"><option value="">부서</option></select>
+      <select id="filterStatus"><option value="">재직상태</option><option value="재직">재직</option><option value="퇴사">퇴사</option></select>
+      <select id="filterType"><option value="">입사구분</option><option value="정규직">정규직</option><option value="계약직">계약직</option><option value="임시직">임시직</option><option value="일용직">일용직</option></select>
+      <input type="text" id="searchName" placeholder="사원명 검색">
+      <button class="btn btn-edit" id="btnSearch">검색</button>
+      <button class="btn btn-reset" id="btnAll">전체보기</button>
+    </div>
+    <div id="empAllGrid"></div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://uicdn.toast.com/grid/latest/tui-grid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // 관리자 여부(임시, 실제는 세션/로그인 연동)
+    let isAdmin = true; // 테스트용, 실제는 서버에서 받아옴
+
+    // Toast UI Grid 컬럼 정의
+    function getEmpAllGridColumns() {
+      return [
+        { header: '구분', name: 'workType', width: 80, align: 'center', editor: isAdmin ? 'select' : undefined, editorOptions: { listItems: ['정규직','계약직','임시직','일용직'] } },
+        { header: '입사일', name: 'hireDate', width: 110, align: 'center', editor: isAdmin ? 'datePicker' : undefined },
+        { header: '사원번호', name: 'empId', width: 90, align: 'center', editor: false },
+        { header: '성명', name: 'empName', width: 100, align: 'center', editor: isAdmin ? 'text' : undefined },
+        { header: '부서', name: 'deptName', width: 110, align: 'center', editor: isAdmin ? 'select' : undefined, editorOptions: { listItems: ['정보개발부','고문실','영업부','회계부','편집부'] } },
+        { header: '직급명', name: 'position', width: 90, align: 'center', editor: isAdmin ? 'select' : undefined, editorOptions: { listItems: ['사원','주임','대리','과장','차장','부장','임원','인턴'] } },
+        { header: '급여', name: 'salary', width: 100, align: 'right', editor: isAdmin ? 'text' : undefined, formatter: ({value}) => value ? value.toLocaleString() : '' },
+        { header: '주민번호', name: 'ssn', width: 140, align: 'center', editor: isAdmin ? 'text' : undefined },
+        { header: '휴대폰', name: 'tel', width: 120, align: 'center', editor: isAdmin ? 'text' : undefined },
+        { header: '이메일', name: 'email', width: 160, align: 'center', editor: isAdmin ? 'text' : undefined },
+        { header: '퇴사일', name: 'resignDate', width: 110, align: 'center', editor: isAdmin ? 'datePicker' : undefined },
+        { header: '상태', name: 'empStatus', width: 80, align: 'center', editor: isAdmin ? 'select' : undefined, editorOptions: { listItems: ['재직','퇴사'] },
+          formatter: ({value}) => value === '재직' ? '<span style="color:#22c55e;font-weight:bold;">재직</span>' : '<span style="color:#6b7280;font-weight:bold;">퇴사</span>' }
+      ];
+    }
+
+    // Toast UI Grid 생성
+    const empAllGrid = new tui.Grid({
+      el: document.getElementById('empAllGrid'),
+      columns: getEmpAllGridColumns(),
+      rowHeaders: ['checkbox'],
+      bodyHeight: 420,
+      pageOptions: { useClient: true, perPage: 15 },
+      scrollX: true,
+      scrollY: true,
+      editingEvent: 'click',
+      theme: 'clean',
+      onGridUpdated: () => empAllGrid.refreshLayout()
+    });
+
+    // 샘플 데이터 (실제는 ajax로 불러옴)
+    let empData = [
+      { workType: '계약직', hireDate: '2000-02-22', empId: '1001', empName: '김수철', deptName: '정보개발부', position: '인턴', salary: 2000000, ssn: '990000-0000000', tel: '010-0000-0000', email: 'aaaa@aa.com', resignDate: '0000-00-00', empStatus: '재직' },
+      { workType: '정규직', hireDate: '2007-04-04', empId: '1002', empName: '박종규', deptName: '고문실', position: '부장', salary: 4000000, ssn: '990000-0000000', tel: '010-0000-0000', email: 'aaaa@aa.com', resignDate: '0000-00-00', empStatus: '재직' },
+      { workType: '정규직', hireDate: '2010-03-02', empId: '1003', empName: '이영희', deptName: '영업부', position: '과장', salary: 5000000, ssn: '890000-0000000', tel: '010-0000-0000', email: 'aaaa@aa.com', resignDate: '', empStatus: '퇴사' }
+    ];
+    empAllGrid.resetData(empData);
+
+    // 대시보드 현황 집계 함수
+    function updateDashboard(data) {
+      const cntActive = data.filter(e => e.empStatus === '재직').length;
+      const cntFull = data.filter(e => e.workType === '정규직').length;
+      const cntContract = data.filter(e => e.workType === '계약직').length;
+      const cntTemp = data.filter(e => e.workType === '임시직').length;
+      const cntDaily = data.filter(e => e.workType === '일용직').length;
+      const cntRetired = data.filter(e => e.empStatus === '퇴사').length;
+      const cntTotal = data.length;
+      $('#cntActive').text(cntActive);
+      $('#cntFull').text(cntFull);
+      $('#cntContract').text(cntContract);
+      $('#cntTemp').text(cntTemp);
+      $('#cntDaily').text(cntDaily);
+      $('#cntRetired').text(cntRetired);
+      $('#cntTotal').text(cntTotal);
+    }
+    updateDashboard(empData);
+
+    // 인라인 수정: 엔터/포커스아웃 시 SweetAlert2로 저장 확인
+    empAllGrid.on('afterChange', function(ev) {
+      if (!isAdmin) return;
+      const { changes } = ev;
+      if (!changes || changes.length === 0) return;
+      const rowKey = changes[0].rowKey;
+      const row = empAllGrid.getRow(rowKey);
+      Swal.fire({
+        title: '저장하시겠습니까?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '저장',
+        cancelButtonText: '취소'
+      }).then(result => {
+        if (result.isConfirmed) {
+          // 실제 저장 ajax 호출 (여기선 샘플)
+          // $.ajax({ url: '/api/emp/update', ... })
+          Swal.fire('저장 완료!', '', 'success');
+          // 대시보드 현황 갱신
+          updateDashboard(empAllGrid.getData());
+        } else {
+          // 취소 시 원래 값 복원
+          empAllGrid.resetData(empData);
+        }
+      });
+    });
+
+    // 신규 버튼: 빈 행 추가
+    $('#btnNew').on('click', function() {
+      if (!isAdmin) return;
+      empAllGrid.prependRow({});
+    });
+    // 삭제 버튼: 체크된 행 삭제
+    $('#btnDelete').on('click', function() {
+      if (!isAdmin) return;
+      const checked = empAllGrid.getCheckedRows();
+      if (checked.length === 0) return Swal.fire('삭제할 행을 선택하세요', '', 'warning');
+      Swal.fire({
+        title: '정말 삭제하시겠습니까?', icon: 'warning', showCancelButton: true, confirmButtonText: '삭제', cancelButtonText: '취소'
+      }).then(result => {
+        if (result.isConfirmed) {
+          checked.forEach(row => empAllGrid.removeRow(row.rowKey));
+          Swal.fire('삭제 완료!', '', 'success');
+          updateDashboard(empAllGrid.getData());
+        }
+      });
+    });
+    // 초기화 버튼: 그리드/필터 모두 초기화
+    $('#btnReset, #btnAll').on('click', function() {
+      empAllGrid.resetData(empData);
+      $('.search-bar select, .search-bar input').val('');
+      updateDashboard(empData);
+    });
+    // 수정 버튼: 체크된 행 일괄 저장(샘플)
+    $('#btnEdit').on('click', function() {
+      if (!isAdmin) return;
+      const changes = empAllGrid.getModifiedRows();
+      if (changes.updatedRows.length === 0) return Swal.fire('수정된 내용이 없습니다', '', 'info');
+      Swal.fire({
+        title: '수정 내용을 저장하시겠습니까?', icon: 'question', showCancelButton: true, confirmButtonText: '저장', cancelButtonText: '취소'
+      }).then(result => {
+        if (result.isConfirmed) {
+          // 실제 저장 ajax 호출 (여기선 샘플)
+          Swal.fire('저장 완료!', '', 'success');
+          updateDashboard(empAllGrid.getData());
+        }
+      });
+    });
+    // 엑셀다운: 체크박스 선택 시 선택된 사원만, 없으면 전체
+    $('#btnExcel').on('click', function() {
+      const checked = empAllGrid.getCheckedRows();
+      if (checked.length > 0) {
+        Swal.fire({ title: '선택된 사원만 다운로드하시겠습니까?', icon: 'question', showCancelButton: true, confirmButtonText: '다운로드', cancelButtonText: '취소' })
+        .then(result => { if (result.isConfirmed) empAllGrid.export('xlsx', { onlySelected: true, fileName: '사원목록' }); });
+      } else {
+        Swal.fire({ title: '전체 사원목록을 다운로드하시겠습니까?', icon: 'question', showCancelButton: true, confirmButtonText: '다운로드', cancelButtonText: '취소' })
+        .then(result => { if (result.isConfirmed) empAllGrid.export('xlsx', { onlySelected: false, fileName: '사원목록' }); });
+      }
+    });
+    // 검색 버튼: 필터 적용(샘플)
+    $('#btnSearch').on('click', function() {
+      let filtered = empData;
+      const dept = $('#filterDept').val();
+      const status = $('#filterStatus').val();
+      const type = $('#filterType').val();
+      const name = $('#searchName').val();
+      if (dept) filtered = filtered.filter(e => e.deptName === dept);
+      if (status) filtered = filtered.filter(e => e.empStatus === status);
+      if (type) filtered = filtered.filter(e => e.workType === type);
+      if (name) filtered = filtered.filter(e => e.empName.includes(name));
+      empAllGrid.resetData(filtered);
+      updateDashboard(filtered);
+    });
+    // 부서 셀렉트 옵션 동적 생성(샘플)
+    $(function() {
+      const depts = [...new Set(empData.map(e => e.deptName))];
+      depts.forEach(d => $('#filterDept').append(`<option value="${d}">${d}</option>`));
+    });
+  </script>
+</body>
+</html> 

@@ -119,4 +119,9 @@ public class EmpController {
         int num = Integer.parseInt(maxEmpId.substring(1));
         return "e" + (num + 1);
     }
+
+    @GetMapping("/emp-all")
+    public String empAllPage() {
+        return "hr/emp-all";
+    }
 } 
