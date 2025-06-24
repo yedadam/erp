@@ -24,8 +24,7 @@ public class CodeServiceImpl implements CodeService {
 		List<CodeVO> result= codeMapper.selectCode(mainCode); 
 		return result;
 	}
-
-
+	
 	@Override
 	public List<Map> getCodeMap(String mainCode) {
 		 List<Map> results = new ArrayList<Map>();  

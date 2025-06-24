@@ -16,7 +16,6 @@
 		<div id="orderGrid"></div>
 		<button id="addRowdtl">주문상세행추가</button>
 		<div id="ordDtlGrid"></div>
-		<div id="ordDtlForm"></div>
 
 		<!-- 품목 보여주는 모달 -->
 		<div class="modal fade" id="exampleModalToggle" aria-hidden="true"
@@ -174,7 +173,7 @@
 				}
 		} },
 	   {header : '거래처이름',name : 'vdrName',	align : 'center',	editor : 'text'	},
-     {header : '거래처코드',	name : 'vdrCode',	align : 'center',editor : 'text'},
+       {header : '거래처코드',	name : 'vdrCode',	align : 'center',editor : 'text'},
 	   {header : '납기일자',name : 'reqDlvDate',align : 'center',editor : 'text', editor: 'datePicker'}, 
 	   {header : '총금액', name : 'totPrice',align : 'center',editor:'text'},
 	   {header : '여신한도',name : 'creditPrice',align : 'center',	editor : 'text'},
@@ -184,11 +183,11 @@
 			 editor: {
                type: 'select',    
                 options: {
-  				      listItems:payMethod //Map형태로 담아옴
+  				      listItems:payMethod //Map형태로 담아옴 [{}]
                       }
                   }
 		},
-		 {	header : '진행상태',name : 'status',align : 'center',editor : 'text',
+		 {	header : '진행상태',name : 'status',align : 'center',
 			formatter : 'listItemText',
 			 editor: {
                type: 'select',    
@@ -197,7 +196,7 @@
                       }
                   }
 		}, {header : '할인율',	name : 'discount',align : 'center',	editor : 'text',
-			formatter : function(discount) {
+					formatter : function(discount) {
 				if(discount.value==null){
 					return discount.value=' '; 
 				} else if(discount.value !=null){
@@ -223,9 +222,9 @@ orderGrid.on('click',(ev)=>{
 		openVdrmodal(); //모달여는함수
 	 }
      const rowData = orderGrid.getRow(ev.rowKey);
-     const ordCode = rowData.ordCode;
-  //   console.log('선택된 주문번호:', ordCode);
-     ordDtlList(ordCode);
+		if (rowData &&rowData.ordCode?.trim()) {
+		ordDtlList(rowData.ordCode);
+	}
 })
 //orderGrid 
 //
@@ -337,7 +336,7 @@ vdrGrid.on('click',(ev)=>{
 	newItemInfoList.set(newNo,newitemInfo); //품목추가된 정보를 계속 담음   
 	console.log(newItemInfoList);  //새로 추가한 행의 아이템 정보의 행과 아이템정보 저장함 {1:[itemCode,name,price],2:[]}
 
-  ordDtlGrid.setValue(newNo,"itemCode",rowData.itemCode);
+  	ordDtlGrid.setValue(newNo,"itemCode",rowData.itemCode);
 	ordDtlGrid.setValue(newNo,"name",rowData.name);
 	ordDtlGrid.setValue(newNo,"price",rowData.price); // 
 	ordDtlGrid.setValue(newNo,"supPrice",rowData.price); //공급가액 
@@ -423,6 +422,16 @@ if(item.status !='ost03'){ //출고완료 된건이 아닌것만 삭제가능
 			}
 	})
 })
+// 행확인 
+$('#checkrow').on('click',function(){
+	console.log('수정버튼 클릭됨'); 
+	console.log('헤더 수정된 행확인',orderGrid.getModifiedRows().updatedRows);
+	console.log('헤더 생성된행확인',orderGrid.getModifiedRows().createdRows[0]);
+	console.log('푸터 생성된 행 확인',ordDtlGrid.getModifiedRows().createdRows);
+	//if(orderGrid.getModifiedRows().updatedRows.columnName)
+
+})
+
 	//주문상세 행추가 반영 
 	$('#addRowdtl').on('click',function(){
 		let addDtlrow={} //		
@@ -439,8 +448,6 @@ if(item.status !='ost03'){ //출고완료 된건이 아닌것만 삭제가능
     		 openItemmodal();//모달을 띄워줌  
     	 }
      })
-	
-
 	$('#ordreg2').on('click', function() {
 	//let regdtlmap=new Map(); //주문상세하단에 해당하는 map   
 	//newDtlList.forEach(item => {
@@ -468,11 +475,11 @@ if(item.status !='ost03'){ //출고완료 된건이 아닌것만 삭제가능
 				icon: "success",
 				draggable: true
 			});
-			},
-			error: function(err) {
-			console.error('에러 발생', err);
-			}
-			});
+		},
+	error: function(err) {
+	console.error('에러 발생', err);
+		}
+  });
 	});
 	//주문 수정
 	$('#ordupd').on('click',function(){
@@ -571,7 +578,6 @@ if(item.status !='ost03'){ //출고완료 된건이 아닌것만 삭제가능
 		if (row.vdrCode) fillVendorFields(i, row.vdrCode);
 	});
 }, 0);
-
 	function fillVendorFields(rowKey, vdrCode) {
 	const match = vdrAll.find(v => v.vdrCode === vdrCode);
 	if (match) {
