@@ -13,86 +13,28 @@
             font-size: 15px;
             color: #222;
         }
-        .erp-main { display: flex; gap: 24px; }
-        .erp-list { flex: 1.2; min-width: 420px; }
-        .erp-form {
-            flex: 1; min-width: 340px; background: #fff; border-radius: 16px; box-shadow: 0 2px 12px #e5e7eb; padding: 32px 24px;
-            min-height: 600px; display: flex; flex-direction: column; justify-content: flex-start;
+        .erp-main { display: flex; gap: 0; height: 100vh; background: #f8fafc; }
+        .erp-list { flex: 4; min-width: 320px; background: #fff; border-radius: 16px 0 0 16px; box-shadow: 0 2px 12px #e5e7eb; padding: 32px 16px 24px 16px; }
+        .erp-form { flex: 6; min-width: 400px; background: #f9fafb; border-radius: 0 16px 16px 0; box-shadow: 0 2px 12px #e5e7eb; padding: 32px 32px; display: flex; flex-direction: column; }
+        .erp-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .search-group { display: flex; gap: 8px; }
+        .right-group { display: flex; gap: 8px; align-items: center; }
+        #empGrid { margin-top: 8px; }
+        .form-section { display: flex; flex-direction: column; gap: 10px; }
+        .form-row { display: flex; align-items: center; gap: 12px; margin-bottom: 0; }
+        .form-row label { width: 90px; font-weight: 600; color: #333; }
+        .form-row input, .form-row select { flex: 1; height: 38px; font-size: 15px; border-radius: 8px; border: 1.2px solid #e0e7ef; background: #fff; }
+        .form-row input[type="file"] { padding: 0; }
+        #profilePreview { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; margin-left: 12px; }
+        .form-actions { margin-top: 24px; display: flex; gap: 10px; justify-content: flex-end; }
+        .required { color: #f5365c; margin-left: 2px; }
+        .tui-grid-row, .tui-grid-cell { height: 40px !important; max-height: 40px !important; overflow: hidden; white-space: nowrap; }
+        .tui-grid-cell .btn-edit {
+          background: #2563eb; color: #fff; border: none; border-radius: 6px; padding: 4px 14px; font-size: 14px; cursor: pointer; transition: background 0.2s;
         }
-        .form-grid { display: grid; grid-template-columns: 100px 1fr 100px 1fr; gap: 12px 16px; }
-        .form-grid label { align-self: center; font-weight: 600; }
-        .form-grid input, .form-grid select { width: 100%; padding: 8px; border-radius: 6px; border: 1.2px solid #e0e7ef; }
-        .form-row {
-            display: flex; align-items: center; gap: 12px;
-            margin-bottom: 18px;
-        }
-        .erp-form input,
-        .erp-form select,
-        #searchInput,
-        #statusFilter {
-            height: 40px;
-            font-size: 15px;
-            border-radius: 8px;
-        }
-        .erp-form label {
-            font-weight: 600;
-            color: #333;
-        }
-        .btn,
-        .btn-sm {
-            height: 40px;
-            padding: 0 18px;
-            font-size: 15px;
-            border-radius: 8px;
-            line-height: 1.2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #btnSearch, #btnExcel {
-            min-width: 70px;
-        }
-        .form-actions {
-            margin-top: 32px;
-            display: flex; gap: 10px;
-        }
-        @media (max-width: 1100px) {
-            .erp-main { flex-direction: column; }
-            .erp-list, .erp-form { width: 100%; min-width: 0; border-radius: 0; }
-        }
-        @media (max-width: 600px) {
-            .btn, .btn-sm, #searchInput, #statusFilter {
-                height: 36px;
-                font-size: 14px;
-                padding: 0 10px;
-            }
-        }
-        /* UI/컴포넌트 통일 */
-        input, select, .btn, .btn-sm {
-            height: 40px;
-            font-size: 15px;
-            border-radius: 8px;
-        }
-        input, select {
-            border: 1px solid #e5e7eb;
-            background: #fafbfc;
-            transition: border 0.2s, box-shadow 0.2s;
-            padding: 0 12px;
-        }
-        input:focus, select:focus {
-            border: 1.2px solid #a0aec0;
-            box-shadow: 0 0 0 2px #e0e7ef;
-            outline: none;
-        }
-        .custom-toast {
-            position: fixed; left: 50%; top: 60px; transform: translateX(-50%);
-            min-width: 180px; background: #222; color: #fff; padding: 12px 28px;
-            border-radius: 8px; font-size: 1.1rem; z-index: 9999; opacity: 0.95;
-            box-shadow: 0 2px 12px #0002;
-            text-align: center;
-        }
-        .custom-toast.success { background: #2dce89; }
-        .custom-toast.error { background: #f5365c; }
+        .tui-grid-cell .btn-edit:hover { background: #1d4ed8; }
+        @media (max-width: 1100px) { .erp-main { flex-direction: column; height: auto; } .erp-list, .erp-form { width: 100%; min-width: 0; border-radius: 0; } }
+        @media (max-width: 600px) { .btn, .btn-sm, #searchInput, #statusFilter { height: 36px; font-size: 14px; padding: 0 10px; } .form-row label { width: 70px; } }
     </style>
 </head>
 <body>
@@ -100,53 +42,72 @@
     <div class="erp-main">
         <div class="erp-list">
             <h1 class="h3 mb-2 text-gray-800">사원 관리</h1>
-            <p class="mb-4">이곳에서 사원을 관리할 수 있습니다. 목록 조회, 등록, 수정, 퇴사 처리 기능이 제공될 예정입니다.</p>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;justify-content:space-between;">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <input type="text" id="searchInput" placeholder="사원명/부서명/사원번호 검색" style="width:180px;">
+            <div class="erp-list-header">
+                <div class="search-group">
+                    <input type="text" id="searchInput" placeholder="사원명/부서명/사원번호 검색">
                     <button id="btnSearch" class="btn btn-primary btn-sm">검색</button>
-                    <button id="btnExcel" class="btn btn-secondary btn-sm">엑셀다운</button>
                 </div>
-                <div>
-                    <select id="statusFilter" style="width:90px;">
+                <div class="right-group">
+                    <select id="statusFilter">
                         <option value="">전체</option>
-                        <option value="stt01">재직</option>
-                        <option value="stt02">퇴사</option>
+                        <option value="재직">재직</option>
+                        <option value="퇴사">퇴사</option>
                     </select>
                 </div>
             </div>
             <div id="empGrid"></div>
         </div>
         <form id="empForm" class="erp-form" autocomplete="off">
-            <div class="erp-title" style="font-size:1.1rem; margin-bottom:8px;">사원정보 등록</div>
-            <!-- 기본정보 -->
+            <div class="erp-title">사원정보 등록</div>
             <div class="form-section">
                 <div class="form-row">
                     <label for="empId">사원번호</label>
                     <input type="text" id="empId" name="empId" readonly>
-                    <label for="empName">성명<span style="color:red">*</span></label>
+                </div>
+                <div class="form-row">
+                    <label for="empName">성명<span class="required">*</span></label>
                     <input type="text" id="empName" name="empName" required placeholder="이름 입력">
                 </div>
-                <!-- 소속/직급 -->
                 <div class="form-row">
-                    <label for="deptCode">부서<span style="color:red">*</span></label>
+                    <label for="birthDate">생년월일</label>
+                    <input type="date" id="birthDate" name="birthDate">
+                </div>
+                <div class="form-row">
+                    <label for="addr">주소</label>
+                    <input type="text" id="addr" name="addr" placeholder="주소 입력" readonly>
+                    <button type="button" id="btnAddr" class="btn btn-secondary btn-sm">주소검색</button>
+                </div>
+                <div class="form-row">
+                    <label for="addrDetail">상세주소</label>
+                    <input type="text" id="addrDetail" name="addrDetail" placeholder="상세주소 입력">
+                </div>
+                <div class="form-row">
+                    <label for="tel">연락처</label>
+                    <input type="text" id="tel" name="tel" placeholder="010-0000-0000">
+                </div>
+                <div class="form-row">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" name="email" placeholder="example@email.com">
+                </div>
+                <div class="form-row">
+                    <label for="deptCode">부서<span class="required">*</span></label>
                     <select id="deptCode" name="deptCode" required>
                         <option value="">선택</option>
                         <option th:each="dept : ${departments}" th:value="${dept.deptCode}" th:text="${dept.deptName}"></option>
                     </select>
-                    <label for="position">직급<span style="color:red">*</span></label>
+                </div>
+                <div class="form-row">
+                    <label for="position">직급<span class="required">*</span></label>
                     <select id="position" name="position" required>
                         <option value="">선택</option>
                         <option>사원</option><option>주임</option><option>대리</option><option>과장</option><option>차장</option><option>부장</option><option>임원</option>
                     </select>
                 </div>
-                <!-- 재직정보 -->
                 <div class="form-row">
-                    <label for="empStatus">재직상태</label>
-                    <select id="empStatus" name="empStatus">
-                        <option value="재직">재직</option>
-                        <option value="퇴사">퇴사</option>
-                    </select>
+                    <label for="hireDate">입사일자</label>
+                    <input type="date" id="hireDate" name="hireDate">
+                </div>
+                <div class="form-row">
                     <label for="workType">입사구분</label>
                     <select id="workType" name="workType">
                         <option value="">선택</option>
@@ -154,8 +115,6 @@
                     </select>
                 </div>
                 <div class="form-row">
-                    <label for="hireDate">입사일자</label>
-                    <input type="date" id="hireDate" name="hireDate">
                     <label for="resignDate">퇴사일자</label>
                     <input type="date" id="resignDate" name="resignDate">
                 </div>
@@ -165,28 +124,23 @@
                         <option value="">선택</option>
                         <option>권고퇴직</option><option>경영상 해고</option><option>계약만료</option><option>개인사정</option><option>이직</option><option>건강</option><option>기타</option>
                     </select>
-                    <label for="tel">연락처</label>
-                    <input type="text" id="tel" name="tel" placeholder="010-0000-0000">
                 </div>
-                <!-- 연락처/이메일 -->
                 <div class="form-row">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="example@email.com">
-                    <label for="bank">은행</label>
+                    <label for="bank">급여통장 은행</label>
                     <input type="text" id="bank" name="bank" placeholder="은행명">
                 </div>
-                <!-- 계좌/주소 -->
                 <div class="form-row">
                     <label for="acctNo">계좌번호</label>
                     <input type="text" id="acctNo" name="acctNo" placeholder="계좌번호">
-                    <label for="addr">주소</label>
-                    <input type="text" id="addr" name="addr" style="flex:2;" placeholder="주소 입력">
-                    <button type="button" id="btnAddr" class="btn btn-secondary btn-sm" style="min-width:60px;">주소검색</button>
                 </div>
-                <!-- 사진 -->
                 <div class="form-row">
-                    <label for="profileImg">사진</label>
+                    <label for="profileImg">사진첨부</label>
                     <input type="file" id="profileImg" name="profileImg" accept="image/*">
+                    <img id="profilePreview" src="/static/img/user-default.png" alt="프로필 미리보기">
+                </div>
+                <div class="form-row">
+                    <label for="note">적요</label>
+                    <input type="text" id="note" name="note" placeholder="적요 입력">
                 </div>
             </div>
             <div class="form-actions">
@@ -205,32 +159,81 @@
 // 공통코드/컬럼명 상수화
 const CODES = {
   position: { pos01: '임원', pos02: '부장', pos03: '차장', pos04: '과장', pos05: '대리', pos06: '주임', pos07: '사원' },
-  status: { stt01: '재직', stt02: '퇴사' },
+  //status: { stt01: '재직', stt02: '퇴사' },
+  status: { '재직': '재직', '퇴사': '퇴사' },
   workType: { emp01: '정규직', emp02: '일용직' }
 };
-// Toast 메시지 함수
+
 function showToast(msg, type='success') {
   const toast = $('<div>').addClass('custom-toast ' + type).text(msg);
   $('body').append(toast);
   setTimeout(() => toast.fadeOut(300, () => toast.remove()), 1800);
 }
-// Toast UI Grid 컬럼 정의 분리
+
+function getEmpFormData() {
+  return {
+    empId: $('#empId').val(),
+    empName: $('#empName').val(),
+    deptCode: $('#deptCode').val(),
+    position: $('#position').val(),
+    empStatus: $('#empStatus').val(),
+    workType: $('#workType').val(),
+    hireDate: $('#hireDate').val(),
+    resignDate: $('#resignDate').val(),
+    resignReason: $('#resignReason').val(),
+    tel: $('#tel').val(),
+    email: $('#email').val(),
+    bank: $('#bank').val(),
+    acctNo: $('#acctNo').val(),
+    addr: $('#addr').val()
+    // 필요시 추가
+  };
+}
+
 function getEmpGridColumns() {
   return [
-    { header: '사원번호', name: 'empId', width: 90, align: 'center', sortable: true },
-    { header: '성명', name: 'empName', width: 110, align: 'center', sortable: true },
-    { header: '부서명', name: 'deptName', width: 110, align: 'center', sortable: true },
-    { header: '직급', name: 'position', width: 90, align: 'center', sortable: true,
-      formatter: ({value}) => CODES.position[value] || value, filter: 'select' },
-    { header: '재직상태', name: 'empStatus', width: 90, align: 'center', sortable: true,
-      formatter: ({value}) => CODES.status[value] || value, filter: 'select' },
-    { header: '근무유형', name: 'workType', width: 90, align: 'center', sortable: true,
-      formatter: ({value}) => CODES.workType[value] || value, filter: 'select' }
+    { header: '사원번호', name: 'empId', width: 100, align: 'center', sortable: true },
+    { header: '성명', name: 'empName', width: 120, align: 'center', sortable: true },
+    { header: '부서명', name: 'deptName', width: 120, align: 'center', sortable: true, filter: 'select' },
+    { header: '직급', name: 'position', width: 100, align: 'center', sortable: true, filter: 'select' },
+    { header: '재직상태', name: 'empStatus', width: 100, align: 'center', sortable: true, filter: 'select',
+      formatter: ({value}) => value === '재직' ? '<span style="color:#22c55e;font-weight:bold;">재직</span>' : '<span style="color:#6b7280;font-weight:bold;">퇴사</span>' },
+    { header: '근무유형', name: 'workType', width: 140, align: 'center', sortable: true, filter: 'select' },
+    { header: '', name: 'edit', width: 80, align: 'center',
+      renderer: {
+        type: 'button',
+        options: {
+          text: '수정',
+          classNames: ['btn-edit'],
+          onClick: (ev) => {
+            const row = ev.grid.getRow(ev.rowKey);
+            if (!row) return;
+            // 폼에 데이터 표시 (기존 클릭 이벤트와 동일하게 동작)
+            $('#empId').val(row.empId);
+            $('#comId').val(row.comId || 'COM-101');
+            $('#empName').val(row.empName);
+            $('#deptCode').val(row.deptCode);
+            $('#position').val(row.position);
+            $('#empStatus').val(row.empStatus);
+            $('#workType').val(row.workType);
+            $('#tel').val(row.tel);
+            $('#email').val(row.email);
+            $('#hireDate').val(row.hireDate ? row.hireDate.substr(0,10) : '');
+            $('#addr').val(row.addr);
+            $('#addrDetail').val(row.addrDetail || '');
+            $('#resignDate').val(row.resignDate ? row.resignDate.substr(0,10) : '');
+            $('#resignReason').val(row.resignReason);
+            $('#bank').val(row.bank);
+            $('#acctNo').val(row.acctNo);
+            setProfilePreview(row.profileImgPath);
+          }
+        }
+      }
+    }
   ];
 }
-// 그리드/폼 이벤트 바인딩 분리
+
 function bindEmpFormEvents() {
-  // 폼 select 옵션 동적 렌더링
   const posOpts = [ {v:'', t:'선택'}, ...Object.entries(CODES.position).map(([v,t])=>({v,t})) ];
   $('#position').empty(); posOpts.forEach(opt => $('#position').append(`<option value="${opt.v}">${opt.t}</option>`));
   const sttOpts = Object.entries(CODES.status).map(([v,t])=>({v,t}));
@@ -238,65 +241,98 @@ function bindEmpFormEvents() {
   const workOpts = [ {v:'', t:'선택'}, ...Object.entries(CODES.workType).map(([v,t])=>({v,t})) ];
   $('#workType').empty(); workOpts.forEach(opt => $('#workType').append(`<option value="${opt.v}">${opt.t}</option>`));
 }
-// AJAX/버튼 이벤트 분리
+
 function bindEmpButtonEvents(grid) {
-  $('#btnSave').on('click', function() {
-    var form = $('#empForm')[0];
-    var formData = new FormData(form);
-    $.ajax({
-      url: '/erp/hr/insertEmp', method: 'POST', data: formData,
-      processData: false, contentType: false,
-      success: function() { showToast('등록 완료!'); loadEmpList(grid); $('#empForm')[0].reset(); },
-      error: function() { showToast('등록 실패', 'error'); }
-    });
+  // 저장
+  $('#btnSave, #btnUpdate').off('click').on('click', async function() {
+    const form = document.getElementById('empForm');
+    // addr + addrDetail 합치기
+    const addr = $('#addr').val();
+    const addrDetail = $('#addrDetail').val();
+    $('#addr').val(addr + (addrDetail ? ' ' + addrDetail : ''));
+    // comId가 없으면 기본값 세팅
+    if (!$('#comId').val()) $('#comId').val('COM-101');
+    const formData = new FormData(form);
+    formData.set('comId', $('#comId').val() || 'COM-101');
+    const isSave = this.id === 'btnSave';
+    try {
+      await $.ajax({
+        url: isSave ? '/erp/hr/insertEmp' : '/erp/hr/updateEmp',
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function() {
+          showToast(isSave ? '등록 완료!' : '수정 완료!');
+          loadEmpList(grid);
+          form.reset();
+          $('#profilePreview').hide();
+        },
+        error: function(xhr) {
+          showToast(isSave ? '등록 실패' : '수정 실패', 'error');
+          console.error(xhr.responseText);
+        }
+      });
+    } catch (e) { console.error(e); }
   });
-  $('#btnUpdate').on('click', function() {
-    var data = $('#empForm').serialize();
-    $.ajax({
-      url: '/erp/hr/updateEmp', method: 'POST', data: data,
-      success: function() { showToast('수정 완료!'); loadEmpList(grid); },
-      error: function() { showToast('수정 실패', 'error'); }
-    });
-  });
-  $('#btnDelete').on('click', function() {
+  // 삭제
+  $('#btnDelete').on('click', async function() {
     const empId = $('#empId').val();
     if (!empId) { showToast('사원을 선택하세요', 'error'); return; }
     if (!confirm('정말 삭제하시겠습니까?')) return;
-    $.ajax({
-      url: '/erp/hr/deleteEmp', method: 'POST', data: { empId },
-      success: function() { showToast('삭제 완료!'); loadEmpList(grid); $('#empForm')[0].reset(); },
-      error: function() { showToast('삭제 실패', 'error'); }
+    try {
+      await $.ajax({
+        url: '/erp/hr/deleteEmp',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ empId }),
+        success: function() {
+          showToast('삭제 완료!');
+          loadEmpList(grid);
+          $('#empForm')[0].reset();
+        },
+        error: function(xhr) {
+          showToast('삭제 실패', 'error');
+          console.error(xhr.responseText);
+        }
+      });
+    } catch (e) { console.error(e); }
+  });
+  // 신규
+  $('#btnNew').on('click', function() {
+    $('#empForm')[0].reset();
+    // 신규 사원번호 자동 세팅
+    $.get('/erp/hr/nextEmpId', function(nextEmpId) {
+      $('#empId').val(nextEmpId);
+      $('#empId').prop('readonly', true);
     });
   });
-  $('#btnNew').on('click', function() { $('#empForm')[0].reset(); $('#empId').val(''); });
 }
-// 사원 리스트 로드 함수 분리
+
 function loadEmpList(grid) {
   const keyword = $('#searchInput').val();
   const status = $('#statusFilter').val();
   $.ajax({
-    url: '/erp/hr/empList', method: 'GET', data: { keyword, status },
+    url: '/erp/hr/empList',
+    method: 'GET',
+    data: { keyword, status },
     success: function(data) { grid.resetData(data); },
-    error: function() { grid.resetData([]); }
+    error: function(xhr) { grid.resetData([]); console.error(xhr.responseText); }
   });
 }
-// 초기화
+
 $(function() {
   bindEmpFormEvents();
   const grid = new tui.Grid({
     el: document.getElementById('empGrid'),
-    rowHeaders: ['checkbox', 'rowNum'],
-    rowHeight: 44,
-    columns: getEmpGridColumns(),
-    bodyHeight: 420,
-    minBodyHeight: 200,
-    columnOptions: { resizable: true }
+    columns: getEmpGridColumns()
   });
-  // 그리드 클릭 시 폼에 데이터 표시
+  // 그리드 클릭 시 폼에 데이터 표시 (comId 포함)
   grid.on('click', ev => {
     const row = grid.getRow(ev.rowKey);
     if (!row) return;
     $('#empId').val(row.empId);
+    $('#comId').val(row.comId || 'COM-101');
     $('#empName').val(row.empName);
     $('#deptCode').val(row.deptCode);
     $('#position').val(row.position);
@@ -306,17 +342,39 @@ $(function() {
     $('#email').val(row.email);
     $('#hireDate').val(row.hireDate ? row.hireDate.substr(0,10) : '');
     $('#addr').val(row.addr);
+    $('#addrDetail').val(row.addrDetail || '');
+    $('#resignDate').val(row.resignDate ? row.resignDate.substr(0,10) : '');
+    $('#resignReason').val(row.resignReason);
+    $('#bank').val(row.bank);
+    $('#acctNo').val(row.acctNo);
+    setProfilePreview(row.profileImgPath);
   });
   // 검색/필터 이벤트
   $('#btnSearch').on('click', function() { loadEmpList(grid); });
   $('#searchInput').on('keydown', function(e) { if (e.key === 'Enter') loadEmpList(grid); });
   $('#statusFilter').on('change', function() { loadEmpList(grid); });
-  // 엑셀다운 샘플
-  $('#btnExcel').on('click', function() { showToast('엑셀 다운로드 샘플'); });
   // 버튼 이벤트 바인딩
   bindEmpButtonEvents(grid);
   // 최초 로드
   loadEmpList(grid);
+});
+
+// 프로필 이미지 미리보기 (기본 이미지 처리)
+function setProfilePreview(path) {
+  if (path) {
+    $('#profilePreview').attr('src', path).show();
+  } else {
+    $('#profilePreview').attr('src', '/static/img/user-default.png').show();
+  }
+}
+// 주소 검색 버튼 클릭 시 카카오 주소 API
+$('#btnAddr').on('click', function() {
+  new daum.Postcode({
+    oncomplete: function(data) {
+      $('#addr').val(data.address);
+      $('#addrDetail').focus();
+    }
+  }).open();
 });
 </script>
 </body>

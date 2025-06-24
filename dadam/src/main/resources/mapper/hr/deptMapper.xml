@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.hr.emp.mapper.DeptMapper">
+    <select id="findAllDepartments" resultType="com.dadam.hr.emp.service.DeptVO">
+        SELECT 
+            dept_code AS deptCode,
+            dept_name AS deptName,
+            parent_dept_code AS parentDeptCode,
+            emp_id AS empId,
+            created_date AS createdDate,
+            com_id AS comId
+        FROM departments
+        ORDER BY dept_code
+    </select>
+</mapper> 
