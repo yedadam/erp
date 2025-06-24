@@ -30,7 +30,7 @@ public class AccountRestController {
 	
 	@GetMapping("/accFindAll")
 	public List<AccountVO> getAccFindAll() {
-	    return accountService.accFindAll();  // ✔️ 파라미터 제거
+	    return accountService.accFindAll();  //
 	}
 
 	@GetMapping("/accFindByType")
@@ -61,16 +61,18 @@ public class AccountRestController {
 	public List<String> getAcctTypes() {
 	    return accountService.getAcctTypes();  // ["자산", "부채", "자본", ...]
 	}
+	
 	// 중분류 자동완성 코드 조회
 	@GetMapping("/api/account/class")
 	public List<String> getAcctClasses(@RequestParam String typeCode) {
+		System.out.println("중분류 전달값" + typeCode);
 	    return accountService.getAcctClasses(typeCode);
 	}
 	
 	// 소분류 자동완성 코드 조회
 	@GetMapping("/api/account/subclass")
-	public List<String> getAcctSubclasses(@RequestParam String typeCode,
-	                                      @RequestParam String classCode) {
-	    return accountService.getAcctSubclasses(typeCode, classCode);
+	public List<String> getAcctSubClasses(@RequestParam String classCode) {
+		System.out.println("중분류 전달값" + classCode);
+	    return accountService.getAcctSubClasses(classCode);
 	}
 }

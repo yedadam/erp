@@ -5,8 +5,7 @@ import com.dadam.common.service.GridData;
 import lombok.Data;
 
 @Data
-public class OrdReqVO {
-		
+public class OrdReqVO {	
 	OrdersVO ord; 
 	GridData<OrdDtlVO> dtl;
 }

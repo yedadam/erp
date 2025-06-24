@@ -12,4 +12,6 @@ public class AccountMainController {
 	public String test() {
 		return "/acc/accountMain";
 	}
+	
+
 }

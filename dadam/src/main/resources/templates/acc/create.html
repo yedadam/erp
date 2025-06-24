@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layouts/default_layout}" 
+  layout:fragment="Content">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h2> 여신 관리 </h2>
+
+
+<!-- Toast UI Grid 영역 -->
+	<div class="col-14">
+		<div id="creGrid" class="mx-6"> </div>
+	 </div>
+	 
+	 
+</body>
+
+<script>
+creditList()
+
+const creGrid = new tui.Grid({
+	el : document.getElementById('creGrid'),
+	scrollX : false,
+	scrollY : false,
+	
+	pagination: true,
+	pageOptions:{
+		useClient:true,
+		perPage:10
+	},
+	columns:[
+		{header: '거래처',name:'vdrName',align:'center', width:100},
+		{header: '거래처코드',name:'vdrCode',align:'center', width:100},
+		{header: '총금액',name:'creditPeriod',align:'center', width:100},
+		{header: '수금내역',name:'creditPrice',align:'center', width:100},
+		{header: '미수금',name:'creditBalPrice',align:'center', width:100},
+		{header: '상태',name:'status',align:'center', width:100},
+		{header: '수금일자',name:'createdDate',align:'center', width:100},
+	]
+	
+})
+
+function creditList(){
+	$.ajax({
+		url: "/erp/credit/creditFindAll",
+		method:"GET",
+		success: function(result){
+			console.log(result)
+		creGrid.resetData(result);
+			
+		}
+	});
+}
+
+</script>
+
+</html>

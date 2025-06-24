@@ -17,6 +17,7 @@ public class InboundVO {
 	private String name;   // 창고이름
 	private String type;   // 창고구분 (창고 wht01, 공장 wht02)
 	
+	private String locCode;   // 
 	private String note;   // 메모
 	private String empId;  // 담당자 
 	private String comId;  // 회사id 혹시몰라서
