@@ -32,4 +32,10 @@ public class PurchaseServiceImpl implements PurchaseService{
 		List<PurchaseOrderVO> result = mapper.requestList();
 		return result;		
 	}
+	
+	@Override
+	public List<PurchaseOrderVO> requestDeatilList(String param) {
+		List<PurchaseOrderVO> result = mapper.requestDeatilList(param);
+		return result;
+	}
 }

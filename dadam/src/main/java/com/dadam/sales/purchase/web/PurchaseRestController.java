@@ -35,4 +35,12 @@ public class PurchaseRestController {
 
 		return result;
 	}
+	
+	//발주서 의뢰 상세 조회
+	@GetMapping("/purRqDetailList")
+	public List<PurchaseOrderVO> purRequestDtList(@RequestParam String param){
+		List<PurchaseOrderVO> result = service.requestDeatilList(param);
+		System.out.println(result);
+		return result;
+	}
 }

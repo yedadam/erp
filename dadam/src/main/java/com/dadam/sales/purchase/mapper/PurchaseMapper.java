@@ -11,4 +11,6 @@ public interface PurchaseMapper {
 	public List<PurchaseOrderVO> findPurListByOrdNo(String param);
 	//발주의뢰 코드보기
 	public List<PurchaseOrderVO> requestList();
+	//발주의뢰 상세코드
+	public List<PurchaseOrderVO> requestDeatilList(String param);
 }

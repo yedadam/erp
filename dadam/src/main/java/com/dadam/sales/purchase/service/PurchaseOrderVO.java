@@ -57,4 +57,14 @@ public class PurchaseOrderVO {
 	//private String status;
 	//private String note;
 	//private String comId;
+	
+	//발주의뢰 상세
+	private String pur_req_dtl_code;
+	private String pur_req_code;
+	private String item_code;
+	//private int quantity;
+	//private String status;
+	private Date created_date;
+	//private String note;
+	//private Stirng comId;
 }
