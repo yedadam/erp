@@ -36,4 +36,18 @@
    FROM purchaseOrderDetail
    WHERE pur_ord_code = #{pCode}
  </select>
+ 
+ <!-- 발주의뢰리스트 -->
+ <select id="requestList" resultType="PurchaseOrderVO">
+    SELECT PUR_REQ_CODE,
+       IN_CODE,
+       CREATED_DATE,
+       PUR_IN_DATE,
+       EMP_ID,
+       STATUS,
+       NOTE,
+       COM_ID
+	FROM purchaseRequest
+	WHERE status='prs01'
+ </select>
 </mapper>

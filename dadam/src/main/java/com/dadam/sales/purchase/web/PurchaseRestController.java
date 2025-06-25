@@ -27,4 +27,12 @@ public class PurchaseRestController {
 		
 		return result;
 	}
+	//발주 의뢰 조회
+	@GetMapping("/purRequestList")
+	public List<PurchaseOrderVO> purRequestList(@RequestParam(name = "param", required = false) PurchaseOrderVO param) {
+
+		List<PurchaseOrderVO> result = service.requestList();
+
+		return result;
+	}
 }

@@ -26,4 +26,10 @@ public class PurchaseServiceImpl implements PurchaseService{
 		 List<PurchaseOrderVO> result = mapper.findPurListByOrdNo(param);
 		return result;
 	}
+	
+	@Override
+	public List<PurchaseOrderVO> requestList() {
+		List<PurchaseOrderVO> result = mapper.requestList();
+		return result;		
+	}
 }
