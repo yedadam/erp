@@ -19,4 +19,5 @@ public interface OrderMapper {
         public int updOrder(OrdersVO ord); //주문헤더수정
         public int updOrdDtl(OrdDtlVO ordDtl); //주문상세 수정 
         public int deleteOrdDtl(String ordDtlCode); //주문상세 삭제 
+        public int updateCreditBal(@Param("totPrice") Long totPrice,@Param("vdrCode") String vdrCode); 
 }

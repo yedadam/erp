@@ -1,138 +1,159 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.sales.order.mapper.OrderMapper">
-<!-- 주문리스트 조회 -->
-<select id="findOrderList" resultType="com.dadam.sales.order.service.OrdersVO">
-select o.ord_code, 
-       o.created_date,
-       v.vdr_name,
-       v.vdr_code,
-       o.req_dlv_date,
-       o.tot_price,
-       v.credit_price,
-       v.credit_bal_price,
-       o.pay_method,
-       o.status,
-       v.discount
-from orders o JOIN vender v ON  o.vdr_code=v.vdr_code
-</select>
+	<!-- 주문리스트 조회 -->
+	<select id="findOrderList"
+		resultType="com.dadam.sales.order.service.OrdersVO">
+		select o.ord_code,
+		o.created_date,
+		v.vdr_name,
+		v.vdr_code,
+		o.req_dlv_date,
+		o.tot_price,
+		v.credit_price,
+		v.credit_bal_price,
+		o.pay_method,
+		o.status,
+		v.discount
+		from orders o JOIN vender v ON
+		o.vdr_code=v.vdr_code
+	</select>
 
-<!-- 주문건당 상세내역 보기  -->
-<select id="findOrdListByOrdNo" parameterType="String" resultType="com.dadam.sales.order.service.OrdDtlVO">
-SELECT  od.ord_dtl_code, 
-        od.item_code, 
-        i.name, 
-        i.price, 
-        od.quantity,
-        od.sup_price,
-        od.vat_price, 
-        od.tot_price,
-        od.disc_price 
-FROM ordersDetail od left JOIN item i on od.item_code=i.item_code
-                     JOIN orders o on o.ord_code=od.ord_code
-                     JOIN vender v on o.vdr_code=v.vdr_code
-WHERE od.ord_code=#{ordCode}
-</select>
-<insert id="orderInsert" parameterType="com.dadam.sales.order.service.OrdersVO">
-INSERT INTO orders(ORD_CODE,
-VDR_CODE,
-STATUS,
-CREATED_DATE,
-PAY_METHOD,
-TOT_QUANTITY,
-REQ_DLV_DATE,
-EMP_ID,
-COM_ID,
-TOT_SUP_PRICE,
-TOT_VAT_PRICE,
-TOT_DISC,
-DISCOUNT,
-TOT_PRICE,
-QUO_CODE) values(getNextOrdCode(),
-#{vdrCode},
-#{status},
-#{createdDate},   
-#{payMethod},
-#{totQuantity},
-#{reqDlvDate},
-#{empId},
-#{comId},
-#{totSupPrice},
-#{totVatPrice},
-#{totDisc},
-#{discount},
-#{totPrice},
-'quoCode')  
-</insert>
-<insert id="odtlInsert" parameterType="com.dadam.sales.order.service.OrdDtlVO" >
-INSERT INTO ordersdetail (
-  ORD_DTL_CODE,
-  ITEM_CODE,
-  QUANTITY,
-  SUP_PRICE,
-  VAT_PRICE,
-  DISC_PRICE,
-  TOT_PRICE,
-  COM_ID,
-  ORD_CODE
-) 
-VALUES (
-  getNextOrdDtlCode(),     
-  #{itemCode},
-  #{quantity},
-  #{supPrice},
-  #{vatPrice},
-  #{discPrice},
-  #{totPrice},
-  #{comId},
-  getNextOrdCode()
-) 
-</insert>
-<update id="updVdrcreditBalPrice">
-update vender 
-set credit_bal_price=#{creditBalPrice}-#{totPrice}
-where vdr_code= #{vdrCode}
-</update>
-<update id="callUpdateCreditBal" statementType="CALLABLE">
-    { CALL update_credit_bal(
-        #{vdrId, mode=IN, jdbcType=VARCHAR},
-        #{totPrice, mode=IN, jdbcType=NUMERIC}
-    ) }
-</update>
-<delete id="deleteOrders" parameterType="String" >
-delete from orders 
-where ord_code=#{ordCode}
-</delete>
-<delete id="deleteOrdersDtl" parameterType="String" >
-delete from orders 
-where ord_code=#{ordCode}
-</delete>
-<update id="updOrder" parameterType="com.dadam.sales.order.service.OrdersVO" >
-  UPDATE ORDERS
-	SET vdr_code = #{vdrCode},
-	   req_dlv_date = #{reqDlvDate},
-	   pay_method = #{payMethod}, 
-	   update_id = #{updateId},
-	   update_date = sysdate
-	   WHERE ord_code = #{ordCode}
-</update>
-<update id="updOrdDtl" parameterType="com.dadam.sales.order.service.OrdDtlVO" >
-  UPDATE ORDERSDETAIL
-	SET  item_code = #{itemCode},
-		   quantity=#{quantity},
-		   sup_price=#{supPrice},
-		   vat_price=#{vatPrice},  
-		   tot_price=#{totPrice},
-		   disc_price=#{discPrice},
-		   com_id=#{comId}
-	 WHERE ord_dtl_code = #{ordDtlCode}
-</update>
-
-<delete id="deleteOrdDtl" parameterType="String">
-DELETE FROM ORDERSDETAIL 
-WHERE  ord_dtl_code = #{ordDtlCode}
- </delete>
-
+	<!-- 주문건당 상세내역 보기 -->
+	<select id="findOrdListByOrdNo" parameterType="String"
+		resultType="com.dadam.sales.order.service.OrdDtlVO">
+		SELECT od.ord_dtl_code,
+		od.item_code,
+		i.name,
+		i.price,
+		od.quantity,
+		od.sup_price,
+		od.vat_price,
+		od.tot_price,
+		od.disc_price
+		FROM
+		ordersDetail od left JOIN item i on od.item_code=i.item_code
+		JOIN
+		orders o on o.ord_code=od.ord_code
+		JOIN vender v on
+		o.vdr_code=v.vdr_code
+		WHERE od.ord_code=#{ordCode}
+	</select>
+	<insert id="orderInsert"
+		parameterType="com.dadam.sales.order.service.OrdersVO">
+		INSERT INTO orders(ORD_CODE,
+		VDR_CODE,
+		STATUS,
+		CREATED_DATE,
+		PAY_METHOD,
+		TOT_QUANTITY,
+		REQ_DLV_DATE,
+		EMP_ID,
+		COM_ID,
+		TOT_SUP_PRICE,
+		TOT_VAT_PRICE,
+		TOT_DISC,
+		DISCOUNT,
+		TOT_PRICE,
+		QUO_CODE)
+		values(getNextOrdCode(),
+		#{vdrCode},
+		#{status},
+		#{createdDate},
+		#{payMethod},
+		#{totQuantity},
+		#{reqDlvDate},
+		#{empId},
+		#{comId},
+		#{totSupPrice},
+		#{totVatPrice},
+		#{totDisc},
+		#{discount},
+		#{totPrice},
+		'quoCode')
+	</insert>
+	<insert id="odtlInsert"
+		parameterType="com.dadam.sales.order.service.OrdDtlVO">
+		INSERT INTO ordersdetail (
+		ORD_DTL_CODE,
+		ITEM_CODE,
+		QUANTITY,
+		SUP_PRICE,
+		VAT_PRICE,
+		DISC_PRICE,
+		TOT_PRICE,
+		COM_ID,
+		ORD_CODE
+		)
+		VALUES (
+		getNextOrdDtlCode(),
+		#{itemCode},
+		#{quantity},
+		#{supPrice},
+		#{vatPrice},
+		#{discPrice},
+		#{totPrice},
+		#{comId},
+		getNextOrdCode()
+		)
+	</insert>
+	<update id="updVdrcreditBalPrice">
+		update vender
+		set
+		credit_bal_price=#{creditBalPrice}-#{totPrice}
+		where vdr_code=
+		#{vdrCode}
+	</update>
+	<update id="callUpdateCreditBal" statementType="CALLABLE">
+		{ CALL
+		update_credit_bal(
+		#{vdrId, mode=IN, jdbcType=VARCHAR},
+		#{totPrice,
+		mode=IN, jdbcType=NUMERIC}
+		) }
+	</update>
+	<delete id="deleteOrders" parameterType="String">
+		delete from orders
+		where
+		ord_code=#{ordCode}
+	</delete>
+	<delete id="deleteOrdersDtl" parameterType="String">
+		delete from orders
+		where ord_code=#{ordCode}
+	</delete>
+	<update id="updOrder"
+		parameterType="com.dadam.sales.order.service.OrdersVO">
+		UPDATE ORDERS
+		SET vdr_code = #{vdrCode},
+		req_dlv_date =
+		#{reqDlvDate},
+		pay_method = #{payMethod},
+		update_id = #{updateId},
+		update_date = sysdate
+		WHERE ord_code = #{ordCode}
+	</update>
+	<update id="updOrdDtl"
+		parameterType="com.dadam.sales.order.service.OrdDtlVO">
+		UPDATE ORDERSDETAIL
+		SET item_code = #{itemCode},
+		quantity=#{quantity},
+		sup_price=#{supPrice},
+		vat_price=#{vatPrice},
+		tot_price=#{totPrice},
+		disc_price=#{discPrice},
+		com_id=#{comId}
+		WHERE
+		ord_dtl_code = #{ordDtlCode}
+	</update>
+	<delete id="deleteOrdDtl" parameterType="String">
+		DELETE FROM ORDERSDETAIL
+		WHERE ord_dtl_code = #{ordDtlCode}
+	</delete>
+	<update id="updateCreditBal">
+		UPDATE vender
+		SET credit_bal_price = credit_bal_price - #{totPrice}
+		WHERE vdr_code = #{vdrCode}
+	</update>
 
 
 
