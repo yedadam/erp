@@ -2,24 +2,44 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.acc.credit.mapper.CreditMapper">
 	
+
 	<!-- 거래처 여신 리스트 -->
 	<!-- 가지고 올 수 있는 거래처 테이블 정보 :  거래처명/ 거래처코드/ 여신금액/ 수금금액/ 여신총액-수금금액 = 미수금/ 미수금 >=0 상태 / 
 			전표 테이블 / 최근수금일자(전표) -->
 	<select id="creditFindAll" resultType="com.dadam.acc.credit.service.CreditVO">
 	SELECT v.vdr_name
 	     , v.vdr_code
-    	 , v.credit_period
+	     , v.biz_no
+	     , (SELECT emp_name 
+	          FROM employees e 
+	         WHERE e.emp_id = v.emp_id) emp_id
     	 , v.credit_price
     	 , v.credit_bal_price
-    	 , get_credit_status(v.credit_bal_price) status
-    	 , c.created_date
+    	 , v.credit_period
+    	 , get_credit_status(credit_bal_price) status
+    	 , (SELECT MAX(c.created_date)
+         	  FROM chit c
+             WHERE c.vdr_code = v.vdr_code) AS createdDate
 	  FROM vender v
-	  JOIN chit c ON v.vdr_code = c.vdr_code
 	 ORDER BY v.vdr_code
 	</select>
 	
-	
 	<!-- 거래처별 여신 상세 목록 -->
-
+	<select id="creditFindCode" resultType="com.dadam.acc.credit.service.CreditVO">
+	SELECT c.article_code <!-- 항목코드 : 각 주문 번호의 pk -->
+		 , v.credit_price
+		 , c.tot_price
+		 , v.credit_bal_price
+		 , v.bank
+		 , v.acct_no
+		 , c.type
+		 , v.emp_id
+		 , c.created_date
+		 , phy_emp_id <!-- 처리자 -->
+		 , c.chit_code
+	  FROM chit c
+	  JOIN vender v ON c.vdr_code = v.vdr_code
+	 WHERE c.vdr_code = #{vdrCode}
+	</select>
 
 </mapper>

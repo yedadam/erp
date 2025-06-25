@@ -1,49 +1,67 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
- xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{common/layouts/default_layout}" 
-  layout:fragment="Content">
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
 </head>
 <body>
-<h2> 여신 관리 </h2>
 
 
-<!-- Toast UI Grid 영역 -->
-	<div class="col-14">
-		<div id="creGrid" class="mx-6"> </div>
-	 </div>
-	 
-	 
+	<div class="container" style="max-width: 1200px; margin: 0 auto;">
+		<h2>여신 관리</h2>
+		<!-- Toast UI Grid 영역 -->
+		<div class="col-12">
+			<div id="creGrid" class="mx-6"></div>
+		</div>
+		<hr>
+		<div class="col-12">
+			<h4>상세 거래 내역</h4>
+			<div id="detailGrid" class="mx-6"></div>
+		</div>
+	</div>
+
+
 </body>
 
 <script>
+let creGrid, detailGrid;
+
 creditList()
 
-const creGrid = new tui.Grid({
+creGrid = new tui.Grid({
 	el : document.getElementById('creGrid'),
+	
+	rowHeaders : ['checkbox'],
+	
 	scrollX : false,
 	scrollY : false,
 	
 	pagination: true,
 	pageOptions:{
 		useClient:true,
-		perPage:10
+		perPage:5
 	},
-	columns:[
-		{header: '거래처',name:'vdrName',align:'center', width:100},
-		{header: '거래처코드',name:'vdrCode',align:'center', width:100},
-		{header: '총금액',name:'creditPeriod',align:'center', width:100},
-		{header: '수금내역',name:'creditPrice',align:'center', width:100},
-		{header: '미수금',name:'creditBalPrice',align:'center', width:100},
-		{header: '상태',name:'status',align:'center', width:100},
-		{header: '수금일자',name:'createdDate',align:'center', width:100},
-	]
 	
+	columns:[
+		{header: '거래처',name:'vdrName',align:'center'},
+		{header: '거래처코드',name:'vdrCode',align:'center'},
+		{header: '사업자번호',name:'bizNo',align:'center'},
+		{header: '담당자',name:'empId',align:'center'},
+		{header: '미수총금액',name:'creditPrice',align:'right', 
+			formatter: ({value}) => value.toLocaleString()+ '원'},
+		{header: '미수잔액',name:'creditBalPrice',align:'right',
+			formatter: ({value}) => value.toLocaleString()+ '원'},
+		{header: '미수개월',name:'creditPeriod',align:'center', 
+			formatter: ({value}) => value + '개월'},
+		{header: '상태',name:'status',align:'center'},
+		{header: '최근거래일자',name:'createdDate',align:'center'},
+	]
 })
 
+// 여신 헤더 아작스
 function creditList(){
 	$.ajax({
 		url: "/erp/credit/creditFindAll",
@@ -51,10 +69,52 @@ function creditList(){
 		success: function(result){
 			console.log(result)
 		creGrid.resetData(result);
-			
 		}
 	});
 }
+
+// 여신 헤더 클릭 이벤트
+creGrid.on('click', (ev)=> {
+	if(typeof ev.rowKey !== 'number') return;
+	const checkedRowKeys = creGrid.getCheckedRowKeys();
+	console.log(checkedRowKeys)
+	
+	// 클릭한 행의 row 선택/ 추가선택시 row 해제/ 다른행 클릭시 row 변경
+	if(checkedRowKeys.includes(ev.rowKey)){
+		creGrid.uncheck(ev.rowKey)
+	}else{
+		creGrid.uncheckAll();
+		creGrid.check(ev.rowKey);
+	}
+	
+	const rowData = creGrid.getRow(ev.rowKey);
+	const vdrCode = rowData.vdrCode;
+	console.log('선택된 거래처 코드 : ', vdrCode);
+	
+	getCreditDetail(vdrCode);
+})
+
+function getCreditDetail(vdrCode){
+	$.ajax({
+		url: "/erp/credit/creditFindByCode",
+		method:"GET",
+		data:{vdrCode:vdrCode},
+		success: function(result){
+			console.log(result)
+		detailGrid.resetData(result);
+		}
+	});
+}
+
+
+detailGrid = new tui.Grid({
+	el:document.getElementById('detailGrid'),
+	rowHeaders:['checkbox'],
+	columns:[
+		{header: '주문번호',name:'articleCode',align:'center'}
+	]	
+})
+
 
 </script>
 
