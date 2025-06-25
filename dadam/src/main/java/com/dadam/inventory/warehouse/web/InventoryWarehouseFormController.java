@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dadam.inventory.inbound.service.InboundService;
-import com.dadam.sales.purchaseorder.service.PurchaseOrderVO;
 
 @Controller
 @RequestMapping("/erp/inventory")
