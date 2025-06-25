@@ -37,22 +37,37 @@ public  class OrderServiceImpl implements OrderService {
 		//헤더 등록 
 		orderMapper.orderInsert(ord.getOrd()); 
 		
-		String vdrcode=ord.getOrd().getVdrCode(); //vdrCode 거래처코드
+		String vdrCode=ord.getOrd().getVdrCode(); //vdrCode 거래처코드
 		Long totPrice=ord.getOrd().getTotPrice(); //totPrice 
-
+		
 		//디테일 등록 
 		for(int i=0;i<ord.getDtl().getCreatedRows().size(); i++) {
 			orderMapper.odtlInsert(ord.getDtl().getCreatedRows().get(i));
 		}
-
+		//외상매입금일경우 여신차감 
 		return 0;
 	}
-
+	
 	@Override
 	public int removeOrders(String ordCode) {	
 		orderMapper.deleteOrders(ordCode); //주문삭제   
 		return 0;
-	} 
+	}
+	@Override
+	public int updOrder(OrdersVO ord) {
+		orderMapper.updOrder(ord); //주문수정하기
+		return 0;
+	}
+	@Override
+	public int updOrdDtl(OrdDtlVO dtl) {
+		orderMapper.updOrdDtl(dtl); 
+		return 0; 
+	}
+	@Override
+	public int deleteOrdDtl(String ordDtlCode) {
+		orderMapper.deleteOrdDtl(ordDtlCode); 
+		return 0;
+	}
 	
 	
 }

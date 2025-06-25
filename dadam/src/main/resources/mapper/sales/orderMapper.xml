@@ -107,6 +107,31 @@ where ord_code=#{ordCode}
 delete from orders 
 where ord_code=#{ordCode}
 </delete>
+<update id="updOrder" parameterType="com.dadam.sales.order.service.OrdersVO" >
+  UPDATE ORDERS
+	SET vdr_code = #{vdrCode},
+	   req_dlv_date = #{reqDlvDate},
+	   pay_method = #{payMethod}, 
+	   update_id = #{updateId},
+	   update_date = sysdate
+	   WHERE ord_code = #{ordCode}
+</update>
+<update id="updOrdDtl" parameterType="com.dadam.sales.order.service.OrdDtlVO" >
+  UPDATE ORDERSDETAIL
+	SET  item_code = #{itemCode},
+		   quantity=#{quantity},
+		   sup_price=#{supPrice},
+		   vat_price=#{vatPrice},  
+		   tot_price=#{totPrice},
+		   disc_price=#{discPrice},
+		   com_id=#{comId}
+	 WHERE ord_dtl_code = #{ordDtlCode}
+</update>
+
+<delete id="deleteOrdDtl" parameterType="String">
+DELETE FROM ORDERSDETAIL 
+WHERE  ord_dtl_code = #{ordDtlCode}
+ </delete>
 
 
 

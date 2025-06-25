@@ -15,16 +15,17 @@ public class OrdersVO {
 	private String ordCode;
 	private String vdrCode; 
 	private String status;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date createdDate;
 	private String payMethod;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date payDate; 
 	private Long totQuantity; 
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date reqDlvDate; 
 	private String empId; 
 	private String updateId; 
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date updateDate; 
 	private String comId; 
 	private Long totSupPrice;

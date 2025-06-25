@@ -104,7 +104,7 @@ public class SubscirbeServiceImple implements SubscribeService{
     @Autowired
     private RestTemplate restTemplate; 
     @Autowired
-    private ObjectMapper objectMapper; // com.fasterxml.jackson.databind.ObjectMapper
+    private ObjectMapper objectMapper; 
     
     //토근발급
     public String getAccessToken() {

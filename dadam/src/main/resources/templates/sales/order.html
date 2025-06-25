@@ -15,6 +15,9 @@
 	<div class="col-12">
 		<div id="orderGrid"></div>
 		<button id="addRowdtl">주문상세행추가</button>
+		<button id="modRowdtl">주문상세행수정</button>
+		<button id="delRowdtl">주문상세행삭제</button>
+		<button id="saveRowdtl">주문상세저장</button>
 		<div id="ordDtlGrid"></div>
 
 		<!-- 품목 보여주는 모달 -->
@@ -164,16 +167,11 @@
 		//validaton 검증 해당 값이 안되면 해당셀은 빨간색으로 변함
 	}, {header : '등록일자',name : 'createdDate',align : 'center',	editor : 'text',editor: 'datePicker',
         formatter:function(createdDate){
-				if(createdDate.value ==null){
-				var today = new Date(); 
-				var dateString=	dateformatyymmdd(today);  	
-					return createdDate.value=dateString;  //등록일자의 값이 비면 오늘날짜로 자동입력
-				} else if(createdDate.value !=null){
-					return createdDate.value=createdDate.value; 
+					return formatDate(createdDate);
 				}
-		} },
+		} ,
 	   {header : '거래처이름',name : 'vdrName',	align : 'center',	editor : 'text'	},
-       {header : '거래처코드',	name : 'vdrCode',	align : 'center',editor : 'text'},
+     {header : '거래처코드',	name : 'vdrCode',	align : 'center',editor : 'text'},
 	   {header : '납기일자',name : 'reqDlvDate',align : 'center',editor : 'text', editor: 'datePicker'}, 
 	   {header : '총금액', name : 'totPrice',align : 'center',editor:'text'},
 	   {header : '여신한도',name : 'creditPrice',align : 'center',	editor : 'text'},
@@ -181,20 +179,15 @@
 	   {header : '지불방식',name : 'payMethod',align : 'center',
 		 	 formatter: 'listItemText',	
 			 editor: {
-               type: 'select',    
-                options: {
-  				      listItems:payMethod //Map형태로 담아옴 [{}]
-                      }
-                  }
+           type: 'select',    
+           options: {
+  				 listItems:payMethod //Map형태로 담아옴 [{}]
+      		 }
+        }
 		},
 		 {header : '진행상태',name : 'status',align : 'center',
 			formatter : 'listItemText',
-			 editor: {
-               type: 'select',    
-                options: {
-						    listItems:ordStatus
-                      }
-                  }
+			 editor: { type: 'select', options: {listItems:ordStatus}  }
 		}, {header : '할인율',	name : 'discount',align : 'center',	editor : 'text',
 					formatter : function(discount) {
 				if(discount.value==null){
@@ -209,45 +202,43 @@
 //행클릭시 작동
 orderGrid.on('click',(ev)=>{
 	 const checkedRows = orderGrid.getCheckedRowKeys(); //행번호 가져오는 
-     console.log(checkedRows)
+   console.log(checkedRows)
 	 	
      // 현재 클릭한 rowKey가 유일하지 않으면 전부 해제 후 현재 행만 체크
      if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
        orderGrid.uncheckAll(); // 전체 해제
        orderGrid.check(ev.rowKey); // 현재 행만 체크
      }
-
 	 if(ev.columnName=="vdrCode" || ev.columnName=="vdrName" ){
 	//	vdrList(); //거래처조회
-		openVdrmodal(); //모달여는함수
-	 }
-     const rowData = orderGrid.getRow(ev.rowKey);
+			openVdrmodal(); //모달여는함수
+	 	}
+    const rowData = orderGrid.getRow(ev.rowKey);
 		if (rowData &&rowData.ordCode?.trim()) {
 		ordDtlList(rowData.ordCode);
 	}
 })
 //orderGrid 
-//
-// orderGrid.on('afterChange',ev=>{
-// 	if(ev.changes[0].columnName=='vdrCode'){
-// 	  let vdrCode=ev.changes[0].value; //거래처번호  
-// 		for(let i=0; i<vdrAll.length; i++){ //[{},{},{}] 거래처리스트중에 해당하는 
-// 			console.log(vdrAll.length); 
-// 		   	if(vdrAll[i].vdrCode==vdrCode){
-// 	      orderGrid.setValue(ev.changes[0].rowKey,"vdrName",vdrAll[i].vdrName); //이름 
-// 			  orderGrid.setValue(ev.changes[0].rowKey,"creditPrice",vdrAll[i].creditPrice); //여신가격 
-// 			  orderGrid.setValue(ev.changes[0].rowKey,"creditBalPrice",vdrAll[i].creditBalPrice); //여신잔액 
-// 			  orderGrid.setValue(ev.changes[0].rowKey,"discount",vdrAll[i].discount);  //할인율 
-// 			  vdrdiscount=vdrAll[i].discount/100; //거래처 추가할때 할인율을 변수로 지정해서 받아옴
-// 			  console.log('할인율',vdrdiscount);      
-// 		   } 
-// 		}
-// 	}
-// })
 
+orderGrid.on('afterChange',ev=>{ 
+	if(ev.changes[0].columnName=='vdrCode'){
+	  let vdrCode=ev.changes[0].value; //거래처번호  
+		for(let i=0; i<vdrAll.length; i++){ //[{},{},{}] 거래처리스트중에 해당하는 
+			console.log(vdrAll.length); 
+		   	if(vdrAll[i].vdrCode==vdrCode){
+	      orderGrid.setValue(ev.changes[0].rowKey,"vdrName",vdrAll[i].vdrName); //이름 
+			  orderGrid.setValue(ev.changes[0].rowKey,"creditPrice",vdrAll[i].creditPrice); //여신가격 
+			  orderGrid.setValue(ev.changes[0].rowKey,"creditBalPrice",vdrAll[i].creditBalPrice); //여신잔액 
+			  orderGrid.setValue(ev.changes[0].rowKey,"discount",vdrAll[i].discount);  //할인율 
+			  vdrdiscount=vdrAll[i].discount/100; //거래처 추가할때 할인율을 변수로 지정해서 받아옴
+			  console.log('할인율',vdrdiscount);      
+		   } 
+		}
+	}
+})
 //주문번호를 받아와서 상세품목 조회후 테이블 생성하는 함수 	
 // ordDtlGrid.resetData(result);
-    let ordDtlGrid=new tui.Grid({
+let ordDtlGrid=new tui.Grid({
 		el:document.getElementById('ordDtlGrid'),
         rowHeaders:['checkbox'], 
 	columns:[
@@ -336,7 +327,7 @@ vdrGrid.on('click',(ev)=>{
 	newItemInfoList.set(newNo,newitemInfo); //품목추가된 정보를 계속 담음   
 	console.log(newItemInfoList);  //새로 추가한 행의 아이템 정보의 행과 아이템정보 저장함 {1:[itemCode,name,price],2:[]}
 
-  	ordDtlGrid.setValue(newNo,"itemCode",rowData.itemCode);
+  ordDtlGrid.setValue(newNo,"itemCode",rowData.itemCode);
 	ordDtlGrid.setValue(newNo,"name",rowData.name);
 	ordDtlGrid.setValue(newNo,"price",rowData.price); // 
 	ordDtlGrid.setValue(newNo,"supPrice",rowData.price); //공급가액 
@@ -400,7 +391,8 @@ vdrGrid.on('click',(ev)=>{
  	   // console.log("추가된 행의 rowKey:", newRow.rowKey);
 			newOrdPlus=newRow.rowKey; //새로추가된 행번호 정의
 			//console.log('새로추가된행번호',newOrdPlus); //newOrdPlus 
-			orderGrid.refreshLayout();
+			orderGrid.refreshLayout(); 
+			
 	})
 $('#deleteRow').on('click',function(){
 	//체크된행을 가져오는 함수	
@@ -408,7 +400,6 @@ $('#deleteRow').on('click',function(){
 	//console.log('행삭제',checkedRows)
 	checkedRows.forEach(item => {
   //console.log(item.ordCode);
-
 if(item.status !='ost03'){ //출고완료 된건이 아닌것만 삭제가능  
   orderGrid.removeRow(item.rowKey); 
 	$.ajax({
@@ -425,10 +416,11 @@ if(item.status !='ost03'){ //출고완료 된건이 아닌것만 삭제가능
 $('#checkrow').on('click',function(){
 	console.log('수정버튼 클릭됨'); 
 	console.log('헤더 수정된 행확인',orderGrid.getModifiedRows().updatedRows);
+	console.log(orderGrid.getCheckedRowKeys());
+	console.log('행 확인',orderGrid.getCheckedRows());  
 	console.log('헤더 생성된행확인',orderGrid.getModifiedRows().createdRows[0]);
-	console.log('푸터 생성된 행 확인',ordDtlGrid.getModifiedRows().createdRows);
+	//console.log('푸터 생성된 행 확인',ordDtlGrid.getModifiedRows().createdRows);
 	//if(orderGrid.getModifiedRows().updatedRows.columnName)
-
 })
 
 	//주문상세 행추가 반영 
@@ -438,7 +430,7 @@ $('#checkrow').on('click',function(){
 		ordDtlGrid.refreshLayout(); // 
 	})	
 	 //새로운행번호 선언
-     ordDtlGrid.on('click',(ev)=> {
+  ordDtlGrid.on('click',(ev)=> {
     	//console.log(ev.columnName)
     	// console.log(ev.rowKey); //행번호 반환 
     	 newNo= ordDtlrowNo(ev.rowKey); //ordDtlrow 
@@ -454,6 +446,8 @@ $('#checkrow').on('click',function(){
 			//console.log(regdtlmap);
 	//	});		
 		let regHeader= orderGrid.getModifiedRows().createdRows[0];
+				regHeader.empId=userID; 
+				regHeader.comId=userComId; 
 		 //getOrdHeadplusInfo(newOrdPlus); //헤더부분 해당 행의 새로운정보를 읽어옴 
 		console.log('등록헤더부분',regHeader); 
 		const dtlObj = ordDtlGrid.getModifiedRows();//Object.fromEntries(regdtlmap); 
@@ -475,18 +469,71 @@ $('#checkrow').on('click',function(){
 				draggable: true
 			});
 		},
-	error: function(err) {
-	console.error('에러 발생', err);
-		}
-  });
-	});
+	error: function(err) {console.error('에러 발생', err);}})});
 	//주문 수정
 	$('#ordupd').on('click',function(){
-		//	if(orderGrid.getModifiedRows().createdRows !=null){ //만들어진 행수가 0보다 큰경우만 등록임 
-		//		console.log('수정불가능'); 
-		//	}
-			console.log('수정버튼눌림');	
-			console.log(ordDtlGrid.getModifiedRows().updatedRows); 
+		console.log(orderGrid.getCheckedRows());
+		let updHeader= orderGrid.getCheckedRows()[0]; //거래처,납기일자,지불방식,진행상태
+		updHeader.updateId=userID; //update
+		$.ajax({
+		url: '/erp/sales/ord/update',
+		type: 'PUT',
+		contentType: 'application/json',
+		data: JSON.stringify(updHeader),
+		success: function(res) {
+			console.log('전송 성공', res);
+			Swal.fire({
+				title: "주문수정성공!",
+				icon: "success",
+				draggable: true
+			});
+			orderGrid.uncheckAll(); 
+		},
+	error: function	(err) {
+	console.error('에러 발생', err);}});
+	})
+	$('#delRowdtl').on('click',function(){
+		let delNo=ordDtlGrid.getCheckedRows()[0].ordDtlCode; 
+		console.log('삭제할주문상세번호',delNo);
+		console.log('삭제할 행의번호',ordDtlGrid.getCheckedRowKeys()[0]); 
+		ordDtlGrid.removeRow(ordDtlGrid.getCheckedRowKeys()[0]);
+		$.ajax({
+		url: '/erp/sales/ord/delOrdDtl?ordDtlCode='+delNo,
+		type: 'DELETE',
+		success: function(res) {
+			console.log('삭제 성공', res);
+			Swal.fire({
+				title: "주문삭제성공!",
+				icon: "success",
+				draggable: true
+			}); 
+		},
+		error: function(err) {console.error('에러 발생', err);}
+	}) 
+}); 
+	//주문dtl 수정하기 
+	$('#modRowdtl').on('click',function(){
+			let updDtl=ordDtlGrid.getCheckedRows()[0];
+			updDtl.comId=userComId;
+			updDtl.quantity=Number(updDtl.quantity);
+			updDtl.totPrice=updDtl.totprice;
+			console.log('updDtl',updDtl);
+			$.ajax({
+						url: '/erp/sales/ord/updDtl',
+						type: 'PUT',
+						contentType: 'application/json',
+						data: JSON.stringify(updDtl),
+			success: function(res) {
+						console.log('전송 성공', res);
+						Swal.fire({
+							title: "주문수정성공!",
+							icon: "success",
+							draggable: true
+							});
+					  ordDtlGrid.uncheckAll(); 
+					},
+		error: function	(err){console.error('에러 발생', err);}
+	});
 	})
 	 //[1:{}] 
 	 //ordDtlRow의 수량 입력시 총금액,공급가액,부가세 계산되어 자동입력됨 
@@ -563,6 +610,11 @@ $('#checkrow').on('click',function(){
 				var dateString = year + '/' + month  + '/' + day;
 				return dateString; 
 	 }
+	//  
+	function hyphenToSlash(dateStr) {
+		if (typeof dateStr !== 'string') return '';
+		return dateStr.replace(/-/g, '/');
+	}
 	 function getdtlplusInfo(item){ //getdtlplusInfo 
 		 const info= ordDtlGrid.getRow(item); 
 		 return info;
@@ -587,7 +639,23 @@ $('#checkrow').on('click',function(){
 		vdrdiscount = match.discount / 100;
 	}
 }
+const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1001'}]];
+const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '정은애'}]];
+const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
 
+console.log(userID, userName, userComId);
+
+function formatDate (date){
+	if(date.value ==null){
+			var today = new Date(); 
+			var dateString=	dateformatyymmdd(today);  	
+		return date.value=dateString;  //등록일자의 값이 비면 오늘날짜로 자동입력
+	} else if(date.value !=null){
+		return date.value=date.value;  
+	}
+		}
+		
+		
 
 </script>
 </html>

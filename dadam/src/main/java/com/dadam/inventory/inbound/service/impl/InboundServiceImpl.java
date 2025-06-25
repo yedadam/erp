@@ -9,7 +9,6 @@ import com.dadam.inventory.inbound.mapper.InboundMapper;
 import com.dadam.inventory.inbound.service.InboundService;
 import com.dadam.inventory.inbound.service.InboundVO;
 import com.dadam.inventory.inbound.service.PurchaseVO;
-import com.dadam.sales.purchaseorder.service.PurchaseOrderVO;
 
 @Service
 public class InboundServiceImpl implements InboundService{
