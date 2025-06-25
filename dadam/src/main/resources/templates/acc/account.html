@@ -73,11 +73,20 @@ function createAutoCompleteEditor({ urlBuilder, deps = [], onSelectClear = [] })
         // url생성-Ajax 요청
         // urlBuilder를 실행하여 API 주소생성
         // 조회된 결과를 JSON 으로 받음.
-        const url = urlBuilder(...depValues); 
-        $.getJSON(url, function (data) {
-          const results = data.filter(v => v.startsWith(request.term));
-          response(results);
-        }); // $.getJSON(url, function 종료
+			const url = urlBuilder(...depValues);
+   				$.ajax({
+    				url: url,
+    				method: 'GET',
+    				dataType: 'json',
+    				success: function (data) {
+      					const results = data.filter(v => v.startsWith(request.term));
+      					response(results);
+    				},
+    				error: function (xhr, status, err) {
+      					console.error('자동완성 실패:', err);
+      					response([]);
+    				}
+  			});
       }, // source: function  종료
       minLength: 0,
       
