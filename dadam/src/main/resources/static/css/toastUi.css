@@ -1,7 +1,7 @@
      /* Toast UI Grid 커스텀 스타일 */
         .tui-grid-container {
             border-radius: 12px !important;
-            overflow: hidden;
+            overflow: visible;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important; /* 부드러운 그림자 */
         }
         

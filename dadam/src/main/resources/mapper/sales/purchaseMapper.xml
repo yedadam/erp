@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.sales.purchase.mapper.PurchaseMapper">
+
+<select id="findPurchaseList" resultType="PurchaseOrderVO">
+	 SELECT PUR_ORD_CODE,
+       VDR_CODE,
+       PUR_ORD_DATE,
+       EXP_DLV_DATE,
+       PUR_ORD_REQ_CODE,
+       PUR_ORD_UDT_DATE,
+       EMP_ID,
+       UPDATE_ID,
+       VAT_YN,
+       COM_ID,
+       TOT_SUP_PRICE,
+       TOT_VAT_PRICE,
+       TOT_AMT_SUM,
+       getEmpName(EMP_ID) empName,
+       getVdrName(VDR_CODE) vdrName,
+       subCode(status) status
+   FROM purchaseOrder
+</select>
+ 
+ <select id="findPurListByOrdNo" resultType="PurchaseOrderVO">
+   SELECT PUR_ORD_DTL_CODE,
+       ITEM_CODE,
+       QUANTITY,
+       SUP_PRICE,
+       VAT_PRICE,
+       TOT_PRICE,
+       STATUS,
+       RECCV_DATE,
+       COM_ID,
+       PUR_ORD_CODE
+   FROM purchaseOrderDetail
+   WHERE pur_ord_code = #{pCode}
+ </select>
+</mapper>

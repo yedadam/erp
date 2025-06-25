@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
+<head>
+    <style>
+        .main-table {
+            border: 2px solid #0d6efd;
+        }
+        .main-table th {
+            background-color: #e3f2fd;
+            text-align: center;
+            vertical-align: middle;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+        .main-table td {
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #ddd;
+        }
+        .detail-table {
+            margin-top: 20px;
+        }
+        .detail-table th {
+            background-color: #f8f9fa;
+            text-align: center;
+            font-size: 14px;
+            padding: 8px;
+        }
+        .detail-table td {
+            text-align: center;
+            font-size: 14px;
+            padding: 8px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        .btn-group-custom {
+            margin-bottom: 20px;
+        }
+        .tui-pagination{
+        	padding-bottom:10px;
+        }
+             
+        
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid mt-4">
+        <h3 class="mb-4">구매관리</h3>
+        
+        <!-- 검색 및 버튼 영역 -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="input-group search-container" style="width: 400px;">
+                    <input type="text" class="form-control" placeholder="검색어를 입력하세요">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="btn-group-custom">
+                    <button class="btn btn-success me-2">
+                        <i class="fas fa-plus"></i> 추가
+                    </button>
+                    <button class="btn btn-danger me-2">
+                        <i class="fas fa-trash"></i> 삭제
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-save"></i> 저장
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 테이블 -->
+     
+            <!-- 그리드 -->
+            <div id="mainGrid"></div>
+  
+
+        <!-- 상세 정보 테이블 -->
+
+            <div class="table-responsive">
+                <div id="detailGrid"></div>
+        	</div>
+    </div>
+
+    <script>
+        // 메인그리드
+        const mainGrid = new tui.Grid({
+            // toastui 아이디 가져오기
+            el: document.getElementById('mainGrid'),
+            scrollX: false,
+            scrollY: false,
+            // checkbox 부여
+            rowHeaders: ['checkbox'],
+            // 페이지네이션
+            pageOptions: {
+                perPage: 10,
+                useClient: true,
+            },
+            // 필드값 구성
+            columns: [
+                {header: '발주코드', name: 'purOrdCode', align: 'center', width: 120},
+                {header: '거래처이름', name: 'vdrName', align: 'center', editor: 'text'},
+                {header: '거래처코드', name: 'vdrCode', align: 'center', editor: 'text'},
+                {header: '발주일자', name: 'purOrdDate', align: 'center', editor: 'datePicker'},
+                {header: '납기예정일자', name: 'expDlvDate', align: 'center', editor: 'text'},
+                {header: '발주의뢰코드', name: 'purOrdReqCode', align: 'center', editor: 'text'},
+                {header: '담당자', name: 'empName', align: 'center', editor: 'text'},
+                {header: '담당자코드', name: 'empId', align: 'center', editor: 'text'},
+                {header: '처리상태', name: 'status', align: 'center'},
+                {header: '총공급가액', name: 'totSupPrice', align: 'center', editor: 'text',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+                {header: '총부가세', name: 'totVatPrice', align: 'center', editor: 'text',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+                {header: '총금액합계', name: 'totAmtSum', align: 'center', editor: 'text',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+            ],
+        });
+	
+        // 상세그리드
+        const detailGrid = new tui.Grid({
+            // toastui 아이디 가져오기
+            el: document.getElementById('detailGrid'),
+            scrollX: false,
+            scrollY: false,
+            // checkbox 부여
+            rowHeaders: ['checkbox'],
+            // 필드값 구성
+            columns: [
+                {header: '발주코드', name: 'purOrdCode', align: 'center', width: 120},
+                {header: '발주상세코드', name: 'purOrdDtlCode', align: 'center', editor: 'text'},
+                {header: '품목코드', name: 'itemCode', align: 'center'},
+                {header: '품목이름', name: 'itemName', align: 'center'},
+                {header: '수량', name: 'quantity', align: 'center', editor: 'text',
+                	formatter: function(price){
+                   	  return priceFormat(price.value)+'개';
+                     },		
+                },
+                {header: '공급가액', name: 'supPrice', align: 'center', editor: 'text',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+                {header: '부가세', name: 'vatPrice', align: 'center', editor: 'text',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+                {header: '금액', name: 'totPrice', align: 'center', editor: 'text',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+            ],
+        });
+
+        // 메인 리스트 불러오기
+        function mainList() {
+            $.ajax({
+                url: "/erp/sales/purMainList",
+                method: "GET",
+                success: function(result) {
+                    console.log('주문정보 불러오기', result);
+                    mainGrid.resetData(result);
+                },
+                error: function(xhr, status, error) {
+                    console.log("실패:", xhr.status, error);
+                }
+            });
+        }
+      //금액 포맷 함수('#,###')
+        function priceFormat(price) {
+        	if(price == null){
+        		return '0';
+        	}
+        	let result = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        	return result;
+        }
+        // 페이지 로드 시 메인 리스트 호출
+        mainList();
+        // 버튼 이벤트 처리
+        document.querySelector('.btn-success').addEventListener('click', function() {
+            console.log('추가 버튼 클릭');
+            // 추가 기능 구현
+        });
+
+        document.querySelector('.btn-danger').addEventListener('click', function() {
+            console.log('삭제 버튼 클릭');
+            // 삭제 기능 구현
+        });
+
+        document.querySelector('.btn-primary').addEventListener('click', function() {
+            console.log('저장 버튼 클릭');
+            // 저장 기능 구현
+        });
+    </script>
+</body>
+</html>
