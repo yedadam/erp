@@ -172,11 +172,7 @@
 		} ,
 	   {header : '거래처이름',name : 'vdrName',	align : 'center',	editor : 'text'	},
      {header : '거래처코드',	name : 'vdrCode',	align : 'center',editor : 'text'},
-	   {header : '납기일자',name : 'reqDlvDate',align : 'center',editor : 'text', editor: 'datePicker'
-		 	// 	formatter:function(reqDlvDate){ 
-			// return formatDate(reqDlvDate);
-			// 			}			 
-		 }, 
+	   {header : '납기일자',name : 'reqDlvDate',align : 'center',editor : 'text', editor: 'datePicker'}, 
 	   {header : '총금액', name : 'totPrice',align : 'center',editor:'text'},
 	   {header : '여신한도',name : 'creditPrice',align : 'center',	editor : 'text'},
 	   {header : '여신잔액',name : 'creditBalPrice',align : 'center',editor : 'text'},
@@ -191,12 +187,7 @@
 		},
 		 {header : '진행상태',name : 'status',align : 'center',
 			formatter : 'listItemText',
-			 editor: {
-               type: 'select',    
-                options: {
-						    listItems:ordStatus
-                      }
-                  }
+			 editor: { type: 'select', options: {listItems:ordStatus}  }
 		}, {header : '할인율',	name : 'discount',align : 'center',	editor : 'text',
 					formatter : function(discount) {
 				if(discount.value==null){
@@ -247,7 +238,7 @@ orderGrid.on('afterChange',ev=>{
 })
 //주문번호를 받아와서 상세품목 조회후 테이블 생성하는 함수 	
 // ordDtlGrid.resetData(result);
-    let ordDtlGrid=new tui.Grid({
+let ordDtlGrid=new tui.Grid({
 		el:document.getElementById('ordDtlGrid'),
         rowHeaders:['checkbox'], 
 	columns:[
@@ -401,7 +392,8 @@ vdrGrid.on('click',(ev)=>{
  	   // console.log("추가된 행의 rowKey:", newRow.rowKey);
 			newOrdPlus=newRow.rowKey; //새로추가된 행번호 정의
 			//console.log('새로추가된행번호',newOrdPlus); //newOrdPlus 
-			orderGrid.refreshLayout();
+			orderGrid.refreshLayout(); 
+			
 	})
 $('#deleteRow').on('click',function(){
 	//체크된행을 가져오는 함수	
@@ -409,7 +401,6 @@ $('#deleteRow').on('click',function(){
 	//console.log('행삭제',checkedRows)
 	checkedRows.forEach(item => {
   //console.log(item.ordCode);
-
 if(item.status !='ost03'){ //출고완료 된건이 아닌것만 삭제가능  
   orderGrid.removeRow(item.rowKey); 
 	$.ajax({
@@ -431,7 +422,6 @@ $('#checkrow').on('click',function(){
 	console.log('헤더 생성된행확인',orderGrid.getModifiedRows().createdRows[0]);
 	//console.log('푸터 생성된 행 확인',ordDtlGrid.getModifiedRows().createdRows);
 	//if(orderGrid.getModifiedRows().updatedRows.columnName)
-
 })
 
 	//주문상세 행추가 반영 
@@ -441,7 +431,7 @@ $('#checkrow').on('click',function(){
 		ordDtlGrid.refreshLayout(); // 
 	})	
 	 //새로운행번호 선언
-     ordDtlGrid.on('click',(ev)=> {
+  ordDtlGrid.on('click',(ev)=> {
     	//console.log(ev.columnName)
     	// console.log(ev.rowKey); //행번호 반환 
     	 newNo= ordDtlrowNo(ev.rowKey); //ordDtlrow 
@@ -480,14 +470,9 @@ $('#checkrow').on('click',function(){
 				draggable: true
 			});
 		},
-	error: function(err) {
-	console.error('에러 발생', err);
-		}
-  });
-	});
+	error: function(err) {console.error('에러 발생', err);}})});
 	//주문 수정
 	$('#ordupd').on('click',function(){
-	
 		console.log(orderGrid.getCheckedRows());
 		let updHeader= orderGrid.getCheckedRows()[0]; //거래처,납기일자,지불방식,진행상태
 		updHeader.updateId=userID; //update
@@ -507,6 +492,49 @@ $('#checkrow').on('click',function(){
 		},
 	error: function	(err) {
 	console.error('에러 발생', err);}});
+	})
+	$('#delRowdtl').on('click',function(){
+		let delNo=ordDtlGrid.getCheckedRows()[0].ordDtlCode; 
+		console.log('삭제할주문상세번호',delNo);
+		console.log('삭제할 행의번호',ordDtlGrid.getCheckedRowKeys()[0]); 
+		ordDtlGrid.removeRow(ordDtlGrid.getCheckedRowKeys()[0]);
+		$.ajax({
+		url: '/erp/sales/ord/delOrdDtl?ordDtlCode='+delNo,
+		type: 'DELETE',
+		success: function(res) {
+			console.log('삭제 성공', res);
+			Swal.fire({
+				title: "주문삭제성공!",
+				icon: "success",
+				draggable: true
+			}); 
+		},
+		error: function(err) {console.error('에러 발생', err);}
+	}) 
+}); 
+	//주문dtl 수정하기 
+	$('#modRowdtl').on('click',function(){
+			let updDtl=ordDtlGrid.getCheckedRows()[0];
+			updDtl.comId=userComId;
+			updDtl.quantity=Number(updDtl.quantity);
+			updDtl.totPrice=updDtl.totprice;
+			console.log('updDtl',updDtl);
+			$.ajax({
+						url: '/erp/sales/ord/updDtl',
+						type: 'PUT',
+						contentType: 'application/json',
+						data: JSON.stringify(updDtl),
+			success: function(res) {
+						console.log('전송 성공', res);
+						Swal.fire({
+							title: "주문수정성공!",
+							icon: "success",
+							draggable: true
+							});
+					  ordDtlGrid.uncheckAll(); 
+					},
+		error: function	(err){console.error('에러 발생', err);}
+	});
 	})
 	 //[1:{}] 
 	 //ordDtlRow의 수량 입력시 총금액,공급가액,부가세 계산되어 자동입력됨 
