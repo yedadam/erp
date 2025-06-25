@@ -187,7 +187,7 @@
                       }
                   }
 		},
-		 {	header : '진행상태',name : 'status',align : 'center',
+		 {header : '진행상태',name : 'status',align : 'center',
 			formatter : 'listItemText',
 			 editor: {
                type: 'select',    
@@ -343,7 +343,6 @@ vdrGrid.on('click',(ev)=>{
 	ordDtlGrid.setValue(newNo,"vatPrice",rowData.price/10);//부가세 
 	ordDtlGrid.setValue(newNo,"totprice",rowData.price+rowData.price/10); //총가격 아이템 선택시 기본세팅 수량 1기준으로 자동입력됨
 	ordDtlGrid.setValue(newNo,"discPrice",(rowData.price+rowData.price/10)*vdrdiscount ); // 총금액 * 할인율  
-	  
 });
 	//데이터 불러오는 함수
 	function orderList() {

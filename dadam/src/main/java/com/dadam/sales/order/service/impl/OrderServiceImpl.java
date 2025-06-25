@@ -44,9 +44,6 @@ public  class OrderServiceImpl implements OrderService {
 		for(int i=0;i<ord.getDtl().getCreatedRows().size(); i++) {
 			orderMapper.odtlInsert(ord.getDtl().getCreatedRows().get(i));
 		}
-		
-		//외상매입금일경우 여신차감 
-		
 
 		return 0;
 	}
