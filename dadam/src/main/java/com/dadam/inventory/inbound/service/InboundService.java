@@ -9,5 +9,5 @@ public interface InboundService {
 	// 창고 조회
 	public List<InboundVO> warehouseList();
 	// 등록
-	public void purchaseInbound(PurchaseVO purchaseVO);
+	public void purchaseInbound(List<PurchaseVO> list);
 }

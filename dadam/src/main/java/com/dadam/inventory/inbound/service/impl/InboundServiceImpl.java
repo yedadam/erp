@@ -4,18 +4,21 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.dadam.inventory.inbound.mapper.InboundMapper;
 import com.dadam.inventory.inbound.service.InboundService;
 import com.dadam.inventory.inbound.service.InboundVO;
 import com.dadam.inventory.inbound.service.PurchaseVO;
-import com.dadam.sales.purchaseorder.service.PurchaseOrderVO;
 
+@Transactional
 @Service
 public class InboundServiceImpl implements InboundService{
 
 	@Autowired
 	InboundMapper inboundMapper;
+	
 	// 발주서 리스트
 	@Override
 	public List<PurchaseVO> inboundPurchaseFindAll() {
@@ -24,8 +27,10 @@ public class InboundServiceImpl implements InboundService{
 	}
 	// 입고 등록
 	@Override
-	public void purchaseInbound(PurchaseVO purchaseVO) {
-		inboundMapper.purchaseInbound(purchaseVO);
+	public void purchaseInbound(List<PurchaseVO> list) {
+		for (PurchaseVO vo : list) {
+			inboundMapper.purchaseInbound(vo);
+		}
 	}
 	// 창고 리스트
 	@Override

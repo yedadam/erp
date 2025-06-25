@@ -31,22 +31,18 @@
 	aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
-			<div class="modal-header">
-				<h1 class="modal-title fs-5" id="exampleModalLabel">주문 입고</h1>
-				<button type="button" class="btn-close" data-bs-dismiss="modal"
-					aria-label="Close"></button>
-			</div>
 			<div class="modal-body">
 				<div class="">
+					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
+						<!-- <button type="button" id="resetBtn" class="btn btn-danger">초기화</button> -->
+						<button type="button" id="registerBtn" class="btn btn-primary">입고</button>
+					</div>
 					<div class="form-floating mb-3">
 						<input type="date" class="form-control" id="dateInput"
 							placeholder="name@example.com"> <label
 							for="floatingInput">일자</label>
 					</div>
-					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
-						<button type="button" id="resetBtn" class="btn btn-danger">초기화</button>
-						<button type="button" id="registerBtn" class="btn btn-primary">입고</button>
-					</div>
+					
 					<div id="gridModal"></div>
 				</div>
 			</div>
@@ -149,8 +145,30 @@ const purcharsegrid = new tui.Grid({
 				  purOrdDtlCode: item.purOrdDtlCode,
 				  itemCode: item.itemCode,
 				  quantity : item.quantity,
-				  pquantity: item.pquantity,
-			      notStock: item.notStock,
+				  /* pquantity: item.pquantity,
+			      notStock: item.notStock, */
+				  loc : '',
+				  qty : '',
+				  note: '',
+				  origin: true
+			  }
+			  data.push(ee);
+		  })
+		  inboundGrid.resetData(data);
+	}
+	// 초기화 버튼
+	function resetbtn(){
+		data= [];
+		
+		  let rowCheck = purcharsegrid.getCheckedRows();
+		  
+		  rowCheck.filter(item =>{
+			  ee = {
+				  purOrdDtlCode: item.purOrdDtlCode,
+				  itemCode: item.itemCode,
+				  quantity : item.quantity,
+				  /* pquantity: item.pquantity,
+			      notStock: item.notStock, */
 				  loc : '',
 				  qty : '',
 				  note: '',
@@ -161,6 +179,7 @@ const purcharsegrid = new tui.Grid({
 		  inboundGrid.resetData(data);
 	}
 	
+	
 	// inboundGrid 그리기
 	const inboundGrid = new tui.Grid({
 		el: document.getElementById('gridModal'),
@@ -169,8 +188,8 @@ const purcharsegrid = new tui.Grid({
 			    	{ header: '발주상세코드', name: 'purOrdDtlCode', align:'center'},
 			    	{ header: '품목명', name: 'itemCode', align:'center'},
 			    	{ header: '발주량', name: 'quantity', align:'center'},
-			    	{ header: '기입고량', name: 'pquantity', align:'center'},
-			    	{ header: '미입고량', name: 'notStock', align:'center'},
+			    	/* { header: '기입고량', name: 'pquantity', align:'center'},
+			    	{ header: '미입고량', name: 'notStock', align:'center'}, */
 			    	{ header: '위치', name: 'loc', align:'center', width: 200
 			    		, formatter:'listItemText'
 			    		,  editor: {
@@ -192,7 +211,7 @@ const purcharsegrid = new tui.Grid({
 			    	}}
 	    		],
 	    		columnOptions: {
-				frozenCount: 5,
+				frozenCount: 3,
 				frozenBorderWidth: 2
 	    		}
 	});
@@ -201,27 +220,58 @@ const purcharsegrid = new tui.Grid({
 	$('#resetBtn').on('click', ()=>{
 		inboundGrid.refreshLayout();
 	})
+	
 	// 입고 등록
 	$('#registerBtn').on('click', ()=>{
-		let date = $('#dateInput').val();
-		console.log(date);
-		let param = [];
-		param = {}
-		
-		/* $.ajax({
+		let scr1data = inboundGrid.getData();
+		$.each(scr1data, (idx, item)=>{
+			
+			if(item.loc == ""){
+				Swal.fire({
+					  icon: "error",
+					  title: "빈값 발견!",
+					  text: "위치를 지정해주세요!"
+					});
+				return false;
+			}else if(item.qty == ""){
+				Swal.fire({
+					  icon: "error",
+					  title: "빈값 발견!",
+					  text: "수량을 입력해주세요!"
+					});
+				return false;
+			}
+		})
+		let param = []
+		let code = '';
+		let items = '';
+		let params = []
+		scr1data.forEach((item)=>{
+			if(item.purOrdDtlCode != ""){
+			code = item.purOrdDtlCode
+			items = item.itemCode
+			}
+			let params = {
+						  purOrdDtlCode: code,
+						  itemCode: items,
+						  locCode: item.loc,
+						  quantity: item.qty,
+						  note: item.note,
+						  empId: userID,
+						  comId: userComId,
+						  price: 0,
+						  currQty: 0
+					}
+			param.push(params);
+				})
+			/* $.ajax({
 			url:"/erp/inventory/purchaseRegister",
 			method:"POST",
 			contentType: 'application/json',
-			data: JSON.stringify(param),
-			success: alert('등록성공')
-			}
-		) */
+			data: JSON.stringify(param)
+			}) */
 		})
 	
-	/* function idx(){
-		let idxData = inboundGrid.getData();
-		return idxData;
-	} */
 	// 행추가 rowKey값이 고정이 아니라서 문제가 있음.
 	inboundGrid.on('click', (ev)=>{
 		let { rowKey, columnName } = ev;
@@ -230,24 +280,26 @@ const purcharsegrid = new tui.Grid({
 		let addData = {
 				      purOrdDtlCode: '',
 				      itemCode: '',
-				      quantity: '',
-				      pquantity: '',
-				      notStock: '',
-				      loc: '',
-				      qty: '',
-				      note: '',
-				      origin: false
+				      quantity: ''
+				      /* , pquantity: ''
+				      , notStock: '' */
+				      , loc: ''
+				      , qty: ''
+				      , note: ''
+				      , origin: false
 				    };
 		
 		// 컬럼명과 값을 확인 후 추가 진행
 		if(columnName === 'origin' &&
 				inboundGrid.getValue(rowKey, columnName) === true){
-		let idx = inboundGrid.getIndexOfROw(rowKey);
-		inboundGrid.appendRow(addData, {
+		let idx = inboundGrid.getIndexOfRow(rowKey);
+		 inboundGrid.appendRow(addData, {
 			  at: idx + 1
 			});
 		}
 	});
+	
+	
 	//행삭제
 inboundGrid.on('click', (ev)=>{
 		let { rowKey, columnName } = ev;
@@ -265,8 +317,8 @@ inboundGrid.on('click', (ev)=>{
 					purOrdDtlCode: '',
 					itemCode: '',
 					quantity: '',
-					pquantity: '',
-				    notStock: '',
+					/* pquantity: '',
+				    notStock: '', */
 					loc: '',
 					qty: '',
 					note: '',
@@ -276,5 +328,11 @@ inboundGrid.on('click', (ev)=>{
 		}
 		inboundGrid.refreshLayout();
 	})
+	
+const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1001'}]];
+const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '신현욱'}]];
+const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
+
+console.log(userID, userName, userComId);
 </script>
 </html>
