@@ -99,7 +99,7 @@ const purcharsegrid = new tui.Grid({
         // width -> 크기조정
         { header: '발주서코드',name:'purOrdCode', align:'center'},
         { header: '발주상세코드',name:'purOrdDtlCode',align:'center'},
-        { header: '제품명',name:'itemCode',align:'center'},
+        { header: '제품명',name:'itemName',align:'center'},
         { header: '수량',name:'quantity',align:'center'},
         { header: '상태',name:'status',align:'center',
         	formatter: function(status){
@@ -143,7 +143,7 @@ const purcharsegrid = new tui.Grid({
 		  rowCheck.filter(item =>{
 			  ee = {
 				  purOrdDtlCode: item.purOrdDtlCode,
-				  itemCode: item.itemCode,
+				  itemCode: item.itemName,
 				  quantity : item.quantity,
 				  /* pquantity: item.pquantity,
 			      notStock: item.notStock, */
@@ -165,7 +165,7 @@ const purcharsegrid = new tui.Grid({
 		  rowCheck.filter(item =>{
 			  ee = {
 				  purOrdDtlCode: item.purOrdDtlCode,
-				  itemCode: item.itemCode,
+				  itemCode: item.itemName,
 				  quantity : item.quantity,
 				  /* pquantity: item.pquantity,
 			      notStock: item.notStock, */
@@ -186,7 +186,7 @@ const purcharsegrid = new tui.Grid({
 		rowHeaders: ['rowNum'],
 	    columns:[
 			    	{ header: '발주상세코드', name: 'purOrdDtlCode', align:'center'},
-			    	{ header: '품목명', name: 'itemCode', align:'center'},
+			    	{ header: '품목코드', name: 'itemCode', align:'center'},
 			    	{ header: '발주량', name: 'quantity', align:'center'},
 			    	/* { header: '기입고량', name: 'pquantity', align:'center'},
 			    	{ header: '미입고량', name: 'notStock', align:'center'}, */
@@ -224,52 +224,70 @@ const purcharsegrid = new tui.Grid({
 	// 입고 등록
 	$('#registerBtn').on('click', ()=>{
 		let scr1data = inboundGrid.getData();
+		console.log(scr1data)
 		$.each(scr1data, (idx, item)=>{
 			
 			if(item.loc == ""){
 				Swal.fire({
 					  icon: "error",
-					  title: "빈값 발견!",
+					  title: "빈행 발견!",
 					  text: "위치를 지정해주세요!"
 					});
 				return false;
 			}else if(item.qty == ""){
 				Swal.fire({
 					  icon: "error",
-					  title: "빈값 발견!",
+					  title: "빈행 발견!",
 					  text: "수량을 입력해주세요!"
 					});
 				return false;
 			}
+			
 		})
 		let param = []
 		let code = '';
 		let items = '';
 		let params = []
-		scr1data.forEach((item)=>{
+		let quantityCheck = 0;
+		let check = 0;
+		let status = false;
+		$.each(scr1data, (idx, item)=>{
 			if(item.purOrdDtlCode != ""){
 			code = item.purOrdDtlCode
 			items = item.itemCode
+			quantityCheck = item.quantity
+			check = 0;
 			}
-			let params = {
-						  purOrdDtlCode: code,
-						  itemCode: items,
-						  locCode: item.loc,
-						  quantity: item.qty,
-						  note: item.note,
-						  empId: userID,
-						  comId: userComId,
-						  price: 0,
-						  currQty: 0
+			check += Number(item.qty)
+			if(quantityCheck < check){
+				Swal.fire({
+					  icon: "error",
+					  title: "발주량보다 입고수량이 많습니다!",
+					  text: "수량을 변경해주세요!"
+					});
+				return false;
+			}else if(quantityCheck == check){
+					status = true;
 					}
-			param.push(params);
-				})
-			/* $.ajax({
-			url:"/erp/inventory/purchaseRegister",
-			method:"POST",
-			contentType: 'application/json',
-			data: JSON.stringify(param)
-			}) */
+				let params = {
+							  purOrdDtlCode: code,
+							  itemCode: items,
+							  locCode: item.loc,
+							  quantity: item.qty,
+							  note: item.note,
+							  empId: userID,
+							  comId: userComId,
+							  price: 0,
+							  currQty: 0
+						}
+				param.push(params);
+					})
+				/* $.ajax({
+				url:"/erp/inventory/purchaseRegister",
+				method:"POST",
+				contentType: 'application/json',
+				data: JSON.stringify(param)
+				}) */
 		})
 	
 	// 행추가 rowKey값이 고정이 아니라서 문제가 있음.
@@ -329,10 +347,9 @@ inboundGrid.on('click', (ev)=>{
 		inboundGrid.refreshLayout();
 	})
 	
-const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1001'}]];
-const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '신현욱'}]];
+const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
+const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '김지현'}]];
 const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
 
-console.log(userID, userName, userComId);
 </script>
 </html>
