@@ -6,6 +6,6 @@ import com.dadam.acc.credit.service.CreditVO;
 
 public interface CreditMapper {
 	public List<CreditVO> creditFindAll();
-	
+	public List<CreditVO> creditFindCode(String vdrCode);
 
 }
