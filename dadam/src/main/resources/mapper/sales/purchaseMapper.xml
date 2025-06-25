@@ -7,7 +7,7 @@
        VDR_CODE,
        PUR_ORD_DATE,
        EXP_DLV_DATE,
-       PUR_ORD_REQ_CODE,
+       PUR_REQ_CODE,
        PUR_ORD_UDT_DATE,
        EMP_ID,
        UPDATE_ID,

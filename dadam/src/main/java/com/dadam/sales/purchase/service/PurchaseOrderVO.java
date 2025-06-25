@@ -25,7 +25,7 @@ public class PurchaseOrderVO {
 	private Date purOrdDate;
 	@JsonFormat(pattern = "yyyy/MM/dd")
 	private Date expDlvDate;
-	private String purOrdReqCode;
+	private String purReqCode;
 	@JsonFormat(pattern = "yyyy/MM/dd")
 	private Date purOrdUdtDate;
 	private String status;
@@ -48,7 +48,7 @@ public class PurchaseOrderVO {
 	
 	
 	//발주 의뢰
-	private String purReqCode;
+	//private String purReqCode;
 	private String inCode;
 	@JsonFormat(pattern = "yyyy/MM/dd")
 	private Date createdDate;

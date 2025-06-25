@@ -64,14 +64,11 @@
             <div class="col-md-6 text-end">
                 <div class="btn-group-custom">
                 	<button class="btn btn-secondary me-2" id="newBtn">
-                        <i class="fas fa-pen"></i> 신규
+                        <i class="fas fa-pen"></i> 추가
                     </button>
 					<button class="btn btn-warning">
-						<i class="fas fa-search"></i> 조회
+						<i class="fas fa-eye"></i> 조회
 					</button>
-					<button class="btn btn-success me-2" id="addBtn">
-                        <i class="fas fa-plus"></i> 추가
-                    </button>
                     <button class="btn btn-danger me-2" id="delBtn">
                         <i class="fas fa-trash"></i> 삭제
                     </button>
@@ -100,18 +97,20 @@
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="exampleModalLabel">주문 입고</h1>
+					<h1 class="modal-title fs-5" id="exampleModalLabel">발주서 의뢰 리스트</h1>
 					<button type="button" class="btn-close" data-bs-dismiss="modal"
 						aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-						<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
-							<button type="button" id="resetBtn" class="btn btn-danger">초기화</button>
-							<button type="button" id="registerBtn" class="btn btn-primary">입고</button>
-						</div>
+					<div class="container-fluid">
 						<div id="requestGrid"></div>
+					</div>
 				</div>
-				<div class="modal-footer"></div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Close</button>
+
+				</div>
 			</div>
 		</div>
 	</div>
@@ -136,7 +135,7 @@
                 {header: '거래처코드', name: 'vdrCode', align: 'center', editor: 'text'},
                 {header: '발주일자', name: 'purOrdDate', align: 'center', editor: 'datePicker'},
                 {header: '납기예정일자', name: 'expDlvDate', align: 'center', editor: 'datePicker'},
-                {header: '발주의뢰코드', name: 'purOrdReqCode', align: 'center', editor: 'text'},
+                {header: '발주의뢰코드', name: 'purReqCode', align: 'center', editor: 'text'},
                 {header: '담당자', name: 'empName', align: 'center'},
                 {header: '담당자코드', name: 'empId', align: 'center'},
                 {header: '처리상태', name: 'status', align: 'center',
@@ -204,6 +203,37 @@
                 },
             ],
         });
+        
+        //발주서 의뢰 그리드
+        const requestGrid = new tui.Grid({
+            // toastui 아이디 가져오기
+            el: document.getElementById('requestGrid'),
+            scrollX: false,
+            scrollY: false,
+            // 필드값 구성
+            columns: [
+                {header: '발주코드', name: 'purReqCode', align: 'center'},
+                {header: '발주상세코드', name: 'inCode', align: 'center', editor: 'text'},
+                {header: '품목코드', name: 'createdDate', align: 'center'},
+                {header: '품목이름', name: 'purInDate', align: 'center'},
+                {header: '수량', name: 'empId', align: 'center', editor: 'text',
+                	formatter: function(price){
+                   	  return priceFormat(price.value)+'개';
+                     },		
+                },
+                {header: '공급가액', name: 'status', align: 'center', editor: 'text',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+                {header: '부가세', name: 'note', align: 'center', editor: 'text',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+              
+            ],
+        });
 
         // 메인 리스트 불러오기
         function mainList() {
@@ -237,21 +267,40 @@
         	//발주코드가 있는지 확인 하나라도 있으면 true를 반환
          		mainGrid.resetData([{}])
         });
-        //행추가
-        $('#addBtn').on('click', function() {
-        	if(pageStatus=='search'){
-        	   swal.fire('추가버튼 실패','조회 중 추가버튼은 불가합니다. 등록시 신규 버튼을 클릭하십시오','error')
-        	   return false;
-        	}
-        	mainGrid.appendRow([{}]);
-        });
-		//모달창 클릭
+		//메인그리드 클릭 RowKey
+		let mainRowKey = null;
+		//메인그리드 클릭창
 		mainGrid.on('click',ev => {
-			//발주 외뢰 모달 조회
-			if(ev.columnName == 'purOrdReqCode'){
-				$('#requestModal').modal('show');
+			mainRowKey = ev.rowKey;
+			if(ev.columnName == 'purReqCode'){
+				requestModal()
+				//리플래쉬
+			  $(requestModal).on('shown.bs.modal',e => {
+        			requestGrid.refreshLayout();
+        	  })
 			}
 		})
+		//발주의뢰 모달창
+		function requestModal(rowKey){
+			$('#requestModal').modal('show');
+			$.ajax({
+				url : "/erp/sales/purRequestList",
+				method : "GET",
+				success : function(result) {
+					//console.log('주문정보 불러오기', result);
+					requestGrid.resetData(result);
+				}
+			})
+		}
+		//모달 그리드 클릭시 발동
+		requestGrid.on('click', ev => {
+			let get = requestGrid.getRow(ev.rowKey).purReqCode;
+			mainGrid.setValue(mainRowKey,'purReqCode',get);
+			$('#requestModal').modal('hide');
+		})
+		
+			
+      
         $('.btn-danger').on('click', function() {
             console.log('삭제 버튼 클릭');
             // 삭제 기능 구현
