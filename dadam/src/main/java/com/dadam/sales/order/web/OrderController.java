@@ -67,23 +67,33 @@ public class OrderController {
 	@ResponseBody
 	@PutMapping("/ord/update")
 	public String updateOrder(@RequestBody OrdersVO ord) {
-		
-		
 		ord.setComId("com-101");
 		//ord.setUpdateId("")
 		orderService.updOrder(ord); 
-		
-		
 		return "updok"; 
 	}
 	
-	
+	@ResponseBody
+	@PutMapping("/ord/updDtl")
+	public String updDtlOrd(@RequestBody OrdDtlVO dtl) {
+		orderService.updOrdDtl(dtl); 
+		System.out.println(dtl);
+		System.out.println("ssssddddssss");
+		return "ok"; 
+	}
 	@ResponseBody
 	@DeleteMapping("/ord/delete")
 	public String deleteOrder(@RequestParam(name="ordCode") String ordCode) {
 		orderService.removeOrders(ordCode); 
 		return "deleteok"; 
 	}
+	@ResponseBody
+	@DeleteMapping("/ord/delOrdDtl")
+	public String deleteOrdDtl(@RequestParam(name="ordDtlCode") String ordDtlCode) {
+		orderService.deleteOrdDtl(ordDtlCode); 
+		System.out.println("ddddd");
+		return "OrdDtlDeleteOk"; 
+	}	
 	@GetMapping("/test")
 	public String test() {
 		return "sales/test";

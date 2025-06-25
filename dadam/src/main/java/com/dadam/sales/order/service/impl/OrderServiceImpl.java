@@ -57,7 +57,17 @@ public  class OrderServiceImpl implements OrderService {
 	public int updOrder(OrdersVO ord) {
 		orderMapper.updOrder(ord); //주문수정하기
 		return 0;
-	} 
+	}
+	@Override
+	public int updOrdDtl(OrdDtlVO dtl) {
+		orderMapper.updOrdDtl(dtl); 
+		return 0; 
+	}
+	@Override
+	public int deleteOrdDtl(String ordDtlCode) {
+		orderMapper.deleteOrdDtl(ordDtlCode); 
+		return 0;
+	}
 	
 	
 }
