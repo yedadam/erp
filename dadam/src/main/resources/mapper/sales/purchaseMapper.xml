@@ -40,14 +40,31 @@
  <!-- 발주의뢰리스트 -->
  <select id="requestList" resultType="PurchaseOrderVO">
     SELECT PUR_REQ_CODE,
-       IN_CODE,
-       CREATED_DATE,
-       PUR_IN_DATE,
-       EMP_ID,
-       STATUS,
-       NOTE,
-       COM_ID
+       	IN_CODE,
+       	CREATED_DATE,
+       	PUR_IN_DATE,
+        getEmpName(EMP_ID) empId,
+       	subCode(status) status,
+       	NOTE,
+       	COM_ID
 	FROM purchaseRequest
 	WHERE status='prs01'
+ </select>
+ <!-- 발주서 의뢰 상세리스트 -->
+ <select id="requestDeatilList" resultType="PurchaseOrderVO">
+ 	SELECT PUR_REQ_DTL_CODE,
+			PUR_REQ_CODE,
+			p.ITEM_CODE,
+			getItemName(p.ITEM_CODE) itemName,
+			QUANTITY,
+			STATUS,
+			CREATED_DATE,
+			NOTE,
+			i.price price,
+            i.price*QUANTITY totPrice,
+            (i.price/10)*QUANTITY vatPrice,
+            (i.price-i.price/10)*QUANTITY supPrice
+	FROM PURCHASEREQUESTDETAIL p JOIN item i ON(p.item_code = i.item_code)
+	WHERE PUR_REQ_CODE = #{purCode}
  </select>
 </mapper>
