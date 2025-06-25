@@ -1,6 +1,7 @@
 package com.dadam.sales.order.web;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -59,9 +61,23 @@ public class OrderController {
 		req.getOrd().setEmpId("emp-101");
 		String vdrcode=req.getOrd().getVdrCode();
 		Long totPrice=req.getOrd().getTotPrice(); // 총금액 해당 거래처코드에 가서 credit_bal_price-totPrice 여신잔액  
-		orderService.orderInsert(req); //insert 처리 		
+		orderService.orderInsert(req); //insert 처리 		{ord:{}}
 	    return "ok";
 	}
+	@ResponseBody
+	@PutMapping("/ord/update")
+	public String updateOrder(@RequestBody OrdersVO ord) {
+		
+		
+		ord.setComId("com-101");
+		//ord.setUpdateId("")
+		orderService.updOrder(ord); 
+		
+		
+		return "updok"; 
+	}
+	
+	
 	@ResponseBody
 	@DeleteMapping("/ord/delete")
 	public String deleteOrder(@RequestParam(name="ordCode") String ordCode) {
