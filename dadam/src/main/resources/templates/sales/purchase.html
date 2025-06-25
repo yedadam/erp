@@ -63,13 +63,19 @@
             </div>
             <div class="col-md-6 text-end">
                 <div class="btn-group-custom">
-                    <button class="btn btn-success me-2">
+                	<button class="btn btn-secondary me-2" id="newBtn">
+                        <i class="fas fa-pen"></i> 신규
+                    </button>
+					<button class="btn btn-warning">
+						<i class="fas fa-search"></i> 조회
+					</button>
+					<button class="btn btn-success me-2" id="addBtn">
                         <i class="fas fa-plus"></i> 추가
                     </button>
-                    <button class="btn btn-danger me-2">
+                    <button class="btn btn-danger me-2" id="delBtn">
                         <i class="fas fa-trash"></i> 삭제
                     </button>
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary" id="saveBtn">
                         <i class="fas fa-save"></i> 저장
                     </button>
                 </div>
@@ -88,8 +94,28 @@
                 <div id="detailGrid"></div>
         	</div>
     </div>
-
-    <script>
+  <!-- 발주의뢰 모달 -->
+	<div class="modal fade" id="requestModal" tabindex="-1"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel">주문 입고</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+						<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
+							<button type="button" id="resetBtn" class="btn btn-danger">초기화</button>
+							<button type="button" id="registerBtn" class="btn btn-primary">입고</button>
+						</div>
+						<div id="requestGrid"></div>
+				</div>
+				<div class="modal-footer"></div>
+			</div>
+		</div>
+	</div>
+	<script>
         // 메인그리드
         const mainGrid = new tui.Grid({
             // toastui 아이디 가져오기
@@ -109,22 +135,32 @@
                 {header: '거래처이름', name: 'vdrName', align: 'center', editor: 'text'},
                 {header: '거래처코드', name: 'vdrCode', align: 'center', editor: 'text'},
                 {header: '발주일자', name: 'purOrdDate', align: 'center', editor: 'datePicker'},
-                {header: '납기예정일자', name: 'expDlvDate', align: 'center', editor: 'text'},
+                {header: '납기예정일자', name: 'expDlvDate', align: 'center', editor: 'datePicker'},
                 {header: '발주의뢰코드', name: 'purOrdReqCode', align: 'center', editor: 'text'},
-                {header: '담당자', name: 'empName', align: 'center', editor: 'text'},
-                {header: '담당자코드', name: 'empId', align: 'center', editor: 'text'},
-                {header: '처리상태', name: 'status', align: 'center'},
-                {header: '총공급가액', name: 'totSupPrice', align: 'center', editor: 'text',
+                {header: '담당자', name: 'empName', align: 'center'},
+                {header: '담당자코드', name: 'empId', align: 'center'},
+                {header: '처리상태', name: 'status', align: 'center',
+                	renderer:{
+                  	  styles:{
+                		  color:(props) => props.value == '진행중'?  'rgba(252, 240, 3)' 
+                		  : props.value == '취소'?  'rgba(252, 3, 45)' 	  
+                		  : props.value == '완료'?  'rgba(3, 252, 65)':'',
+                			fontSize :'14px',
+                      	    fontFamily: 'Malgun Gothic',
+                      	    fontWeight: 'bold'
+                	  }
+                  },},
+                {header: '총공급가액', name: 'totSupPrice', align: 'center', 
                 	formatter: function(price){
                      	  return priceFormat(price.value)+'원';
                        },	
                 },
-                {header: '총부가세', name: 'totVatPrice', align: 'center', editor: 'text',
+                {header: '총부가세', name: 'totVatPrice', align: 'center',
                 	formatter: function(price){
                      	  return priceFormat(price.value)+'원';
                        },	
                 },
-                {header: '총금액합계', name: 'totAmtSum', align: 'center', editor: 'text',
+                {header: '총금액합계', name: 'totAmtSum', align: 'center', 
                 	formatter: function(price){
                      	  return priceFormat(price.value)+'원';
                        },	
@@ -193,18 +229,35 @@
         }
         // 페이지 로드 시 메인 리스트 호출
         mainList();
-        // 버튼 이벤트 처리
-        document.querySelector('.btn-success').addEventListener('click', function() {
-            console.log('추가 버튼 클릭');
-            // 추가 기능 구현
+        let pageStatus = "search";
+        // 신규버튼 이벤트 처리
+        $('#newBtn').on('click', function() {
+        	pageStatus="add"
+ 	       	let data = mainGrid.getData();
+        	//발주코드가 있는지 확인 하나라도 있으면 true를 반환
+         		mainGrid.resetData([{}])
         });
-
-        document.querySelector('.btn-danger').addEventListener('click', function() {
+        //행추가
+        $('#addBtn').on('click', function() {
+        	if(pageStatus=='search'){
+        	   swal.fire('추가버튼 실패','조회 중 추가버튼은 불가합니다. 등록시 신규 버튼을 클릭하십시오','error')
+        	   return false;
+        	}
+        	mainGrid.appendRow([{}]);
+        });
+		//모달창 클릭
+		mainGrid.on('click',ev => {
+			//발주 외뢰 모달 조회
+			if(ev.columnName == 'purOrdReqCode'){
+				$('#requestModal').modal('show');
+			}
+		})
+        $('.btn-danger').on('click', function() {
             console.log('삭제 버튼 클릭');
             // 삭제 기능 구현
         });
 
-        document.querySelector('.btn-primary').addEventListener('click', function() {
+        $('.btn-primary').on('click', function() {
             console.log('저장 버튼 클릭');
             // 저장 기능 구현
         });

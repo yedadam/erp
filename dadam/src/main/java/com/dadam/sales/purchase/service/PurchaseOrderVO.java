@@ -45,4 +45,16 @@ public class PurchaseOrderVO {
 	private int totPrice;
 	@JsonFormat(pattern = "yyyy/MM/dd")
 	private Date reccvDate;
+	
+	
+	//발주 의뢰
+	private String purReqCode;
+	private String inCode;
+	@JsonFormat(pattern = "yyyy/MM/dd")
+	private Date createdDate;
+	private Date purInDate;
+	//private String empId;
+	//private String status;
+	//private String note;
+	//private String comId;
 }
