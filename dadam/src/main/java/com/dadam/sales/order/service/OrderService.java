@@ -7,4 +7,5 @@ public interface OrderService {
 		public List<OrdDtlVO> findOrdListByOrdNo(String ordCode);//주문상세건 조회
 	    public int orderInsert(OrdReqVO req); //주문 insert  
 	    public int removeOrders(String ordCode);//주문삭제 
+	    public int updOrder(OrdersVO ord); //주문수정 
 }

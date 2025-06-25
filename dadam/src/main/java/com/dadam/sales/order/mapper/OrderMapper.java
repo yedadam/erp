@@ -16,5 +16,6 @@ public interface OrderMapper {
         // 프로시저 호출
         void callUpdateCreditBal(@Param("vdrId") String vdrId, @Param("totPrice") Long totPrice); //여신잔량 계산 
         public int deleteOrders(String ordCode);//주문삭제 
+        public int updOrder(OrdersVO ord); //주문헤더수정
            
 }

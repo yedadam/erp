@@ -108,6 +108,16 @@ delete from orders
 where ord_code=#{ordCode}
 </delete>
 
+<update id="updOrder" parameterType="com.dadam.sales.order.service.OrdersVO" >
+  UPDATE ORDERS
+	SET vdr_code = #{vdrCode},
+	   req_dlv_date = #{reqDlvDate},
+	   pay_method = #{payMethod}, 
+	   update_id = #{updateId},
+	   update_date = sysdate
+	   WHERE ord_code = #{ordCode}
+</update>
+
 
 
 
