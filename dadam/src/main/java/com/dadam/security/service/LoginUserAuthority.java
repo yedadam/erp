@@ -45,6 +45,12 @@ public class LoginUserAuthority implements UserDetails {
     public String getMainId() {
     	return ""; // userVO의 아이디 반환
     }
+    public String getUserId() {
+    	return userVO.getEmpId();
+    }
+    public String getComId(){
+    	return userVO.getComId();
+    }
     @Override
     public boolean isAccountNonExpired() {
         return true; // 계정이 만료되지 않았다고 가정

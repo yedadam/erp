@@ -13,9 +13,9 @@
 		        pod.reccv_date,
 		        po.exp_dlv_date,
 		        getEmpName(po.emp_id) emp_id,
-		        getvdrName(po.vdr_code) vdr_code,
-                p.quantity pquantity,
-                pod.quantity - nvl(p.quantity, 0) notStock
+		        getvdrName(po.vdr_code) vdr_code
+               <!-- , p.quantity pquantity,
+                pod.quantity - nvl(p.quantity, 0) notStock -->
 		FROM purchaseOrderDetail pod join purchaseOrder po
 		                               on(pod.pur_ord_code=po.pur_ord_code)
                                      left join purchase p
@@ -31,12 +31,16 @@
 	
 	<!-- 입고 처리 -->
 	<insert id="purchaseInbound" parameterType="PurchaseVO">
+		<selectKey resultType="string" keyProperty="lot" order="BEFORE">
+			SELECT 'inlot-' || (NVL(MAX(TO_NUMBER(SUBSTR(lot,7))),100)+1) selectKey, 
+			FROM purchase
+		</selectKey>
 		INSERT INTO purchase
-		VALUES (#{lot}, #{itemCode}, #{purOrdDtlCode}, #{empId}, #{createDate}, #{quantity}, #{currQty}, #{price}, #{status}, #{note}, #{comId}, #{locCode})
+		VALUES (#{lot}, #{itemCode}, #{purOrdDtlCode}, #{empId}, sysdate, #{quantity}, #{currQty}, #{price}, #{status}, #{note}, #{comId}, #{locCode})
 	</insert>
 	
-	<!-- 입고 수정
-	<update id="updateInbound" parameterType="InboundVO">
+	<!-- 발주서상태 수정 -->
+	<!-- <update id="updateInbound" parameterType="InboundVO">
 		UPDATE inbound
 		SET 
 		WHERE pod.com_id = 'com-101' AND 
