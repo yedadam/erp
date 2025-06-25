@@ -265,11 +265,14 @@ function bindEmpButtonEvents(grid) {
         success: function() {
           showToast(isSave ? '등록 완료!' : '수정 완료!');
           loadEmpList(grid);
-          form.reset();
-          $('#profilePreview').hide();
+          $('#btnNew').click(); // 신규 등록 상태로 전환(폼 초기화 + 사원번호 세팅)
         },
         error: function(xhr) {
-          showToast(isSave ? '등록 실패' : '수정 실패', 'error');
+          let msg = isSave ? '등록 실패' : '수정 실패';
+          if (xhr.responseText) {
+            msg += ' : ' + xhr.responseText;
+          }
+          showToast(msg, 'error');
           console.error(xhr.responseText);
         }
       });
