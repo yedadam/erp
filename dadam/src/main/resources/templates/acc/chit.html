@@ -1,14 +1,105 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
- xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{common/layouts/default_layout}" 
-  layout:fragment="Content">
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+<style>
+.grid-action {
+	display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid lightgray; /* #cbd5e1 → lightgray */
+	background-color: aliceblue; /* #f8fafc → aliceblue */
+	color: darkslategray; /* #334155 → darkslategray */
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+}
+
+.grid-action:hover {
+	background-color: lightsteelblue; /* #e2e8f0 → lightsteelblue */
+	border-color: silver; /* #94a3b8 → silver */
+	color: midnightblue; /* #1e293b → midnightblue */
+}
+</style>
 </head>
 <body>
-<h3>전표관리</h3>
+	<h3>전표관리</h3>
+
+	<div class="col-14">
+		<div id="chitGrid" class="mx-5"></div>
+	</div>
+
+
+	<div>
+		<h5>분개</h5>
+		<div></div>
+	</div>
 
 </body>
+
+<script>
+let chitGrid = new tui.Grid({
+	el: document.getElementById('chitGrid'),
+	
+	scrollX : false,
+	scrollY : true,
+	
+
+	columns:[
+		{header: '등록일자',name:'createdDate',align:'center'},
+		{header: '전표명',name:'chitTitle',align:'center'},
+		{header: '계정과목',name:'bizNo',align:'center',
+			formatter:({ row }) => {
+				  const bizSts = row.bizSts;
+				  let bgClass = 'btn-primary';
+				  let textClass = 'text-white';
+				  let label = bizSts;
+
+				  if (bizSts !== null || bizSts!== undefined) {
+					  bgClass = 'bg-secondary';
+					  textClass = 'text-white';
+				      label = '분개'
+				  }
+
+				  return `<span class="${bgClass} ${textClass} rounded-pill px-3 py-2" style="cursor:pointer;">${label}</span>`;
+			}},
+		{header: '거래처',name:'vdrCode',align:'center'},
+		{header: '금액',name:'totPrice',align:'right', 
+			formatter: ({value}) => value.toLocaleString()+ '원'},
+		{header: '세금계산서',name:'taxCode',align:'center',
+				formatter:({ row }) => {
+				    const taxSts = row.taxSts;
+
+				    let label = '계산서 발행';
+				    if (taxSts === 'issued') label = '발행 완료';
+				    else if (taxSts === 'pending') label = '발행 대기';
+
+				    return `<span class="grid-action">${label}</span>`;
+				}},
+		{header: '처리상태',name:'status',align:'center'},
+		{header: '구분',name:'type',align:'center'},
+		{header: '등록부서',name:'deptCode',align:'center'},
+		{header: '처리자',name:'phyEmpId',align:'center'},
+		{header: '승인자',name:'apprEmpId',align:'center'},
+		{header: '비고',name:'note',align:'center'},
+	]
+})
+
+function chitList(){
+	$.ajax({
+		url: "/erp/chit/chitFindAll",
+		method:"GET",
+		success : function(result){
+			chitGrid.resetData(result);
+		}
+	})
+}
+chitList()
+
+
+</script>
 </html>

@@ -12,12 +12,14 @@
 </head>
 <body>
 
-
+<h6> 조회, 여신금액 초과, 여신 기간 초과시 표시, 공통코드 처리 </h6>
 	<div class="container" style="max-width: 1200px; margin: 0 auto;">
 		<h2>여신 관리</h2>
 		<!-- Toast UI Grid 영역 -->
-		<div class="col-12">
-			<div id="creGrid" class="mx-6"></div>
+		<div>
+			<div class="col-12">
+				<div id="creGrid" class="mx-6"></div>
+			</div>
 		</div>
 
 		<div id="detailContainer" style="display: none;" >
@@ -40,7 +42,7 @@ let creGrid, detailGrid;
 creGrid = new tui.Grid({
 	el : document.getElementById('creGrid'),
 	
-	rowHeaders : [],
+	rowHeaders : ['checkbox'],
 	
 	scrollX : false,
 	scrollY : false,
@@ -96,18 +98,18 @@ creGrid.on('click', (ev)=> {
 		detailGrid.resetData([]);
 		$('#detailContainer').hide();
 		
-		creGrid.removeRowClassName(ev.rowKey, 'row-selected');
-		selectedRowKey = null;
+//		creGrid.removeRowClassName(ev.rowKey, 'row-selected');
+//		selectedRowKey = null;
 	}else{
 		creGrid.uncheckAll();
 		creGrid.check(ev.rowKey);
 		
-		if (selectedRowKey !== null) {
-			creGrid.removeRowClassName(selectedRowKey, 'row-selected');
-		}
+//		if (selectedRowKey !== null) {
+//			creGrid.removeRowClassName(selectedRowKey, 'row-selected');
+//		}
 		
-		selectedRowKey = ev.rowKey;
-		creGrid.addRowClassName(ev.rowKey, 'row-selected');
+//		selectedRowKey = ev.rowKey;
+//		creGrid.addRowClassName(ev.rowKey, 'row-selected');
 	
 	const rowData = creGrid.getRow(ev.rowKey);
 	const vdrCode = rowData.vdrCode;
@@ -139,7 +141,7 @@ function getCreditDetail(vdrCode){
 
 detailGrid = new tui.Grid({
 	el:document.getElementById('detailGrid'),
-	rowHeaders:[],
+	rowHeaders:['checkbox'],
 	scrollX : false,
 	scrollY : false,
 	
