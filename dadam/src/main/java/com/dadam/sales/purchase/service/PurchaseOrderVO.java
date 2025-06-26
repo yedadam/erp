@@ -13,7 +13,7 @@ public class PurchaseOrderVO {
 	private String comId;  // 회사id 혹시몰라서
 	private String lot;
 	private int price;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date createDate;
 	private String locCode;
 
@@ -21,12 +21,12 @@ public class PurchaseOrderVO {
 	private String purOrdCode;
 	private String vdrName;
 	private String vdrCode;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date purOrdDate;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date expDlvDate;
 	private String purReqCode;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date purOrdUdtDate;
 	private String status;
 	private String vatYn;
@@ -35,7 +35,7 @@ public class PurchaseOrderVO {
 	private int quantity;
 	private int currQty;
 	private String empName;
-	
+	private int totAmtSum;
 	// 발주서상세
 	private String purOrdDtlCode;
 	private String itemCode;
@@ -43,7 +43,7 @@ public class PurchaseOrderVO {
 	private int supPrice;
 	private int vatPrice;
 	private int totPrice;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date reccvDate;
 	
 	
@@ -59,12 +59,12 @@ public class PurchaseOrderVO {
 	//private String comId;
 	
 	//발주의뢰 상세
-	private String pur_req_dtl_code;
-	private String pur_req_code;
-	private String item_code;
+	private String purReqDtlCode;
+	private String pur_reqCode;
+	//private String itemCode;
 	//private int quantity;
 	//private String status;
-	private Date created_date;
+	//private Date createdDate;
 	//private String note;
 	//private Stirng comId;
 }

@@ -4,12 +4,19 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dadam.sales.purchase.service.PurReqVO;
+import com.dadam.sales.purchase.service.PurchaseOrderDetailVO;
 import com.dadam.sales.purchase.service.PurchaseOrderVO;
 import com.dadam.sales.purchase.service.PurchaseService;
+
 
 
 @RestController
@@ -25,6 +32,12 @@ public class PurchaseRestController {
 		
 		List<PurchaseOrderVO> result = service.findPurchaseList(param);
 		
+		return result;
+	}
+	//발주 상세조회
+	@GetMapping("/purDetailList/{purCode}")
+	public List<PurchaseOrderDetailVO> purchaseDetailList(@PathVariable String purCode){
+		List<PurchaseOrderDetailVO> result = service.findPurListByOrdNo(purCode);
 		return result;
 	}
 	//발주 의뢰 조회
@@ -43,4 +56,24 @@ public class PurchaseRestController {
 		System.out.println(result);
 		return result;
 	}
+	
+	//발주서 등록
+	@PostMapping("/purAdd")
+	public int postMethodName(@RequestBody PurReqVO req) {
+		System.out.println("메인");
+		System.out.println(req);
+		int result  = service.purchaseOrderAdd(req);
+		
+		return result;
+		
+	}
+	
+	//발주서 메인 수정
+	@PutMapping("/purMainModify")
+	public int purMainModify(@RequestBody PurchaseOrderVO param) {
+		System.out.println(param);
+		int result = service.purOrderUpdate(param);
+		return result;
+	}
+	
 }
