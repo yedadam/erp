@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.jfree.util.Log;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -64,6 +65,15 @@ public class OrderController {
 		orderService.orderInsert(req); //insert 처리 		{ord:{}}
 	    return "ok";
 	}
+	
+	@ResponseBody
+	@PostMapping("/ord/regDtl")
+	public String regDtl(@RequestBody OrdReqVO req) {
+	    orderService.ordDtlInsert(req); 
+	    Log.info(req); 
+	    return "okDtl";  
+	}
+	
 	@ResponseBody
 	@PutMapping("/ord/update")
 	public String updateOrder(@RequestBody OrdersVO ord) {
