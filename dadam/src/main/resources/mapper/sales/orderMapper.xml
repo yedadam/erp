@@ -57,7 +57,7 @@
 		DISCOUNT,
 		TOT_PRICE,
 		QUO_CODE)
-		values(getNextOrdCode(),
+		values(#{ordCode},
 		#{vdrCode},
 		#{status},
 		#{createdDate},
@@ -95,7 +95,7 @@
 		#{discPrice},
 		#{totPrice},
 		#{comId},
-		getNextOrdCode()
+		#{ordCode}
 		)
 	</insert>
 	<update id="updVdrcreditBalPrice">
