@@ -17,6 +17,7 @@
 		v.discount
 		from orders o JOIN vender v ON
 		o.vdr_code=v.vdr_code
+        order by   o.ord_code desc
 	</select>
 
 	<!-- 주문건당 상세내역 보기 -->
