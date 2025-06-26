@@ -54,7 +54,8 @@ public class AccountServiceImpl implements AccountService{
 		accountMapper.insert(acct);
 	}
 	
-	
+	// 대,중,소 분류 입력 데이터 조회(유효성검사)
+	// 대중소 분류 테이블에서 코드 요청 -> 계정과목 코드 생성
 	@Override
     public void saveAll(AccountVO account) {
     	 List<AccountVO> rows = account.getCreatedRows();
@@ -65,20 +66,21 @@ public class AccountServiceImpl implements AccountService{
 //    		    if (acct.getAcctSubclass() == null) acct.setAcctSubclass("");
 //    		    if (acct.getAcctYn() == null) acct.setAcctYn("Y"); // 기본값 설정도 가능	
     		    
-             // 분류명 기반 코드 조회
+             // 분류명 기반 코드 조회(대분류)
              String typeCode = accountMapper.findTypeCodeByName(acct.getAcctType());
              if (typeCode == null) {
                  throw new IllegalArgumentException("대분류 '" + acct.getAcctType() + "'에 해당하는 코드가 없습니다.");
              }
-
+             
+             // 중분류 코드 유효성검사 후 생성 
              String classCode = accountMapper.findClassCodeByName(acct.getAcctClass());
              if (classCode == null) {
                  throw new IllegalArgumentException("중분류 '" + acct.getAcctClass() + "'에 해당하는 코드가 없습니다.");
              }
              
-             
+             // 소분류 초기값 null
              String subclassCode = null;
-
+             // null이면 허용 / db에 값 있으면 유효성 검사
              String subclassName = acct.getAcctSubclass();
 
              // 1. 소분류 값이 있으면 → 코드 조회 + 유효성 검사
@@ -99,8 +101,6 @@ public class AccountServiceImpl implements AccountService{
              String acctCode = accountMapper.codeFind(codeVO);
              acct.setAcctCode(acctCode);
              
-             
-
              // 코드 필드 세팅 (원래 분류명 → 코드로 변환해서 저장)
              acct.setAcctType(typeCode);
              acct.setAcctClass(classCode);

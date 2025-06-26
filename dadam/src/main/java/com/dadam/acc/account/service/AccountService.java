@@ -6,8 +6,8 @@ public interface AccountService {
 	public String codeFind(AccountCodeVO accountCode);
 	public void insert(AccountVO acct);
 	public void saveAll(AccountVO accountVO);
-	List<AccountVO> accFindAll(); // 
-	List<AccountVO> accFindByType(String acctType); // 
+	public List<AccountVO> accFindAll(); // 
+	public List<AccountVO> accFindByType(String acctType); // 
 	public List<String> getAcctTypes();
 	public List<String> getAcctClasses(String typeCode);
 	public List<String> getAcctSubClasses(String classCode);
