@@ -20,6 +20,7 @@
        getVdrName(VDR_CODE) vdrName,
        subCode(status) status
    FROM purchaseOrder
+   ORDER BY PUR_ORD_CODE DESC
 </select>
  
  <select id="findPurListByOrdNo" resultType="PurchaseOrderVO">
@@ -67,4 +68,81 @@
 	FROM PURCHASEREQUESTDETAIL p JOIN item i ON(p.item_code = i.item_code)
 	WHERE PUR_REQ_CODE = #{purCode}
  </select>
+ 
+ <!-- 발주헤더등록 -->
+ <insert id="purchaseOrderAdd">
+ <selectKey resultType="string" keyProperty="purOrdCode"
+	order="BEFORE">
+		SELECT 'poc-' || (NVL(MAX(TO_NUMBER(SUBSTR(pur_ord_code,5))),100)+1)
+		FROM purchaseOrder
+	</selectKey>
+ 		INSERT INTO purchaseOrder (PUR_ORD_CODE,
+		                            VDR_CODE,
+		                            PUR_ORD_DATE,
+		                            EXP_DLV_DATE,
+		                            PUR_REQ_CODE,
+		                            EMP_ID,
+		                            STATUS,
+		                            VAT_YN,
+		                            COM_ID, 
+		                            TOT_SUP_PRICE,
+		                            TOT_VAT_PRICE,
+		                            TOT_AMT_SUM)    
+		VALUES(#{purOrdCode},#{vdrCode},sysdate,#{expDlvDate},#{purReqCode},#{empId},'pst01','vat01',#{vatYn},#{totSupPrice},#{totVatPrice},#{totAmtSum})
+ </insert>
+ 
+ 
+ 
+  <!-- 발주바디등록 -->
+  <insert id="purchaseOrderDetailAdd">
+  <selectKey resultType="string" keyProperty="purOrdDtlCode"
+	order="BEFORE">
+		SELECT 'porc-' || (NVL(MAX(TO_NUMBER(SUBSTR(PUR_ORD_DTL_CODE,6))),100)+1)
+		FROM purchaseOrderDetail
+	</selectKey>
+ INSERT INTO purchaseOrderDetail (PUR_ORD_DTL_CODE,
+                                    ITEM_CODE,
+                                    QUANTITY,
+                                    SUP_PRICE,
+                                    VAT_PRICE,
+                                    TOT_PRICE,
+                                    STATUS,
+                                    COM_ID,
+                                    PUR_ORD_CODE)
+VALUES (#{purOrdDtlCode},#{itemCode},#{quantity},#{supPrice},#{vatPrice},#{totPrice},'pds-01',#{comId},#{purOrdCode})
+</insert>
+<!-- 상태값 변경 -->
+<update id ="reqStatusUpdate">
+  	UPDATE purchaseRequest
+	SET status = #{status}
+	WHERE pur_req_code =#{purReqCode}
+</update>
+<!-- 발주 메인 업데이트 -->
+<update id ="purOrderUpdate">
+UPDATE purchaseorder
+SET VDR_CODE=#{vdrCode},
+    PUR_REQ_CODE=#{purReqCode},
+    exp_dlv_date=#{expDlvDate},
+    PUR_ORD_UDT_DATE=sysdate,
+    UPDATE_ID=#{empId},
+    TOT_SUP_PRICE=#{totSupPrice},
+    TOT_VAT_PRICE=#{totVatPrice},
+    TOT_AMT_SUM=#{totAmtSum}
+WHERE pur_ord_code = #{purOrdCode}
+</update>
+<!-- 발주 상세 업데이트  -->
+<update id ="purOrderUpdateRows">
+ UPDATE purchaseorderdetail
+ SET      ITEM_CODE =#{itemCode},
+    	  QUANTITY =#{quantity},
+    	  SUP_PRICE =#{supPrice},
+    	  VAT_PRICE =#{vatPrice},
+    	  TOT_PRICE=#{totPrice},
+  WHERE pur_ord_dtl_code = #{purOrdDtlCode}
+</update>
+<!-- 발주상세 업데이트 -->
+<delete id= "purOrderDeleteRows">
+ DELETE FROM purchaseorderdetail
+ WHERE pur_ord_dtl_code = #{purOrdDtlCode}
+</delete>
 </mapper>
