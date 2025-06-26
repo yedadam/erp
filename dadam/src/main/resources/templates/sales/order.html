@@ -184,7 +184,6 @@
 				</div>
 			</div>
 		</div>
-
 		<!-- 거래처 모달 3 -->
 		<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 			<div class="modal-dialog modal-xl">
@@ -214,9 +213,6 @@
 
 	</div>
 </body>
-
-
-
 <script th:inline="javascript">
 	//타임리프 
 	let vdrAll; //모든 vdr을담는 리스트 
@@ -624,6 +620,12 @@
 	}
 	let ordDtlForm;
 	$('#addRow').on('click', function () {
+
+		console.log(orderGrid.getData()[0].ordCode); //ordCode ord-122 이런꼴로 나옴 
+		let nextordCode = orderGrid.getData()[0].ordCode;  // 예: "ord-122"
+		let numberOnly = String(Number(nextordCode.match(/\d+/)[0])+1);     
+	    nextordCode='ord-'+numberOnly; //ord-123    
+
 		//행추가할 데이터 생성
 		let addRow = {}
 		orderGrid.prependRow(addRow);
@@ -632,13 +634,14 @@
 		// console.log("추가된 행의 rowKey:", newRow.rowKey);
 		newOrdPlus = newRow.rowKey; //새로추가된 행번호 정의
 		//console.log('새로추가된행번호',newOrdPlus); //newOrdPlus
-		console.log('(orderGrid.getRow()[newOrdPlus-1]', orderGrid.getRow()[newOrdPlus - 1]);
+		//console.log('(orderGrid.getRow()[newOrdPlus-1]', orderGrid.getRow()[newOrdPlus - 1]);
 		orderGrid.refreshLayout();
 		orderGrid.uncheckAll(); //체크해제
 		orderGrid.check(newOrdPlus); //새로추가된 행에 체크
 		ordDtlGrid.resetData([]);
 		orderGrid.setValue(newOrdPlus, "createdDate", dateformatyymmdd(new Date()));
 		orderGrid.setValue(newOrdPlus, "status", "ost01");
+		orderGrid.setValue(newOrdPlus,"ordCode",nextordCode);
 	})
 	$('#deleteRow').on('click', function () {
 		//체크된행을 가져오는 함수	
@@ -675,7 +678,9 @@
 		}
 	})
 	$('#ordreg2').on('click', function () {
-		let regHeader = orderGrid.getModifiedRows().createdRows[0];
+		console.log('rderGrid.getModifiedRows().createdRows[0])',orderGrid.getModifiedRows().createdRows[0]); 
+		console.log('orderGrid.getCheckedRows()[0]', orderGrid.getCheckedRows()[0]); 
+		let regHeader =orderGrid.getCheckedRows()[0]; 
 		// ❗ 주문 헤더 유효성 검사
 		if (!regHeader.vdrCode || !regHeader.payMethod || !regHeader.status) {
 			Swal.fire({
@@ -686,7 +691,7 @@
 			return;
 		}
 		//여신잔액이 없는경우
-		if (!regHeader.creditBalPrice <= 0) {
+		if (regHeader.creditBalPrice <= 0) {
 			Swal.fire({
 				icon: "error",
 				title: "error",
@@ -696,11 +701,30 @@
 		}
 		regHeader.empId = userID;
 		regHeader.comId = userComId;
-		const dtlObj = ordDtlGrid.getModifiedRows();
+		const dtlObj = ordDtlGrid.getModifiedRows(); 
+		let totSup=0; 
+		let totVat=0; 
+		let totDisc=0;
+		let qty=0; 
+		for(let i=0; i<dtlObj.createdRows.length;i++ ){
+			totSup+=dtlObj.createdRows[i].supPrice; //총 공급가액 
+			totVat+=dtlObj.createdRows[i].vatPrice; //총부가세
+			totDisc+=dtlObj.createdRows[i].discPrice; // 총할인금액	
+			qty+=dtlObj.createdRows[i].quantity; //총수량  
+		}
+
+		regHeader.totSupPrice=totSup;
+		regHeader.totVatPrice=totVat; 
+		regHeader.totDisc=totDisc; 
+		regHeader.totQuantity=qty; 
+
+
+		console.log('dtlObj',dtlObj);   
 		const dataToSend = {
-			ord: regHeader, // 일반 객체
-			dtl: dtlObj
+			ord: regHeader, // 일반 객체 {}
+			dtl: dtlObj     // [{},{}]
 		};
+		console.log('dataToSend',dataToSend);
 		$.ajax({
 			url: '/erp/sales/ord/register',
 			type: 'POST',
@@ -731,6 +755,15 @@
 				return false;
 			}
 		})
+
+		dtlObj=ordDtlGrid.getModifiedRows(); 
+		
+		for(let i=0; i<dtlObj.createdRows.length;i++){
+			dtlObj.createdRows[i].ordCode=
+			orderGrid.getCheckedRows()[0].ordCode;
+		}
+		regHeader =orderGrid.getCheckedRows()[0]; 
+		console.log('dtlObj ordCode 확인 : ',dtlObj); 	
 		const dataToSend = {
 			ord: regHeader, // 일반 객체
 			dtl: dtlObj
@@ -754,7 +787,7 @@
 	//주문 수정
 	$('#ordupd').on('click', function () {
 		console.log(orderGrid.getCheckedRows());
-		let updHeader = orderGrid.getCheckedRows()[0]; //거래처,납기일자,지불방식,진행상태
+		let updHeader = orderGrid.getCheckedRows()[0]; //납기일자,지불방식
 		updHeader.updateId = userID; //update
 		$.ajax({
 			url: '/erp/sales/ord/update',
@@ -799,6 +832,9 @@
 		updDtl.comId = userComId;
 		updDtl.quantity = Number(updDtl.quantity);
 		updDtl.totPrice = updDtl.totprice;
+		
+		updDtl.vatPrice=updDtl.totPrice/10; //부가세 10%
+
 		console.log('updDtl', updDtl);
 		console.log(orderGrid.getCheckedRows()[0]);
 		ordDtlGrid.setValue(updDtl.rowkey, "ordCode", orderGrid.getCheckedRows()[0].ordCode);
@@ -922,14 +958,14 @@
 			vdrdiscount = match.discount / 100;
 		}
 	}
-const topOptions = {
+	const topOptions = {
 			  includeHiddenColumns: true,
 			  onlySelected: false,
 			  fileName: '주문 정보 조회',
 			};
-$('#excel').on('click',function(){
-	/* orderGrid.export('xlsx',topOptions); */
-})
+	$('#excel').on('click',function(){
+		 orderGrid.export('xlsx',topOptions); 
+	})
 
 	const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1001'}]];
 	const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '정은애'	}]];
