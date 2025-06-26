@@ -19,4 +19,10 @@ public class CreditServiceImpl implements CreditService{
 		return creditMapper.creditFindAll();
 	}
 
+	@Override
+	public List<CreditVO> creditFindCode(String vdrCode) {
+		List<CreditVO> result = creditMapper.creditFindCode(vdrCode);
+		return result;
+	}
+
 }

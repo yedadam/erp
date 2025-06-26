@@ -1,9 +1,73 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
- xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{common/layouts/default_layout}" 
-  layout:fragment="Content">
-<body>
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
+<div class="container text-start">
+	<div class="d-grid gap-2 d-md-block m-2 text-start">
+		<h1>출고관리</h1>
+		<button class="btn btn-secondary" id="purchasePage" type="button">출고관리</button>
+		<button class="btn btn-secondary" id="inboundPage" type="button">홀드관리</button>
+	</div>
 
+	<div id="screen1" class="row card">
+		<div class="col-12">
+			<div id="Grids"></div>
+		</div>
+	</div>
+	<div id="screen2" class="row card">
+	</div>
+</div>
 </body>
+<script th:inline="javascript">
+const outBoundgrid = new tui.Grid({
+    el: document.getElementById('Grids'),
+    //checkbox부여
+    rowHeaders: ['checkbox'],
+    //페이지네이션
+    pageOptions: {
+        perPage: 5,
+        useClient: true,
+    },
+    //필드값 구성
+    columns:[
+        // header: 필드 이름  name:객체 key값  align:정렬방법
+        // editor:true -> cell안에 등록가능
+        // width -> 크기조정
+        { header: '발주서코드',name:'purOrdCode', align:'center'},
+        { header: '발주상세코드',name:'purOrdDtlCode',align:'center'},
+        { header: '제품코드',name:'itemCode',align:'center'},
+        { header: '제품명',name:'itemName',align:'center'},
+        { header: '수량',name:'quantity',align:'center'},
+        { header: '상태',name:'status',align:'center',
+        	formatter: function(status){
+        		if(status.value == 'pds-01'){
+        			return status.value = '입고대기'
+        		}else if(status.value == 'pds-02'){
+        			return status.value = '부분입고'
+        		}else{
+        			return status.value = '입고완료'
+        		}
+        	},
+        	filter: 'select'
+        	},
+        { header: '입고예정일자',name:'expDlvDate',align:'center'},
+        { header: '입고일자',name:'reccvDate',align:'center'
+    		/* ,formatter: function(expDlvDate){
+    			if(expDlvDate.value == null){
+    				return expDlvDate.value = '입고대기';
+    			}else{
+    				return expDlvDate.value;
+    			}
+    		} */
+        },
+        { header: '담당자',name:'empId',align:'center'},
+        { header: '거래처',name:'vdrCode',align:'center'},
+    ],
+});
+
+const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
+const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '김지현'}]];
+const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
+</script>
 </html>

@@ -15,5 +15,9 @@ public interface InboundMapper {
 	// 창고 조회
 	public List<InboundVO> warehouseList();
 	// 등록
-	public void purchaseInbound(PurchaseVO purchaseVO);
+	public void insertPurchaseInbound(PurchaseVO vo);
+	// 상태값 업데이트
+	public void updatePurchaseOrderDetailInbound(PurchaseVO vo);
+	// 재고테이블 반영
+	public void updateStockInbound(PurchaseVO vo);
 }

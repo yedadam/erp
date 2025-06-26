@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
+<head>
+    <style>
+        .main-table {
+            border: 2px solid #0d6efd;
+        }
+        .main-table th {
+            background-color: #e3f2fd;
+            text-align: center;
+            vertical-align: middle;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+        .main-table td {
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #ddd;
+        }
+        .detail-table {
+            margin-top: 20px;
+        }
+        .detail-table th {
+            background-color: #f8f9fa;
+            text-align: center;
+            font-size: 14px;
+            padding: 8px;
+        }
+        .detail-table td {
+            text-align: center;
+            font-size: 14px;
+            padding: 8px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        .btn-group-custom {
+            margin-bottom: 20px;
+        }
+        .tui-pagination{
+        	padding-bottom:10px;
+				}  
+</style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid mt-4">
+        <h3 class="mb-4">구매관리</h3>
+        
+        <!-- 검색 및 버튼 영역 -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="input-group search-container" style="width: 400px;">
+                    <input type="text" class="form-control" placeholder="검색어를 입력하세요">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="btn-group-custom">
+                	<button class="btn btn-secondary me-2" id="newBtn">
+                        <i class="fas fa-pen"></i> 추가
+                    </button>
+					<button class="btn btn-warning me-2" id="searchBtn">
+						<i class="fas fa-eye"></i> 조회
+					</button>
+                    <button class="btn btn-danger me-2" id="delBtn">
+                        <i class="fas fa-trash"></i> 삭제
+                    </button>
+                    <button class="btn btn-primary" id="saveBtn">
+                        <i class="fas fa-save"></i> 저장
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 테이블 -->
+     
+            <!-- 그리드 -->
+            <div id="mainGrid"></div>
+  
+
+        <!-- 상세 정보 테이블 -->
+
+             <div class="text-end">
+                <div class="btn-group-custom">
+                	<button class="btn btn-primary me-2" id="rowAddBtn">
+                        행추가
+                    </button>
+                    <button class="btn btn-danger me-2" id="rowDelBtn">
+                       행삭제
+                    </button>
+                </div>
+            </div>
+                <div id="detailGrid"></div>
+    </div>
+  <!-- 발주의뢰 모달 -->
+	<div class="modal fade" id="requestModal" tabindex="-1"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel">발주서 의뢰 리스트</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container-fluid">
+						<div id="requestGrid"></div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Close</button>
+
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 거래처 모달-->
+	<div class="modal fade" id="vdrModal" tabindex="-1"
+		aria-labelledby="vdrModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="vdrModalLabel">거래처 리스트</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container-fluid">
+						<div id="vdrGrid"></div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Close</button>
+
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 아이템 리스트-->
+	<div class="modal fade" id="itemModal" tabindex="-1"
+		aria-labelledby="itemModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="itemModalLabel">품목 항목</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container-fluid">
+						<div id="itemGrid"></div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Close</button>
+
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	//세션
+	let empId = 'emp-101';
+	let empName = '예담';
+        // 메인그리드
+        const mainGrid = new tui.Grid({
+            // toastui 아이디 가져오기
+            el: document.getElementById('mainGrid'),
+            scrollX: false,
+            scrollY: false,
+            // checkbox 부여
+            rowHeaders: ['checkbox'],
+            // 페이지네이션
+            pageOptions: {
+                perPage: 10,
+                useClient: true,
+            },
+            // 필드값 구성
+            columns: [
+                {header: '발주코드', name: 'purOrdCode', align: 'center', width: 120},
+                {header: '거래처이름', name: 'vdrName', align: 'center', editor: 'text'},
+                {header: '거래처코드', name: 'vdrCode', align: 'center', editor: 'text'},
+                {header: '발주일자', name: 'purOrdDate', align: 'center', editor: 'datePicker'},
+                {header: '납기예정일자', name: 'expDlvDate', align: 'center', editor: 'datePicker'},
+                {header: '발주의뢰코드', name: 'purReqCode', align: 'center'},
+                {header: '담당자', name: 'empName', align: 'center'},
+                {header: '담당자코드', name: 'empId', align: 'center'},
+                {header: '처리상태', name: 'status', align: 'center',
+                	renderer:{
+                  	  styles:{
+                		  color:(props) => props.value == '대기'?  'rgba(252, 240, 3)' 
+                		  : props.value == '완료'?  'rgba(3, 252, 65)':'',
+                			fontSize :'14px',
+                      	    fontFamily: 'Malgun Gothic',
+                      	    fontWeight: 'bold'
+                	  }
+                  },},
+                {header: '총공급가액', name: 'totSupPrice', align: 'center', 
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+                {header: '총부가세', name: 'totVatPrice', align: 'center',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+                {header: '총금액합계', name: 'totAmtSum', align: 'center', 
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+            ],
+        });
+	
+        // 상세그리드
+        const detailGrid = new tui.Grid({
+            // toastui 아이디 가져오기
+            el: document.getElementById('detailGrid'),
+            scrollX: false,
+            scrollY: false,
+            // checkbox 부여
+            rowHeaders: ['checkbox'],
+            // 필드값 구성
+            columns: [
+                {header: '발주코드', name: 'purOrdCode', align: 'center', width: 120},
+                {header: '발주상세코드', name: 'purOrdDtlCode', align: 'center'},
+                {header: '품목코드', name: 'itemCode', align: 'center'},
+                {header: '품목이름', name: 'itemName', align: 'center'},
+                {header: '수량', name: 'quantity', align: 'center', editor: 'text',
+                	formatter: function(price){
+                   	  return priceFormat(price.value)+'개';
+                     },		
+                },
+                {header: '개당가격', name: 'price', align: 'center', editor: 'text',
+                	formatter: function(price){
+                   	  return priceFormat(price.value)+'원';
+                     },		
+                },
+                {header: '공급가액', name: 'supPrice', align: 'center', editor: 'text',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+                {header: '부가세', name: 'vatPrice', align: 'center', editor: 'text',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+                {header: '금액', name: 'totPrice', align: 'center', editor: 'text',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+            ],
+        });
+        
+        //발주서 의뢰 그리드
+        const requestGrid = new tui.Grid({
+            // toastui 아이디 가져오기
+            el: document.getElementById('requestGrid'),
+            scrollX: false,
+            scrollY: false,
+            // 필드값 구성
+            columns: [
+                {header: '발주의뢰코드', name: 'purReqCode', align: 'center'},
+                {header: '등록일자', name: 'createdDate', align: 'center'},
+                {header: '담당자', name: 'empId', align: 'center', editor: 'text',},
+                {header: '상태', name: 'status', align: 'center', editor: 'text',
+                	renderer:{
+                    	  styles:{
+                  		  color:(props) => props.value == '진행중'?  'rgba(252, 240, 3)' 
+                  		  : props.value == '취소'?  'rgba(252, 3, 45)' 	  
+                  		  : props.value == '완료'?  'rgba(3, 252, 65)':'',
+                  			fontSize :'14px',
+                        	    fontFamily: 'Malgun Gothic',
+                        	    fontWeight: 'bold'
+                  	  }
+                    },
+                },
+                {header: '비고', name: 'note', align: 'center', editor: 'text',
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+              
+            ],
+        });
+      //vdr 모달안에  vdrGrid 생성  
+    	let vdrGrid=new tui.Grid({
+    		el:document.getElementById('vdrGrid'),
+    		pageOptions:{
+    			perPage:10,
+    			useClient: true, 
+    		},
+    		 columns:[
+            	{header:'거래처코드',name:'vdrCode',align:'center'},
+            	{header:'거래처구분',name:'type',align:'center'}, 
+            	{header:'거래처명',name:'vdrName',align:'center'},
+            	{header:'할인율',name:'discount',align:'center',
+            		formatter: function(item){
+                   	  return item.value+'%';
+                     }
+            	} 
+            ]
+    	})
+		//아이템 그리드 생성
+		let itemGrid=new tui.Grid({
+		el:document.getElementById('itemGrid'),
+    	pageOptions: {
+            perPage: 10,     //10개씩 보여주기 
+            useClient: true, 
+        }, 
+        columns:[
+        	{header:'종류',name:'type',align:'center',editor:'text'},
+        	{header:'품목코드',name:'itemCode',align:'center',editor:'text'}, 
+        	{header:'품목명',name:'name',align:'center',editor:'text'},
+        	{header:'가격',name:'price',align:'center',editor:'text',
+        		formatter: function(price){
+               	  return priceFormat(price.value)+'원';
+                 },	
+           } 
+        ]
+    })
+        // 메인 리스트 불러오기
+        function mainList() {
+            $.ajax({
+                url: "/erp/sales/purMainList",
+                method: "GET",
+                success: function(result) {
+                    console.log('주문정보 불러오기', result);
+                    mainGrid.resetData(result);
+                    //디테일 그리드 초기화
+                    detailGrid.resetData([]);
+                },
+                error: function(xhr, status, error) {
+                    console.log("실패:", xhr.status, error);
+                }
+            });
+        }
+      //금액 포맷 함수('#,###')
+        function priceFormat(price) {
+        	if(price == null){
+        		return '0';
+        	}
+        	let result = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        	return result;
+        }
+        // 페이지 로드 시 메인 리스트 호출
+        mainList();
+        let pageStatus = "search";
+        // 신규버튼 이벤트 처리
+        $('#newBtn').on('click', function() {
+        	pageStatus="add"
+ 	       	let data = mainGrid.getData();
+        	//그리드 초기화ㅣ
+         	mainGrid.resetData([{empId: empId,empName : empName}])
+         	detailGrid.resetData([{}]);
+         		
+        });
+		//메인그리드 클릭 RowKey
+		let mainRowKey = null;
+		//메인그리드 클릭창
+		mainGrid.on('click',ev => {
+			mainRowKey = ev.rowKey;
+			//발주의뢰코드 클릭시
+			if(ev.columnName == 'purReqCode'){
+				console.log(pageStatus)
+				if(pageStatus=='search'){
+					return;
+				}
+				requestModal();
+				//리플래쉬
+			  $(requestModal).on('shown.bs.modal',e => {
+        			requestGrid.refreshLayout();
+        	  })
+			}
+			
+			//거래처 코드 클릭시
+			if(ev.columnName == 'vdrName' ||ev.columnName == 'vdrCode'){
+				vdrModal()
+				 $(vdrModal).on('shown.bs.modal',e => {
+					 vdrGrid.refreshLayout();
+        	  })
+			}
+		})
+		//발주의뢰 모달창
+		function requestModal(rowKey){
+			$('#requestModal').modal('show');
+			$.ajax({
+				url : "/erp/sales/purRequestList",
+				method : "GET",
+				success : function(result) {
+					//console.log('주문정보 불러오기', result);
+					requestGrid.resetData(result);
+				}
+			})
+		}
+		//거래러 업체 모달창
+		function vdrModal(){
+			$('#vdrModal').modal('show');
+			$.ajax({
+				url:"/erp/standard/venderAll",
+				method:"GET",
+				success:function(result){
+					vdrGrid.resetData(result);
+				}
+			})
+		}
+		//모달 그리드 클릭시 발동
+		requestGrid.on('click', ev => {
+			//행클릭시 발주의뢰 코드 값 가져오기
+			let get = requestGrid.getRow(ev.rowKey).purReqCode;
+			//메인그리드 전달
+			mainGrid.setValue(mainRowKey,'purReqCode',get);
+			$.ajax({
+				url:"/erp/sales/purRqDetailList",
+				method:"GET",
+				data: {
+					param:get
+				},
+				success:function(result){
+					detailGrid.resetData(result)
+					
+					//총합갑 전달	
+					let detailData = detailGrid.getData();
+					console.log(detailData)
+					//메인 그리드에 전달할 값 정리 
+					let mainTotPrice = 0;
+					let mainVatPrice = 0;
+					let mainSupPrice = 0;
+					detailData.forEach(item => {
+						mainTotPrice += item.totPrice;
+						mainVatPrice += item.vatPrice;
+						mainSupPrice += item.supPrice;
+					})
+					
+
+					//메인그리드 전달
+					mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,
+							          'totSupPrice',mainSupPrice);
+					mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,
+									  'totVatPrice',mainVatPrice);
+					mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,
+							          'totAmtSum',mainTotPrice);
+				}
+			})
+			//모달 지우기
+			$('#requestModal').modal('hide');
+		})
+		
+		
+		//거래처코드 실행
+		vdrGrid.on('click', ev => {
+			//업체코드
+			let vdrCode = vdrGrid.getRow(ev.rowKey).vdrCode;
+			//업체이름
+			let vdrName = vdrGrid.getRow(ev.rowKey).vdrName;
+			//메인그리드로 전달
+			mainGrid.setValue(mainRowKey,'vdrCode',vdrCode)
+			mainGrid.setValue(mainRowKey,'vdrName',vdrName)
+			
+			$('#vdrModal').modal('hide');
+		})
+		
+		//상세그리드 행추가
+		$('#rowAddBtn').on('click', ev => {
+			detailGrid.appendRow({});
+		})
+		
+		//상세그리드 행삭제
+		$('#rowDelBtn').on('click', ev => {
+			//클릭된 정보 가져오기
+			const checkedRows = detailGrid.getCheckedRows();
+			//행삭제
+			checkedRows.forEach(item => {
+		    console.log(item)
+		    detailGrid.removeRow(item.rowKey)
+		  })
+		})
+		//라디오버튼처럼 작동
+		mainGrid.on('click',ev =>{
+			if (!ev.targetType || ev.targetType !== 'cell') {
+			    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+			    return;
+			  }
+			const checkedRows = mainGrid.getCheckedRowKeys();
+			 if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
+				 mainGrid.uncheckAll(); // 전체 해제
+				 mainGrid.check(ev.rowKey); // 현재 행만 체크
+		      }
+		})
+		//디테일 클릭 인덱스
+		let detailRowKey = null;		
+		//디테일그리드 클릭시 발동
+		detailGrid.on('click', ev => {
+			detailRowKey= ev.rowKey;
+		    //아이템리스트 가져오기
+			if(ev.columnName == 'itemName' || ev.columnName == 'itemCode'){
+				itemModal();
+				 $(itemModal).on('shown.bs.modal',e => {
+					 itemGrid.refreshLayout();
+        	  })
+			}
+		})
+		//품목목록 그리드
+		function itemModal(){
+			$('#itemModal').modal('show');
+			$.ajax({
+	    		url:"/erp/standard/itemAll",
+	    		method:"GET", 
+	    		success:function(result){
+	    			itemGrid.resetData(result);
+	    		}
+	    	})
+		}
+		//아이템그리드 클릭시 디테일그리드 전달
+		itemGrid.on('click',ev  => {
+			//품목코드
+			let itemCode = itemGrid.getRow(ev.rowKey).itemCode;
+			//품목이름
+			let itemName = itemGrid.getRow(ev.rowKey).name;
+			//가격
+			let price = itemGrid.getRow(ev.rowKey).price;
+			//메인그리드로 전달
+			detailGrid.setValue(detailRowKey,'itemCode',itemCode);
+			detailGrid.setValue(detailRowKey,'itemName',itemName);
+			detailGrid.setValue(detailRowKey,'price',price);
+			updateDetailPrice(detailRowKey);
+			$('#itemModal').modal('hide');
+		})
+		
+		//금액 변환
+		function updateDetailPrice(rowKey) {
+			const row = detailGrid.getRow(rowKey);
+			//금액
+			const price = Number(row.price || 0);
+			//갯수
+			const quantity = Number(row.quantity || 0);
+			//총금액 기입
+			const totPrice = price * quantity;
+			//부가세
+			const vatPrice = Math.floor(totPrice / 10);
+			//공급가액
+			const supPrice = totPrice - vatPrice;
+	
+			detailGrid.setValue(rowKey, 'totPrice', totPrice);
+			detailGrid.setValue(rowKey, 'vatPrice', vatPrice);
+			detailGrid.setValue(rowKey, 'supPrice', supPrice);
+	}
+    	//총금액값 바꾸기
+		detailGrid.on('afterChange',ev => {
+			//수량이 바뀔시
+			if(ev.changes[0].columnName=='quantity' ||ev.changes[0].columnName=='itemCode' ){
+				
+				//금액렌더링
+				updateDetailPrice(ev.changes[0].rowKey);
+				
+				// 다음 tick에서 총합 계산
+				setTimeout(() => {
+					const detailData = detailGrid.getData();
+
+					let mainTotPrice = 0;
+					let mainVatPrice = 0;
+					let mainSupPrice = 0;
+
+					detailData.forEach(item => {
+						mainTotPrice += item.totPrice || 0;
+						mainVatPrice += item.vatPrice || 0;
+						mainSupPrice += item.supPrice || 0;
+					});
+					let mainKey = null;
+					//등록일때는 체크없어도 가능
+					if(pageStatus == 'add'){
+						mainKey = mainGrid.getCheckedRowKeys()[0] ?? 0;
+					//수정및삭제는 체크가 무조건적있어야함
+					}else if(pageStatus=='search'){
+						mainKey = mainGrid.getCheckedRowKeys()[0]
+					}
+					mainGrid.setValue(mainKey, 'totSupPrice', mainSupPrice);
+					mainGrid.setValue(mainKey, 'totVatPrice', mainVatPrice);
+					mainGrid.setValue(mainKey, 'totAmtSum', mainTotPrice);
+				}, 0);
+			}
+		})
+	     //등록함수
+	     function purchaseAdd(){
+			//등록시
+	    	 
+	    		let mainGridInfo = mainGrid.getData();
+	    		let detailGridInfo = detailGrid.getData();
+	    		
+	    		
+	    		//메인 그리드 해당 값이 기입했는지 체크
+	    		let mainResult = mainGridInfo.every(item => {
+	    				
+	    			return item.vdrCode &&
+	    			       item.purOrdDate && item.expDlvDate &&
+	    			       item.empId;
+	    		})
+	    		//상세 그리드 해당 값이 기입했는지 체크
+	    		let detailResult = detailGridInfo.every(item => {
+	    			return item.itemCode && item.quantity &&
+	    			       item.supPrice && item.totPrice;
+	    		})
+	    		//값 체크
+	    		if(!mainResult){
+	    		   Swal.fire('실패','메인 그리드에 입력란들을 기입하세요','error');
+	    		   return;
+	    		}else if(!detailResult){
+	    			Swal.fire('실패','상세 그리드에 입력란들을 기입하세요','error');
+	    		   return;
+	    		}
+	    		
+	    		//등록데이터 정리
+	    		let mainData = mainGrid.getData();
+	    		let detailData = detailGrid.getData();
+	    		console.log(mainData);
+	    		console.log(detailData);
+	    		let dataToSend = {
+	    				pur : mainData[0], 
+	    				dtl : detailData
+	    		};
+	    		//등록ajax
+	    		$.ajax({
+	    			url: '/erp/sales/purAdd',
+	    			type: 'POST',
+	    			contentType: 'application/json',
+	    			data: JSON.stringify(dataToSend),
+	    			success: function(res) {
+	    				console.log('전송 성공', res);
+	    							Swal.fire({
+	    					title: "주문등록성공!",
+	    					icon: "success",
+	    					draggable: true
+	    				});
+	    				pageStatus = 'search';
+	    				mainList();
+	    			},
+	    			  error: function(xhr, status, error) {
+	                      console.log("실패:", xhr.status, error);
+	                }
+	    		})
+	    		
+	    	 
+    	}
+	     //버튼클릭시 발동
+	     $('#saveBtn').on('click',ev => {
+	    	 //추가버튼 클릭시
+	    	 if(pageStatus == 'add'){
+	    		 //등록함수발동
+	    		 purchaseAdd();
+	    	 }
+	    	 //조회버튼클릭시
+	    	 if(pageStatus=='search'){
+	    		 purchaseModify();
+	    	 }
+	     })
+	     //조회버튼
+	     $('#searchBtn').on('click',ev => {
+	    	 pageStatus = 'search';
+	    	 mainList();
+	     })
+	     //상세조회
+	     mainGrid.on('click',ev => {
+	    	if(pageStatus=='search'){
+	    		//체크된행 파악
+	    		let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
+	    		let mainRowData = mainGrid.getRow(mainRowIndex).purOrdCode
+	    		$.ajax({
+	    			url:`/erp/sales/purDetailList/${mainRowData}`,
+	    			method:'GET',
+	    			success:result => {
+	    				detailGrid.resetData(result);
+	    			}
+	    		})
+	    	} 
+	     })
+	     //수정 함수
+	     async function purchaseModify(){
+	    	 let checkedRows = detailGrid.getModifiedRows();
+	    	 let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
+	    	 if( mainGrid.getCheckedRowKeys().length<1){
+	    		 Swal.fire('실패','메인그리드에 해당하는 값을 체크해주세요','error');
+	    		 return;
+	    	 }
+	    	 let mainRowData = mainGrid.getRow(mainRowIndex);
+	    	 //메인그리드 해당란 다있는지 체크
+	    	 if(!mainRowData.vdrCode||!mainRowData.purOrdDate||
+	    	    !mainRowData.expDlvDate){
+	    		 Swal.fire('실패','해당하는값을 입력해주세요','error');
+	    		return; 
+	    	 }
+	    	 //디테일 값 있는지 체크
+	    	 let detailGridInfo=detailGrid.getData();
+	    	 let detailResult = detailGridInfo.every(item => {
+	    			return item.itemCode && item.quantity &&
+	    			       item.supPrice && item.totPrice;
+	    		})
+	    			 
+	    	 //메인창
+	    	 console.log(mainRowData)
+	    	 await $.ajax({
+	    		 url:'/erp/sales/purMainModify',
+	    		 method:'PUT',
+	    		 contentType: "application/json",
+	    		 data:JSON.stringify(mainRowData),
+	    		 success : result => {
+	                 if(result > 0 ){
+	                     Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success')
+	                     
+	                 }else{
+	                     Swal.fire('저장','저장이 정상적으로 실패하였습니다.','error')
+	                 }
+	             }
+	    	 })
+	     }
+		
+    </script>
+</body>
+</html>
