@@ -31,9 +31,6 @@ const outBoundgrid = new tui.Grid({
     },
     //필드값 구성
     columns:[
-        // header: 필드 이름  name:객체 key값  align:정렬방법
-        // editor:true -> cell안에 등록가능
-        // width -> 크기조정
         { header: '발주서코드',name:'purOrdCode', align:'center'},
         { header: '발주상세코드',name:'purOrdDtlCode',align:'center'},
         { header: '제품코드',name:'itemCode',align:'center'},
@@ -52,15 +49,7 @@ const outBoundgrid = new tui.Grid({
         	filter: 'select'
         	},
         { header: '입고예정일자',name:'expDlvDate',align:'center'},
-        { header: '입고일자',name:'reccvDate',align:'center'
-    		/* ,formatter: function(expDlvDate){
-    			if(expDlvDate.value == null){
-    				return expDlvDate.value = '입고대기';
-    			}else{
-    				return expDlvDate.value;
-    			}
-    		} */
-        },
+        { header: '입고일자',name:'reccvDate',align:'center'},
         { header: '담당자',name:'empId',align:'center'},
         { header: '거래처',name:'vdrCode',align:'center'},
     ],

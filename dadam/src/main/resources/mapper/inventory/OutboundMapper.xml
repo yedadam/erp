@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.inventory.inbound.mapper.OutboundMapper">
+	
+	<select id="selectShipRequestOutBound" resultType="String">
+		SELECT 
+			 	sd.ship_req_dtl_code,
+			 	sd.item_code,
+			 	sd.status,
+			 	sd.quantity,
+			 	sd.tot_price,
+			 	sd.com_id,
+			 	sd.ship_req_code,
+			 	sr.ship_exp_date
+		FROM shipRequestDetail sd join shiprequest sr
+                                    on(sd.ship_req_code = sr.ship_req_code)
+	</select>
 
 
+	<!-- <select id="selectOutBoundList" resultType="outBoundVO">
+	
+	</select> -->
 </mapper>

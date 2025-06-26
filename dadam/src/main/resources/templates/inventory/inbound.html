@@ -37,11 +37,11 @@
 						<!-- <button type="button" id="resetBtn" class="btn btn-danger">초기화</button> -->
 						<button type="button" id="registerBtn" class="btn btn-primary">입고</button>
 					</div>
-					<div class="form-floating mb-3">
+				<!-- 	<div class="form-floating mb-3">
 						<input type="date" class="form-control" id="dateInput"
 							placeholder="name@example.com"> <label
 							for="floatingInput">일자</label>
-					</div>
+					</div> -->
 					
 					<div id="gridModal"></div>
 				</div>
@@ -147,6 +147,7 @@ const purcharsegrid = new tui.Grid({
 				  itemCode: item.itemCode,
 				  itemName: item.itemName,
 				  quantity : item.quantity,
+				  price: item.price,
 				  /* pquantity: item.pquantity,
 			      notStock: item.notStock, */
 				  loc : '',

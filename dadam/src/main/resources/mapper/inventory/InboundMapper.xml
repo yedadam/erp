@@ -9,6 +9,7 @@
 		        pod.pur_ord_dtl_code,
 		        pod.item_code,
                 i.name item_name,
+                i.price,
 		        pod.quantity,
 		        pod.status,
 		        pod.reccv_date,
