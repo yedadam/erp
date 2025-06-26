@@ -78,6 +78,13 @@
 			<version>3.0.4</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- MyBatis Test도 호환 버전으로 업데이트 -->
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter-test</artifactId>
+			<version>3.0.4</version>
+			<scope>test</scope>
+		</dependency>
 		<!-- 로그에 필요한 라이브러리 - Spring Boot 3.x 호환 버전 -->
 		<dependency>
 			<groupId>org.bgee.log4jdbc-log4j2</groupId>
@@ -126,47 +133,27 @@
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>
 			<version>6.4.0</version>
-
-
 		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-
 		<!-- open ai -->
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
 			<version>4.12.0</version>
 		</dependency>
-		
+
 		<!-- JSON 파싱을 위한 Jackson -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-
+		</dependency>
+		<!--
+		https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+			<version>3.4.7</version>
 		</dependency>
 	</dependencies>
-
-	<repositories>
-		<repository>
-			<id>jaspersoft-third-party</id>
-			<name>Jaspersoft Third-Party</name>
-			<url>https://jaspersoft.jfrog.io/artifactory/third-party-ce-artifacts/</url>
-		</repository>
-	</repositories>
-
-	<dependency>
-		<groupId>com.lowagie</groupId>
-		<artifactId>itext</artifactId>
-		<version>2.1.7.js5</version>
-	</dependency>
-	<dependency>
-		<groupId>org.olap4j</groupId>
-		<artifactId>olap4j</artifactId>
-		<version>0.9.7.309-JS-3</version>
-	</dependency>
 
 	<build>
 		<plugins>
