@@ -21,6 +21,7 @@ public class PurchaseVO {
 	@JsonFormat(pattern = "yyyy/MM/dd")
 	private Date createDate;
 	private String locCode;
+	private String stkCode;
 
 	// 발주서
 	private String purOrdCode;
