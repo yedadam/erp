@@ -99,6 +99,7 @@ const purcharsegrid = new tui.Grid({
         // width -> 크기조정
         { header: '발주서코드',name:'purOrdCode', align:'center'},
         { header: '발주상세코드',name:'purOrdDtlCode',align:'center'},
+        { header: '제품코드',name:'itemCode',align:'center'},
         { header: '제품명',name:'itemName',align:'center'},
         { header: '수량',name:'quantity',align:'center'},
         { header: '상태',name:'status',align:'center',
@@ -143,7 +144,8 @@ const purcharsegrid = new tui.Grid({
 		  rowCheck.filter(item =>{
 			  ee = {
 				  purOrdDtlCode: item.purOrdDtlCode,
-				  itemCode: item.itemName,
+				  itemCode: item.itemCode,
+				  itemName: item.itemName,
 				  quantity : item.quantity,
 				  /* pquantity: item.pquantity,
 			      notStock: item.notStock, */
@@ -159,13 +161,12 @@ const purcharsegrid = new tui.Grid({
 	// 초기화 버튼
 	function resetbtn(){
 		data= [];
-		
 		  let rowCheck = purcharsegrid.getCheckedRows();
-		  
 		  rowCheck.filter(item =>{
 			  ee = {
 				  purOrdDtlCode: item.purOrdDtlCode,
-				  itemCode: item.itemName,
+				  itemCode: item.itemCode,
+				  itemName: item.itemName,
 				  quantity : item.quantity,
 				  /* pquantity: item.pquantity,
 			      notStock: item.notStock, */
@@ -183,10 +184,10 @@ const purcharsegrid = new tui.Grid({
 	// inboundGrid 그리기
 	const inboundGrid = new tui.Grid({
 		el: document.getElementById('gridModal'),
-		rowHeaders: ['rowNum'],
 	    columns:[
 			    	{ header: '발주상세코드', name: 'purOrdDtlCode', align:'center'},
 			    	{ header: '품목코드', name: 'itemCode', align:'center'},
+			    	{ header: '품목명', name: 'itemName', align:'center'},
 			    	{ header: '발주량', name: 'quantity', align:'center'},
 			    	/* { header: '기입고량', name: 'pquantity', align:'center'},
 			    	{ header: '미입고량', name: 'notStock', align:'center'}, */
@@ -211,7 +212,7 @@ const purcharsegrid = new tui.Grid({
 			    	}}
 	    		],
 	    		columnOptions: {
-				frozenCount: 3,
+				frozenCount: 4,
 				frozenBorderWidth: 2
 	    		}
 	});
@@ -224,9 +225,7 @@ const purcharsegrid = new tui.Grid({
 	// 입고 등록
 	$('#registerBtn').on('click', ()=>{
 		let scr1data = inboundGrid.getData();
-		console.log(scr1data)
 		$.each(scr1data, (idx, item)=>{
-			
 			if(item.loc == ""){
 				Swal.fire({
 					  icon: "error",
@@ -250,7 +249,7 @@ const purcharsegrid = new tui.Grid({
 		let params = []
 		let quantityCheck = 0;
 		let check = 0;
-		let status = false;
+		let status = ''; // 부분입고
 		$.each(scr1data, (idx, item)=>{
 			if(item.purOrdDtlCode != ""){
 			code = item.purOrdDtlCode
@@ -267,8 +266,11 @@ const purcharsegrid = new tui.Grid({
 					});
 				return false;
 			}else if(quantityCheck == check){
-					status = true;
-					}
+					status = 'pct-02'; // 입고완료
+			}else{
+					status = 'pct-01'; // 부분 입고	
+			}
+			
 				let params = {
 							  purOrdDtlCode: code,
 							  itemCode: items,
@@ -278,16 +280,18 @@ const purcharsegrid = new tui.Grid({
 							  empId: userID,
 							  comId: userComId,
 							  price: 0,
-							  currQty: 0
+							  currQty: 0,
+							  status: status
 						}
 				param.push(params);
 					})
-				/* $.ajax({
+				console.log(param)
+				$.ajax({
 				url:"/erp/inventory/purchaseRegister",
 				method:"POST",
 				contentType: 'application/json',
 				data: JSON.stringify(param)
-				}) */
+				})
 		})
 	
 	// 행추가 rowKey값이 고정이 아니라서 문제가 있음.
@@ -298,6 +302,7 @@ const purcharsegrid = new tui.Grid({
 		let addData = {
 				      purOrdDtlCode: '',
 				      itemCode: '',
+				      itemName: '',
 				      quantity: ''
 				      /* , pquantity: ''
 				      , notStock: '' */
@@ -334,6 +339,7 @@ inboundGrid.on('click', (ev)=>{
 				{
 					purOrdDtlCode: '',
 					itemCode: '',
+					itemName: '',
 					quantity: '',
 					/* pquantity: '',
 				    notStock: '', */

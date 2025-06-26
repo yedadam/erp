@@ -15,12 +15,8 @@
 		        po.exp_dlv_date,
 		        getEmpName(po.emp_id) emp_id,
 		        getvdrName(po.vdr_code) vdr_code
-               <!-- , p.quantity pquantity,
-                pod.quantity - nvl(p.quantity, 0) notStock -->
 		FROM purchaseOrderDetail pod join purchaseOrder po
 		                               on(pod.pur_ord_code=po.pur_ord_code)
-                                     left join purchase p
-                                       on(pod.pur_ord_dtl_code = p.pur_ord_dtl_code)
                                      join item i
                                        on(i.item_code = pod.item_code)
 		WHERE pod.com_id = 'com-101'
@@ -33,9 +29,9 @@
 	</select>
 	
 	<!-- 입고 처리 -->
-	<insert id="purchaseInbound" parameterType="PurchaseVO">
+	<insert id="insertPurchaseInbound" parameterType="PurchaseVO">
 		<selectKey resultType="string" keyProperty="lot" order="BEFORE">
-			SELECT 'inlot-' || (NVL(MAX(TO_NUMBER(SUBSTR(lot,7))),100)+1) selectKey, 
+			SELECT 'inlot-' || (NVL(MAX(TO_NUMBER(SUBSTR(lot,7))),100)+1) lot
 			FROM purchase
 		</selectKey>
 		INSERT INTO purchase
@@ -43,9 +39,56 @@
 	</insert>
 	
 	<!-- 발주서상태 수정 -->
-	<!-- <update id="updateInbound" parameterType="InboundVO">
-		UPDATE inbound
-		SET 
-		WHERE pod.com_id = 'com-101' AND 
-	</update> -->
+	<update id="updatePurchaseOrderDetailInbound" parameterType="PurchaseVO">
+		UPDATE purchaseOrderDetail
+		SET status = #{status}
+		WHERE pur_ord_dtl_code = #{purOrdDtlCode}
+		AND com_id = #{comId}
+	</update>
+	
+	<!-- 재고반영 머지문 -->
+	<update id="updateStockInbound" parameterType="purchaseVO">
+		<selectKey keyProperty="stkCode" resultType="purchaseVO" order="BEFORE">
+			SELECT 'stk-' || (NVL(MAX(TO_NUMBER(SUBSTR(stk_code,5))),100)+1) stkCode
+			FROM stock
+		</selectKey>
+		MERGE INTO stock stk
+		USING (
+		    SELECT 
+		        #{locCode}  AS loc_code,
+		        #{itemCode} AS item_code,
+		        #{quantity} AS quantity,
+		        #{comId}   AS com_id,
+		        #{stkCode} AS stk_code
+		    FROM dual00.
+		    
+		) data
+		ON (
+		    stk.loc_code = data.loc_code AND
+		    stk.item_code = data.item_code AND
+		    stk.com_id = data.com_id
+		)
+		
+		WHEN MATCHED THEN
+		    UPDATE SET 
+		        stk.quantity = stk.quantity + data.quantity
+		        
+		WHEN NOT MATCHED THEN
+		 INSERT (
+        stk_code,
+        loc_code,
+        item_code, 
+        quantity, 
+        com_id
+    )
+    VALUES (
+        data.stk_code,
+        data.loc_code,
+        data.item_code,
+        data.quantity,
+        data.com_id 
+    )
+	</update>
+	
+	
 </mapper>
