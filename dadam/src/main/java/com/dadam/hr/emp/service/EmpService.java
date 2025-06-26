@@ -3,7 +3,7 @@ package com.dadam.hr.emp.service;
 import java.util.List;
 
 public interface EmpService {
-    List<EmpVO> findEmpList(String keyword, String status);
+    List<EmpVO> findEmpList(String keyword, String status, String dept);
     EmpVO findEmpDetail(String empId);
     int insertEmp(EmpVO empVO); // 사원 등록
     int updateEmp(EmpVO empVO); // 사원 수정
