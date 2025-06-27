@@ -20,4 +20,7 @@ public interface OrderMapper {
         public int updOrdDtl(OrdDtlVO ordDtl); //주문상세 수정 
         public int deleteOrdDtl(String ordDtlCode); //주문상세 삭제 
         public int updateCreditBal(@Param("totPrice") Long totPrice,@Param("vdrCode") String vdrCode); 
+        public void callUpdateOrderTotals(@Param("ordCode") String ordCode); //주문상세 변경후 전체
+        public void callUpdateCreditBalanceIfOpm(@Param("ordCode") String ordCode ); //주문상세 삭제하면 거래처의 여신잔량이 삭제된 금액만큼 update처리됨 
+        
 }
