@@ -3,8 +3,8 @@
 <mapper namespace="com.dadam.inventory.inbound.mapper.InboundMapper">
 
 <!-- 주문입고를 위한 발주서 조회 -->
-	<select id="inboundPurchaseFindAll" resultType="PurchaseVO">
-			SELECT 
+	<select id="inboundPurchaseFindAll" resultType="PurchaseVO" parameterType="PurchaseVO">
+	SELECT 
 				pod.pur_ord_code,
 		        pod.pur_ord_dtl_code,
 		        pod.item_code,
@@ -20,7 +20,7 @@
 		                               on(pod.pur_ord_code=po.pur_ord_code)
                                      join item i
                                        on(i.item_code = pod.item_code)
-		WHERE pod.com_id = 'com-101'
+		WHERE pod.com_id = #{comId} and pod.status not in('pds-03')
 	</select>
 	
 	<select id="warehouseList" resultType="InboundVO">
@@ -42,7 +42,7 @@
 	<!-- 발주서상태 수정 -->
 	<update id="updatePurchaseOrderDetailInbound" parameterType="PurchaseVO">
 		UPDATE purchaseOrderDetail
-		SET status = #{status}
+		SET status = #{status}, reccv_date= sysdate
 		WHERE pur_ord_dtl_code = #{purOrdDtlCode}
 		AND com_id = #{comId}
 	</update>

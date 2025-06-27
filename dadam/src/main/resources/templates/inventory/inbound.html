@@ -3,67 +3,156 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
-<div class="container text-center">
-	<div class="d-grid gap-2 d-md-block m-2 text-start">
-		<h1>입고관리</h1>
-		<button class="btn btn-secondary" id="purchasePage" type="button">주문입고</button>
-		<button class="btn btn-secondary" id="inboundPage" type="button">생산입고</button>
-		<button class="btn btn-secondary" id="purchasePage" type="button">발주의뢰</button>
-	</div>
+<head>
+<style>
+.main-table {
+	border: 2px solid #0d6efd;
+}
 
-	<div id="screen1" class="row card">
-		<div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3 p-4">
-			<button class="btn btn-primary" data-bs-toggle="modal"
-				data-bs-target="#inboundModal" id="inModal" type="button">입고처리</button>
+.main-table th {
+	background-color: #e3f2fd;
+	text-align: center;
+	vertical-align: middle;
+	font-weight: bold;
+	border: 1px solid #ddd;
+}
+
+.main-table td {
+	text-align: center;
+	vertical-align: middle;
+	border: 1px solid #ddd;
+}
+
+.detail-table {
+	margin-top: 20px;
+}
+
+.detail-table th {
+	background-color: #f8f9fa;
+	text-align: center;
+	font-size: 14px;
+	padding: 8px;
+}
+
+.detail-table td {
+	text-align: center;
+	font-size: 14px;
+	padding: 8px;
+}
+
+.search-container {
+	margin-bottom: 20px;
+}
+
+.btn-group-custom {
+	margin-bottom: 20px;
+}
+
+.tui-pagination {
+	padding-bottom: 10px;
+}
+
+.grid-action {
+	display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid lightgray; /* #cbd5e1 → lightgray */
+	background-color: aliceblue; /* #f8fafc → aliceblue */
+	color: darkslategray; /* #334155 → darkslategray */
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+}
+
+.grid-action:hover {
+	background-color: lightsteelblue; /* #e2e8f0 → lightsteelblue */
+	border-color: silver; /* #94a3b8 → silver */
+	color: midnightblue; /* #1e293b → midnightblue */
+}
+</style>
+</head>
+<body class="bg-light">
+<div class="container-fluid mt-4">
+		<h3 class="mb-4">입고관리</h3>
+			<div class="btn-group-custom">
+					<button class="btn btn-warning" id="purchasePage" type="button"><i class="fas fa-check-circle"></i> 주문입고</button>
+					<button class="btn btn-secondary" id="inboundPage" type="button"><i class="fas fa-right-left"></i> 생산입고</button>
+					<button class="btn btn-secondary" id="purchaseOrderPage" type="button"><i class="fas fa-right-left"></i> 발주의뢰</button>
+			</div>
+			
+
+
+		<!-- 검색 및 버튼 영역 -->
+		<div class="row mb-3">
+			<div class="col-md-6 text-start">
+				<div class="input-group search-container" style="width: 400px;">
+					<input type="text" class="form-control" placeholder="검색어를 입력하세요">
+					<button class="btn btn-outline-secondary" type="button">
+						<i class="fas fa-search"></i>
+					</button>
+				</div>
+			</div>
+
+			<!-- custom button -->
+			<div class="col-md-6 text-end">
+				<div class="btn-group-custom">
+					<button class="btn btn-danger" id="reset">
+						<i class="fas fa-square-minus"></i> 초기화
+					</button>
+					<button class="btn btn-primary" data-bs-toggle="modal"
+						data-bs-target="#inboundModal" id="inModal">
+						<i class="fas fa-warehouse"></i> 입고
+					</button>
+				</div>
+			</div>
 		</div>
-		<div class="col-12">
-			<div id="Grids"></div>
-		</div>
-	</div>
-	<div id="screen2" class="row card">
-	</div>
-	<div id="screen3" class="row card">
-	</div>
 </div>
 
+<!-- 메인 그리드 -->
+<div id="Grids"></div>
 <!-- 입고를 위한 모달 -->
 <div class="modal fade" id="inboundModal" tabindex="-1"
 	aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
+			<div class="modal-header">
+				<h1>입고</h1>
+			</div>
 			<div class="modal-body">
-				<div class="">
 					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
 						<!-- <button type="button" id="resetBtn" class="btn btn-danger">초기화</button> -->
-						<button type="button" id="registerBtn" class="btn btn-primary">입고</button>
+						<button type="button" id="registerBtn" class="btn btn-primary"><i class="fas fa-warehouse"></i> 입고</button>
 					</div>
-				<!-- 	<div class="form-floating mb-3">
+					<!-- 	<div class="form-floating mb-3">
 						<input type="date" class="form-control" id="dateInput"
 							placeholder="name@example.com"> <label
 							for="floatingInput">일자</label>
 					</div> -->
-					
+
 					<div id="gridModal"></div>
-				</div>
 			</div>
-			<div class="modal-footer">
-			</div>
+			<div class="modal-footer"></div>
 		</div>
 	</div>
 </div>
-</body>
 <script th:inline="javascript">
+const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
+const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '김지현'}]];
+const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
 //ajax -> toastUi에 넣기
 function purchaseList(){
 	$.ajax({
 		url:"/erp/inventory/purchaseList",
 		method:"GET"
+		,data: {
+			comId: userComId
+		}
 	   ,success:function(result) {
 		   purcharsegrid.resetData(result);
 	   } // ajax호출 끝
 	})
  };
- purchaseList();
+purchaseList();
 let warehouse = [];
 // 창고리스트
 function warehouseList(){
@@ -99,7 +188,6 @@ const purcharsegrid = new tui.Grid({
         // width -> 크기조정
         { header: '발주서코드',name:'purOrdCode', align:'center'},
         { header: '발주상세코드',name:'purOrdDtlCode',align:'center'},
-        { header: '제품코드',name:'itemCode',align:'center'},
         { header: '제품명',name:'itemName',align:'center'},
         { header: '수량',name:'quantity',align:'center'},
         { header: '상태',name:'status',align:'center',
@@ -141,6 +229,8 @@ const purcharsegrid = new tui.Grid({
 	function checkRow(){
 		data= [];
 		  let rowCheck = purcharsegrid.getCheckedRows();
+		  
+		  
 		  rowCheck.filter(item =>{
 			  ee = {
 				  purOrdDtlCode: item.purOrdDtlCode,
@@ -160,7 +250,7 @@ const purcharsegrid = new tui.Grid({
 		  inboundGrid.resetData(data);
 	}
 	// 초기화 버튼
-	function resetbtn(){
+/* 	function resetbtn(){
 		data= [];
 		  let rowCheck = purcharsegrid.getCheckedRows();
 		  rowCheck.filter(item =>{
@@ -169,8 +259,8 @@ const purcharsegrid = new tui.Grid({
 				  itemCode: item.itemCode,
 				  itemName: item.itemName,
 				  quantity : item.quantity,
-				  /* pquantity: item.pquantity,
-			      notStock: item.notStock, */
+				  pquantity: item.pquantity,
+			      notStock: item.notStock,
 				  loc : '',
 				  qty : '',
 				  note: '',
@@ -179,12 +269,16 @@ const purcharsegrid = new tui.Grid({
 			  data.push(ee);
 		  })
 		  inboundGrid.resetData(data);
-	}
+	} */
 	
 	
 	// inboundGrid 그리기
 	const inboundGrid = new tui.Grid({
 		el: document.getElementById('gridModal'),
+		pageOptions: {
+	        perPage: 5,
+	        useClient: true,
+	    },
 	    columns:[
 			    	{ header: '발주상세코드', name: 'purOrdDtlCode', align:'center'},
 			    	{ header: '품목코드', name: 'itemCode', align:'center'},
@@ -219,8 +313,8 @@ const purcharsegrid = new tui.Grid({
 	});
 	
 	// 초기화
-	$('#resetBtn').on('click', ()=>{
-		inboundGrid.refreshLayout();
+	$('#reset').on('click', ()=>{
+		purcharsegrid.uncheckAll();
 	})
 	
 	// 입고 등록
@@ -250,14 +344,17 @@ const purcharsegrid = new tui.Grid({
 		let params = []
 		let quantityCheck = 0;
 		let check = 0;
+		let prices = 0;
 		let status = ''; // 부분입고
 		$.each(scr1data, (idx, item)=>{
 			if(item.purOrdDtlCode != ""){
 			code = item.purOrdDtlCode
 			items = item.itemCode
+			prices = item.price
 			quantityCheck = item.quantity
 			check = 0;
 			}
+
 			check += Number(item.qty)
 			if(quantityCheck < check){
 				Swal.fire({
@@ -271,27 +368,43 @@ const purcharsegrid = new tui.Grid({
 			}else{
 					status = 'pct-01'; // 부분 입고	
 			}
-			
 				let params = {
 							  purOrdDtlCode: code,
 							  itemCode: items,
 							  locCode: item.loc,
 							  quantity: item.qty,
+							  price: prices,
 							  note: item.note,
 							  empId: userID,
 							  comId: userComId,
-							  price: 0,
 							  currQty: 0,
 							  status: status
 						}
 				param.push(params);
 					})
-				console.log(param)
-				$.ajax({
+			$.ajax({
 				url:"/erp/inventory/purchaseRegister",
 				method:"POST",
 				contentType: 'application/json',
-				data: JSON.stringify(param)
+				data: JSON.stringify(param),
+				success:()=>{
+				Swal.fire({
+					  icon: "succes",
+					  title: "입고 완료!",
+					  text: "입고가 완료되었습니다."
+					});
+				$('#inboundModal').modal('hide');
+				purcharsegrid.uncheckAll();
+				},
+				error: function(jqXHR, textStatus, errorThrown){
+					Swal.fire({
+						  icon: "error",
+						  title: "입고 실패!",
+						  text: "실패"
+						});
+				$('#inboundModal').modal('hide');
+				purcharsegrid.uncheckAll();
+				}
 				})
 		})
 	
@@ -316,7 +429,9 @@ const purcharsegrid = new tui.Grid({
 		// 컬럼명과 값을 확인 후 추가 진행
 		if(columnName === 'origin' &&
 				inboundGrid.getValue(rowKey, columnName) === true){
+			
 		let idx = inboundGrid.getIndexOfRow(rowKey);
+		
 		 inboundGrid.appendRow(addData, {
 			  at: idx + 1
 			});
@@ -335,28 +450,24 @@ inboundGrid.on('click', (ev)=>{
 
 	 // 모달안에서 그리드부를떄 참고.
 	$('#inboundModal').on('shown.bs.modal',function(){
-		if (inboundGrid.getRowCount() === 0) {
+		/* if (inboundGrid.getRowCount() === 0) {
 			inboundGrid.resetData([
 				{
 					purOrdDtlCode: '',
 					itemCode: '',
 					itemName: '',
 					quantity: '',
-					/* pquantity: '',
-				    notStock: '', */
+					pquantity: '',
+				    notStock: '',
 					loc: '',
 					qty: '',
 					note: '',
 					origin: false
 				}
 			]);
-		}
+		} */
 		inboundGrid.refreshLayout();
 	})
-	
-const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
-const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '김지현'}]];
-const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
-
 </script>
+</body>
 </html>
