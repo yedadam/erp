@@ -20,22 +20,26 @@
        getVdrName(VDR_CODE) vdrName,
        subCode(status) status
    FROM purchaseOrder
+   WHERE com_id = #{comId}
    ORDER BY PUR_ORD_CODE DESC
+   
 </select>
  
  <select id="findPurListByOrdNo" resultType="PurchaseOrderVO">
    SELECT PUR_ORD_DTL_CODE,
-       ITEM_CODE,
+       i.ITEM_CODE,
        QUANTITY,
        SUP_PRICE,
        VAT_PRICE,
        TOT_PRICE,
        STATUS,
        RECCV_DATE,
-       COM_ID,
-       PUR_ORD_CODE
-   FROM purchaseOrderDetail
-   WHERE pur_ord_code = #{pCode}
+       PUR_ORD_CODE,
+       getItemName(i.item_code) itemName,
+       price
+   FROM purchaseOrderDetail d JOIN item i ON(d.item_code = i.item_code)
+   WHERE pur_ord_code = #{param}
+   AND d.com_id = #{comId}
  </select>
  
  <!-- 발주의뢰리스트 -->
@@ -50,6 +54,7 @@
        	COM_ID
 	FROM purchaseRequest
 	WHERE status='prs01'
+	AND com_id = #{comId}
  </select>
  <!-- 발주서 의뢰 상세리스트 -->
  <select id="requestDeatilList" resultType="PurchaseOrderVO">
@@ -67,6 +72,7 @@
             (i.price-i.price/10)*QUANTITY supPrice
 	FROM PURCHASEREQUESTDETAIL p JOIN item i ON(p.item_code = i.item_code)
 	WHERE PUR_REQ_CODE = #{purCode}
+	AND i.com_id = #{comId}
  </select>
  
  <!-- 발주헤더등록 -->
@@ -116,6 +122,7 @@ VALUES (#{purOrdDtlCode},#{itemCode},#{quantity},#{supPrice},#{vatPrice},#{totPr
   	UPDATE purchaseRequest
 	SET status = #{status}
 	WHERE pur_req_code =#{purReqCode}
+	AND com_id = #{comId}
 </update>
 <!-- 발주 메인 업데이트 -->
 <update id ="purOrderUpdate">
@@ -129,6 +136,7 @@ SET VDR_CODE=#{vdrCode},
     TOT_VAT_PRICE=#{totVatPrice},
     TOT_AMT_SUM=#{totAmtSum}
 WHERE pur_ord_code = #{purOrdCode}
+AND com_id = #{comId}
 </update>
 <!-- 발주 상세 업데이트  -->
 <update id ="purOrderUpdateRows">
@@ -137,12 +145,14 @@ WHERE pur_ord_code = #{purOrdCode}
     	  QUANTITY =#{quantity},
     	  SUP_PRICE =#{supPrice},
     	  VAT_PRICE =#{vatPrice},
-    	  TOT_PRICE=#{totPrice},
+    	  TOT_PRICE=#{totPrice}
   WHERE pur_ord_dtl_code = #{purOrdDtlCode}
+  AND com_id = #{comId}
 </update>
 <!-- 발주상세 업데이트 -->
 <delete id= "purOrderDeleteRows">
  DELETE FROM purchaseorderdetail
  WHERE pur_ord_dtl_code = #{purOrdDtlCode}
+ AND com_id = #{comId}
 </delete>
 </mapper>

@@ -3,57 +3,94 @@ package com.dadam.sales.purchase.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dadam.common.service.GridData;
 import com.dadam.sales.purchase.mapper.PurchaseMapper;
 import com.dadam.sales.purchase.service.PurReqVO;
 import com.dadam.sales.purchase.service.PurchaseOrderDetailVO;
 import com.dadam.sales.purchase.service.PurchaseOrderVO;
 import com.dadam.sales.purchase.service.PurchaseService;
+import com.dadam.security.service.LoginUserAuthority;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class PurchaseServiceImpl implements PurchaseService{
+	
+	 
+    
+    
+    //comName 가져오기
+    String comId = "";
+    public void initAuthInfo() {
+        //로그인 객체값 연결
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //로그인 객체 가져오기
+        Object principal = auth.getPrincipal();
+
+        if (principal instanceof LoginUserAuthority) {
+        	LoginUserAuthority user = (LoginUserAuthority) principal;
+            comId = user.getComId();
+            System.out.println("회사명: " + comId);
+        }
+    }
+    
 	@Autowired
 	PurchaseMapper mapper;
 	//전체조회
 	@Override
 	public List<PurchaseOrderVO> findPurchaseList(PurchaseOrderVO vo) {
+		initAuthInfo();
+		//검색하지 않았을때
+		if(vo == null) {
+			vo = new PurchaseOrderVO();
+			vo.setComId(comId);
+		}
 		List<PurchaseOrderVO> result = mapper.findPurchaseList(vo);
 		return result;
 	}
 	//단건조회
 	@Override
 	public List<PurchaseOrderDetailVO> findPurListByOrdNo(String param) {
-		 List<PurchaseOrderDetailVO> result = mapper.findPurListByOrdNo(param);
+		initAuthInfo();
+		 List<PurchaseOrderDetailVO> result = mapper.findPurListByOrdNo(param,comId);
 		return result;
 	}
 	//발주의뢰 코드보기
 	@Override
 	public List<PurchaseOrderVO> requestList() {
-		List<PurchaseOrderVO> result = mapper.requestList();
+		initAuthInfo();
+		List<PurchaseOrderVO> result = mapper.requestList(comId);
 		return result;		
 	}
 	//발주의뢰 상세코드
 	@Override
 	public List<PurchaseOrderVO> requestDeatilList(String param) {
-		List<PurchaseOrderVO> result = mapper.requestDeatilList(param);
+		initAuthInfo();
+		List<PurchaseOrderVO> result = mapper.requestDeatilList(param,comId);
 		return result;
 	}
 	//발주 전체 등록
 	@Transactional
 	@Override
 	public int purchaseOrderAdd(PurReqVO param) {
-		System.out.println(param);
+		initAuthInfo();
+		param.getPur().setComId(comId);
+		
 		//헤더등록
 		int result = mapper.purchaseOrderAdd(param.getPur());
 		//상태값 변경
 		 if(param.getPur().getPurReqCode() != null && !param.getPur().getPurReqCode().isEmpty()) {
-			 mapper.reqStatusUpdate("prs02", param.getPur().getPurReqCode());
+			 mapper.reqStatusUpdate("prs02", param.getPur().getPurReqCode(),param.getPur().getComId());
 		 }
 		
 		//디테일등록
 		param.getDtl().forEach(item -> {
+			item.setComId(comId);
 			System.out.println(param.getPur().getPurOrdCode());
 			item.setPurOrdCode(param.getPur().getPurOrdCode());
 			mapper.purchaseOrderDetailAdd(item);
@@ -64,15 +101,43 @@ public class PurchaseServiceImpl implements PurchaseService{
 	//발주 메인 업데이트
 	@Override
 	public int purOrderUpdate(PurchaseOrderVO param) {
+		initAuthInfo();
+		param.setComId(comId);
 		int result = mapper.purOrderUpdate(param);
 		return result;
 	}
 	
 	//발주 상세 업데이트
 	@Override
-	public int purOderDtUpdate(PurchaseOrderDetailVO param) {
-		// TODO Auto-generated method stub
-		return 0;
+	@Transactional
+	public int purOderDtUpdate(GridData<PurchaseOrderDetailVO> vo) {
+		initAuthInfo();
+		int result = 0;
+		//등록 행이 있을때 발동
+		if(vo.getCreatedRows().size()>0 || vo.getCreatedRows()!=null) {
+			//반복문 돌려서 추가
+			for (PurchaseOrderDetailVO item : vo.getCreatedRows()) {
+				item.setComId(comId);
+			    result += mapper.purchaseOrderDetailAdd(item);
+			}	
+		}
+		//수정 행이 있을때 발동
+		if(vo.getUpdatedRows().size()>0 ||  vo.getUpdatedRows()!=null) {
+			//반복문 돌려서 수정
+			for (PurchaseOrderDetailVO item : vo.getUpdatedRows()) {
+				item.setComId(comId);
+			    result += mapper.purOrderUpdateRows(item);
+			}	
+	    }
+		//삭제 행이 있을때 발동
+		if(vo.getDeleteRows().size()>0 || vo.getDeleteRows()!=null) {
+			//반복문 돌려서 삭제
+			for (PurchaseOrderDetailVO item : vo.getDeleteRows()) {
+				item.setComId(comId);
+			    result += mapper.purOrderDeleteRows(item);
+			}
+	    }
+		
+		return result;
 	}
-	
 }
