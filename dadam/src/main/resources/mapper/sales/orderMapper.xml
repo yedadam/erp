@@ -17,7 +17,7 @@
 		v.discount
 		from orders o JOIN vender v ON
 		o.vdr_code=v.vdr_code
-        order by   o.ord_code desc
+		order by o.ord_code desc
 	</select>
 
 	<!-- 주문건당 상세내역 보기 -->
@@ -152,10 +152,21 @@
 	</delete>
 	<update id="updateCreditBal">
 		UPDATE vender
-		SET credit_bal_price = credit_bal_price - #{totPrice}
+		SET credit_bal_price = credit_bal_price
+		- #{totPrice}
 		WHERE vdr_code = #{vdrCode}
 	</update>
-
+	<select id="callUpdateOrderTotals" parameterType="String" statementType="CALLABLE">
+	    <![CDATA[
+	      { call update_order_totals(#{ordCode, mode=IN, jdbcType=VARCHAR}) }
+	    ]]>
+	</select>
+	<select id="callUpdateCreditBalanceIfOpm" parameterType="String" statementType="CALLABLE">
+	    <![CDATA[
+	      { call update_credit_balance_if_opm(#{ordCode, mode=IN, jdbcType=VARCHAR}) }
+	    ]]>
+  </select>
+	
 
 
 

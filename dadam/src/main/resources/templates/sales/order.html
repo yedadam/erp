@@ -230,7 +230,7 @@
 	orderList(); //주문조회  
 	itemList(); //제품조회 
 	vdrList(); //거래처조회 
-	//	setTimeout(); //초기설정
+	//setTimeout(); //초기설정
 	const orderGrid = new tui.Grid({
 		//toastui 아이디 가져오기
 		el: document.getElementById('orderGrid'),
@@ -243,77 +243,33 @@
 			useClient: true,
 		},
 		//필드값 구성
-		columns: [{	header: '주문번호',name: 'ordCode',	align: 'center',width: 300,	},
-			{
-				header: '등록일자',
-				name: 'createdDate',
-				align: 'center',
-				editor: 'text',
-				editor: 'datePicker'
+		columns: [
+			{	header: '주문번호',name: 'ordCode',	align: 'center',width: 300,	},
+			{	header: '등록일자',	name: 'createdDate',align: 'center',editor: 'text',	editor: 'datePicker'},
+			{	header: '거래처이름',name: 'vdrName',	align: 'center',editor: 'text'	},
+			{	header: '거래처코드',name: 'vdrCode',align: 'center',editor: 'text'},
+			{	header: '납기일자',name: 'reqDlvDate',align: 'center',editor: 'text',editor: 'datePicker'},
+			{	header: '총금액',	name: 'totPrice',	align:'right',
+				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
+			editor: 'text'},
+			{	header: '여신한도',name: 'creditPrice',align:'right', 
+				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
+				editor: 'text'},
+			{header: '여신잔액',name: 'creditBalPrice',	align:'right',
+				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원', 	
+			editor: 'text'},
+			{	header: '지불방식',	name: 'payMethod',align: 'center',
+				formatter: 'listItemText',	editor: {type: 'select',
+								options: {listItems: payMethod}
+							}//Map형태로 담아옴 [{"text":"","value":""}]
 			},
-			{
-				header: '거래처이름',
-				name: 'vdrName',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '거래처코드',
-				name: 'vdrCode',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '납기일자',
-				name: 'reqDlvDate',
-				align: 'center',
-				editor: 'text',
-				editor: 'datePicker'
-			},
-			{
-				header: '총금액',
-				name: 'totPrice',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '여신한도',
-				name: 'creditPrice',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '여신잔액',
-				name: 'creditBalPrice',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '지불방식',
-				name: 'payMethod',
-				align: 'center',
+			{header: '진행상태',	name: 'status',align: 'center',
 				formatter: 'listItemText',
-				editor: {
-					type: 'select',
-					options: {
-						listItems: payMethod //Map형태로 담아옴 [{}]
-					}
-				}
-			},
-			{
-				header: '진행상태',
-				name: 'status',
-				align: 'center',
-				formatter: 'listItemText',
-				editor: {
-					type: 'select',
-					options: {
-						listItems: ordStatus
-					}
+				editor: {type: 'select',
+								options: {listItems: ordStatus}
 				}
 			}, {
-				header: '할인율',
-				name: 'discount',
+				header: '할인율',name: 'discount',
 				align: 'center',
 				editor: 'text',
 				formatter: function (discount) {
@@ -329,16 +285,13 @@
 	//체크박스눌렀을때 특정태그안에 하위요소 찾기
 	//행클릭시 작동
 	orderGrid.on('click', (ev) => {
-			
-		//등록중인 행을 클릭하다가 다른행클릭했다가 다시갔을때 Dtl grid가 reset 함    
+		//등록중인 행을 클릭하다가 다른행클릭했다가 다시갔을때 Dtl grid가 reset 됨    
 		if (orderGrid.getCheckedRows()[0].ordCode == null ||
 			orderGrid.getCheckedRows()[0].reqDlvDate == null &&
 			orderGrid.getCheckedRows()[0].status == null &&
 			orderGrid.getData()[ev.rowKey].totPrice == null) {
 			ordDtlGrid.resetData([]);
 		}
-
-		//orderGrid.setValue(ev.rowKey,"totPrice",orderGrid.getRow(ev.rowKey).totPrice); 
 		const checkedRows = orderGrid.getCheckedRowKeys(); //행번호 가져오는 	 	
 		// 현재 클릭한 rowKey가 유일하지 않으면 전부 해제 후 현재 행만 체크
 		if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
@@ -346,6 +299,7 @@
 			orderGrid.check(ev.rowKey); // 현재 행만 체크
 		}
 		if (ev.columnName == "vdrCode" || ev.columnName == "vdrName") {
+			console.log('vdr코드클릭됨');
 			openVdrmodal();
 		} //모달열기
 		const rowData = orderGrid.getRow(ev.rowKey);
@@ -355,19 +309,18 @@
 		let headTotPrice = 0;
 		//null값 방지 
 		for (let i = 0; i < ordDtlGrid.getData().length; i++) {
-			if (ordDtlGrid.getData()[i].ordCode == null) {
-				ordDtlGrid.setValue(i, "ordCode", orderGrid.getRow(ev.rowKey).ordCode);
-			}
-			if (ordDtlGrid.getData()[i].quantity == null) {
-				ordDtlGrid.setValue(i, "quantity", 1); //수량null값 이면 default 1로 부여하기로함   
-			}
-			ordDtlGrid.setValue(i, "totPrice",
-				ordDtlGrid.getData()[i].supPrice +
-				ordDtlGrid.getData()[i].vatPrice -
-				ordDtlGrid.getData()[i].discPrice);
-			console.log('ordDtlGrid.getData(i)', ordDtlGrid.getData()[i]);
-
-			headTotPrice += ordDtlGrid.getData()[i].totPrice;
+				if (ordDtlGrid.getData()[i].ordCode == null) {
+					ordDtlGrid.setValue(i, "ordCode", orderGrid.getRow(ev.rowKey).ordCode);
+				}
+				if (ordDtlGrid.getData()[i].quantity == null) {
+					ordDtlGrid.setValue(i, "quantity", 1); //수량null값 이면 default 1로 부여하기로함   
+				}
+				ordDtlGrid.setValue(i, "totPrice",
+					ordDtlGrid.getData()[i].supPrice +
+					ordDtlGrid.getData()[i].vatPrice -
+					ordDtlGrid.getData()[i].discPrice);
+			//	console.log('ordDtlGrid.getData(i)', ordDtlGrid.getData()[i]);
+				headTotPrice += ordDtlGrid.getData()[i].totPrice;
 		}
 		//	orderGrid.setValue(ev.rowKey,"totPrice",headTotPrice); //헤더 주문번호를 클릭하면 총금액이 상세내역의 총금액을 각각합하여 헤더에 나타남  
 		console.log(ordDtlGrid.getData());
@@ -394,69 +347,29 @@
 	let ordDtlGrid = new tui.Grid({
 		el: document.getElementById('ordDtlGrid'),
 		rowHeaders: ['checkbox'],
-		columns: [{
-				header: '주문상세정보',
-				name: 'ordDtlCode',
-				align: 'center',
-				width: 300,
-				editor: 'text'
-			},
-			{
-				header: '품목코드',
-				name: 'itemCode',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '이름',
-				name: 'name',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '가격',
-				name: 'price',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '수량',
-				name: 'quantity',
-				align: 'center',
+		columns: [
+			{	header: '주문상세정보',	name: 'ordDtlCode',	align: 'center',	width: 300,	editor: 'text'	},
+			{	header: '품목코드',	name: 'itemCode',align: 'center',	editor: 'text'},
+			{	header: '이름',	name: 'name',align: 'center',	editor: 'text'},
+			{	header: '가격',	name: 'price',	align: 'right',
+				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',	
+				editor: 'text'	},
+			{	header: '수량',	name: 'quantity',align: 'center',	
+			 	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '개',
 				editor: 'text',
-				formatter: function (quantity) {
-					if (quantity.value == null) {
-						return quantity.value = '1';
-					} else if (quantity.value != null) {
-						return quantity.value = quantity.value;
-					}
-				}
 			},
-			{
-				header: '공급가액',
-				name: 'supPrice',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '부가세',
-				name: 'vatPrice',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '할인금액',
-				name: 'discPrice',
-				align: 'center',
-				editor: 'text'
-			}, 
-			{
-				header: '총가격',
-				name: 'totPrice',
-				align: 'center',
-				editor: 'text'
-			}
-			
+			{header: '공급가액',	name: 'supPrice',align: 'right',
+			 formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',	
+			 editor: 'text'	},
+			{	header: '부가세',	name: 'vatPrice',	align: 'right',
+			formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
+			editor: 'text'},
+			{	header: '할인금액',	name: 'discPrice',	align: 'right',	
+			formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
+			editor: 'text'}, 
+			{	header: '총가격',	name: 'totPrice',	align: 'right',
+			formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
+			editor: 'text'}
 		]
 	})
 	//아이템 모달안에 아이템그리드 생성  
@@ -467,30 +380,11 @@
 			perPage: 10, //10개씩 보여주기 
 			useClient: true,
 		},
-		columns: [{
-				header: '종류',
-				name: 'type',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '품목코드',
-				name: 'itemCode',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '품목명',
-				name: 'name',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '가격',
-				name: 'price',
-				align: 'center',
-				editor: 'text'
-			}
+		columns: [
+			{	header: '종류',	name: 'type',align: 'center',	editor: 'text'},
+			{	header: '품목코드',	name: 'itemCode',align: 'center',editor: 'text'},
+			{	header: '품목명',name: 'name',align: 'center',	editor: 'text'},
+			{ header: '가격',	name: 'price',align:'right',	editor: 'text'}
 		]
 	})
 	//vdr 모달안에  vdrGrid 생성  
@@ -501,29 +395,17 @@
 			perPage: 10,
 			useClient: true,
 		},
-		columns: [{
-				header: '거래처코드',
-				name: 'vdrCode',
-				align: 'center',
-				editor: 'text'
+		columns: [
+			{header: '거래처코드',name: 'vdrCode',align: 'center'},
+			{header: '거래처명',name: 'vdrName',align: 'center'},
+			{header: '여신한도',name: 'creditPrice',align: 'center',
+				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'
 			},
-			{
-				header: '거래처구분',
-				name: 'type',
-				align: 'center',
-				editor: 'text'
+			{header: '여신잔액',name: 'creditBalPrice',align: 'center',
+					formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'
 			},
-			{
-				header: '거래처명',
-				name: 'vdrName',
-				align: 'center',
-				editor: 'text'
-			},
-			{
-				header: '할인율',
-				name: 'discount',
-				align: 'center',
-				editor: 'text'
+			{header: '할인율',name: 'discount',align: 'center',
+					formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '%'
 			}
 		]
 	})
@@ -576,6 +458,7 @@
 			method: "GET",
 			success: function (result) {
 				//console.log('주문정보 불러오기', result);
+				console.log(result);
 				orderGrid.resetData(result);
 			}
 		})
@@ -623,8 +506,8 @@
 
 		console.log(orderGrid.getData()[0].ordCode); //ordCode ord-122 이런꼴로 나옴 
 		let nextordCode = orderGrid.getData()[0].ordCode;  // 예: "ord-122"
-		let numberOnly = String(Number(nextordCode.match(/\d+/)[0])+1);     
-	    nextordCode='ord-'+numberOnly; //ord-123    
+		let numberOnly = String(Number(nextordCode.substr(4))+1);     
+	  	nextordCode='ord-'+numberOnly; //ord-123    
 
 		//행추가할 데이터 생성
 		let addRow = {}
@@ -641,7 +524,7 @@
 		ordDtlGrid.resetData([]);
 		orderGrid.setValue(newOrdPlus, "createdDate", dateformatyymmdd(new Date()));
 		orderGrid.setValue(newOrdPlus, "status", "ost01");
-		orderGrid.setValue(newOrdPlus,"ordCode",nextordCode);
+		orderGrid.setValue(newOrdPlus,"ordCode",nextordCode); //nextordCode
 	})
 	$('#deleteRow').on('click', function () {
 		//체크된행을 가져오는 함수	
@@ -651,14 +534,22 @@
 			//console.log(item.ordCode);
 			if (item.status != 'ost03') { //출고완료 된건이 아닌것만 삭제가능  
 				orderGrid.removeRow(item.rowKey);
+			
+					alert('삭제클릭');
+
 				$.ajax({
 					url: "/erp/sales/ord/delete?ordCode=" + item.ordCode, // URL에 ordCode를 파라미터로 추가
 					method: "DELETE",
 					success: function (result) {
 						console.log('삭제완료');
+							Swal.fire({
+										title: "삭제완료!",
+										icon: "success",
+										draggable: true
+										});
 					}
 				});
-			}
+			} 
 		})
 	})
 	//주문상세 행추가 반영 
@@ -712,14 +603,12 @@
 			totDisc+=dtlObj.createdRows[i].discPrice; // 총할인금액	
 			qty+=dtlObj.createdRows[i].quantity; //총수량  
 		}
-
 		regHeader.totSupPrice=totSup;
 		regHeader.totVatPrice=totVat; 
 		regHeader.totDisc=totDisc; 
 		regHeader.totQuantity=qty; 
 
-
-		console.log('dtlObj',dtlObj);   
+	//console.log('dtlObj',dtlObj);   
 		const dataToSend = {
 			ord: regHeader, // 일반 객체 {}
 			dtl: dtlObj     // [{},{}]
@@ -741,7 +630,7 @@
 		})
 	})
 	//주문 상세 저장
-	$('#saveRowdtl').on('click', function () {
+	$('#saveRowdtl').on('click', function(){
 		//validation 체크 
 		let test = ordDtlGrid.getData();
 		console.log(test);
@@ -755,9 +644,7 @@
 				return false;
 			}
 		})
-
 		dtlObj=ordDtlGrid.getModifiedRows(); 
-		
 		for(let i=0; i<dtlObj.createdRows.length;i++){
 			dtlObj.createdRows[i].ordCode=
 			orderGrid.getCheckedRows()[0].ordCode;
@@ -777,7 +664,7 @@
 			success: function (res) {
 				console.log('전송 성공', res);
 				Swal.fire({
-					title: "주문등록성공!",
+					title: "저장성공!",
 					icon: "success",
 					draggable: true
 				});
@@ -787,7 +674,7 @@
 	//주문 수정
 	$('#ordupd').on('click', function () {
 		console.log(orderGrid.getCheckedRows());
-		let updHeader = orderGrid.getCheckedRows()[0]; //납기일자,지불방식
+		let updHeader = orderGrid.getCheckedRows()[0]; //납기일자,지불방식 {ordCode:"ord-129",payMethod:"opm01"}
 		updHeader.updateId = userID; //update
 		$.ajax({
 			url: '/erp/sales/ord/update',
@@ -828,12 +715,18 @@
 	});
 	//주문dtl 수정하기 
 	$('#modRowdtl').on('click', function () {
-		let updDtl = ordDtlGrid.getCheckedRows()[0];
+		let updDtl = ordDtlGrid.getCheckedRows()[0]; //체크된 행을 수정함 
 		updDtl.comId = userComId;
 		updDtl.quantity = Number(updDtl.quantity);
 		updDtl.totPrice = updDtl.totprice;
 		
-		updDtl.vatPrice=updDtl.totPrice/10; //부가세 10%
+		
+		updDtl.ordCode=orderGrid.getCheckedRows()[0].ordCode; //주문번호 체크 
+		updDtl.vatPrice=(ordDtlGrid.getCheckedRows()[0].supPrice)/10; //부가세 설정 
+		updDtl.totPrice=ordDtlGrid.getCheckedRows()[0].supPrice+
+										ordDtlGrid.getCheckedRows()[0].vatPrice
+										-ordDtlGrid.getCheckedRows()[0].discPrice;
+		
 
 		console.log('updDtl', updDtl);
 		console.log(orderGrid.getCheckedRows()[0]);
@@ -863,6 +756,7 @@
 	//ordDtlRow의 수량 입력시 총금액,공급가액,부가세 계산되어 자동입력됨 
 	ordDtlGrid.on('afterChange', ev => {
 		let supPrice = ev.changes[0].value * ordDtlGrid.getRow(ev.changes[0].rowKey).price;
+		vdrdiscount=(orderGrid.getCheckedRows()[0].discount)/100;
 		let discPrice = (supPrice + supPrice / 10) * vdrdiscount; //할인가격 거래처정보 불러온뒤 계산 반영	
 		if (ev.changes[0].columnName == 'quantity') { //바뀐행의 열이 quantity 일때  
 			ordDtlGrid.setValue(ev.changes[0].rowKey, "supPrice", supPrice); //공급가액의 가격을 (수량*가격) 으로 바꿈
@@ -942,22 +836,16 @@
 		const info = orderGrid.getRow(newNo);
 		return info;
 	}
-	setTimeout(() => {
-		const rows = orderGrid.getData();
-		rows.forEach((row, i) => {
-			if (row.vdrCode) fillVendorFields(i, row.vdrCode);
-		});
-	}, 0);
-	function fillVendorFields(rowKey, vdrCode) {
-		const match = vdrAll.find(v => v.vdrCode === vdrCode);
-		if (match) {
-			orderGrid.setValue(rowKey, "vdrName", match.vdrName);
-			orderGrid.setValue(rowKey, "creditPrice", match.creditPrice);
-			orderGrid.setValue(rowKey, "creditBalPrice", match.creditBalPrice);
-			orderGrid.setValue(rowKey, "discount", match.discount);
-			vdrdiscount = match.discount / 100;
-		}
-	}
+	// function formatPrice(value){
+	// 	if(value.value==null){
+	// 		return  value.value=' ';
+	// 	}else if(value>0){
+	// 		return 	value.value=value.value+'원'
+	// 	}
+	// 	console.log('value',value.value);
+	// }	
+
+
 	const topOptions = {
 			  includeHiddenColumns: true,
 			  onlySelected: false,

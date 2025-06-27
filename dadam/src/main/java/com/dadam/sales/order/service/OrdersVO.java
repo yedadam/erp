@@ -14,6 +14,7 @@ public class OrdersVO {
 	//주문건 전체조회 
 	private String ordCode;
 	private String vdrCode; 
+	private String vdrName;
 	private String status;
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date createdDate;
@@ -34,4 +35,6 @@ public class OrdersVO {
 	private Long discount; 
 	private Long totPrice; 
 	private String quoCode; 
+	private int creditPrice;
+	private int creditBalPrice;
 }
