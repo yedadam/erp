@@ -31,4 +31,7 @@ public class ChitVO {
     
     //분개테이블
     private String acctId;  	   //계정과목
+    private String iType;
+    private String iPrice;
+    
 }

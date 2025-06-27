@@ -33,7 +33,7 @@
 		 , v.bank
 		 , v.acct_no
 		 , c.type
-		 , getEmpName(v.emp_id) as emp_id
+		 , getEmpName(v.emp_id) as emp_id 
 		 , c.created_date
 		 , getEmpName(c.phy_emp_id) as phy_emp_id <!-- 처리자 -->
 		 , c.chit_code

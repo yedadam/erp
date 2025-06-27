@@ -24,20 +24,45 @@
 	border-color: silver; /* #94a3b8 → silver */
 	color: midnightblue; /* #1e293b → midnightblue */
 }
+
+dialog {
+	position: fixed;
+	top: 200px;
+	left: 80%;
+	transform: translateX(-50%);
+	z-index: 9999;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	padding: 10px;
+	background: white;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+	width: 180px;
+	font-size: 13px;
+}
+
+.column-option {
+	display: flex;
+	align-items: center;
+	margin-bottom: 6px;
+}
 </style>
 </head>
 <body>
 	<h3>전표관리</h3>
 
+	<dialog id="columnDialog">
+	<div id="columnOptions"></div>
+	</dialog>
+
+	<div>
+		<button class="open">목록</button>
+	</div>
+
+
 	<div class="col-14">
 		<div id="chitGrid" class="mx-5"></div>
 	</div>
 
-
-	<div>
-		<h5>분개</h5>
-		<div></div>
-	</div>
 
 </body>
 
@@ -47,45 +72,39 @@ let chitGrid = new tui.Grid({
 	
 	scrollX : false,
 	scrollY : true,
-	
+	treeColumnOptions: {
+		  name: 'createdDate',   // 아이콘이 표시될 컬럼
+		  useIcon: true
+		},
 
 	columns:[
 		{header: '등록일자',name:'createdDate',align:'center'},
 		{header: '전표명',name:'chitTitle',align:'center'},
-		{header: '계정과목',name:'bizNo',align:'center',
-			formatter:({ row }) => {
-				  const bizSts = row.bizSts;
-				  let bgClass = 'btn-primary';
-				  let textClass = 'text-white';
-				  let label = bizSts;
-
-				  if (bizSts !== null || bizSts!== undefined) {
-					  bgClass = 'bg-secondary';
-					  textClass = 'text-white';
-				      label = '분개'
-				  }
-
-				  return `<span class="${bgClass} ${textClass} rounded-pill px-3 py-2" style="cursor:pointer;">${label}</span>`;
-			}},
 		{header: '거래처',name:'vdrCode',align:'center'},
+		{header: '계정과목',name:'bizNo',align:'center',
+			editor : 'text',
+			validation: { required: true }
+		},
+		{header: '차/대',name:'itype',align:'center', 
+			editor: 'text'},
+		{header: '구분',name:'type',align:'center',
+			editor: 'text'},
+		{header: '금액',name:'iPrice',align:'center',
+			editor: 'text'},
 		{header: '금액',name:'totPrice',align:'right', 
-			formatter: ({value}) => value.toLocaleString()+ '원'},
+			formatter: ({value}) => value ? parseInt(value).toLocaleString()+ '원': ''},
 		{header: '세금계산서',name:'taxCode',align:'center',
-				formatter:({ row }) => {
-				    const taxSts = row.taxSts;
-
+				formatter:({ value }) => {
+				    const taxCode = value;
 				    let label = '계산서 발행';
-				    if (taxSts === 'issued') label = '발행 완료';
-				    else if (taxSts === 'pending') label = '발행 대기';
-
+				    if (taxCode) label = '발행 완료';
 				    return `<span class="grid-action">${label}</span>`;
 				}},
-		{header: '처리상태',name:'status',align:'center'},
-		{header: '구분',name:'type',align:'center'},
-		{header: '등록부서',name:'deptCode',align:'center'},
-		{header: '처리자',name:'phyEmpId',align:'center'},
-		{header: '승인자',name:'apprEmpId',align:'center'},
-		{header: '비고',name:'note',align:'center'},
+		{header: '처리상태',name:'status',align:'center', hidden: true},
+		{header: '등록부서',name:'deptCode',align:'center', hidden: true},
+		{header: '처리자',name:'phyEmpId',align:'center', hidden: true},
+		{header: '승인자',name:'apprEmpId',align:'center', hidden: true},
+		{header: '비고',name:'note',align:'center', hidden: true},
 	]
 })
 
@@ -99,7 +118,163 @@ function chitList(){
 	})
 }
 chitList()
+<!-- 
+// 트리 구조로 입력 기능
+chitGrid.on('click', (ev)=>{
+	if(ev.columnName !== 'createdDate') return;
+	
+	const rowKey = ev.rowKey;
+	const row = chitGrid.getRow(rowKey);
+	
+	if(row._attributes?.parentRowKey == null){
+		const alreadyExists  = chitGrid.getData().some(
+			r=>r.attributes?.parentRowKey === rowKey);
+		
+	if (alreadyExists) return;
+	
+	chitGrid.appendRow(
 
+			  {
+			    name: 'acctName',
+			    editor: window.createAutoCompleteEditor({
+			      urlBuilder: () => '/erp/account/autocomplete',
+			      deps: [],
+			      onSelectClear: ['drcr_type']
+			    }),
+			    validation: { required: true }
+			  },
+			  {
+			    name: 'drcr_type',
+			    editor: window.createAutoCompleteEditor({
+			      urlBuilder: (acctName) => `/erp/account/${acctName}/type`,
+			      deps: ['acctName']
+			    }),
+			    formatter: ({ value }) => value === 'D' ? '차변' : value === 'C' ? '대변' : '',
+			    width: 90
+			  },
+			  {
+			    name: 'amount',
+			    editor: 'text',
+			  },
+
+
+	{
+		parentRowKey:rowKey,
+		at:rowKey +1,
+		focus:true
+	}
+	);
+	
+	const childKey = chitGrid.getRowCount() -1;
+	chitGrid.enableRow(childKey);
+	}
+})
+-->
+// 그리드 편집이 끝났을 때 실행되는 이벤트 핸들러
+chitGrid.on('editingFinish', ({ rowKey, columnName }) => {
+  console.log('[DEBUG] editingFinish fired', columnName, rowKey);
+
+  //  현재 편집이 완료된 행 가져오기
+  const row = chitGrid.getRow(rowKey);
+
+  //  해당 행의 상위 rowKey가 있어야 → 하위 입력행임
+  const parentKey = row._attributes?.parentRowKey;
+
+  //  상위가 없거나 iPrice가 아닌 경우 → 종료
+   if (parentKey === undefined || columnName !== 'iPrice') 
+	  if (parentKey === undefined) {
+		  console.warn(parentKey, columnName)
+	  return;
+	  }
+  //  같은 부모를 가진 모든 하위 행들 가져오기
+  const allChildren = chitGrid.getData().filter(
+    r => r._attributes?.parentRowKey === parentKey
+  );
+
+  //  현재 행이 하위 목록 중 몇 번째인지 확인
+  const indexInChildren = allChildren.findIndex(r => r.rowKey === rowKey);
+
+  //  현재 행이 마지막이라면 → true
+  const isLast = indexInChildren === allChildren.length - 1;
+  onsole.log('진입전')
+  if (isLast) {
+    //  마지막 행이면 → 새 하위 입력행 추가
+	console.log('조건 진입')
+    chitGrid.appendRow(
+      {
+        acctName: '',
+        drcr_type: '',
+        iPrice: ''     // ❗ 오타: 'iprice' → 'iPrice' (컬럼 이름과 일치시켜야 함)
+      },
+      {
+        parentRowKey: parentKey,
+        focus: true
+        //  lastChildKey: 1 → 이 속성은 사용 안 함 (지워도 됨)
+      }
+    );
+    
+    //  새로 추가된 행의 rowKey 가져오기
+    const newRowKey = chitGrid.getData().at(-1)?.rowKey;
+    if (newRowKey !== undefined) {
+      chitGrid.startEditing(newRowKey, 'acctName');
+    }
+    
+    //  새 행의 'acctName' 컬럼 편집 시작
+    chitGrid.startEditing(newRowKey, 'acctName');
+  } else {
+    //  마지막이 아니면 → 다음 하위 행으로 포커스 이동
+    const nextRowKey = allChildren[indexInChildren + 1].rowKey;
+    chitGrid.startEditing(nextRowKey, 'acctName');
+  }
+});
+
+
+
+// 다이어로그
+const dialog = document.getElementById('columnDialog');
+const openButton = document.querySelector('button.open');
+
+// ① 다이얼로그 열기
+openButton.addEventListener('click', (e) => {  // ← e 추가!
+  // 다이얼로그 안에 체크박스 생성
+  const optionsDiv = document.getElementById('columnOptions');
+  optionsDiv.innerHTML = ''; // 초기화
+
+  chitGrid.getColumns().forEach(col => {
+    const isVisible = chitGrid.getColumn(col.name).hidden !== true;
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = col.name;
+    checkbox.checked = isVisible;
+
+    checkbox.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        chitGrid.showColumn(e.target.value);
+      } else {
+        chitGrid.hideColumn(e.target.value);
+      }
+    });
+
+    const label = document.createElement('label');
+    label.className = 'column-option';
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(' ' + col.header));
+
+    optionsDiv.appendChild(label);
+  });
+
+  e.stopPropagation(); 
+  dialog.show();
+});
+
+
+//3. 다이얼로그 외부 클릭 시 닫기
+document.addEventListener('click', (event) => {
+  if (!dialog.open) return;
+  if (dialog.contains(event.target)) return;
+  dialog.close();
+});
 
 </script>
 </html>

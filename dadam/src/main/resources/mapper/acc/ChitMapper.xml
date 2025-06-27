@@ -17,9 +17,11 @@
 			 , getEmpName(c.phy_emp_id)	 as phyEmpId	<!-- 처리자 -->
 			 , getEmpName(c.appr_emp_id) as apprEmpId	<!-- 승인자 -->
 			 , c.note			<!-- 비고 -->
+			 , i.type as itype
+			 , i.price as iprice
 		  FROM chit c
 		  LEFT JOIN indignation i ON c.chit_code = i.chit_code
 	</select>
-	
+	   
 
 </mapper>

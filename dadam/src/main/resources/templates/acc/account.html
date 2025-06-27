@@ -4,6 +4,7 @@
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
 
+
 <body>
 	<h6>대,중,소 분류 추가 기능 만들어야함!!!!! (후순위로 배정), 검색기능 추가</h6>
 	<h2 class="mt-4 mb-3">계정과목 관리</h2>
@@ -49,85 +50,26 @@
 		</div>
 	</div>
 </body>
-<script>
-//텍스트 자동 완성
-function createAutoCompleteEditor({ urlBuilder, deps = [], onSelectClear = [] }) {
-  function CustomEditor(props) {
-	//인풋 기능 활성화(행 클릭으로 활성화시 편집기 오픈)  
-    const el = document.createElement('input'); 
-    el.type = 'text';
-    el.className = 'form-control';
 
-    el.value = props.value || '';
-  	// 자동완성 기능 : source로 자동완성으 Ajax로 받아옴.
-    $(el).autocomplete({ 
-      // 코어기능 : 활성화된 행(row) deps에 해당하는 값을 가져옴.	
-      source: function (request, response) { 
-        const depValues = deps.map(dep => props.grid.getValue(props.rowKey, dep));
-        // if문은 예외 처리 : 
-        // 상위 필드가 비어있을때 비활성화 // 상위 값을 먼저 입력하도록 ux 추가 
-        if (depValues.includes('') || depValues.includes(undefined)) { 
-          return response([]);
-        } //if문 종료
-        
-        // url생성-Ajax 요청
-        // urlBuilder를 실행하여 API 주소생성
-        // 조회된 결과를 JSON 으로 받음.
-			const url = urlBuilder(...depValues);
-   				$.ajax({
-    				url: url,
-    				method: 'GET',
-    				dataType: 'json',
-    				success: function (data) {
-      					const results = data.filter(v => v.startsWith(request.term));
-      					response(results);
-    				},
-    				error: function (xhr, status, err) {
-      					console.error('자동완성 실패:', err);
-      					response([]);
-    				}
-  			});
-      }, // source: function  종료
-      minLength: 0,
-      
-      // 항목 선택 : 항목 선택시 지정된 onSelectClear에 등록된 셀들을 비우기.
-      select: function () {
-        onSelectClear.forEach(col => props.grid.setValue(props.rowKey, col, ''));
-      } // select: function 종료
-      
-      //셀 클릭시 자동으로 목록 출력
-    }).focus(function () {
-      $(this).autocomplete("search", "");
-    }); // focus(function () 종료
-    this.el = el;
-  }// function CustomEditor(props) 종료
-  // getElement 메서드 추가
-  CustomEditor.prototype.getElement = function () {
-    return this.el;
-  };
-  // getValue 메서드 추가
-  CustomEditor.prototype.getValue = function () {
-    return this.el.value;
-  };
-  return CustomEditor;
-} // function createAutoCompleteEditor 종료
+<script>
+
 
 	// 대분류 조회 
-	const TypeEditor = createAutoCompleteEditor({
+	const TypeEditor = window.createAutoCompleteEditor({
 	  urlBuilder: () => "/erp/accounting/api/account/type",  // API URL 만드는 함수
 	  deps: [],												 // 의존 필드 (상위 값들) -> 필드 명으로 적기
 	  onSelectClear: ['acctClass', 'acctSubclass']			 // 값 선택 시 초기화할 필드들 -> 필드 명으로 적기
 	});
 
 	// 중분류 조회 
-	const ClassEditor = createAutoCompleteEditor({
+	const ClassEditor = window.createAutoCompleteEditor({
 	  urlBuilder: (acctType) => `/erp/accounting/api/account/class?typeCode=${acctType}`,
 	  deps: ['acctType'], 
 	  onSelectClear: ['acctSubclass']
 	});
 
 	// 소분류 조회 
-	const SubclassEditor = createAutoCompleteEditor({
+	const SubclassEditor = window.createAutoCompleteEditor({
 	  urlBuilder: (acctClass) => `/erp/accounting/api/account/subclass?&classCode=${acctClass}`,
 	  deps: ['acctClass']
 	});
