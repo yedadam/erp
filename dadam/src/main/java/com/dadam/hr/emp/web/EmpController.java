@@ -79,6 +79,16 @@ public class EmpController {
                 return "fail";
             }
         }
+        // 사번 자동생성
+        if (empVO.getEmpId() == null || empVO.getEmpId().isEmpty()) {
+            String maxEmpId = empService.getMaxEmpId();
+            String nextEmpId = "e1001";
+            if (maxEmpId != null && maxEmpId.matches("e\\d+")) {
+                int num = Integer.parseInt(maxEmpId.substring(1));
+                nextEmpId = "e" + (num + 1);
+            }
+            empVO.setEmpId(nextEmpId);
+        }
         int result = empService.insertEmp(empVO);
         return result > 0 ? "ok" : "fail";
     }

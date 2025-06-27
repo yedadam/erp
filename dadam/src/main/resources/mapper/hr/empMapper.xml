@@ -116,4 +116,15 @@
 		SELECT MAX(emp_id) FROM employees
 	</select>
 
+	<select id="findEmpDetail" parameterType="string" resultType="com.dadam.hr.emp.service.EmpVO">
+		SELECT
+			e.emp_id, e.com_id, e.dept_code, d.dept_name, e.pwd, e.emp_name,
+			e.email, e.tel, e.addr, e.hire_date, e.position, e.resign_date,
+			e.emp_status, e.work_type, e.resign_reason, e.sal, e.bank, e.acct_no,
+			e.birth_date, e.profile_img_path, e.note
+		FROM employees e
+		LEFT JOIN departments d ON e.dept_code = d.dept_code
+		WHERE e.emp_id = #{empId}
+	</select>
+
 </mapper>
