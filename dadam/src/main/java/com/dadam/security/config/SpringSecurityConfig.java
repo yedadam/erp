@@ -121,7 +121,7 @@ public class SpringSecurityConfig {
                 // 쿠키 삭제
                 .deleteCookies("ERPSESSIONID")
             )
-            
+            //back 프론트 cors  
             // CSRF 보호 (필요에 따라 비활성화)
             .csrf(csrf -> csrf.disable()) // API나 개발 환경에서만 사용
             

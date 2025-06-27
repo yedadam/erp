@@ -2,6 +2,8 @@ package com.dadam.sales.purchase.service;
 
 import java.util.List;
 
+import com.dadam.common.service.GridData;
+
 public interface PurchaseService {
 	
 	//발주메인 리스트 조회
@@ -17,5 +19,5 @@ public interface PurchaseService {
 	//발주 메인 업데이트
 	public int purOrderUpdate(PurchaseOrderVO param);
 	//발주 상세 없데이트
-	public int purOderDtUpdate(PurchaseOrderDetailVO param);
+	public int purOderDtUpdate(GridData<PurchaseOrderDetailVO> vo);
 }

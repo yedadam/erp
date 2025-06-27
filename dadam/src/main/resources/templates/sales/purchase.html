@@ -43,6 +43,37 @@
         .tui-pagination{
         	padding-bottom:10px;
 				}  
+	   .start-action {
+			display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid #facc15;        /* 연한 노랑 */
+	background-color: #fefce8;        /* 연노랑 배경 */
+	color: #92400e;                   /* 진한 주황갈색 */
+		}
+		.end-action {
+			display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid #22c55e;        /* 연초록 */
+	background-color: #ecfdf5;        /* 아주 연한 민트 */
+	color: #065f46;                   /* 진한 초록 */
+		}
+		.del-action {
+			display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid #f87171;        /* 연한 빨강 */
+	background-color: #fef2f2;        /* 아주 연한 빨강 */
+	color: #991b1b;                   /* 진한 빨강 */
+		}
+		
+	.require{
+		color :red;
+	}
 </style>
 </head>
 <body class="bg-light">
@@ -170,6 +201,14 @@
 	//세션
 	let empId = 'emp-101';
 	let empName = '예담';
+	
+	
+	//필수값 가져오기
+	function getName(name){
+		const header = document.createElement('span');
+		header.innerHTML=`<span class="require">* </span>${name}`
+		return header;
+	}
         // 메인그리드
         const mainGrid = new tui.Grid({
             // toastui 아이디 가져오기
@@ -186,23 +225,26 @@
             // 필드값 구성
             columns: [
                 {header: '발주코드', name: 'purOrdCode', align: 'center', width: 120},
-                {header: '거래처이름', name: 'vdrName', align: 'center', editor: 'text'},
+                {header: '거래처이름', name: 'vdrName', align: 'center', editor: 'text',customHeader:getName('거래처이름')},
                 {header: '거래처코드', name: 'vdrCode', align: 'center', editor: 'text'},
-                {header: '발주일자', name: 'purOrdDate', align: 'center', editor: 'datePicker'},
-                {header: '납기예정일자', name: 'expDlvDate', align: 'center', editor: 'datePicker'},
+                {header: '발주일자', name: 'purOrdDate', align: 'center', editor: 'datePicker' ,customHeader:getName('발주일자')},
+                {header: '납기예정일자', name: 'expDlvDate', align: 'center', editor: 'datePicker',customHeader:getName('납기예정일자')},
                 {header: '발주의뢰코드', name: 'purReqCode', align: 'center'},
                 {header: '담당자', name: 'empName', align: 'center'},
                 {header: '담당자코드', name: 'empId', align: 'center'},
                 {header: '처리상태', name: 'status', align: 'center',
-                	renderer:{
-                  	  styles:{
-                		  color:(props) => props.value == '대기'?  'rgba(252, 240, 3)' 
-                		  : props.value == '완료'?  'rgba(3, 252, 65)':'',
-                			fontSize :'14px',
-                      	    fontFamily: 'Malgun Gothic',
-                      	    fontWeight: 'bold'
-                	  }
-                  },},
+                	formatter:({ value }) => {
+    				    if(value=='진행중'){
+    				       return `<span class="start-action">${value}</span>`;
+    				    }else if(value=='완료'){
+    				       return `<span class="end-action">${value}</span>`;
+    				    }else if(value=='취소'){
+    				       return `<span class="del-action">${value}</span>`;
+    				    }
+                		
+    				    return '';
+    				},
+                 },
                 {header: '총공급가액', name: 'totSupPrice', align: 'center', 
                 	formatter: function(price){
                      	  return priceFormat(price.value)+'원';
@@ -220,7 +262,7 @@
                 },
             ],
         });
-	
+		//
         // 상세그리드
         const detailGrid = new tui.Grid({
             // toastui 아이디 가져오기
@@ -229,33 +271,34 @@
             scrollY: false,
             // checkbox 부여
             rowHeaders: ['checkbox'],
+           
             // 필드값 구성
             columns: [
                 {header: '발주코드', name: 'purOrdCode', align: 'center', width: 120},
                 {header: '발주상세코드', name: 'purOrdDtlCode', align: 'center'},
-                {header: '품목코드', name: 'itemCode', align: 'center'},
-                {header: '품목이름', name: 'itemName', align: 'center'},
-                {header: '수량', name: 'quantity', align: 'center', editor: 'text',
-                	formatter: function(price){
+                {header: '폼목코드' ,name: 'itemCode', align: 'center'},
+                {header: '품목이름', name: 'itemName', align: 'center',customHeader:getName('품목이름')},
+                {header: '수량', name: 'quantity', align: 'center', editor: 'text',customHeader:getName('수량'),
+                formatter: function(price){
                    	  return priceFormat(price.value)+'개';
                      },		
                 },
-                {header: '개당가격', name: 'price', align: 'center', editor: 'text',
+                {header: '개당가격', name: 'price', align: 'center',
                 	formatter: function(price){
                    	  return priceFormat(price.value)+'원';
                      },		
                 },
-                {header: '공급가액', name: 'supPrice', align: 'center', editor: 'text',
+                {header: '공급가액', name: 'supPrice', align: 'center', 
                 	formatter: function(price){
                      	  return priceFormat(price.value)+'원';
                        },	
                 },
-                {header: '부가세', name: 'vatPrice', align: 'center', editor: 'text',
+                {header: '부가세', name: 'vatPrice', align: 'center', 
                 	formatter: function(price){
                      	  return priceFormat(price.value)+'원';
                        },	
                 },
-                {header: '금액', name: 'totPrice', align: 'center', editor: 'text',
+                {header: '금액', name: 'totPrice', align: 'center', 
                 	formatter: function(price){
                      	  return priceFormat(price.value)+'원';
                        },	
@@ -274,17 +317,8 @@
                 {header: '발주의뢰코드', name: 'purReqCode', align: 'center'},
                 {header: '등록일자', name: 'createdDate', align: 'center'},
                 {header: '담당자', name: 'empId', align: 'center', editor: 'text',},
-                {header: '상태', name: 'status', align: 'center', editor: 'text',
-                	renderer:{
-                    	  styles:{
-                  		  color:(props) => props.value == '진행중'?  'rgba(252, 240, 3)' 
-                  		  : props.value == '취소'?  'rgba(252, 3, 45)' 	  
-                  		  : props.value == '완료'?  'rgba(3, 252, 65)':'',
-                  			fontSize :'14px',
-                        	    fontFamily: 'Malgun Gothic',
-                        	    fontWeight: 'bold'
-                  	  }
-                    },
+                {header: '상태', name: 'status', align: 'center', editor: 'text'
+                	 
                 },
                 {header: '비고', name: 'note', align: 'center', editor: 'text',
                 	formatter: function(price){
@@ -320,18 +354,30 @@
             useClient: true, 
         }, 
         columns:[
-        	{header:'종류',name:'type',align:'center',editor:'text'},
-        	{header:'품목코드',name:'itemCode',align:'center',editor:'text'}, 
-        	{header:'품목명',name:'name',align:'center',editor:'text'},
-        	{header:'가격',name:'price',align:'center',editor:'text',
+        	{header:'종류',name:'type',align:'center'},
+        	{header:'품목코드',name:'itemCode',align:'center'}, 
+        	{header:'품목명',name:'name',align:'center'},
+        	{header:'가격',name:'price',align:'center',
         		formatter: function(price){
                	  return priceFormat(price.value)+'원';
                  },	
            } 
         ]
     })
+      //그리드 숨기기
+      mainGrid.hideColumn('empId');
+      mainGrid.hideColumn('vdrCode');
+      detailGrid.hideColumn('itemCode');
+      detailGrid.hideColumn('purOrdDtlCode');
         // 메인 리스트 불러오기
         function mainList() {
+    	  pageStatus= 'search'
+    	  let searchBtn =$('#searchBtn');
+    	  let newBtn = $('#newBtn'); 
+    	  //조회버튼 비활성화
+    	  searchBtn.prop('disabled', true);
+    	  //추가버튼 활성화
+    	  newBtn.prop('disabled', false);    
             $.ajax({
                 url: "/erp/sales/purMainList",
                 method: "GET",
@@ -355,21 +401,31 @@
         	return result;
         }
         // 페이지 로드 시 메인 리스트 호출
-        mainList();
         let pageStatus = "search";
+        mainList();
         // 신규버튼 이벤트 처리
-        $('#newBtn').on('click', function() {
+        $('#newBtn').on('click', function(ev) {
         	pageStatus="add"
- 	       	let data = mainGrid.getData();
+          let searchBtn =$('#searchBtn');
+      	  let newBtn = $('#newBtn'); 
+      	  //조회버튼 활성화
+      	  searchBtn.prop('disabled', false);
+      	  //추가버튼 비활성화
+      	  newBtn.prop('disabled', true);    
+ 	      let data = mainGrid.getData();
         	//그리드 초기화ㅣ
-         	mainGrid.resetData([{empId: empId,empName : empName}])
-         	detailGrid.resetData([{}]);
+          mainGrid.resetData([{empId: empId,empName : empName}])
+          detailGrid.resetData([{}]);
          		
         });
 		//메인그리드 클릭 RowKey
 		let mainRowKey = null;
 		//메인그리드 클릭창
 		mainGrid.on('click',ev => {
+			if (!ev.targetType || ev.targetType !== 'cell') {
+			    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+			    return;
+			  }
 			mainRowKey = ev.rowKey;
 			//발주의뢰코드 클릭시
 			if(ev.columnName == 'purReqCode'){
@@ -473,7 +529,17 @@
 		
 		//상세그리드 행추가
 		$('#rowAddBtn').on('click', ev => {
-			detailGrid.appendRow({});
+			let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
+			console.log(mainRowIndex)
+			if(pageStatus == 'search' && mainRowIndex ==undefined){
+				Swal.fire('에러','메인그리드에 해당행을 클릭하세요','error')
+				return;
+			}
+			if(pageStatus =='search'){
+			  detailGrid.appendRow({purOrdCode : mainGrid.getRow(mainRowIndex).purOrdCode});
+			}else if(pageStatus =='add'){
+				detailGrid.appendRow({});		
+			}
 		})
 		
 		//상세그리드 행삭제
@@ -487,17 +553,17 @@
 		  })
 		})
 		//라디오버튼처럼 작동
-		mainGrid.on('click',ev =>{
-			if (!ev.targetType || ev.targetType !== 'cell') {
-			    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
-			    return;
-			  }
-			const checkedRows = mainGrid.getCheckedRowKeys();
-			 if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
-				 mainGrid.uncheckAll(); // 전체 해제
-				 mainGrid.check(ev.rowKey); // 현재 행만 체크
-		      }
-		})
+		mainGrid.on('click', ev => {
+		
+		  const checkedRows = mainGrid.getCheckedRowKeys();
+		  if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
+		    mainGrid.uncheckAll();
+		    mainGrid.check(ev.rowKey);  // 여기서 check 이벤트는 따로 안 뜸 (정상)
+		  }
+		
+		  console.log('선택된 row:', ev.rowKey);
+		});
+		
 		//디테일 클릭 인덱스
 		let detailRowKey = null;		
 		//디테일그리드 클릭시 발동
@@ -530,6 +596,20 @@
 			let itemName = itemGrid.getRow(ev.rowKey).name;
 			//가격
 			let price = itemGrid.getRow(ev.rowKey).price;
+			//아이템값 중복확인
+			let detailGridData = detailGrid.getData();
+			
+			let checkResult = detailGridData.some(item => {
+				console.log(item.itemCode)
+				return item.itemCode==itemCode;
+			})
+			
+			if(checkResult){
+				Swal.fire('실패','이미 같은 품목이 있습니다.','error')
+				return;
+			}
+			console.log(checkResult)
+			
 			//메인그리드로 전달
 			detailGrid.setValue(detailRowKey,'itemCode',itemCode);
 			detailGrid.setValue(detailRowKey,'itemName',itemName);
@@ -606,16 +686,21 @@
 	    			       item.purOrdDate && item.expDlvDate &&
 	    			       item.empId;
 	    		})
-	    		//상세 그리드 해당 값이 기입했는지 체크
-	    		let detailResult = detailGridInfo.every(item => {
-	    			return item.itemCode && item.quantity &&
-	    			       item.supPrice && item.totPrice;
-	    		})
+	    		 //디테일 값 있는지 체크
+		    	 let detailResult = detailGridInfo.some(item => {
+		    		 console.log(item.itemCode)
+		    		 console.log(item.quantity)
+		    		 console.log(item.supPrice)
+		    		 console.log(item.totPrice)
+		    			return !item.itemCode || item.quantity ==0 ||
+		    			       item.supPrice==0 || item.totPrice==0;
+		    		})
+		    	console.log(detailResult)
 	    		//값 체크
 	    		if(!mainResult){
 	    		   Swal.fire('실패','메인 그리드에 입력란들을 기입하세요','error');
 	    		   return;
-	    		}else if(!detailResult){
+	    		}else if(detailResult){
 	    			Swal.fire('실패','상세 그리드에 입력란들을 기입하세요','error');
 	    		   return;
 	    		}
@@ -642,7 +727,6 @@
 	    					icon: "success",
 	    					draggable: true
 	    				});
-	    				pageStatus = 'search';
 	    				mainList();
 	    			},
 	    			  error: function(xhr, status, error) {
@@ -666,11 +750,14 @@
 	     })
 	     //조회버튼
 	     $('#searchBtn').on('click',ev => {
-	    	 pageStatus = 'search';
+	    	 
 	    	 mainList();
 	     })
 	     //상세조회
-	     mainGrid.on('click',ev => {
+	     mainGrid.on('check',ev => {
+	    if(!ev.rowKey){
+	    	return;
+	    }
 	    	if(pageStatus=='search'){
 	    		//체크된행 파악
 	    		let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
@@ -701,28 +788,59 @@
 	    	 }
 	    	 //디테일 값 있는지 체크
 	    	 let detailGridInfo=detailGrid.getData();
-	    	 let detailResult = detailGridInfo.every(item => {
-	    			return item.itemCode && item.quantity &&
-	    			       item.supPrice && item.totPrice;
+	    	 let detailResult = detailGridInfo.some(item => {
+	    			return !item.itemCode || item.quantity ==0 ||
+	    			       item.supPrice==0 || item.totPrice==0;
 	    		})
-	    			 
+	    	console.log(detailResult);
+	    	  if(detailResult){
+	    		  Swal.fire('실패','해당 하는 값을 입력해주세요.','error')
+	    		  return;
+	    	  } 
+	    	  console.log(mainRowData)
+	    	  if(mainRowData.status!='진행중'){
+	    		  Swal.fire('실패','이미 입고처리된 항목에 대해선 입고가 불가합니다.','error')
+	    		  return;
+	    	  }
 	    	 //메인창
 	    	 console.log(mainRowData)
-	    	 await $.ajax({
+	    	  await $.ajax({
 	    		 url:'/erp/sales/purMainModify',
 	    		 method:'PUT',
 	    		 contentType: "application/json",
 	    		 data:JSON.stringify(mainRowData),
 	    		 success : result => {
-	                 if(result > 0 ){
-	                     Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success')
-	                     
-	                 }else{
-	                     Swal.fire('저장','저장이 정상적으로 실패하였습니다.','error')
+	                 if(result <1 ){
+	                	  Swal.fire('저장','저장이 정상적으로 실패하였습니다.','error')
+		                  return;
 	                 }
-	             }
+	             },
+	             error: function(xhr, status, error) {
+	                    console.log("실패:", xhr.status, error);
+	                }
+	    	 }) 
+	    	 //상세 수정
+	    	 await $.ajax({
+	    		 url:'/erp/sales/purDetailModify',
+	    		 method:'PUT',
+	    		 contentType: "application/json",
+	    		 data:JSON.stringify({
+	    			 createdRows : checkedRows.createdRows,
+	    			 updatedRows : checkedRows.updatedRows,
+	    			 deleteRows : checkedRows.deletedRows,
+	    		 }),
+	    		 success : result => {
+	                     Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success')
+	                     mainList();
+	             },
+	             error: function(xhr, status, error) {
+	            	 	Swal.fire('실패','수정이 실패하였습니다..','error')
+	                    console.log("실패:", xhr.status, error);
+	                }
 	    	 })
+	    	 
 	     }
+	     
 		
     </script>
 </body>

@@ -11,17 +11,17 @@ public interface PurchaseMapper {
 	//발주메인 리스트 조회
 	public List<PurchaseOrderVO> findPurchaseList(PurchaseOrderVO vo);
 	//발주상세조회
-	public List<PurchaseOrderDetailVO> findPurListByOrdNo(String param);
+	public List<PurchaseOrderDetailVO> findPurListByOrdNo(@Param("param") String param, @Param("comId") String comId);
 	//발주의뢰 코드보기
-	public List<PurchaseOrderVO> requestList();
+	public List<PurchaseOrderVO> requestList(String comId);
 	//발주의뢰 상세코드
-	public List<PurchaseOrderVO> requestDeatilList(String param);
+	public List<PurchaseOrderVO> requestDeatilList(@Param("param") String param, @Param("comId") String comId);
 	//발주 헤더 등록
 	public int purchaseOrderAdd(PurchaseOrderVO param);
 	//발주 바디 등록
 	public int purchaseOrderDetailAdd(PurchaseOrderDetailVO item);
 	//발주 의뢰 상태값 변경
-	public int reqStatusUpdate(@Param("status") String status,@Param("purReqCode") String purReqCode);
+	public int reqStatusUpdate(@Param("status") String status,@Param("purReqCode") String purReqCode,@Param("comId") String comId);
 	//발주 메인 업데이트
 	public int purOrderUpdate(PurchaseOrderVO param);
 	//발주 상세 업데이트 

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dadam.common.service.GridData;
 import com.dadam.sales.purchase.service.PurReqVO;
 import com.dadam.sales.purchase.service.PurchaseOrderDetailVO;
 import com.dadam.sales.purchase.service.PurchaseOrderVO;
@@ -73,6 +74,12 @@ public class PurchaseRestController {
 	public int purMainModify(@RequestBody PurchaseOrderVO param) {
 		System.out.println(param);
 		int result = service.purOrderUpdate(param);
+		return result;
+	}
+	//발주서 디테일 수정
+	@PutMapping("/purDetailModify")
+	public int purDetailModify(@RequestBody GridData<PurchaseOrderDetailVO> vo) {
+		int result = service.purOderDtUpdate(vo);
 		return result;
 	}
 	
