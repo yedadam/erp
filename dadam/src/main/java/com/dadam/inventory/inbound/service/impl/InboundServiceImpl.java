@@ -28,8 +28,8 @@ public class InboundServiceImpl implements InboundService{
 	
 	// 발주서 리스트
 	@Override
-	public List<PurchaseVO> inboundPurchaseFindAll() {
-		List<PurchaseVO> list = inboundMapper.inboundPurchaseFindAll();
+	public List<PurchaseVO> inboundPurchaseFindAll(PurchaseVO vo) {
+		List<PurchaseVO> list = inboundMapper.inboundPurchaseFindAll(vo);
 		return list;
 	}
 	// 입고 등록

@@ -24,8 +24,8 @@ public class InventoryInboundRestController {
 	
 	// 발주서 리스트
 	@GetMapping("/purchaseList")
-	public List<PurchaseVO> inboundPurchaseOrderFindAll() {
-		return inboundservice.inboundPurchaseFindAll();
+	public List<PurchaseVO> inboundPurchaseOrderFindAll(PurchaseVO vo) {
+		return inboundservice.inboundPurchaseFindAll(vo);
 	}
 	// 입고 등록
 	@PostMapping("/purchaseRegister")

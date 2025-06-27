@@ -3,25 +3,127 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
-<div class="container text-start">
-	<div class="d-grid gap-2 d-md-block m-2 text-start">
-		<h1>출고관리</h1>
-		<button class="btn btn-secondary" id="purchasePage" type="button">출고관리</button>
-		<button class="btn btn-secondary" id="inboundPage" type="button">홀드관리</button>
-	</div>
+<head>
+    <style>
+        .main-table {
+            border: 2px solid #0d6efd;
+        }
+        .main-table th {
+            background-color: #e3f2fd;
+            text-align: center;
+            vertical-align: middle;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+        .main-table td {
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #ddd;
+        }
+        .detail-table {
+            margin-top: 20px;
+        }
+        .detail-table th {
+            background-color: #f8f9fa;
+            text-align: center;
+            font-size: 14px;
+            padding: 8px;
+        }
+        .detail-table td {
+            text-align: center;
+            font-size: 14px;
+            padding: 8px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        .btn-group-custom {
+            margin-bottom: 20px;
+        }
+        .tui-pagination{
+        	padding-bottom:10px;
+				}  
+</style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid mt-4">
+        <h3 class="mb-4">출고관리</h3>
+        	<!-- 테이블 전환 -->
+        	<div class="btn-group-custom">
+					<button class="btn btn-warning" id="outBoundPage" type="button"><i class="fas fa-eye"></i> 출고관리</button>
+					<button class="btn btn-secondary" id="holdPage" type="button"><i class="fas fa-eye"></i> 홀드관리</button>
+			</div>
+        
+        <!-- 검색 및 버튼 영역 -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="input-group search-container" style="width: 400px;">
+                    <input type="text" class="form-control" placeholder="검색어를 입력하세요">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- custom button -->
+            <div class="col-md-6 text-end">
+                <div class="btn-group-custom">
+                    <button class="btn btn-primary" data-bs-toggle="modal"
+						data-bs-target="#inboundModal" id="ouModal">
+                        <i class="fas fa-pen"></i> 출고
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- 메인 그리드 -->
+            <div id="mainGrid"></div>
+    </div>
+<!-- 출고를 위한 모달 -->
+<div class="modal fade" id="inboundModal" tabindex="-1"
+	aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1>출고</h1>
+			</div>
+			<div class="modal-body">
+					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
+						<!-- <button type="button" id="resetBtn" class="btn btn-danger">초기화</button> -->
+						<button type="button" id="registerBtn" class="btn btn-primary">출고</button>
+					</div>
+					<!-- 	<div class="form-floating mb-3">
+						<input type="date" class="form-control" id="dateInput"
+							placeholder="name@example.com"> <label
+							for="floatingInput">일자</label>
+					</div> -->
 
-	<div id="screen1" class="row card">
-		<div class="col-12">
-			<div id="Grids"></div>
+					<div id="gridModal"></div>
+			</div>
+			<div class="modal-footer"></div>
 		</div>
 	</div>
-	<div id="screen2" class="row card">
-	</div>
 </div>
-</body>
 <script th:inline="javascript">
-const outBoundgrid = new tui.Grid({
-    el: document.getElementById('Grids'),
+const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
+const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '김지현'}]];
+const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
+shipRequestList();
+function shipRequestList(){
+	$.ajax({
+		url:"/erp/inventory/shipRequestList",
+		method:"GET"
+		,data: {
+			comId: userComId
+		}
+	   ,success:function(result) {
+		   console.log(result)
+		   shipRequestgrid.resetData(result);
+	   } // ajax호출 끝
+	})
+ };
+ 
+const shipRequestgrid = new tui.Grid({
+    el: document.getElementById('mainGrid'),
     //checkbox부여
     rowHeaders: ['checkbox'],
     //페이지네이션
@@ -31,10 +133,8 @@ const outBoundgrid = new tui.Grid({
     },
     //필드값 구성
     columns:[
-        { header: '발주서코드',name:'purOrdCode', align:'center'},
-        { header: '발주상세코드',name:'purOrdDtlCode',align:'center'},
-        { header: '제품코드',name:'itemCode',align:'center'},
-        { header: '제품명',name:'itemName',align:'center'},
+        { header: '출하상세코드',name:'ship_req_dtl_code',align:'center'},
+        { header: '제품명',name:'item_name',align:'center'},
         { header: '수량',name:'quantity',align:'center'},
         { header: '상태',name:'status',align:'center',
         	formatter: function(status){
@@ -48,15 +148,57 @@ const outBoundgrid = new tui.Grid({
         	},
         	filter: 'select'
         	},
-        { header: '입고예정일자',name:'expDlvDate',align:'center'},
-        { header: '입고일자',name:'reccvDate',align:'center'},
+        { header: '거래처',name:'vdr_name',align:'center'},
         { header: '담당자',name:'empId',align:'center'},
-        { header: '거래처',name:'vdrCode',align:'center'},
+        { header: '등록일',name:'vdrCode',align:'center'},
+        { header: '출고예정일',name:'reccvDate',align:'center'},
     ],
 });
-
-const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
-const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '김지현'}]];
-const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
+	let data = [];
+	// 체크한경우 데이터 넣기
+	shipRequestList.on('check', checkRow)
+	shipRequestList.on('checkAll', checkRow)
+	// 체크아웃한경우 데이터 뺴기
+	shipRequestList.on('uncheck', checkRow);
+	shipRequestList.on('uncheckAll', checkRow);
+	
+	// check 처리
+	function checkRow(){
+		data= [];
+		  let rowCheck = shipRequestList.getCheckedRows();
+		  
+		  rowCheck.filter(item =>{
+			  ee = {
+				  purOrdDtlCode: item.purOrdDtlCode,
+				  itemCode: item.itemCode,
+				  itemName: item.itemName,
+				  quantity : item.quantity,
+				  price: item.price,
+				  /* pquantity: item.pquantity,
+			      notStock: item.notStock, */
+				  loc : '',
+				  qty : '',
+				  note: '',
+				  origin: true
+			  }
+			  data.push(ee);
+		  })
+		  outboundGrid.resetData(data);
+	}
+	
+	// 초기화
+	$('#resetBtn').on('click', ()=>{
+		shipRequestList.uncheckAll();
+	})
+	
+		//행삭제
+	outboundGrid.on('click', (ev)=>{
+		let { rowKey, columnName } = ev;
+		// 조건문 = 컬럼명, 값
+		if(columnName === 'origin' && outboundGrid.getValue(rowKey, columnName) === false){
+		 outboundGrid.removeRow(rowKey);
+		}
+	})
 </script>
+</body>
 </html>

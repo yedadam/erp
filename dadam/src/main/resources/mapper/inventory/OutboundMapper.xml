@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dadam.inventory.inbound.mapper.OutboundMapper">
+<mapper namespace="com.dadam.inventory.outbound.mapper.OutboundMapper">
 	
-	<select id="selectShipRequestOutBound" resultType="String">
+	<!-- <select id="selectShipRequestOutBound" resultType="OutboundVO" parameterType="OutboundVO">
 		SELECT 
 			 	sd.ship_req_dtl_code,
 			 	sd.item_code,
 			 	sd.status,
 			 	sd.quantity,
 			 	sd.tot_price,
-			 	sd.com_id,
-			 	sd.ship_req_code,
-			 	sr.ship_exp_date
-		FROM shipRequestDetail sd join shiprequest sr
+			 	sr.vdr_code,
+                sd.ship_req_code,
+			 	sr.ship_exp_date,
+			 	sr.emp_id,
+                it.name item_name,
+			 	vn.vdr_name,
+			 	em.emp_name,
+                uem.update_name
+		FROM shipRequestDetail sd left join shiprequest sr
                                     on(sd.ship_req_code = sr.ship_req_code)
-	</select>
+                                  join item it
+                                    on(it.item_code = sd.item_code)
+                                   join vender vn
+                                    on(vn.vdr_code = sr.vdr_code)
+                                   left join employees em
+                                    on(sr.emp_id = em.emp_id)
+                                   left join employees uem
+                                    on(sr.update_id = em.emp_id)
+        WHERE sd.com_id = #{comId}
+	</select> -->
 
 
 	<!-- <select id="selectOutBoundList" resultType="outBoundVO">
