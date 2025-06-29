@@ -90,8 +90,9 @@ public class PurchaseServiceImpl implements PurchaseService{
 		
 		//디테일등록
 		param.getDtl().forEach(item -> {
+			System.out.println("컴아이디");
 			item.setComId(comId);
-			System.out.println(param.getPur().getPurOrdCode());
+			System.out.println(item.getComId());
 			item.setPurOrdCode(param.getPur().getPurOrdCode());
 			mapper.purchaseOrderDetailAdd(item);
 		});
@@ -137,6 +138,19 @@ public class PurchaseServiceImpl implements PurchaseService{
 			    result += mapper.purOrderDeleteRows(item);
 			}
 	    }
+		
+		return result;
+	}
+	//발주 삭제
+	@Override
+	@Transactional
+	public int purDelete(String param) {
+		initAuthInfo();
+		int result = 0;
+		//메인 삭제
+		result = mapper.purMainDelete(param,comId);
+		//상세 삭제
+		result += mapper.purDTtlDelete(param, comId);
 		
 		return result;
 	}

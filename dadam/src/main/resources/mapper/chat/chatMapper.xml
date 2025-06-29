@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.chat.mapper.ChatMapper">
+   <select id="empList">
+   	  SELECT emp_id,
+             emp_name,
+       	     getDeptName(dept_code) deptName,
+       	     profile_img_path
+	   FROM employees
+   </select>
+   <!-- 채팅방 생성 -->
+   <insert id="chatRoomMainAdd">
+      <selectKey resultType="string" keyProperty="chatId"
+	order="BEFORE">
+		SELECT 'chat-' || (NVL(MAX(TO_NUMBER(SUBSTR(chat_id,6))),100)+1)
+		FROM chatRoom
+	</selectKey>
+		INSERT INTO chatRoom(chat_id,
+                      created_date,
+                      name)
+		VALUES(#{chatId},sysdate,#{name})
+   </insert>
+   <insert id= "chatRoomDtlAdd"> 
+      <selectKey resultType="string" keyProperty="chatDtlId"
+	order="BEFORE">
+		SELECT 'chatDtl-' || (NVL(MAX(TO_NUMBER(SUBSTR(chat_dtl_id,9))),100)+1)
+		FROM chatDetail
+	</selectKey>
+	
+	 INSERT INTO chatDetail(chat_dtl_id,
+                        chat_id,
+                        emp_id)
+		VALUES(#{chatDtlId},#{chatId},#{empId})
+   </insert>
+   
+   <!-- 채팅리스트 -->
+   
+   <select id="chatList" resultType="ChatVO">
+     SELECT c.chat_id,name,c.chat_id,c.created_date,(SELECT count(d.chat_id)
+                                            FROM chatDetail
+                                            WHERE chat_id= c.chat_id
+                                            ) chatQuantity
+	  FROM chatRoom c JOIN chatDetail d ON (c.chat_id = d.chat_id)
+	  WHERE emp_id = #{empId}
+      GROUP BY  c.chat_id,name,c.chat_id,c.created_date
+   </select>
+   
+   
+   <!-- 채팅 메시지 조회 -->
+    <select id="selectChatMessages" parameterType="string" resultType="ChatVO">
+        SELECT 
+            message_id,
+            message,
+            created_date,
+            chat_id,
+            emp_id,
+            getEmpName(emp_id) emp_name
+        FROM chatMessage
+        WHERE chat_id = #{chatId}
+        ORDER BY created_date ASC
+    </select>
+
+    <!-- 채팅 메시지 저장 -->
+    <insert id="insertChatMessage" parameterType="ChatVO">
+        INSERT INTO chatMessage (
+            message_id,
+            message,
+            created_date,
+            chat_id,
+            emp_id
+        ) VALUES (
+            #{messageId},
+            #{message},
+            NOW(),
+            #{chatId},
+            #{empId}
+        )
+    </insert>
+</mapper>

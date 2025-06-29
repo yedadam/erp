@@ -3,6 +3,7 @@ package com.dadam.sales.purchase.web;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -80,6 +81,12 @@ public class PurchaseRestController {
 	@PutMapping("/purDetailModify")
 	public int purDetailModify(@RequestBody GridData<PurchaseOrderDetailVO> vo) {
 		int result = service.purOderDtUpdate(vo);
+		return result;
+	}
+	//발주 삭제
+	@DeleteMapping("/purDelete/{param}")
+	public int purDelete(@PathVariable String param) {
+		int result = service.purDelete(param);
 		return result;
 	}
 	

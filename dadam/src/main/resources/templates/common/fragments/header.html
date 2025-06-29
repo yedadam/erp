@@ -2,7 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org" th:fragment="HeaderFragment">
 
 <head>
-	   
 </head>
 <body>
 	<!-- Topbar -->
@@ -17,19 +16,19 @@
 		<div class="mx-auto d-flex">
 			<ul class="navbar-nav flex-row align-items-center">
 				<li class="nav-item mx-2">
-					<a class="nav-link text-dark fw-bold" th:href="@{/erp/standard}">기준정보</a>
+					<a class="nav-link text-dark fw-bold" href="/erp/standard">기준정보</a>
 				</li>
 				<li class="nav-item mx-2">
-					<a class="nav-link text-dark fw-bold" th:href="@{/erp/sales}">영업</a>
+					<a class="nav-link text-dark fw-bold" href="/erp/sales">영업</a>
 				</li>
 				<li class="nav-item mx-2">
-					<a class="nav-link text-dark fw-bold" th:href="@{/erp/inventory}">재고</a>
+					<a class="nav-link text-dark fw-bold" href="/erp/inventory">재고</a>
 				</li>
 				<li class="nav-item mx-2">
-					<a class="nav-link text-dark fw-bold" th:href="@{/erp/hr}">인사</a>
+					<a class="nav-link text-dark fw-bold" href="/erp/hr">인사</a>
 				</li>
 				<li class="nav-item mx-2">
-					<a class="nav-link text-dark fw-bold" th:href="@{/erp/accounting}">회계</a>
+					<a class="nav-link text-dark fw-bold" href="/erp/accounting">회계</a>
 				</li>
 			</ul>
 		</div>
@@ -39,7 +38,7 @@
 
 			<!-- Alerts -->
 			<li class="nav-item dropdown no-arrow mx-1">
-				<a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+				<a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"  onclick="loadChatRooms()">
 					<i class="fas fa-bell fa-fw"></i>
 					<span class="badge badge-danger badge-counter">3+</span>
 				</a>
@@ -60,34 +59,39 @@
 				</div>
 			</li>
 
-			<!-- Messages -->
+			<!-- Messages (채팅방 목록) -->
 			<li class="nav-item dropdown no-arrow mx-1">
-				<a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-					<i class="fas fa-envelope fa-fw"></i>
-					<span class="badge badge-danger badge-counter">7</span>
-				</a>
-				<div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="messagesDropdown">
-					<h6 class="dropdown-header">Message Center</h6>
-					<!-- 예시 메시지 -->
-					<a class="dropdown-item d-flex align-items-center" href="#">
-						<div class="dropdown-list-image me-3">
-							<img class="rounded-circle" src="img/undraw_profile_1.svg" alt="...">
-							<div class="status-indicator bg-success"></div>
-						</div>
-						<div class="fw-bold">
-							<div class="text-truncate">안녕하세요! 문의 드릴 게 있어요.</div>
-							<div class="small text-gray-500">Emily Fowler · 1시간 전</div>
-						</div>
-					</a>
-				</div>
-			</li>
+				  <a class="nav-link dropdown-toggle" href="#" id="chatRoomsDropdown" role="button"
+				     data-bs-toggle="dropdown" aria-expanded="false" onclick="loadChatRooms()">
+				    <i class="fas fa-comments fa-fw"></i>
+				    <span class="badge badge-danger badge-counter" id="chatRoomBadge">0</span>
+				  </a>
+				  <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+				       aria-labelledby="chatRoomsDropdown" style="min-width: 300px;">
+				       
+				    <h6 class="dropdown-header">내 채팅방 목록</h6>
+				
+				    <!-- 채팅방 목록 영역 -->
+				    <div id="chatRoomList">
+				      <div class="text-center text-muted small">로딩 중...</div>
+				    </div>
+				
+				    <div class="dropdown-divider"></div>
+				
+				    <!-- 채팅방 생성 버튼 -->
+				    <a class="dropdown-item text-center text-primary fw-bold" href="javascript:void(0)"
+				       data-bs-toggle="offcanvas" data-bs-target="#chatRoomCreateDrawer">
+				      <i class="fas fa-plus-circle me-2"></i> 채팅방 만들기
+				    </a>
+				  </div>
+			 </li>
 
 			<div class="topbar-divider d-none d-sm-block"></div>
 
 			<!-- 로그인 사용자 -->
-			<li class="nav-item dropdown no-arrow" sec:authorize="isAuthenticated()">
+			<li class="nav-item dropdown no-arrow">
 				<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-					<span class="me-2 d-none d-lg-inline text-gray-600 small" th:text="${#authentication.principal.username}"></span>
+					<span class="me-2 d-none d-lg-inline text-gray-600 small">사용자이름</span>
 					<img class="img-profile rounded-circle" src="/img/undraw_profile.svg">
 				</a>
 				<div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -98,25 +102,108 @@
 					<a class="dropdown-item" href="#" onclick="document.getElementById('logout-form').submit();">
 						<i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Logout
 					</a>
-					<form id="logout-form" th:action="@{/logoutForm}" method="post" style="display: none;">
-						 <input type="hidden" th:if="${_csrf != null}" name="_csrf" th:value="${_csrf.token}" />
+					<form id="logout-form" action="/logoutForm" method="post" style="display: none;">
+						 <input type="hidden" name="_csrf" value="YOUR_CSRF_TOKEN_HERE" />
 					</form>
 				</div>
 			</li>
 
-			<!-- 비로그인 사용자 -->
-			<li class="nav-item dropdown no-arrow" sec:authorize="!isAuthenticated()">
-				<a class="nav-link dropdown-toggle" href="#" id="guestDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-					<span class="me-2 d-none d-lg-inline text-gray-600 small">안녕</span>
-					<img class="img-profile rounded-circle" src="/img/undraw_profile.svg">
-				</a>
-				<div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="guestDropdown">
-					<a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#logoutModal">
-						<i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Login
-					</a>
-				</div>
-			</li>
 		</ul>
 	</nav>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+	<script>
+	//채팅방 목록 가져오기
+	function loadChatRooms() {
+		 const $list = $('#chatRoomList');
+		  $list.html('<div class="text-center text-muted small">로딩 중...</div>');
+
+		  const empId = 'e1018'; 
+
+		  $.ajax({
+		    url: '/erp/chatList',
+		    method: 'GET',
+		    data: { empId: empId },
+		    dataType: 'json',
+		    success: function (rooms) {
+		      if (!rooms || rooms.length === 0) {
+		        $list.html('<div class="text-center text-muted small">채팅방이 없습니다.</div>');
+		        $('#chatRoomBadge').text('0');
+		        return;
+		      }
+
+		      let html = '';
+		      rooms.forEach(function (room) {
+		    	  console.log(rooms,)
+		    	//렌더링
+		        html += `
+		        	<a class="dropdown-item d-flex align-items-center" href="javascript:void(0)"
+		        	   onclick="openChatRoom('${room.chatId}', '${room.name}')">
+		        	  <div class="dropdown-list-image me-3">
+		        	    <img class="rounded-circle" src="/img/undraw_profile_1.svg" alt="...">
+		        	    <div class="status-indicator ${room.status === 'online' ? 'bg-success' : 'bg-secondary'}"></div>
+		        	  </div>
+		        	  <div class="fw-bold">
+		        	    <div class="text-truncate">${room.name}</div>
+		        	    <div class="small text-gray-500">${room.createdDate || ''}</div>
+		        	    <div class="small text-primary">참여자 수: ${room.chatQuantity || 0}명</div>
+		        	  </div>
+		        	</a>`;
+		      });
+
+		      $list.html(html);
+		      $('#chatRoomBadge').text(rooms.length);
+		    },
+		    error: function () {
+		      $list.html('<div class="text-center text-danger small">불러오기 실패</div>');
+		    }
+		  });
+		}
+	let currentSubscription = null;
+	//채팅방열기
+	function openChatRoom(id, name) {
+	    const $chatPopup = $('#chatPopup');
+	
+	    // 제목 변경
+	    $chatPopup.find('.card-header span').text(name);
+	
+	    // 팝업 보이기
+	    $chatPopup.css('display', 'flex');
+	
+	    // 현재 채팅방 ID 저장
+	    $chatPopup.attr('data-room-id', id);
+	
+	    // 메시지 입력창 포커스
+	    $('#chatInput').focus();
+	    $.ajax({
+	        url: '/erp/history',
+	        method: 'GET',
+	        data: { roomId: id },
+	        success: function(messages) {
+	            messages.forEach(function(msg) {
+	            	console.log(msg)
+	                showChatMessage(msg);
+	            });
+	        },
+	        error: function() {
+	            alert('이전 메시지를 불러오지 못했습니다.');
+	        }
+	    });
+
+	    // STOMP 구독도 같이 처리
+	    if (currentSubscription) currentSubscription.unsubscribe();
+	    currentSubscription = stompClient.subscribe(`/topic/chat.${id}`, function(response) {
+	        const message = JSON.parse(response.body);
+	        showChatMessage(message);
+	    });
+
+	    $('#chatInput').focus();
+	    console.log("채팅방 오픈: " + id);
+	}
+	
+	
+	   
+	   
+	</script>
 </body>
 </html>
