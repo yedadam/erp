@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dadam.inventory.outbound.mapper.OutboundMapper">
+<mapper namespace="com.dadam.inventory.hold.mapper.HoldMapper">
 	
-	<select id="selectHoldOutboundList" resultType="HoldVO" parameterType="HoldVO">
+	<select id="selectHoldList" resultType="HoldVO" parameterType="HoldVO">
 		SELECT  
 				hold_code,
 		        stk_code,
@@ -18,8 +18,8 @@
 		FROM hold
 		WHERE com_id = #{comId}
 	</select>
-	
-	<!-- <select id="selectShipRequestOutBound" resultType="OutboundVO" parameterType="OutboundVO">
+
+	<select id="selectShipRequestModal" resultType="OutboundVO" parameterType="HoldVO">
 		SELECT 
 			 	sd.ship_req_dtl_code,
 			 	sd.item_code,
@@ -42,9 +42,7 @@
                                         join item it
                                         on(sd.item_code = it.item_code AND sd.com_id = it.com_id)
         WHERE sd.com_id = #{comId}
-	</select> -->
-
-
+	</select>
 	<!-- <select id="selectOutBoundList" resultType="outBoundVO">
 	
 	</select> -->
