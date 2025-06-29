@@ -28,4 +28,8 @@ public interface PurchaseMapper {
 	public int purOrderUpdateRows(PurchaseOrderDetailVO param);
 	//발주 상세 업데이트
 	public int purOrderDeleteRows(PurchaseOrderDetailVO param);
-}
+	//발주 메인 삭제
+	public int purMainDelete(@Param("purOrdCode") String purOrdCode, @Param("comId") String comId);
+	//발주 상세 삭제
+	public int purDTtlDelete(@Param("purOrdCode") String purOrdCode, @Param("comId") String comId);
+}	

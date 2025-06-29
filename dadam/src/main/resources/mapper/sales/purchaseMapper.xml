@@ -94,13 +94,13 @@
 		                            TOT_SUP_PRICE,
 		                            TOT_VAT_PRICE,
 		                            TOT_AMT_SUM)    
-		VALUES(#{purOrdCode},#{vdrCode},sysdate,#{expDlvDate},#{purReqCode},#{empId},'pst01','vat01',#{vatYn},#{totSupPrice},#{totVatPrice},#{totAmtSum})
+		VALUES(#{purOrdCode},#{vdrCode},sysdate,#{expDlvDate},#{purReqCode},#{empId},'pst01','vat01',#{comId},#{totSupPrice},#{totVatPrice},#{totAmtSum})
  </insert>
  
  
  
   <!-- 발주바디등록 -->
-  <insert id="purchaseOrderDetailAdd">
+  <insert id="purchaseOrderDetailAdd" parameterType="com.dadam.sales.purchase.service.PurchaseOrderDetailVO">
   <selectKey resultType="string" keyProperty="purOrdDtlCode"
 	order="BEFORE">
 		SELECT 'porc-' || (NVL(MAX(TO_NUMBER(SUBSTR(PUR_ORD_DTL_CODE,6))),100)+1)
@@ -155,4 +155,18 @@ AND com_id = #{comId}
  WHERE pur_ord_dtl_code = #{purOrdDtlCode}
  AND com_id = #{comId}
 </delete>
+
+<!-- 발주메인 삭제 -->
+<delete id= "purMainDelete">
+	DELETE FROM purchaseorder
+	WHERE pur_ord_code = #{purOrdCode}
+	AND com_id = #{comId}
+</delete>
+<!-- 발주상세 삭제 -->
+<delete id="purDTtlDelete">
+	DELETE FROM purchaseorderdetail
+	WHERE pur_ord_code = #{purOrdCode}
+	AND com_id = #{comId}
+</delete>
+
 </mapper>
