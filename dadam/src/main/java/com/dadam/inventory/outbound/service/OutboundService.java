@@ -2,7 +2,10 @@ package com.dadam.inventory.outbound.service;
 
 import java.util.List;
 
-public interface OutboundService {
+import com.dadam.inventory.hold.service.HoldVO;
 
-	public List<OutboundVO> selectShipRequestOutBound(OutboundVO vo);
+public interface OutboundService {
+	// 조회
+	public List<HoldVO> selectHoldOutboundList(HoldVO vo);
+	
 }

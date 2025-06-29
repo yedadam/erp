@@ -120,15 +120,13 @@
 			</div>
 			<div class="modal-body">
 					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
-						<!-- <button type="button" id="resetBtn" class="btn btn-danger">초기화</button> -->
-						<button type="button" id="registerBtn" class="btn btn-primary"><i class="fas fa-warehouse"></i> 입고</button>
+						<button class="btn btn-danger" id="resetModal">
+						<i class="fas fa-square-minus"></i> 초기화
+						</button>
+						<button class="btn btn-primary" id="registerBtn">
+                        <i class="fas fa-warehouse"></i> 입고
+                    	</button>
 					</div>
-					<!-- 	<div class="form-floating mb-3">
-						<input type="date" class="form-control" id="dateInput"
-							placeholder="name@example.com"> <label
-							for="floatingInput">일자</label>
-					</div> -->
-
 					<div id="gridModal"></div>
 			</div>
 			<div class="modal-footer"></div>
@@ -178,7 +176,7 @@ const purcharsegrid = new tui.Grid({
     rowHeaders: ['checkbox'],
     //페이지네이션
     pageOptions: {
-        perPage: 5,
+        perPage: 10,
         useClient: true,
     },
     //필드값 구성
@@ -217,7 +215,6 @@ const purcharsegrid = new tui.Grid({
     ],
 });
 
-	let data = [];
 	// 체크한경우 데이터 넣기
 	purcharsegrid.on('check', checkRow)
 	purcharsegrid.on('checkAll', checkRow)
@@ -225,6 +222,7 @@ const purcharsegrid = new tui.Grid({
 	purcharsegrid.on('uncheck', checkRow);
 	purcharsegrid.on('uncheckAll', checkRow);
 	
+	let data;
 	// check 처리
 	function checkRow(){
 		data= [];
@@ -249,34 +247,12 @@ const purcharsegrid = new tui.Grid({
 		  })
 		  inboundGrid.resetData(data);
 	}
-	// 초기화 버튼
-/* 	function resetbtn(){
-		data= [];
-		  let rowCheck = purcharsegrid.getCheckedRows();
-		  rowCheck.filter(item =>{
-			  ee = {
-				  purOrdDtlCode: item.purOrdDtlCode,
-				  itemCode: item.itemCode,
-				  itemName: item.itemName,
-				  quantity : item.quantity,
-				  pquantity: item.pquantity,
-			      notStock: item.notStock,
-				  loc : '',
-				  qty : '',
-				  note: '',
-				  origin: true
-			  }
-			  data.push(ee);
-		  })
-		  inboundGrid.resetData(data);
-	} */
-	
 	
 	// inboundGrid 그리기
 	const inboundGrid = new tui.Grid({
 		el: document.getElementById('gridModal'),
 		pageOptions: {
-	        perPage: 5,
+	        perPage: 20,
 	        useClient: true,
 	    },
 	    columns:[
@@ -315,6 +291,10 @@ const purcharsegrid = new tui.Grid({
 	// 초기화
 	$('#reset').on('click', ()=>{
 		purcharsegrid.uncheckAll();
+	})
+	// 모달 초기화
+	$('#resetModal').on('click', ()=>{
+		inboundGrid.resetData(data);
 	})
 	
 	// 입고 등록
