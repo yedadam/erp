@@ -46,8 +46,8 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public int removeOrders(String ordCode) {
-		orderMapper.deleteOrders(ordCode); // 주문삭제
 		orderMapper.callUpdateCreditBalanceIfOpm(ordCode); //주문삭제후 해당 거래처의 여신잔량을 주문금액 만큼 + 처리하게함
+		orderMapper.deleteOrders(ordCode); // 주문삭제
 		return 0;
 	}
 

@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class OrdReqVO {	
 	OrdersVO ord; 
-	GridData<OrdDtlVO> dtl;
+	GridData<OrdDtlVO> dtl;      
 }

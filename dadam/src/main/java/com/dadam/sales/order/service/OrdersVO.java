@@ -37,4 +37,6 @@ public class OrdersVO {
 	private String quoCode; 
 	private int creditPrice;
 	private int creditBalPrice;
+	
+	
 }

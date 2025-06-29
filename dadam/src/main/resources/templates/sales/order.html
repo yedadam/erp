@@ -244,24 +244,25 @@
 		},
 		//필드값 구성
 		columns: [
-			{	header: '주문번호',name: 'ordCode',	align: 'center',width: 300,	},
-			{	header: '등록일자',	name: 'createdDate',align: 'center',editor: 'text',	editor: 'datePicker'},
-			{	header: '거래처이름',name: 'vdrName',	align: 'center',editor: 'text'	},
-			{	header: '거래처코드',name: 'vdrCode',align: 'center',editor: 'text'},
-			{	header: '납기일자',name: 'reqDlvDate',align: 'center',editor: 'text',editor: 'datePicker'},
-			{	header: '총금액',	name: 'totPrice',	align:'right',
+			{header: '주문번호',name: 'ordCode',	align: 'center',width: 300,	},
+			{header: '등록일자',	name: 'createdDate',align: 'center',editor: 'text',	editor: 'datePicker'},
+			{header: '거래처이름',name: 'vdrName',	align: 'center',editor: 'text'	},
+			{header: '거래처코드',name: 'vdrCode',align: 'center',editor: 'text'},
+			{header: '납기일자',name: 'reqDlvDate',align: 'center',editor: 'text',editor: 'datePicker'},
+			{header: '총금액',	name: 'totPrice',	align:'right',
 				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
-			editor: 'text'},
-			{	header: '여신한도',name: 'creditPrice',align:'right', 
+				editor: 'text'},
+			{header: '여신한도',name: 'creditPrice',align:'right', 
 				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
 				editor: 'text'},
 			{header: '여신잔액',name: 'creditBalPrice',	align:'right',
 				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원', 	
 			editor: 'text'},
-			{	header: '지불방식',	name: 'payMethod',align: 'center',
-				formatter: 'listItemText',	editor: {type: 'select',
-								options: {listItems: payMethod}
-							}//Map형태로 담아옴 [{"text":"","value":""}]
+			{header: '지불방식',	name: 'payMethod',align: 'center',
+				formatter: 'listItemText',	
+				editor: {type: 'select',
+						 options: {listItems: payMethod}
+						}//Map형태로 담아옴 [{"text":"","value":""}]
 			},
 			{header: '진행상태',	name: 'status',align: 'center',
 				formatter: 'listItemText',
@@ -295,8 +296,8 @@
 		const checkedRows = orderGrid.getCheckedRowKeys(); //행번호 가져오는 	 	
 		// 현재 클릭한 rowKey가 유일하지 않으면 전부 해제 후 현재 행만 체크
 		if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
-			orderGrid.uncheckAll(); // 전체 해제
-			orderGrid.check(ev.rowKey); // 현재 행만 체크
+				orderGrid.uncheckAll(); // 전체 해제
+				orderGrid.check(ev.rowKey); // 현재 행만 체크
 		}
 		if (ev.columnName == "vdrCode" || ev.columnName == "vdrName") {
 			console.log('vdr코드클릭됨');
@@ -348,26 +349,26 @@
 		el: document.getElementById('ordDtlGrid'),
 		rowHeaders: ['checkbox'],
 		columns: [
-			{	header: '주문상세정보',	name: 'ordDtlCode',	align: 'center',	width: 300,	editor: 'text'	},
-			{	header: '품목코드',	name: 'itemCode',align: 'center',	editor: 'text'},
-			{	header: '이름',	name: 'name',align: 'center',	editor: 'text'},
-			{	header: '가격',	name: 'price',	align: 'right',
+			{header: '주문상세정보',	name: 'ordDtlCode',	align: 'center',	width: 300,	editor: 'text'	},
+			{header: '품목코드',	name: 'itemCode',align: 'center',	editor: 'text'},
+			{header: '이름',	name: 'name',align: 'center',	editor: 'text'},
+			{header: '가격',	name: 'price',	align: 'right',
 				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',	
 				editor: 'text'	},
-			{	header: '수량',	name: 'quantity',align: 'center',	
+			{header: '수량',	name: 'quantity',align: 'center',	
 			 	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '개',
 				editor: 'text',
 			},
 			{header: '공급가액',	name: 'supPrice',align: 'right',
 			 formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',	
 			 editor: 'text'	},
-			{	header: '부가세',	name: 'vatPrice',	align: 'right',
+			{header: '부가세',	name: 'vatPrice',	align: 'right',
 			formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
 			editor: 'text'},
-			{	header: '할인금액',	name: 'discPrice',	align: 'right',	
+			{header: '할인금액',	name: 'discPrice',	align: 'right',	
 			formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
 			editor: 'text'}, 
-			{	header: '총가격',	name: 'totPrice',	align: 'right',
+			{header: '총가격',	name: 'totPrice',	align: 'right',
 			formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
 			editor: 'text'}
 		]
@@ -381,10 +382,10 @@
 			useClient: true,
 		},
 		columns: [
-			{	header: '종류',	name: 'type',align: 'center',	editor: 'text'},
-			{	header: '품목코드',	name: 'itemCode',align: 'center',editor: 'text'},
-			{	header: '품목명',name: 'name',align: 'center',	editor: 'text'},
-			{ header: '가격',	name: 'price',align:'right',	editor: 'text'}
+			{header: '종류',	name: 'type',align: 'center',	editor: 'text'},
+			{header: '품목코드',	name: 'itemCode',align: 'center',editor: 'text'},
+			{header: '품목명',name: 'name',align: 'center',	editor: 'text'},
+			{header: '가격',	name: 'price',align:'right',	editor: 'text'}
 		]
 	})
 	//vdr 모달안에  vdrGrid 생성  

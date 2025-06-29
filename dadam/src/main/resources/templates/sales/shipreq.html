@@ -1,9 +1,824 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
- xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{common/layouts/default_layout}" 
-  layout:fragment="Content">
-<body>
-<h1>출하의뢰</h1>
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
+<head>
+    <style>
+        .main-table {
+            border: 2px solid #0d6efd;
+        }
+        .main-table th {
+            background-color: #e3f2fd;
+            text-align: center;
+            vertical-align: middle;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+        .main-table td {
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #ddd;
+        }
+        .detail-table {
+            margin-top: 20px;
+        }
+        .detail-table th {
+            background-color: #f8f9fa;
+            text-align: center;
+            font-size: 14px;
+            padding: 8px;
+        }
+        .detail-table td {
+            text-align: center;
+            font-size: 14px;
+            padding: 8px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        .btn-group-custom {
+            margin-bottom: 20px;
+        }
+        .tui-pagination{
+        	padding-bottom:10px;
+				}  
+	   .start-action {
+			display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid #facc15;        /* 연한 노랑 */
+	background-color: #fefce8;        /* 연노랑 배경 */
+	color: #92400e;                   /* 진한 주황갈색 */
+		}
+		.end-action {
+			display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid #22c55e;        /* 연초록 */
+	background-color: #ecfdf5;        /* 아주 연한 민트 */
+	color: #065f46;                   /* 진한 초록 */
+		}
+		.del-action {
+			display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid #f87171;        /* 연한 빨강 */
+	background-color: #fef2f2;        /* 아주 연한 빨강 */
+	color: #991b1b;                   /* 진한 빨강 */
+		}
+		
+	.require{
+		color :red;
+	}
+</style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid mt-4">
+        <h3 class="mb-4">출하의뢰</h3>
+        
+        <!-- 검색 및 버튼 영역 -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="input-group search-container" style="width: 400px;">
+                    <input type="text" class="form-control" placeholder="검색어를 입력하세요">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="btn-group-custom">
+                	<button class="btn btn-secondary me-2" id="newBtn">
+                        <i class="fas fa-pen"></i> 추가
+                    </button>
+					<button class="btn btn-warning me-2" id="searchBtn">
+						<i class="fas fa-eye"></i> 조회
+					</button>
+                    <button class="btn btn-danger me-2" id="delBtn">
+                        <i class="fas fa-trash"></i> 삭제
+                    </button>
+                    <button class="btn btn-primary" id="saveBtn">
+                        <i class="fas fa-save"></i> 저장
+                    </button>
+					<button class="btn btn-primary" id="reqBtn">
+                        <i class="fas fa-save"></i> 주문서불러오기
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 테이블 -->
+     
+            <!-- 그리드 -->
+            <div id="mainGrid"></div>
+  
+
+        <!-- 상세 정보 테이블 -->
+
+             <div class="text-end">
+                <div class="btn-group-custom">
+                	<button class="btn btn-primary me-2" id="rowAddBtn">
+                        행추가
+                    </button>
+                    <button class="btn btn-danger me-2" id="rowDelBtn">
+                       행삭제
+                    </button>
+                </div>
+            </div>
+                <div id="detailGrid"></div>
+    </div>
+  <!-- 주문 모달 -->
+	<div class="modal fade" id="requestModal" tabindex="-1"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel">주문 리스트</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container-fluid">
+						<div id="requestGrid"></div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 거래처 모달-->
+	<div class="modal fade" id="vdrModal" tabindex="-1"
+		aria-labelledby="vdrModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="vdrModalLabel">거래처 리스트</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container-fluid">
+						<div id="vdrGrid"></div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Close</button>
+
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--창고모달-->	
+	<div class="modal fade" id="warehouseModal" tabindex="-1"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel">창고 리스트</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container-fluid">
+						<div id="warehouseGrid"></div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	//세션
+	let empId = 'emp-101';
+	let empName = '예담';
+	
+	
+	//필수값 가져오기
+	function getName(name){
+		const header = document.createElement('span');
+		header.innerHTML=`<span class="require">* </span>${name}`
+		return header;
+	}
+        // 메인그리드
+        const mainGrid = new tui.Grid({
+            // toastui 아이디 가져오기
+            el: document.getElementById('mainGrid'),
+            scrollX: false,
+            scrollY: false,
+            // checkbox 부여
+            rowHeaders: ['checkbox'],
+            // 페이지네이션
+            pageOptions: {
+                perPage: 10,
+                useClient: true,
+            },
+            // 필드값 구성
+            columns: [
+                {header: '사원', name: 'empId', align: 'center', editor: 'text'},
+                {header: '출하의뢰코드', name: 'shipReqCode', align: 'center',customHeader:getName('출하의뢰코드')},
+                {header: '거래처이름', name: 'vdrName', align: 'center',customHeader:getName('거래처이름')},
+                {header: '거래처코드', name: 'vdrCode', align: 'center'},
+                {header: '출고창고', name: 'whCode', align: 'center', editor: 'text',customHeader:getName('출고창고')},
+                {header: '출고예정일자', name: 'shipExpDate', align: 'center', editor: 'datePicker',customHeader:getName('출고예정일자')},
+                {header: '총금액합계', name: 'totPrice', align: 'right', 
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+                {header: '상태', name: 'status', align: 'center'},
+				{header: '주문번호', name: 'ordCode', align: 'center'},
+				{header: '등록일자', name: 'createdDate', align: 'center'}
+            ],
+        });
+		//
+        // 상세그리드
+        const detailGrid = new tui.Grid({
+            // toastui 아이디 가져오기
+            el: document.getElementById('detailGrid'),
+            scrollX: false,
+            scrollY: false,
+            // checkbox 부여
+            rowHeaders: ['checkbox'],  
+            // 필드값 구성
+            columns: [
+                {header:'출하의뢰상세코드', name: 'shipReqDtlCode', align: 'center', width: 120},
+                {header:'품목코드', name: 'itemCode', align: 'center', width: 120},
+                {header:'품목이름', name: 'name', align: 'center',customHeader:getName('품목이름')},
+                {header:'수량', name: 'quantity', align: 'center', editor: 'text',customHeader:getName('수량'),
+                formatter: function(quantity){return quantity.value+'개'; }, },
+                {header:'개당가격', name: 'price', align: 'right',
+                	formatter: function(price){
+                   	  return priceFormat(price.value)+'원';
+                     },		
+                },
+                {header:'공급가액', name: 'supPrice', align: 'right', 
+                	formatter: function(price){
+                     	  return priceFormat(price.value)+'원';
+                       },	
+                },
+                {header:'부가세', name: 'vatPrice', align: 'right', 
+                	formatter: function(price){return priceFormat(price.value)+'원';},	
+                },
+                {header:'할인금액', name: 'discPrice', align: 'right', 
+                	formatter: function(discPrice){  return discPrice.value+'원'; }, },
+				{header:'합계금액', name: 'totPrice', align: 'center', 
+                	formatter: function(totPrice){ return priceFormat(totPrice.value)+'원';},	
+                },	
+                {header:'상태', name: 'status', align: 'center'},
+				
+            ]
+        });
+        
+        //주문서 의뢰 그리드
+        const requestGrid = new tui.Grid({
+            // toastui 아이디 가져오기
+            el: document.getElementById('requestGrid'),
+			pageOptions: {
+			perPage: 10,
+			useClient: true,
+			},
+            scrollX: false,
+            scrollY: false,
+            // 필드값 구성
+            columns: [
+                {header:'주문코드', name: 'ordCode', align: 'center'},
+				{header:'거래처코드', name: 'vdrCode', align: 'center'},
+				{header:'거래처명', name: 'vdrName', align: 'center'},
+                {header: '등록일자', name: 'createdDate', align: 'center'},
+                {header: '상태', name: 'status', align: 'center'},
+                {header: '총공급세',	name: 'totSupPrice',	align:'right',
+				 	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},   
+                {header: '총부가세',	name: 'totVatPrice',	align:'right',
+				    formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+                {header: '총할인금액',	name: 'totDisc',	align:'right',
+				    formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},      
+                {header: '총금액합계',	name: 'totPrice',	align:'right',
+				     formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+				{header: '납기일자', name: 'reqDlvDate', align: 'center'}		  
+            ]
+        });
+      //vdr 모달안에  vdrGrid 생성  
+    	let vdrGrid=new tui.Grid({
+    		el:document.getElementById('vdrGrid'),
+    		pageOptions:{
+    			perPage:10,
+    			useClient: true, 
+    		},
+    		 columns:[
+            	{header:'거래처코드',name:'vdrCode',align:'center'},
+            	{header:'거래처구분',name:'type',align:'center'}, 
+            	{header:'거래처명',name:'vdrName',align:'center'},
+            	{header:'할인율',name:'discount',align:'center',
+            		formatter: function(discount){return discount.value+'%'; }
+            	} 
+            ]
+    	})
+
+		//출하창고 warehouseGrid
+		let warehouseGrid=new tui.Grid({
+				el:document.getElementById('warehouseGrid'),
+				pageOptions:{
+    			perPage:10,
+    			useClient: true, 
+    		},
+			 columns:[
+            	{header:'창고코드',name:'whCode',align:'center'},
+            	{header:'창고이름',name:'name',align:'center'}, 
+            	{header:'위치정보',name:'locCode',align:'center'},
+				{header:'메모',name:'note',align:'center'}]	
+		})
+
+		warehouseGrid.on('click',ev=>{
+			console.log('창고grid가 클릭됨');
+			console.log(ev.targetType);
+			console.log(ev.columnName); 
+			console.log( warehouseGrid.getRow(ev.rowKey));
+			console.log( warehouseGrid.getRow(ev.rowKey).locCode); 
+			mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,
+							  'whCode',
+							  warehouseGrid.getRow(ev.rowKey).name); //창고이름을 넣어줌
+			$('#warehouseModal').modal('hide');
+		})
+
+		
+      //그리드 숨기기
+      mainGrid.hideColumn('empId');
+      mainGrid.hideColumn('vdrCode');
+      detailGrid.hideColumn('itemCode');       //
+      detailGrid.hideColumn('shipReqDtlCode'); //출하상세번호 
+        // 메인 리스트 불러오기
+        function mainList() {
+    	  pageStatus= 'search'
+    	  let searchBtn =$('#searchBtn');
+    	  let newBtn = $('#newBtn'); 
+    	  //조회버튼 비활성화
+    	  searchBtn.prop('disabled', true);
+    	  //추가버튼 활성화
+    	  newBtn.prop('disabled', false);    
+            $.ajax({
+                url: "/erp/sales/shipReqList",
+                method: "GET",
+                success: function(result) {
+                    console.log('출하의뢰정보 불러오기', result);
+                    mainGrid.resetData(result);
+                    //디테일 그리드 초기화
+                    detailGrid.resetData([]);
+                },
+                error: function(xhr, status, error) {
+                    console.log("실패:", xhr.status, error);
+                }
+            });
+        }
+      //금액 포맷 함수('#,###')
+        function priceFormat(price) {
+        	if(price == null){
+        		return '0';
+        	}
+        	let result = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        	return result;
+        }
+		//주문서 불러올때 상세 
+		function ordDtlList(ordcode) {
+			$.ajax({
+					url: "/erp/sales/ordDtlList",
+					method: "GET",
+					data: {ordCode: ordcode},
+					success: function(result){
+							console.log('주문상세=>',result)
+							detailGrid.resetData(result);}
+				})
+		}
+		//출하의뢰 상세
+		function shipReqDtlList(shipReqCode) {
+			$.ajax({
+					url: "/erp/sales/shipReqDtlList",
+					method: "GET",
+					data: {shipReqCode: shipReqCode},
+					success: function(result){
+							console.log('출하의뢰상세=>',result)
+							detailGrid.resetData(result);
+						}
+			})
+		} 
+
+        // 페이지 로드 시 메인 리스트 호출
+        let pageStatus = "search";
+        mainList();
+        // 신규버튼 이벤트 처리
+        $('#newBtn').on('click', function(ev) {
+        	pageStatus="add"
+          let searchBtn =$('#searchBtn');
+      	  let newBtn = $('#newBtn'); 
+      	  //조회버튼 활성화
+      	  searchBtn.prop('disabled', false);
+      	  //추가버튼 비활성화
+      	  newBtn.prop('disabled', true);    
+ 	      let data = mainGrid.getData();
+        	//그리드 초기화ㅣ
+          mainGrid.resetData([{empId: empId,empName : empName}])
+          detailGrid.resetData([{}]);
+         		
+        });
+		//메인그리드 클릭 RowKey
+		let mainRowKey = null;
+		//메인그리드 클릭창
+		mainGrid.on('click',ev => {
+			console.log('shipReqCode',mainGrid.getCheckedRows()[0].shipReqCode);
+			shipReqDtlList(mainGrid.getCheckedRows()[0].shipReqCode);
+
+			if (!ev.targetType || ev.targetType !== 'cell') {
+			    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+			    return;
+			  }
+			mainRowKey = ev.rowKey;
+			//출하의뢰코드 클릭시
+			if(ev.columnName == 'shipReqCode'){
+				console.log(pageStatus)
+				if(pageStatus=='search'){
+					return;
+				}
+				requestModal();
+				//리플래쉬
+			  $(requestModal).on('shown.bs.modal',e => {
+        			requestGrid.refreshLayout();
+        	  })
+			}
+			//거래처 코드 클릭시
+			//if(ev.columnName == 'vdrName' ||ev.columnName == 'vdrCode'){
+			//	vdrModal()
+			//	 $(vdrModal).on('shown.bs.modal',e => {
+			//		 vdrGrid.refreshLayout();
+        	//  })
+			//}
+			//출하창코 클릭시
+			if(ev.columnName=='whCode'){
+				warehouseModal()
+				 $(warehouseModal).on('shown.bs.modal',e => {
+					 warehouseGrid.refreshLayout();
+        	  })
+			}
+			const checkedRows = mainGrid.getCheckedRowKeys();
+			if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
+				mainGrid.uncheckAll(); // 전체 해제
+				mainGrid.check(ev.rowKey); // 현재 행만 체크
+				}			
+
+			
+
+		})
+		//주문의뢰 모달창
+		function requestModal(){	
+			$.ajax({
+				url : "/erp/sales/orderList",
+				method : "GET",
+				success : function(result) {
+					requestGrid.resetData(result);
+				}
+			})
+			$('#requestModal').modal('show');
+		}
+		//거래처 업체 모달창
+		function vdrModal(){
+			$('#vdrModal').modal('show');
+			$.ajax({
+				url:"/erp/standard/venderAll",
+				method:"GET",
+				success:function(result){
+					vdrGrid.resetData(result);
+				}
+			})
+		}
+		//창고 선택 모달 
+		function warehouseModal(){
+			$('#warehouseModal').modal('show');
+			$.ajax({
+				url:"/erp/inventory/warehouseList",
+				method:"GET",
+				success:function(result){
+					warehouseGrid.resetData(result);
+				}
+			})
+		}
+		//모달 그리드 클릭시 발동
+		requestGrid.on('click', ev => {
+			//행클릭시 발주의뢰 코드 값 가져오기
+			let get = requestGrid.getRow(ev.rowKey).ordCode;
+			//메인그리드 전달
+			//mainGrid.setValue(mainRowKey,'purReqCode',get);
+			mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,'totPrice',requestGrid.getRow(ev.rowKey).totPrice);
+			mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,'vdrCode',requestGrid.getRow(ev.rowKey).vdrCode);
+			mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,'vdrName',requestGrid.getRow(ev.rowKey).vdrName);
+			mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,'shipExpDate',requestGrid.getRow(ev.rowKey).reqDlvDate);						  
+			mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,'createdDate',dateformatyymmdd(new Date())); //등록일자를 오늘날짜로 설정
+			mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,'ordCode',requestGrid.getRow(ev.rowKey).ordCode);//주문번호
+			mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,'status',requestGrid.getRow(ev.rowKey).status); //상태			
+								  
+			ordDtlList(requestGrid.getRow(ev.rowKey).ordCode); //주문상세조회하고 난후 detail리스트에 resetdata 처리해줌  
+			//모달 지우기
+			$('#requestModal').modal('hide');
+
+		})
+			
+		//거래처코드 실행
+		vdrGrid.on('click', ev => {
+			console.log(ev);
+			//업체코드
+			let vdrCode = vdrGrid.getRow(ev.rowKey).vdrCode;
+			//업체이름
+			let vdrName = vdrGrid.getRow(ev.rowKey).vdrName;
+			//메인그리드로 전달
+		//	mainGrid.setValue(mainRowKey,'vdrCode',vdrCode)
+		//	mainGrid.setValue(mainRowKey,'vdrName',vdrName)
+			
+			$('#vdrModal').modal('hide');
+		})
+		
+		//상세그리드 행추가
+		$('#rowAddBtn').on('click', ev => {
+			let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
+			console.log(mainRowIndex)
+			if(pageStatus == 'search' && mainRowIndex ==undefined){
+				Swal.fire('에러','메인그리드에 해당행을 클릭하세요','error')
+				return;
+			}
+			if(pageStatus =='search'){
+			  detailGrid.appendRow({purOrdCode : mainGrid.getRow(mainRowIndex).purOrdCode});
+			}else if(pageStatus =='add'){
+				detailGrid.appendRow({});		
+			}
+		})
+		
+		//상세그리드 행삭제
+		$('#rowDelBtn').on('click', ev => {
+			//클릭된 정보 가져오기
+			const checkedRows = detailGrid.getCheckedRows();
+			//행삭제
+			checkedRows.forEach(item => {
+		    console.log(item)
+		    detailGrid.removeRow(item.rowKey)
+		  })
+		})
+		//라디오버튼처럼 작동
+		mainGrid.on('click', ev => {
+		
+		  const checkedRows = mainGrid.getCheckedRowKeys();
+		  if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
+		    mainGrid.uncheckAll();
+		    mainGrid.check(ev.rowKey);  // 여기서 check 이벤트는 따로 안 뜸 (정상)
+		  }
+		
+		  console.log('선택된 row:', ev.rowKey);
+		});
+		
+		//디테일 클릭 인덱스
+		let detailRowKey = null;		
+		//디테일그리드 클릭시 발동
+		detailGrid.on('click', ev => {
+			detailRowKey= ev.rowKey;
+		   //아이템리스트 가져오기 
+		
+		})
+		//금액 변환
+		function updateDetailPrice(rowKey) {
+			const row = detailGrid.getRow(rowKey);
+			//금액
+			const price = Number(row.price || 0);
+			//갯수
+			const quantity = Number(row.quantity || 0);
+			//총금액 기입
+			const totPrice = price * quantity;
+			//부가세
+			const vatPrice = Math.floor(totPrice / 10);
+			//공급가액
+			const supPrice = totPrice - vatPrice;
+	
+			detailGrid.setValue(rowKey, 'totPrice', totPrice);
+			detailGrid.setValue(rowKey, 'vatPrice', vatPrice);
+			detailGrid.setValue(rowKey, 'supPrice', supPrice);
+	}
+    	//총금액값 바꾸기
+		detailGrid.on('afterChange',ev => {
+			//수량이 바뀔시
+			if(ev.changes[0].columnName=='quantity' ){
+				
+				//금액렌더링
+				updateDetailPrice(ev.changes[0].rowKey);
+				
+				// 다음 tick에서 총합 계산
+				setTimeout(() => {
+					const detailData = detailGrid.getData();
+
+					let mainTotPrice = 0;
+					let mainVatPrice = 0;
+					let mainSupPrice = 0;
+
+					detailData.forEach(item => {
+						mainTotPrice += item.totPrice || 0;
+						mainVatPrice += item.vatPrice || 0;
+						mainSupPrice += item.supPrice || 0;
+					});
+					let mainKey = null;
+					//등록일때는 체크없어도 가능
+					if(pageStatus == 'add'){
+						mainKey = mainGrid.getCheckedRowKeys()[0] ?? 0;
+					//수정및삭제는 체크가 무조건적있어야함
+					}else if(pageStatus=='search'){
+						mainKey = mainGrid.getCheckedRowKeys()[0]
+					}
+					mainGrid.setValue(mainKey, 'totSupPrice', mainSupPrice);
+					mainGrid.setValue(mainKey, 'totVatPrice', mainVatPrice);
+					mainGrid.setValue(mainKey, 'totAmtSum', mainTotPrice);
+				}, 0);
+			}
+		})
+	     //등록함수
+	     function shipReqAdd(){
+	    		let mainGridInfo = mainGrid.getData(); //[{},{},{}]
+	    		let detailGridInfo = detailGrid.getData(); //[{}]
+	    		
+	    		
+	    		//메인 그리드 해당 값이 기입했는지 체크
+	    		let mainResult = mainGridInfo.every(item => {
+	    				
+	    			return item.vdrCode &&
+	    			       item.shipExpDate && item.whCode
+						   					&& item.ordCode	
+	    			       ;
+	    		})
+	    		 //디테일 값 있는지 체크
+		    	 let detailResult = detailGridInfo.some(item => {
+		    		 console.log(item.itemCode)
+		    		 console.log(item.quantity)
+		    		 console.log(item.supPrice)
+		    		 console.log(item.totPrice)
+		    			return !item.itemCode || item.quantity ==0 ||
+		    			       item.supPrice==0 || item.totPrice==0;
+		    		})
+		    	console.log(detailResult)
+	    		//값 체크
+	    		if(!mainResult){
+	    		   Swal.fire('실패','메인 그리드에 입력란들을 기입하세요','error');
+	    		   return;
+	    		}else if(detailResult){
+	    			Swal.fire('실패','상세 그리드에 입력란들을 기입하세요','error');
+	    		   return;
+	    		}
+	    		
+	    		//등록데이터 정리
+	    		let mainData = mainGrid.getData(); //[{},{},{}]
+	    		let detailData = detailGrid.getModifiedRows(); //[{},{},{}]
+	    		console.log(mainData);
+	    		console.log(detailData);
+	    		let dataToSend = {
+	    				head : mainData[0], 
+	    				dtl : detailData
+	    		};
+	    		//등록ajax
+	    		$.ajax({
+	    			url: '/erp/sales/shipReqAdd',
+	    			type: 'POST',
+	    			contentType: 'application/json',
+	    			data: JSON.stringify(dataToSend),
+	    			success: function(res) {
+	    				console.log('전송 성공', res);
+	    							Swal.fire({
+	    					title: "출하의뢰성공!",
+	    					icon: "success",
+	    					draggable: true
+	    				});
+	    				mainList();
+	    			},
+	    			  error: function(xhr, status, error) {
+	                      console.log("실패:", xhr.status, error);
+	                }
+	    		})
+    	}
+	     //버튼클릭시 발동
+	     $('#saveBtn').on('click',ev => {
+	    	 //추가버튼 클릭시
+	    	 if(pageStatus == 'add'){
+	    		 //등록함수발동
+	    		 shipReqAdd();
+	    	 }
+	    	 //조회버튼클릭시
+	    	 if(pageStatus=='search'){
+	    		 shipReqModify();
+	    	 }
+	     })
+	     //조회버튼
+	     $('#searchBtn').on('click',ev => {
+	    	 mainList();
+	     })
+		 //주문서불러오기 버튼
+		 $('#reqBtn').on('click',ev=>{
+			requestModal(); 
+		 })
+
+	     //상세조회
+	    mainGrid.on('check',ev => {
+	    if(!ev.rowKey){
+	    	return;
+	    }
+	    	if(pageStatus=='search'){
+	    		//체크된행 파악
+	    		let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
+	    		let mainRowData = mainGrid.getRow(mainRowIndex).shipReqCode //문자열
+	    		$.ajax({
+	    			url:`/erp/sales/shipReqDetailList/${mainRowData}`,
+	    			method:'GET',
+	    			success:result => {
+	    				detailGrid.resetData(result);
+	    			}
+	    		})
+	    	} 
+	     })
+	     //수정 함수
+	     async function shipReqModify(){
+	    	 let checkedRows = detailGrid.getModifiedRows();
+	    	 let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
+	    	 if( mainGrid.getCheckedRowKeys().length<1){
+	    		 Swal.fire('실패','메인그리드에 해당하는 값을 체크해주세요','error');
+	    		 return;
+	    	 }
+	    	 let mainRowData = mainGrid.getRow(mainRowIndex);
+	    	 //메인그리드 해당란 다있는지 체크
+	    	 if(!mainRowData.vdrCode||!mainRowData.purOrdDate||
+	    	    !mainRowData.expDlvDate){
+	    		 Swal.fire('실패','해당하는값을 입력해주세요','error');
+	    		return; 
+	    	 }
+	    	 //디테일 값 있는지 체크
+	    	 let detailGridInfo=detailGrid.getData();
+	    	 let detailResult = detailGridInfo.some(item => {
+	    			return !item.itemCode || item.quantity ==0 ||
+	    			       item.supPrice==0 || item.totPrice==0;
+	    		})
+	    	console.log(detailResult);
+	    	  if(detailResult){
+	    		  Swal.fire('실패','해당 하는 값을 입력해주세요.','error')
+	    		  return;
+	    	  } 
+	    	  console.log(mainRowData)
+	    	  if(mainRowData.status!='진행중'){
+	    		  Swal.fire('실패','이미 입고처리된 항목에 대해선 입고가 불가합니다.','error')
+	    		  return;
+	    	  }
+	    	 //메인창
+	    	 console.log(mainRowData)
+	    	  await $.ajax({
+	    		 url:'/erp/sales/shipReqMainModify',
+	    		 method:'PUT',
+	    		 contentType: "application/json",
+	    		 data:JSON.stringify(mainRowData),
+	    		 success : result => {
+	                 if(result <1 ){
+	                	  Swal.fire('저장','저장이 정상적으로 실패하였습니다.','error')
+		                  return;
+	                 }
+	             },
+	             error: function(xhr, status, error) {
+	                    console.log("실패:", xhr.status, error);
+	                }
+	    	 }) 
+	    	 //상세 수정
+	    	 await $.ajax({
+	    		 url:'/erp/sales/shipReqDtlModify',
+	    		 method:'PUT',
+	    		 contentType: "application/json",
+	    		 data:JSON.stringify({
+	    			 createdRows : checkedRows.createdRows,
+	    			 updatedRows : checkedRows.updatedRows,
+	    			 deleteRows : checkedRows.deletedRows,
+	    		 }),
+	    		 success : result => {
+	                     Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success')
+	                     mainList();
+	             },
+	             error: function(xhr, status, error) {
+	            	 	Swal.fire('실패','수정이 실패하였습니다..','error')
+	                    console.log("실패:", xhr.status, error);
+	                }
+	    	 })
+	     }
+		function dateformatyymmdd(today) {
+		var today = today;
+		var year = today.getFullYear();
+		var month = ('0' + (today.getMonth() + 1)).slice(-2);
+		var day = ('0' + today.getDate()).slice(-2);
+		var dateString = year + '-' + month + '-' + day;
+		return dateString;
+	} 
+    </script>
 </body>
 </html>
