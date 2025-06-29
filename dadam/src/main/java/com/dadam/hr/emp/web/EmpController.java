@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import com.dadam.hr.emp.service.DeptService;
 import com.dadam.hr.emp.service.EmpService;
 import com.dadam.hr.emp.service.EmpVO;
+import com.dadam.common.service.CodeService;
 
 // 사원관리 컨트롤러
 // - 사원 전체조회, 상세조회, 등록, 수정, 삭제, 사번생성 등
@@ -34,6 +35,9 @@ public class EmpController {
     @Autowired
     private DeptService deptService;
 
+    @Autowired
+    private CodeService codeService;
+
     /**
      * 사원 목록 페이지로 이동
      * @return 사원 목록 페이지 view name
@@ -42,6 +46,9 @@ public class EmpController {
     @GetMapping("/emp")
     public String empPage(Model model) {
         model.addAttribute("departments", deptService.findAllDepartments());
+        model.addAttribute("positions", codeService.getCodeMap("pos"));
+        model.addAttribute("workTypes", codeService.getCodeMap("emp"));
+        model.addAttribute("empStatuses", codeService.getCodeMap("stt"));
         return "hr/emplist";
     }
 
@@ -64,30 +71,11 @@ public class EmpController {
     public String insertEmp(@ModelAttribute EmpVO empVO, @RequestParam(value = "profileImg", required = false) MultipartFile profileImg) {
         empVO.setComId("COM-101");
         empVO.setPwd("init");
-        // 파일 저장 처리 (절대경로 사용)
         if (profileImg != null && !profileImg.isEmpty()) {
-            String uploadDir = System.getProperty("user.dir") + "/uploads/profile/";
-            File dir = new File(uploadDir);
-            if (!dir.exists()) dir.mkdirs();
-            String fileName = System.currentTimeMillis() + "_" + profileImg.getOriginalFilename();
-            File dest = new File(dir, fileName);
-            try {
-                profileImg.transferTo(dest);
-                empVO.setProfileImgPath("/uploads/profile/" + fileName);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "fail";
-            }
+            empVO.setProfileImgPath(saveProfileImage(profileImg));
         }
-        // 사번 자동생성
         if (empVO.getEmpId() == null || empVO.getEmpId().isEmpty()) {
-            String maxEmpId = empService.getMaxEmpId();
-            String nextEmpId = "e1001";
-            if (maxEmpId != null && maxEmpId.matches("e\\d+")) {
-                int num = Integer.parseInt(maxEmpId.substring(1));
-                nextEmpId = "e" + (num + 1);
-            }
-            empVO.setEmpId(nextEmpId);
+            empVO.setEmpId(generateNextEmpId());
         }
         int result = empService.insertEmp(empVO);
         return result > 0 ? "ok" : "fail";
@@ -96,20 +84,8 @@ public class EmpController {
     @PostMapping("/updateEmp")
     @ResponseBody
     public String updateEmp(@ModelAttribute EmpVO empVO, @RequestParam(value = "profileImg", required = false) MultipartFile profileImg) {
-        // 파일 저장 처리 (절대경로 사용)
         if (profileImg != null && !profileImg.isEmpty()) {
-            String uploadDir = System.getProperty("user.dir") + "/uploads/profile/";
-            File dir = new File(uploadDir);
-            if (!dir.exists()) dir.mkdirs();
-            String fileName = System.currentTimeMillis() + "_" + profileImg.getOriginalFilename();
-            File dest = new File(dir, fileName);
-            try {
-                profileImg.transferTo(dest);
-                empVO.setProfileImgPath("/uploads/profile/" + fileName);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "fail";
-            }
+            empVO.setProfileImgPath(saveProfileImage(profileImg));
         }
         int result = empService.updateEmp(empVO);
         return result > 0 ? "ok" : "fail";
@@ -127,16 +103,36 @@ public class EmpController {
     @GetMapping("/nextEmpId")
     @ResponseBody
     public String nextEmpId() {
+        return generateNextEmpId();
+    }
+
+    @GetMapping("/emp-all")
+    public String empAllPage(Model model) {
+        model.addAttribute("empStatuses", codeService.getCodeMap("stt"));
+        return "hr/emp-all";
+    }
+
+    private String saveProfileImage(MultipartFile profileImg) {
+        try {
+            String uploadDir = System.getProperty("user.dir") + "/uploads/profile/";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) dir.mkdirs();
+            String fileName = System.currentTimeMillis() + "_" + profileImg.getOriginalFilename();
+            File dest = new File(dir, fileName);
+            profileImg.transferTo(dest);
+            return "/uploads/profile/" + fileName;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String generateNextEmpId() {
         String maxEmpId = empService.getMaxEmpId();
         if (maxEmpId == null || !maxEmpId.matches("e\\d+")) {
             return "e1001";
         }
         int num = Integer.parseInt(maxEmpId.substring(1));
         return "e" + (num + 1);
-    }
-
-    @GetMapping("/emp-all")
-    public String empAllPage() {
-        return "hr/emp-all";
     }
 } 

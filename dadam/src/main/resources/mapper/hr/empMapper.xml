@@ -12,23 +12,27 @@
 		- getMaxEmpId: 사번 최대값 조회
 	-->
 
-	<!-- 사원 전체/검색/필터 조회 -->
+	<!-- 사원 전체/검색/필터 조회 (DB 함수 활용) -->
     <select id="findEmpList" resultType="com.dadam.hr.emp.service.EmpVO" parameterType="map">
         SELECT
             e.emp_id,
             e.com_id,
             e.dept_code,
-            d.dept_name,
+            getDeptName(e.dept_code) AS dept_name,
             e.pwd,
-            e.emp_name,
+            getEmpName(e.emp_id) AS emp_name,
             e.email,
             e.tel,
             e.addr,
+            e.addr_detail AS addrDetail,
             e.hire_date,
             e.position,
+            (SELECT s.SUB_NAME FROM SUBCODES s WHERE s.MAIN_CODE = 'pos' AND s.SUB_CODE = e.position) AS positionName,
             e.resign_date,
             e.emp_status,
+            (SELECT s.SUB_NAME FROM SUBCODES s WHERE s.MAIN_CODE = 'stt' AND s.SUB_CODE = e.emp_status) AS empStatusName,
             e.work_type,
+            (SELECT s.SUB_NAME FROM SUBCODES s WHERE s.MAIN_CODE = 'emp' AND s.SUB_CODE = e.work_type) AS workTypeName,
             e.resign_reason,
             e.sal,
             e.bank,
@@ -37,12 +41,11 @@
             e.profile_img_path,
             e.note
         FROM employees e
-        LEFT JOIN departments d ON e.dept_code = d.dept_code
         <where>
             <if test="keyword != null and keyword != ''">
                 (e.emp_id LIKE '%' || #{keyword} || '%'
-                OR e.emp_name LIKE '%' || #{keyword} || '%'
-                OR d.dept_name LIKE '%' || #{keyword} || '%')
+                OR getEmpName(e.emp_id) LIKE '%' || #{keyword} || '%'
+                OR getDeptName(e.dept_code) LIKE '%' || #{keyword} || '%')
             </if>
             <if test="status != null and status != ''">
                 AND e.emp_status = #{status}
@@ -54,27 +57,29 @@
         ORDER BY e.emp_id
     </select>
 
-	<!-- 사원 상세조회 -->
+	<!-- 사원 상세조회 (DB 함수 활용) -->
 	<select id="getEmpDetail" parameterType="string"
 		resultType="com.dadam.hr.emp.service.EmpVO">
-		SELECT e.emp_id, e.com_id, e.dept_code, d.dept_name, e.pwd, e.emp_name,
-		e.email, e.tel, e.addr, e.hire_date, e.position, e.resign_date,
+		SELECT e.emp_id, e.com_id, e.dept_code, getDeptName(e.dept_code) AS dept_name, e.pwd, getEmpName(e.emp_id) AS emp_name,
+		e.email, e.tel, e.addr, e.addr_detail AS addrDetail, e.hire_date, e.position, e.resign_date,
 		e.emp_status, e.work_type, e.resign_reason,
 		e.sal, e.bank, e.acct_no, e.birth_date, e.profile_img_path, e.note
 		FROM employees e
-		JOIN departments d ON e.dept_code = d.dept_code
 		WHERE e.emp_id = #{empId}
 	</select>
 
-	<!-- 사원 등록 -->
+	<!-- 사원 등록 (사번 자동생성: selectKey) -->
 	<insert id="insertEmp"
 		parameterType="com.dadam.hr.emp.service.EmpVO">
+		<selectKey resultType="string" keyProperty="empId" order="BEFORE">
+			SELECT 'e' || (NVL(MAX(TO_NUMBER(SUBSTR(emp_id,2))),1000)+1) FROM employees
+		</selectKey>
 		INSERT INTO employees (
-		emp_id, com_id, dept_code, pwd, emp_name, email, tel, addr, hire_date,
+		emp_id, com_id, dept_code, pwd, emp_name, email, tel, addr, addr_detail, hire_date,
 		position, resign_date, emp_status, work_type, resign_reason, sal,
 		bank, acct_no, birth_date, profile_img_path, note
 		) VALUES (
-		#{empId}, #{comId}, #{deptCode}, #{pwd}, #{empName}, #{email}, #{tel}, #{addr},
+		#{empId}, #{comId}, #{deptCode}, #{pwd}, #{empName}, #{email}, #{tel}, #{addr}, #{addrDetail},
 		#{hireDate}, #{position}, #{resignDate}, #{empStatus}, #{workType},
 		#{resignReason}, #{sal}, #{bank}, #{acctNo}, #{birthDate},
 		#{profileImgPath}, #{note}
@@ -92,6 +97,7 @@
 		email = #{email},
 		tel = #{tel},
 		addr = #{addr},
+		addr_detail = #{addrDetail},
 		hire_date = #{hireDate},
 		position = #{position},
 		resign_date = #{resignDate},
@@ -112,6 +118,7 @@
 		DELETE FROM employees WHERE emp_id = #{empId}
 	</delete>
 
+	<!-- 사번 최대값 조회 (selectKey로 대체 가능, 필요시 유지) -->
 	<select id="getMaxEmpId" resultType="string">
 		SELECT MAX(emp_id) FROM employees
 	</select>
