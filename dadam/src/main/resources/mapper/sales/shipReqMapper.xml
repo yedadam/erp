@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.sales.shipreq.mapper.ShipreqMapper">
+	<select id="findShipreqList"
+		resultType="com.dadam.sales.shipreq.service.ShipReqVO">
+		SELECT
+		SHIP_REQ_CODE,
+		VDR_CODE,
+		getvdrname(vdr_code) VDR_NAME,
+		CREATED_DATE,
+		SHIP_EXP_DATE,
+		STATUS,
+		EMP_ID,
+		UPDATE_DATE,
+		UPDATE_ID,
+		TOT_PRICE,
+		COM_ID,
+		ORD_CODE
+		FROM shiprequest
+	</select>
+	<select id="findShipreqDtlList" parameterType="String" resultType="com.dadam.sales.shipreq.service.ShipReqDtlVO">
+		SELECT
+		sd.ship_req_dtl_code,
+		s.VDR_CODE,
+		getvdrname(s.vdr_code) VDR_NAME,
+		getitemname(sd.item_code)name,
+		getitemprice(sd.item_code) price,
+		sd.quantity quantity,
+		getitemprice(sd.item_code) * sd.quantity supPrice,
+		getitemprice(sd.item_code) * sd.quantity/10 vatPrice,
+		(getitemprice(sd.item_code) * sd.quantity + getitemprice(sd.item_code) *
+		sd.quantity/10)*v.discount/100 discPrice,
+		(getitemprice(sd.item_code) * sd.quantity+getitemprice(sd.item_code) *
+		sd.quantity/10)*(1-v.discount/100) totPrice,
+		sd.STATUS,
+		s.COM_ID
+		FROM shiprequest s JOIN shiprequestdetail sd
+		ON sd.ship_req_code=s.ship_req_code
+		JOIN vender v ON s.vdr_code=v.vdr_code
+		WHERE s.ship_req_code=#{shipReqCode}
+		order by sd.ship_req_dtl_code
+	</select>
+
+
+
+
+
+</mapper>
