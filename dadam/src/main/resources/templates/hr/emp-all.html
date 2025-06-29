@@ -224,11 +224,10 @@ body {
 				<select id="filterDept"
 					style="width: 110px; height: 35px; border-radius: 10px; background: #f8fafc; border: 1px solid #e5e7eb; padding: 0 12px; font-size: 15px; outline: none;">
 					<option value="">부서</option>
-				</select> <select id="filterStatus"
-					style="width: 110px; height: 35px; border-radius: 10px; background: #f8fafc; border: 1px solid #e5e7eb; padding: 0 12px; font-size: 15px; outline: none;">
+				</select>
+				<select id="filterStatus" class="form-select">
 					<option value="">재직상태</option>
-					<option value="재직">재직</option>
-					<option value="퇴사">퇴사</option>
+					<option th:each="st : ${empStatuses}" th:value="${st.value}" th:text="${st.text}"></option>
 				</select>
 				<!-- 엑셀다운 버튼을 검색/필터 우측 끝에 배치 -->
 				<button class="btn btn-excel" id="btnExcel"
@@ -247,18 +246,18 @@ body {
     // [TOAST UI Grid 컬럼 정의] (수정/삭제/추가 관련 옵션 제거)
     function getEmpAllGridColumns() {
       return [
-        { header: '입사구분', name: 'workType', align: 'center', minWidth: 90, resizable: true },
+        { header: '입사구분', name: 'workTypeName', align: 'center', minWidth: 90, resizable: true },
         { header: '입사일', name: 'hireDate', align: 'center', minWidth: 110, resizable: true },
         { header: '사원번호', name: 'empId', align: 'center', minWidth: 90, resizable: true },
         { header: '성명', name: 'empName', align: 'center', minWidth: 100, resizable: true },
         { header: '부서', name: 'deptName', align: 'center', minWidth: 110, resizable: true },
-        { header: '직급명', name: 'position', align: 'center', minWidth: 90, resizable: true },
+        { header: '직급명', name: 'positionName', align: 'center', minWidth: 90, resizable: true },
         { header: '급여', name: 'salary', align: 'right', minWidth: 100, resizable: true, formatter: ({value}) => value ? value.toLocaleString() : '' },
         { header: '생년월일', name: 'birthDate', align: 'center', minWidth: 110, resizable: true },
         { header: '연락처', name: 'tel', align: 'center', minWidth: 120, resizable: true },
         { header: '이메일', name: 'email', align: 'center', minWidth: 160, resizable: true },
         { header: '퇴사일', name: 'resignDate', align: 'center', minWidth: 110, resizable: true },
-        { header: '재직상태', name: 'empStatus', align: 'center', minWidth: 100, resizable: true,
+        { header: '재직상태', name: 'empStatusName', align: 'center', minWidth: 100, resizable: true,
           formatter: ({value}) => value === '재직' ? '<span style="color:#22c55e;font-weight:bold;">재직</span>' : '<span style="color:#6b7280;font-weight:bold;">퇴사</span>' }
       ];
     }
@@ -345,12 +344,12 @@ body {
 
     // [대시보드 집계] 각 상태별 사원 수 집계 및 표시 (유지)
     function updateDashboard(data) {
-      const cntActive = data.filter(e => e.empStatus === '재직').length;
-      const cntFull = data.filter(e => e.workType === '정규직').length;
-      const cntContract = data.filter(e => e.workType === '계약직').length;
-      const cntTemp = data.filter(e => e.workType === '임시직').length;
-      const cntDaily = data.filter(e => e.workType === '일용직').length;
-      const cntRetired = data.filter(e => e.empStatus === '퇴사').length;
+      const cntActive = data.filter(e => e.empStatusName === '재직').length;
+      const cntFull = data.filter(e => e.workTypeName === '정규직').length;
+      const cntContract = data.filter(e => e.workTypeName === '계약직').length;
+      const cntTemp = data.filter(e => e.workTypeName === '임시직').length;
+      const cntDaily = data.filter(e => e.workTypeName === '일용직').length;
+      const cntRetired = data.filter(e => e.empStatusName === '퇴사').length;
       const cntTotal = data.length;
       $('#cntActive').text(cntActive);
       $('#cntFull').text(cntFull);

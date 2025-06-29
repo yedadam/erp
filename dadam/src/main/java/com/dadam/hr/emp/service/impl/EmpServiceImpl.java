@@ -7,15 +7,15 @@ import org.springframework.stereotype.Service;
 import com.dadam.hr.emp.mapper.EmpMapper;
 import com.dadam.hr.emp.service.EmpService;
 import com.dadam.hr.emp.service.EmpVO;
-import com.dadam.hr.emp.service.MailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmpServiceImpl implements EmpService {
 
     private final EmpMapper empMapper;
-    private final MailService mailService;
 
     @Override
     public List<EmpVO> findEmpList(String keyword, String status, String dept) {
@@ -33,11 +33,13 @@ public class EmpServiceImpl implements EmpService {
 
     @Override
     public int insertEmp(EmpVO empVO) {
+        log.info("사원 등록 시작: {} ({})", empVO.getEmpName(), empVO.getEmpId());
         int result = empMapper.insertEmp(empVO);
         
-        // 사원 등록 성공 시, 이메일 주소가 있으면 메일 발송
-        if (result > 0 && empVO.getEmail() != null && !empVO.getEmail().isEmpty()) {
-            mailService.sendEmpRegisterMail(empVO.getEmail(), empVO.getEmpName());
+        if (result > 0) {
+            log.info("✅ 사원 등록 성공: {} ({})", empVO.getEmpName(), empVO.getEmpId());
+        } else {
+            log.error("❌ 사원 등록 실패: {} ({})", empVO.getEmpName(), empVO.getEmpId());
         }
         
         return result;
@@ -45,12 +47,30 @@ public class EmpServiceImpl implements EmpService {
 
     @Override
     public int updateEmp(EmpVO empVO) {
-        return empMapper.updateEmp(empVO);
+        log.info("사원 정보 수정: {} ({})", empVO.getEmpName(), empVO.getEmpId());
+        int result = empMapper.updateEmp(empVO);
+        
+        if (result > 0) {
+            log.info("✅ 사원 정보 수정 성공: {} ({})", empVO.getEmpName(), empVO.getEmpId());
+        } else {
+            log.error("❌ 사원 정보 수정 실패: {} ({})", empVO.getEmpName(), empVO.getEmpId());
+        }
+        
+        return result;
     }
 
     @Override
     public int deleteEmp(String empId) {
-        return empMapper.deleteEmp(empId);
+        log.info("사원 삭제: {}", empId);
+        int result = empMapper.deleteEmp(empId);
+        
+        if (result > 0) {
+            log.info("✅ 사원 삭제 성공: {}", empId);
+        } else {
+            log.error("❌ 사원 삭제 실패: {}", empId);
+        }
+        
+        return result;
     }
 
     @Override
