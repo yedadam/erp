@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,7 +48,13 @@ public class ShipreqRestController {
 		return 0;
 	}
 	
-	
+	//출하 메인 수정
+	@PutMapping("/shipReqMainModify")
+	public int shipReqMainModify(@RequestBody ShipReqVO param) {
+		System.out.println(param);
+		int result = service.updateShiPExpDate(param);
+		return result;
+	}
 	
 	//발주 의뢰 조회
 //	@GetMapping("/purRequestList")
@@ -77,13 +84,7 @@ public class ShipreqRestController {
 //		
 //	}
 	
-	//발주서 메인 수정
-//	@PutMapping("/purMainModify")
-//	public int purMainModify(@RequestBody PurchaseOrderVO param) {
-//		System.out.println(param);
-//		int result = service.purOrderUpdate(param);
-//		return result;
-//	}
+
 	//발주서 디테일 수정
 //	@PutMapping("/purDetailModify")
 //	public int purDetailModify(@RequestBody GridData<PurchaseOrderDetailVO> vo) {

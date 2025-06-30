@@ -10,7 +10,7 @@ import lombok.Data;
 public class ShipReqDtlVO {
 	private String shipReqDtlCode; //출하상세의뢰번호
 	private String vdrCode; //거래처코드
-	private String vdrName;
+	private String vdrName; //거래처이름  
 	private String itemCode; //품목코드
 	private String name; //아이템이름 
 	private String status; //상태  
