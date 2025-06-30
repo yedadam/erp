@@ -35,4 +35,6 @@ public interface PurchaseMapper {
 	public int purDTtlDelete(@Param("purOrdCode") String purOrdCode, @Param("comId") String comId);
 	//모달창 거래처 조회
 	public List<VenderVO> venderList(@Param("comId") String comId, @Param("type") String type, @Param("value") String value);
+	//자동 완성 기능
+	public List<VenderVO> autoVender(@Param("comId") String comId,@Param("type") String type,@Param("value") String value);
 }	
