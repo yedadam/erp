@@ -18,6 +18,7 @@ import com.dadam.sales.purchase.service.PurReqVO;
 import com.dadam.sales.purchase.service.PurchaseOrderDetailVO;
 import com.dadam.sales.purchase.service.PurchaseOrderVO;
 import com.dadam.sales.purchase.service.PurchaseService;
+import com.dadam.standard.vender.service.VenderVO;
 
 
 
@@ -44,10 +45,8 @@ public class PurchaseRestController {
 	}
 	//발주 의뢰 조회
 	@GetMapping("/purRequestList")
-	public List<PurchaseOrderVO> purRequestList(@RequestParam(name = "param", required = false) PurchaseOrderVO param) {
-
-		List<PurchaseOrderVO> result = service.requestList();
-
+	public List<PurchaseOrderVO> purRequestList(@RequestParam(name = "type", required = false) String type,@RequestParam(name = "value", required = false) String value) {
+		List<PurchaseOrderVO> result = service.requestList(type,value);
 		return result;
 	}
 	
@@ -56,6 +55,13 @@ public class PurchaseRestController {
 	public List<PurchaseOrderVO> purRequestDtList(@RequestParam String param){
 		List<PurchaseOrderVO> result = service.requestDeatilList(param);
 		System.out.println(result);
+		return result;
+	}
+	
+	//발주의뢰 조회  
+	@GetMapping("/vederList")
+	public List<VenderVO> venderList(@RequestParam (required = false) String type,@RequestParam (required = false) String value){
+		List<VenderVO> result = service.venderList(type,value);
 		return result;
 	}
 	
@@ -89,5 +95,6 @@ public class PurchaseRestController {
 		int result = service.purDelete(param);
 		return result;
 	}
+	
 	
 }

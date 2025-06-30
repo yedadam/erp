@@ -14,6 +14,6 @@ public class ChatMessageVO {
 	private Date createdDate;
 	private String chatId;
 	private String empId;
-
-	
+	private String empName;
+	private String comId;
 }

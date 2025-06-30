@@ -42,7 +42,7 @@ public class SubsManagerFormController {
 		//파라미터 담을 저장소
 		HashMap<String, Object> map = new HashMap<>();
 		//파라미터값
-		map.put("p_subsCode", subsCode);
+		map.put("p_subsCode", subsCode); 
 		//파라미터값 전달
 		mv.addObject("param", map);
 		return mv;

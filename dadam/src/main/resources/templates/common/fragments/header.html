@@ -89,9 +89,9 @@
 			<div class="topbar-divider d-none d-sm-block"></div>
 
 			<!-- 로그인 사용자 -->
-			<li class="nav-item dropdown no-arrow">
+			<li class="nav-item dropdown no-arrow" sec:authorize="isAuthenticated()">
 				<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-					<span class="me-2 d-none d-lg-inline text-gray-600 small">사용자이름</span>
+					<span class="me-2 d-none d-lg-inline text-gray-600 small" th:text="${#authentication.principal.username}"></span>
 					<img class="img-profile rounded-circle" src="/img/undraw_profile.svg">
 				</a>
 				<div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -107,18 +107,31 @@
 					</form>
 				</div>
 			</li>
-
+			<!-- 비로그인 사용자 -->
+			<li class="nav-item dropdown no-arrow" sec:authorize="!isAuthenticated()">
+				<a class="nav-link dropdown-toggle" href="#" id="guestDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+					<span class="me-2 d-none d-lg-inline text-gray-600 small">안녕</span>
+					<img class="img-profile rounded-circle" src="/img/undraw_profile.svg">
+				</a>
+				<div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="guestDropdown">
+					<a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#logoutModal">
+						<i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Login
+					</a>
+				</div>
+			</li>
 		</ul>
 	</nav>
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-	<script>
+<script th:inline="javascript">
+	let empId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'e1018'}]];
+	let empName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.username : '김지현'}]];
+	let comId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
 	//채팅방 목록 가져오기
 	function loadChatRooms() {
 		 const $list = $('#chatRoomList');
 		  $list.html('<div class="text-center text-muted small">로딩 중...</div>');
 
-		  const empId = 'e1018'; 
 
 		  $.ajax({
 		    url: '/erp/chatList',
@@ -134,7 +147,6 @@
 
 		      let html = '';
 		      rooms.forEach(function (room) {
-		    	  console.log(rooms,)
 		    	//렌더링
 		        html += `
 		        	<a class="dropdown-item d-flex align-items-center" href="javascript:void(0)"
@@ -180,8 +192,8 @@
 	        method: 'GET',
 	        data: { roomId: id },
 	        success: function(messages) {
+	        	$('#chatBox').html('');
 	            messages.forEach(function(msg) {
-	            	console.log(msg)
 	                showChatMessage(msg);
 	            });
 	        },
@@ -198,7 +210,6 @@
 	    });
 
 	    $('#chatInput').focus();
-	    console.log("채팅방 오픈: " + id);
 	}
 	
 	

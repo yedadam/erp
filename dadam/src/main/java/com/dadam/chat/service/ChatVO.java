@@ -19,4 +19,5 @@ public class ChatVO {
 	private Date createdDate;
 	private int chatQuantity;
 	private String message;
+	private String comId;
 }
