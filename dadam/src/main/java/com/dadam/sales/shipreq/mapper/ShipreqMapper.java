@@ -10,5 +10,6 @@ public interface ShipreqMapper {
 	public List<ShipReqDtlVO> findShipreqDtlList(String shipReqCode); //출하의뢰코드로 상세조회
 	public int insertShipreqHead(ShipReqVO head); //헤더등록 
 	public int insertShipreqDtl(ShipReqDtlVO dtl); //디테일 등록 
-	
+	public int updateStatusByordNo(String ordCode); //헤더등록시 상태값이 변경됨 
+	public int updateShiPExpDate(ShipReqVO head);  //납기일자 변경하기 
 }

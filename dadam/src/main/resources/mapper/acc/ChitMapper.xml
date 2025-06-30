@@ -7,7 +7,8 @@
 	<select id="chitFindAll" resultType="ChitVO">
 		SELECT c.created_date 	<!-- 등록일자 -->
 			 , c.chit_title  	<!-- 전표명 -->
-			 , i.acct_id 		<!-- 계정과목 -->
+			 , c.chit_code
+			 , i.acct_code 		<!-- 계정과목 -->
 			 , getVdrName(c.vdr_code) as vdrCode   	<!-- 거래처 -->
 			 , c.tot_price  	<!-- 금액 -->
 			 , c.tax_code  		<!-- 세금계산서 -->
@@ -22,6 +23,69 @@
 		  FROM chit c
 		  LEFT JOIN indignation i ON c.chit_code = i.chit_code
 	</select>
-	   
+	
+	<select id="acctCodeFindByCode" resultType="map">
+	   SELECT acct_code as acctCode, name as aname
+	     FROM account
+	    WHERE acct_yn = 'Y' 
+	      AND (acct_code LIKE #{keyword} || '%'
+           OR name LIKE '%' || #{keyword} || '%')
+ 
+	    ORDER BY acct_code
+	</select>
+	
+	<select id="indTypeFindByCode" resultType="map">
+  SELECT sub_code AS iType, sub_name AS iname
+    FROM subcodes
+   WHERE main_code = 'itp'
+     AND (sub_code LIKE '%' || #{keyword} || '%'
+          OR sub_name LIKE '%' || #{keyword} || '%')
+   ORDER BY sub_code
+	</select>
+	
+	<select id="chitTypeFindByCode" resultType="map">
+  SELECT sub_code AS ttype, sub_name AS tname
+    FROM subcodes
+   WHERE main_code = 'cht'
+     AND (sub_code LIKE '%' || #{keyword} || '%'
+          OR sub_name LIKE '%' || #{keyword} || '%')
+   ORDER BY sub_code
+	</select>
+	
+	
+<insert id="insert" parameterType="ChitVO">
+  INSERT INTO indignation (
+     chit_dt_id
+   , chit_code
+   , acct_code
+   , type
+   , price
+   , created_date
+   , com_id)
+  VALUES (
+     'chit-' || chit_seq.NEXTVAL  
+   , #{chitCode} 
+   , #{acctCode}
+   , #{iType}
+   , #{iPrice}
+   , SYSDATE
+   , 'com-101'
+  )
+</insert>
+	
+	<update id="update">
+	  UPDATE chit
+	  	 SET phy_emp_id = #{empId}
+	  	   , status = '01'
+	  	   , note = #{note}
+	  	   , update = SYSDATE
+	  	   , type = #{iType}
+	   WHERE chit_code = #{chitCode}
+	</update>
+	
+	<delete id="delete" parameterType="ChitVO">
+  DELETE FROM indignation
+   WHERE chit_dt_id = #{chitDtId}
+</delete>
 
 </mapper>

@@ -10,7 +10,7 @@ public class ShipreqFormController {
 	
 	
 	@GetMapping("/shipreq")
-	public String purchase() {
+	public String shipreq() {
 		return "sales/shipreq";
 	}
 }

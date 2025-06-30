@@ -15,6 +15,7 @@ import com.dadam.sales.purchase.service.PurchaseOrderDetailVO;
 import com.dadam.sales.purchase.service.PurchaseOrderVO;
 import com.dadam.sales.purchase.service.PurchaseService;
 import com.dadam.security.service.LoginUserAuthority;
+import com.dadam.standard.vender.service.VenderVO;
 
 import jakarta.annotation.PostConstruct;
 
@@ -25,7 +26,7 @@ public class PurchaseServiceImpl implements PurchaseService{
     
     
     //comName 가져오기
-    String comId = "";
+    String comId = "com-101";
     public void initAuthInfo() {
         //로그인 객체값 연결
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -62,9 +63,11 @@ public class PurchaseServiceImpl implements PurchaseService{
 	}
 	//발주의뢰 코드보기
 	@Override
-	public List<PurchaseOrderVO> requestList() {
+	public List<PurchaseOrderVO> requestList(String type,String value) {
+		type = type ==null? "" :type;
+		value = value ==null? "" :value;
 		initAuthInfo();
-		List<PurchaseOrderVO> result = mapper.requestList(comId);
+		List<PurchaseOrderVO> result = mapper.requestList(comId,type,value);
 		return result;		
 	}
 	//발주의뢰 상세코드
@@ -73,6 +76,15 @@ public class PurchaseServiceImpl implements PurchaseService{
 		initAuthInfo();
 		List<PurchaseOrderVO> result = mapper.requestDeatilList(param,comId);
 		return result;
+	}
+	//거래처 조회
+	@Override
+	public List<VenderVO> venderList(String type,String value) {
+		    type = type == null? "": type;
+		    value = value == null? "": value;
+			initAuthInfo();
+			List<VenderVO> result = mapper.venderList(comId,type,value);
+			return result;
 	}
 	//발주 전체 등록
 	@Transactional
@@ -90,7 +102,6 @@ public class PurchaseServiceImpl implements PurchaseService{
 		
 		//디테일등록
 		param.getDtl().forEach(item -> {
-			System.out.println("컴아이디");
 			item.setComId(comId);
 			System.out.println(item.getComId());
 			item.setPurOrdCode(param.getPur().getPurOrdCode());
@@ -152,6 +163,13 @@ public class PurchaseServiceImpl implements PurchaseService{
 		//상세 삭제
 		result += mapper.purDTtlDelete(param, comId);
 		
+		return result;
+	}
+	
+	@Override
+	public List<VenderVO> autoVender(String type,String value) {
+		initAuthInfo();
+		List<VenderVO> result = mapper.autoVender(comId,type,value);
 		return result;
 	}
 }

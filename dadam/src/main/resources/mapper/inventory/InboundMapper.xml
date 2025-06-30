@@ -23,10 +23,11 @@
 		WHERE pod.com_id = #{comId} and pod.status not in('pds-03')
 	</select>
 	
-	<select id="warehouseList" resultType="InboundVO">
+	<select id="warehouseList" resultType="InboundVO" parameterType="String">
 		SELECT w.name||' '|| nvl(l.name, ' ') name, l.loc_code locCode
 		FROM warehouse w join warehouseLocation l
                    		   on(w.wh_code = l.wh_code and w.com_id = l.com_id)
+        WHERE w.com_id = #{comId}
 	</select>
 	
 	<!-- 입고 처리 -->
@@ -65,9 +66,7 @@
 		    
 		) data
 		ON (
-		    stk.loc_code = data.loc_code AND
-		    stk.item_code = data.item_code AND
-		    stk.com_id = data.com_id
+		    stk.loc_code = data.loc_code AND stk.item_code = data.item_code AND stk.com_id = data.com_id
 		)
 		
 		WHEN MATCHED THEN

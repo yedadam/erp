@@ -1,6 +1,7 @@
 package com.dadam.acc.account.service;
 
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -23,7 +24,7 @@ public class ChitVO {
     private String taxCode;        // 세금계산서번호
     private String vdrCode;        // 거래처코드
     private String articleCode;    // 항목코드(FK)
-    private String type;           // 구분
+    private String ttype;           // 구분
     private Double supplyPrice;    // 공급가액
     private Double vatPrice;       // 부가세
     private Double totPrice;       // 총금액
@@ -32,6 +33,17 @@ public class ChitVO {
     //분개테이블
     private String acctId;  	   //계정과목
     private String iType;
-    private String iPrice;
+    private Double iPrice;
+    private String acctCode;
+    private String name;
+    private String chitDtId;
+    private String empId;
+   
+   
     
+    private List<ChitVO> createdRows;
+    private List<ChitVO> updatedRows;
+    private List<ChitVO> deletedRows;
+    
+     
 }

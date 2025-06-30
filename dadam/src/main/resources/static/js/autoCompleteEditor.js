@@ -14,7 +14,7 @@ function createAutoCompleteEditor({ urlBuilder, deps = [], onSelectClear = [] })
           return response([]);
         }
 
-        const url = urlBuilder(...depValues);
+        const url = urlBuilder({ keyword: request.term, deps: depValues });
         $.ajax({
           url: url,
           method: 'GET',

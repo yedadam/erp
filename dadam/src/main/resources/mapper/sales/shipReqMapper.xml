@@ -99,8 +99,16 @@
 		    #{dliveDate}
 		  )
 </insert>
-	
-
-
+	<update id="updateStatusByordNo" parameterType="String" >
+	UPDATE orders
+	SET status='ost02'
+	WHERE ord_code=#{ordCode}
+	</update>	
+	<!-- 납기일자 변경하기 -->	
+	<update id="updateShiPExpDate" parameterType="com.dadam.sales.shipreq.service.ShipReqVO">
+	UPDATE shiprequest
+	SET ship_exp_date= #{shipExpDate} 
+	WHERE ship_req_code= #{shipReqCode} 
+	</update>
 
 </mapper>

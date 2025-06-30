@@ -62,10 +62,7 @@ public class AccountServiceImpl implements AccountService{
     	 
 
     	 for (AccountVO acct : rows) {
-//    		    if (acct.getNote() == null) acct.setNote("");
-//    		    if (acct.getAcctSubclass() == null) acct.setAcctSubclass("");
-//    		    if (acct.getAcctYn() == null) acct.setAcctYn("Y"); // 기본값 설정도 가능	
-    		    
+
              // 분류명 기반 코드 조회(대분류)
              String typeCode = accountMapper.findTypeCodeByName(acct.getAcctType());
              if (typeCode == null) {

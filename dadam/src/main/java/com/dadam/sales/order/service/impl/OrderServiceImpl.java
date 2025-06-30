@@ -68,11 +68,9 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public int deleteOrdDtl(String ordDtlCode) {
-		orderMapper.deleteOrdDtl(ordDtlCode);
-		
+		orderMapper.deleteOrdDtl(ordDtlCode);	
 		return 0;
-	}
-			
+	}		
 	@Override
 	public int ordDtlInsert(OrdReqVO req) {
 		for (int i = 0; i < req.getDtl().getCreatedRows().size(); i++) {

@@ -59,8 +59,8 @@ public class InboundServiceImpl implements InboundService{
 	}
 	// 창고 리스트
 	@Override
-	public List<InboundVO> warehouseList() {
-		List<InboundVO> list = inboundMapper.warehouseList();
+	public List<InboundVO> warehouseList(String comId) {
+		List<InboundVO> list = inboundMapper.warehouseList(comId);
 		return list;
 	}
 	

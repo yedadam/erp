@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.dadam.sales.purchase.service.PurchaseOrderDetailVO;
 import com.dadam.sales.purchase.service.PurchaseOrderVO;
+import com.dadam.standard.vender.service.VenderVO;
 
 public interface PurchaseMapper {
 	//발주메인 리스트 조회
@@ -13,7 +14,7 @@ public interface PurchaseMapper {
 	//발주상세조회
 	public List<PurchaseOrderDetailVO> findPurListByOrdNo(@Param("param") String param, @Param("comId") String comId);
 	//발주의뢰 코드보기
-	public List<PurchaseOrderVO> requestList(String comId);
+	public List<PurchaseOrderVO> requestList(@Param("comId") String comId,@Param("type") String type, @Param("value") String value);
 	//발주의뢰 상세코드
 	public List<PurchaseOrderVO> requestDeatilList(@Param("param") String param, @Param("comId") String comId);
 	//발주 헤더 등록
@@ -32,4 +33,8 @@ public interface PurchaseMapper {
 	public int purMainDelete(@Param("purOrdCode") String purOrdCode, @Param("comId") String comId);
 	//발주 상세 삭제
 	public int purDTtlDelete(@Param("purOrdCode") String purOrdCode, @Param("comId") String comId);
+	//모달창 거래처 조회
+	public List<VenderVO> venderList(@Param("comId") String comId, @Param("type") String type, @Param("value") String value);
+	//자동 완성 기능
+	public List<VenderVO> autoVender(@Param("comId") String comId,@Param("type") String type,@Param("value") String value);
 }	

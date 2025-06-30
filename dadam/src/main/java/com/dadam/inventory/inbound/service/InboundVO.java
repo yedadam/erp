@@ -20,6 +20,5 @@ public class InboundVO {
 	private String locCode;   // 
 	private String note;   // 메모
 	private String empId;  // 담당자 
-	private String comId;  // 회사id 혹시몰라서
-	
+	private String comId;  // 회사id
 }

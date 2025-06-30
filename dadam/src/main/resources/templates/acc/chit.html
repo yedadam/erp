@@ -25,6 +25,10 @@
 	color: midnightblue; /* #1e293b → midnightblue */
 }
 
+.tui-grid-cell.matched {
+	background-color: #d4edda !important; /* 연한 초록색 */
+}
+
 dialog {
 	position: fixed;
 	top: 200px;
@@ -57,7 +61,9 @@ dialog {
 	<div>
 		<button class="open">목록</button>
 	</div>
-
+	<div>
+		<button class="saveBtn" id="saveBtn">등록</button>
+	</div>
 
 	<div class="col-14">
 		<div id="chitGrid" class="mx-5"></div>
@@ -67,37 +73,153 @@ dialog {
 </body>
 
 <script>
+
+function createChitAutoCompleteEditor({
+	  urlBuilder,
+	  deps = [],
+	  onSelectClear = [],
+	  displayField = 'name',       // 한글로 보여줄 필드명
+	  saveField = 'code',          // 저장될 코드 필드명
+	  displayNameField = null      // 실제 한글명을 저장할 컬럼명 (ex. ANAME, INAME, TNAME)
+	}) {
+	  function CustomEditor(props) {
+	    const el = document.createElement('input');
+	    el.type = 'text';
+	    el.className = 'form-control';
+	    el.value = props.value || '';
+
+	    $(el).autocomplete({
+	      source: function (request, response) {
+	        const depValues = deps.map(dep => props.grid.getValue(props.rowKey, dep));
+	        if (depValues.includes('') || depValues.includes(undefined)) {
+	          return response([]);
+	        }
+
+	        const url = urlBuilder({ keyword: request.term, deps: depValues });
+
+	        $.ajax({
+	          url: url,
+	          method: 'GET',
+	          dataType: 'json',
+	          success: function (data) {
+	            const results = data.map(item => ({
+	              label: `${item[saveField]} ${item[displayField]}`,
+	              value: item[saveField],            // 입력 시 표시되는 값
+	              realValue: item[saveField],        // 저장될 코드
+	              displayName: item[displayField]    // 저장할 한글명
+	            }));
+	            response(results);
+	          },
+	          error: function (xhr, status, err) {
+	            console.error('자동완성 실패:', err);
+	            response([]);
+	          }
+	        });
+	      },
+	      minLength: 0,
+	      select: function (event, ui) {
+	        const codeValue = ui.item.realValue;
+	        const nameValue = ui.item.displayName;
+
+	        props.grid.setValue(props.rowKey, props.columnInfo.name, codeValue);
+
+	        // ✅ 한글 이름이 들어갈 컬럼 지정 시 설정
+	        if (displayNameField) {
+	          props.grid.setValue(props.rowKey, displayNameField, nameValue);
+	        }
+
+	        onSelectClear.forEach(col => props.grid.setValue(props.rowKey, col, ''));
+	      }
+	    }).focus(function () {
+	      $(this).autocomplete("search", "");
+	    });
+
+	    this.el = el;
+	  }
+
+	  CustomEditor.prototype.getElement = function () {
+	    return this.el;
+	  };
+
+	  CustomEditor.prototype.getValue = function () {
+	    return this.el.value;
+	  };
+
+	  return CustomEditor;
+	}
+
+
+
+const acctTypeEditor = createChitAutoCompleteEditor({
+	  urlBuilder: ({ keyword }) => `/erp/chit/acctCodeFind?keyword=${keyword}`,
+	  displayField: 'ANAME',
+	  saveField: 'ACCTCODE',
+	  displayNameField: 'ANAME'
+	});
+
+	const indTypeEditor = createChitAutoCompleteEditor({
+	  urlBuilder: ({ keyword }) => `/erp/chit/indTypeFindByCode?keyword=${keyword}`,
+	  displayField: 'INAME',
+	  saveField: 'ITYPE',
+	  displayNameField: 'INAME'
+	});
+
+	const typeCodeEditor = createChitAutoCompleteEditor({
+	  urlBuilder: ({ keyword }) => `/erp/chit/chitTypeFindByCode?keyword=${keyword}`,
+	  displayField: 'TNAME',
+	  saveField: 'TTYPE',
+	  displayNameField: 'TNAME'
+	});
+	
+
+
+
 let chitGrid = new tui.Grid({
 	el: document.getElementById('chitGrid'),
 	
 	scrollX : false,
 	scrollY : true,
-	treeColumnOptions: {
-		  name: 'createdDate',   // 아이콘이 표시될 컬럼
-		  useIcon: true
-		},
-
+//	treeColumnOptions: {
+//		  name: 'createdDate',   // 아이콘이 표시될 컬럼
+//		  useIcon: true
+//		},
+ editingEvent: 'click',
 	columns:[
 		{header: '등록일자',name:'createdDate',align:'center'},
 		{header: '전표명',name:'chitTitle',align:'center'},
 		{header: '거래처',name:'vdrCode',align:'center'},
-		{header: '계정과목',name:'bizNo',align:'center',
-			editor : 'text',
-			validation: { required: true }
+		{header: '계정과목',name:'acctCode',align:'center',
+			editor : { type : acctTypeEditor } ,
+			formatter: ({ row }) => row.ANAME || ''
+		},  
+		{ name: 'ANAME', header: '', hidden: true }, // 자동완성에서 보여주는 이름
+		{header: '전표구분',name:'iType',align:'center',
+				editor : { type :  indTypeEditor },
+				formatter: ({ row }) => row.INAME || ''
+		},  
+		{ name: 'INAME', header: '', hidden: true  },// 자동완성에서 보여주는 이름
+		{header: '거래유형',name:'tType',align:'center',
+				editor : { type :  typeCodeEditor },
+				formatter: ({ row }) => row.TNAME || ''
+		},  
+		{ name: 'TNAME', header: '', hidden: true },// 자동완성에서 보여주는 이름
+		{ header: '금액', name: 'iPrice', align: 'center',
+			  editor: {
+	    	  type: 'text',
+    		  options: {
+      	   	  inputType: 'number'
+    		}
+  		}
 		},
-		{header: '차/대',name:'itype',align:'center', 
-			editor: 'text'},
-		{header: '구분',name:'type',align:'center',
-			editor: 'text'},
-		{header: '금액',name:'iPrice',align:'center',
-			editor: 'text'},
-		{header: '금액',name:'totPrice',align:'right', 
+		{header: '총금액',name:'totPrice',align:'right', 
 			formatter: ({value}) => value ? parseInt(value).toLocaleString()+ '원': ''},
 		{header: '세금계산서',name:'taxCode',align:'center',
 				formatter:({ value }) => {
 				    const taxCode = value;
-				    let label = '계산서 발행';
-				    if (taxCode) label = '발행 완료';
+				    let label = '';
+				    if (taxCode === 'tay02' ) label = "계산서 발행"
+				    if (taxCode === 'tay01' ) label = '발행 완료';
+				    else label = ''; 
 				    return `<span class="grid-action">${label}</span>`;
 				}},
 		{header: '처리상태',name:'status',align:'center', hidden: true},
@@ -105,9 +227,16 @@ let chitGrid = new tui.Grid({
 		{header: '처리자',name:'phyEmpId',align:'center', hidden: true},
 		{header: '승인자',name:'apprEmpId',align:'center', hidden: true},
 		{header: '비고',name:'note',align:'center', hidden: true},
-	]
+		{ header: '추가/삭제', name: 'origin', align: 'center',
+			  formatter: ({ row }) => 
+		row.origin === 'init' ? '<button class="btn btn-sm btn-primary add-btn">+</button>' 
+				: '<button class="btn btn-sm btn-primary add-btn">+</button><button class="btn btn-sm btn-danger del-btn">-</button>' }
+	],
 })
 
+
+
+// 아작스 통신 시작
 function chitList(){
 	$.ajax({
 		url: "/erp/chit/chitFindAll",
@@ -118,117 +247,156 @@ function chitList(){
 	})
 }
 chitList()
-<!-- 
-// 트리 구조로 입력 기능
-chitGrid.on('click', (ev)=>{
-	if(ev.columnName !== 'createdDate') return;
-	
-	const rowKey = ev.rowKey;
-	const row = chitGrid.getRow(rowKey);
-	
-	if(row._attributes?.parentRowKey == null){
-		const alreadyExists  = chitGrid.getData().some(
-			r=>r.attributes?.parentRowKey === rowKey);
-		
-	if (alreadyExists) return;
-	
-	chitGrid.appendRow(
+setTimeout(checkBalanceHighlight, 200);
 
-			  {
-			    name: 'acctName',
-			    editor: window.createAutoCompleteEditor({
-			      urlBuilder: () => '/erp/account/autocomplete',
-			      deps: [],
-			      onSelectClear: ['drcr_type']
-			    }),
-			    validation: { required: true }
-			  },
-			  {
-			    name: 'drcr_type',
-			    editor: window.createAutoCompleteEditor({
-			      urlBuilder: (acctName) => `/erp/account/${acctName}/type`,
-			      deps: ['acctName']
-			    }),
-			    formatter: ({ value }) => value === 'D' ? '차변' : value === 'C' ? '대변' : '',
-			    width: 90
-			  },
-			  {
-			    name: 'amount',
-			    editor: 'text',
-			  },
+  // 저장
+$('#saveBtn').on('click', function () {
+  const changes = chitGrid.getModifiedRows();
 
+  for (const row of changes.createdRows) {
+    if (!row.acctCode || !row.iType || !row.iPrice) {
+      alert("계정과목, 전표구분, 거래유형, 금액을 모두 입력해야 합니다.");
+      return;
+    }
+  }
 
-	{
-		parentRowKey:rowKey,
-		at:rowKey +1,
-		focus:true
+  const payload = {
+    createdRows: changes.createdRows,
+    updatedRows: changes.updatedRows,
+    deletedRows: changes.deletedRows
+  };
+
+  $.ajax({
+    url: "/erp/chit/saveAll",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify(payload),
+    success: function (res) {
+      // 서버가 JSON을 응답했다면 아래처럼 확인 가능
+      if (res.result === "success") {
+        alert(res.message || "등록 완료!");
+        chitList();
+      } else {
+        alert("실패: " + (res.message || "알 수 없는 오류"));
+      }
+    },
+    error: function (xhr, status, error) {
+      console.error("등록 실패:", error);
+      alert("서버 오류 발생: " + error);
+    }
+  });
+});
+  //아작스 통신 끝
+
+chitGrid.on('afterChange', ev => {
+	const { columnName, value, rowKey } = ev.changes[0];
+	if (columnName === 'acctCode' && value) {
+		const firstDigit = value.toString().charAt(0);
+		if (['1', '5'].includes(firstDigit)) {
+			chitGrid.setValue(rowKey, 'iType', 'itp01');
+			chitGrid.setValue(rowKey, 'INAME', '차변');
+		} else if (['2', '3', '4'].includes(firstDigit)) {
+			chitGrid.setValue(rowKey, 'iType', 'itp02');
+			chitGrid.setValue(rowKey, 'INAME', '대변');
+		} else {
+			chitGrid.setValue(rowKey, 'iType', '');
+			chitGrid.setValue(rowKey, 'INAME', '');
+		}
 	}
-	);
+});
 	
-	const childKey = chitGrid.getRowCount() -1;
-	chitGrid.enableRow(childKey);
-	}
-})
--->
-// 그리드 편집이 끝났을 때 실행되는 이벤트 핸들러
-chitGrid.on('editingFinish', ({ rowKey, columnName }) => {
-  console.log('[DEBUG] editingFinish fired', columnName, rowKey);
+// 행추가 rowKey
+chitGrid.on('click', (ev) => {
+  const { rowKey, columnName } = ev;
+  if (columnName !== 'origin') return;
 
-  //  현재 편집이 완료된 행 가져오기
-  const row = chitGrid.getRow(rowKey);
+  const target = ev.nativeEvent.target;
 
-  //  해당 행의 상위 rowKey가 있어야 → 하위 입력행임
-  const parentKey = row._attributes?.parentRowKey;
-
-  //  상위가 없거나 iPrice가 아닌 경우 → 종료
-   if (parentKey === undefined || columnName !== 'iPrice') 
-	  if (parentKey === undefined) {
-		  console.warn(parentKey, columnName)
-	  return;
-	  }
-  //  같은 부모를 가진 모든 하위 행들 가져오기
-  const allChildren = chitGrid.getData().filter(
-    r => r._attributes?.parentRowKey === parentKey
-  );
-
-  //  현재 행이 하위 목록 중 몇 번째인지 확인
-  const indexInChildren = allChildren.findIndex(r => r.rowKey === rowKey);
-
-  //  현재 행이 마지막이라면 → true
-  const isLast = indexInChildren === allChildren.length - 1;
-  onsole.log('진입전')
-  if (isLast) {
-    //  마지막 행이면 → 새 하위 입력행 추가
-	console.log('조건 진입')
+  // 현재 행(부모)의 데이터 가져오기
+  const parentRow = chitGrid.getRow(rowKey);
+  const parentChitCode = parentRow?.chitCode || ''; // 부모 전표코드 (없으면 공백)
+	console.log(parentRow)
+  // 추가 버튼
+  if (target.classList.contains('add-btn')) {
     chitGrid.appendRow(
       {
-        acctName: '',
-        drcr_type: '',
-        iPrice: ''     // ❗ 오타: 'iprice' → 'iPrice' (컬럼 이름과 일치시켜야 함)
+        chitCode: parentChitCode, // 부모 전표코드 세팅
+        acctCode: '',
+        iType: '',
+        ttype: '',
+        iPrice: '',
+        taxCode: '',
+        totPrice: '',
+        origin: true
       },
       {
-        parentRowKey: parentKey,
+        at: chitGrid.getIndexOfRow(rowKey) + 1,
         focus: true
-        //  lastChildKey: 1 → 이 속성은 사용 안 함 (지워도 됨)
       }
     );
-    
-    //  새로 추가된 행의 rowKey 가져오기
-    const newRowKey = chitGrid.getData().at(-1)?.rowKey;
-    if (newRowKey !== undefined) {
-      chitGrid.startEditing(newRowKey, 'acctName');
-    }
-    
-    //  새 행의 'acctName' 컬럼 편집 시작
-    chitGrid.startEditing(newRowKey, 'acctName');
-  } else {
-    //  마지막이 아니면 → 다음 하위 행으로 포커스 이동
-    const nextRowKey = allChildren[indexInChildren + 1].rowKey;
-    chitGrid.startEditing(nextRowKey, 'acctName');
+  }
+
+  // 삭제 버튼
+  if (target.classList.contains('del-btn')) {
+    chitGrid.removeRow(rowKey);
   }
 });
 
 
+function checkBalanceHighlight() {
+	  console.log("금액 체크");
+
+	  const data = chitGrid.getData();  // 현재 그리드의 전체 데이터 가져오기
+
+	  // 1. 자식 행들을 parentRowKey 기준으로 그룹화 (즉, 각 전표별로 모으기)
+	  const grouped = {};
+
+	  data.forEach(row => {
+	    const parentKey = row._attributes?.parentRowKey;  // 상위 전표의 rowKey
+	    if (parentKey !== undefined) {
+	      if (!grouped[parentKey]) grouped[parentKey] = [];  // 초기화
+	      grouped[parentKey].push(row);  // 해당 전표의 자식 항목으로 추가
+	    }
+	  });
+
+	  // 2. 각 그룹(전표)별로 차변/대변 합산 및 총금액 비교
+	  for (const parentKey in grouped) {
+	    const children = grouped[parentKey];
+	    let debit = 0;
+	    let credit = 0;
+
+	    children.forEach(r => {
+	      const amount = Number(r.iPrice) || 0;
+	      if (r.iType === 'itp01') debit += amount;   // 차변 금액 합산
+	      if (r.iType === 'itp02') credit += amount;  // 대변 금액 합산
+	    });
+
+	    // 부모행(전표)의 총금액 가져오기
+	    const total = Number(chitGrid.getRow(Number(parentKey)).totPrice) || 0;
+
+	    // 총금액 셀 DOM 요소 가져오기
+	    const rowEl = chitGrid.getElement(Number(parentKey), 'totPrice');
+
+	    // 3. 배경색 초기화
+	    rowEl.style.backgroundColor = '';
+
+	    // 4. 조건: 차변 또는 대변 합이 총금액과 같으면 → 연한 초록색 배경 표시
+	    if (debit === total || credit === total) {
+	      console.log("조건 확인");
+	      rowEl.style.backgroundColor = '#e6ffe6';  // ✔️ 연한 초록
+	    }
+	  }
+	}
+
+	
+	
+chitGrid.on('editingFinish', ({ columnName }) => {
+	  if (columnName === 'iPrice') {
+		  
+	    console.log("iPrice 입력 확인");
+	    checkBalanceHighlight();  // ← 금액 셀에 입력 시만 실행
+	  }
+	});
 
 // 다이어로그
 const dialog = document.getElementById('columnDialog');
@@ -239,8 +407,9 @@ openButton.addEventListener('click', (e) => {  // ← e 추가!
   // 다이얼로그 안에 체크박스 생성
   const optionsDiv = document.getElementById('columnOptions');
   optionsDiv.innerHTML = ''; // 초기화
-
+  const ignoreColumns = ['ANAME', 'INAME'];
   chitGrid.getColumns().forEach(col => {
+	  if (ignoreColumns.includes(col.name)) return;
     const isVisible = chitGrid.getColumn(col.name).hidden !== true;
 
     const checkbox = document.createElement('input');
