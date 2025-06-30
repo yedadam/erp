@@ -7,6 +7,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,8 +40,8 @@ public class ChatConroller {
 	//상세등록
 	@PostMapping("/chatDtlAdd")
 	@ResponseBody
-	public int chatDtlAdd(@RequestBody List<ChatVO> vo) {
-		int result = service.chatRoomAdd(vo);
+	public String chatDtlAdd(@RequestBody List<ChatVO> vo) {
+		String result = service.chatRoomAdd(vo);
 		return result;
 	}
 	//채팅목록조회
@@ -61,6 +62,11 @@ public class ChatConroller {
     public void sendMessage(@DestinationVariable String roomId, @Payload ChatMessageVO chatMessage) {
     	//메시지 전송
         messagingTemplate.convertAndSend("/topic/chat." + roomId, chatMessage);
+        // 사용자 이름을 세션에 저장
+        System.out.println(chatMessage.getEmpId());
+        chatMessage.setChatId(roomId);
+        //DB저장
+        service.insertChatMessage(chatMessage);
         
     }
 }

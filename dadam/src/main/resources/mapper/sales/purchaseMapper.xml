@@ -45,7 +45,6 @@
  <!-- 발주의뢰리스트 -->
  <select id="requestList" resultType="PurchaseOrderVO">
     SELECT PUR_REQ_CODE,
-       	IN_CODE,
        	CREATED_DATE,
        	PUR_IN_DATE,
         getEmpName(EMP_ID) empId,
@@ -55,6 +54,14 @@
 	FROM purchaseRequest
 	WHERE status='prs01'
 	AND com_id = #{comId}
+	<choose>
+            <when test="type.equals('purReqCode')">
+                AND pur_req_code LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('note')">
+            	 AND note LIKE '%'||#{value}||'%'
+            </when>
+   </choose>
  </select>
  <!-- 발주서 의뢰 상세리스트 -->
  <select id="requestDeatilList" resultType="PurchaseOrderVO">
@@ -74,7 +81,37 @@
 	WHERE PUR_REQ_CODE = #{purCode}
 	AND i.com_id = #{comId}
  </select>
- 
+ <!-- 거래처모달조회 -->
+ <select id ="venderList">
+   SELECT 
+        vdr_code,
+		type,
+		vdr_name,
+		biz_no,
+		ceo_name,
+		addr,
+		addr_detail,
+		email,
+		tel,
+		bank,
+		acct_no,
+		credit_period,
+		credit_price,
+		credit_bal_price,
+		discount,
+		com_id
+  FROM vender
+  WHERE type='vt02'
+  AND com_id=#{comId}
+  <choose>
+            <when test="type.equals('vdrCode')">
+                AND vdr_code LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('vdrName')">
+            	 AND vdr_name LIKE '%'||#{value}||'%'
+            </when>
+   </choose>
+ </select>
  <!-- 발주헤더등록 -->
  <insert id="purchaseOrderAdd">
  <selectKey resultType="string" keyProperty="purOrdCode"

@@ -361,6 +361,45 @@
 	</div>
 	
 	<script>
+	
+	 //사원목록 조회
+	  async function loadEmployeeList() {
+		  $.ajax({
+			    url: '/erp/chatEmpList',
+			    method: 'GET',
+			    dataType: 'json',
+			    success: function (employees) {
+			      const $listGroup = $('.offcanvas-body .list-group');
+			      $listGroup.empty(); // 기존 목록 비우기
+
+			      employees.forEach(function (emp) {
+			    	//나의 프로필은 안보여주기
+			    	if(emp.empId != empId){
+			        const profileUrl = emp.profileImgPath || '/default.png';
+			        const item = `
+			        
+			          <label class="list-group-item d-flex align-items-center">
+				            <input class="form-check-input me-2" type="checkbox" value="${emp.empId}" name="selectedEmployees">
+				            <img src="${profileUrl}" class="rounded-circle me-3" width="40" height="40">
+				            <div>
+				              <div>${emp.empName}</div>
+				              <small class="text-muted">${emp.deptName}</small>
+				            </div>
+				          </label>
+				        `;
+				        $listGroup.append(item);
+			    	}
+			      });
+			    },
+			    error: function () {
+			      alert('사원 목록을 불러오지 못했습니다.');
+			    }
+			  });
+	}
+	  //슬라이더 열릴때마다 호출
+	  $('#chatRoomCreateDrawer').on('show.bs.offcanvas', function () {
+		  loadEmployeeList();
+		});
 	//방생성
 	 function createChatRoom() {
 		    const chatRoomName = $('#chatRoomName').val();
@@ -379,15 +418,17 @@
 		    }
 		
 		    // 전송할 리스트 구성
-		    const paramList = $.map(selectedEmpIds, function(empId) {
+		    const paramList = $.map(selectedEmpIds, function(checkedId) {
 		      return {
 		        name: chatRoomName,
-		        empId: empId,
-		        comId: 'com01',     // 🔸 실제 로그인된 회사 ID
-		        loginId: 'emp001'   // 🔸 실제 로그인된 사용자 ID (VO에서 필요하면 추가)
+		        empId: checkedId,
+		        empName:empName
 		      };
 		    });
-		
+		    //내정보도 추가
+		    let myInfo = {name:chatRoomName, empId : empId,empName: empName} 
+			paramList.push(myInfo);
+		    
 		    $.ajax({
 		      type: 'POST',
 		      url: '/erp/chatDtlAdd',
@@ -396,7 +437,7 @@
 		      success: function(result) {
 		        alert('채팅방이 성공적으로 생성되었습니다.');
 		     	// 채팅창 열기
-		        $('#chatPopup').css('display', 'flex'); 
+		        openChatRoom(result,chatRoomName);
 		     	// 오프캔버스 닫기 (수동)
 		        $('#chatRoomCreateDrawer').removeClass('show'); 
 		        $('body').removeClass('offcanvas-backdrop');
@@ -412,46 +453,6 @@
 		    const chat = document.getElementById('chatPopup');
 		    chat.style.display = (chat.style.display === 'none' ? 'flex' : 'none');
 		  }
-		
-	
-		  
-		  
-		  //사원목록 조회
-		  async function loadEmployeeList() {
-			  $.ajax({
-				    url: '/erp/chatEmpList',
-				    method: 'GET',
-				    dataType: 'json',
-				    success: function (employees) {
-				      const $listGroup = $('.offcanvas-body .list-group');
-				      $listGroup.empty(); // 기존 목록 비우기
-
-				      employees.forEach(function (emp) {
-				        const profileUrl = emp.profileImgPath || '/default.png';
-				        const item = `
-				        
-				          <label class="list-group-item d-flex align-items-center">
-				            <input class="form-check-input me-2" type="checkbox" value="${emp.empId}" name="selectedEmployees">
-				            <img src="${profileUrl}" class="rounded-circle me-3" width="40" height="40">
-				            <div>
-				              <div>${emp.empName}</div>
-				              <small class="text-muted">${emp.deptName}</small>
-				            </div>
-				          </label>
-				        `;
-				        $listGroup.append(item);
-				      });
-				    },
-				    error: function () {
-				      alert('사원 목록을 불러오지 못했습니다.');
-				    }
-				  });
-		}
-		  //슬라이더 열릴때마다 호출
-		  $('#chatRoomCreateDrawer').on('show.bs.offcanvas', function () {
-			  loadEmployeeList();
-			});
-		  
 		  
 		  let stompClient = null;		 
 		
@@ -460,7 +461,6 @@
 			    stompClient = Stomp.over(socket);
 
 			    stompClient.connect({}, function(frame) {
-			        console.log('STOMP 연결됨: ' + frame);
 			        
 			        // 현재 채팅방 ID 가져오기
 			        const currentRoomId = $('#chatPopup').attr('data-room-id');
@@ -470,7 +470,8 @@
 			            }
 			            currentSubscription = stompClient.subscribe(`/topic/chat.${currentRoomId}`, function(response) {
 			                const message = JSON.parse(response.body);
-			                if (message.sender !== 'emp-101') {
+			                if (message.sender !== comId) {
+			                	console.log('보낸값',message);
 			                    showChatMessage(message);
 			                }
 			            });
@@ -483,6 +484,11 @@
 		  $(document).ready(function() {
 			    connect();
 			});
+		 $('#chatInput').on('keydown',ev=>{
+			 if(ev.keyCode==13){
+				 sendChat();
+			 }
+		 })
 		//채팅보내기
 			 function sendChat() {
 				    if (!stompClient || !stompClient.connected) {
@@ -501,9 +507,9 @@
 				
 				    const chatMessage = {
 				        roomId: roomId,
-				        empId: 'emp-101', // 로그인된 사용자 정보로 변경 필요
+				        empId: empId, // 로그인된 사용자 정보로 변경 필요
 				        message: message,
-				        empName : '신현욱'
+				        empName : empName
 				    };
 				
 				    stompClient.send(`/app/chat.${roomId}`, {}, JSON.stringify(chatMessage));
@@ -511,8 +517,8 @@
 				}
 		  //보내는 화면 표시
 		  function showChatMessage(msg) {
-			  	const myEmpId = 'emp-101'; 
-
+			  	const myEmpId = empId;
+			  
 			    const isMine = (msg.empId === myEmpId);
 			    const alignClass = isMine ? 'text-end' : '';
 			    const bubbleColor = isMine ? 'bg-primary text-white' : 'bg-white';

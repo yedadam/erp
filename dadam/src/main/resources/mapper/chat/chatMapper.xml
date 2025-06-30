@@ -7,6 +7,7 @@
        	     getDeptName(dept_code) deptName,
        	     profile_img_path
 	   FROM employees
+	   WHERE com_id = #{comId}
    </select>
    <!-- 채팅방 생성 -->
    <insert id="chatRoomMainAdd">
@@ -17,8 +18,9 @@
 	</selectKey>
 		INSERT INTO chatRoom(chat_id,
                       created_date,
-                      name)
-		VALUES(#{chatId},sysdate,#{name})
+                      name,
+                      com_id)
+		VALUES(#{chatId},sysdate,#{name},#{comId})
    </insert>
    <insert id= "chatRoomDtlAdd"> 
       <selectKey resultType="string" keyProperty="chatDtlId"
@@ -29,8 +31,9 @@
 	
 	 INSERT INTO chatDetail(chat_dtl_id,
                         chat_id,
-                        emp_id)
-		VALUES(#{chatDtlId},#{chatId},#{empId})
+                        emp_id,
+                        com_id)
+		VALUES(#{chatDtlId},#{chatId},#{empId},#{comId})
    </insert>
    
    <!-- 채팅리스트 -->
@@ -42,6 +45,7 @@
                                             ) chatQuantity
 	  FROM chatRoom c JOIN chatDetail d ON (c.chat_id = d.chat_id)
 	  WHERE emp_id = #{empId}
+	  AND c.com_id = #{comId}
       GROUP BY  c.chat_id,name,c.chat_id,c.created_date
    </select>
    
@@ -57,23 +61,31 @@
             getEmpName(emp_id) emp_name
         FROM chatMessage
         WHERE chat_id = #{chatId}
+        AND com_id= #{comId}
         ORDER BY created_date ASC
     </select>
 
     <!-- 채팅 메시지 저장 -->
     <insert id="insertChatMessage" parameterType="ChatVO">
+     <selectKey resultType="string" keyProperty="messageId"
+	order="BEFORE">
+		SELECT 'msg-' || (NVL(MAX(TO_NUMBER(SUBSTR(message_id,5))),100)+1)
+		FROM chatMessage
+	</selectKey>
         INSERT INTO chatMessage (
             message_id,
             message,
             created_date,
             chat_id,
-            emp_id
+            emp_id,
+            com_id
         ) VALUES (
             #{messageId},
             #{message},
-            NOW(),
+            sysdate,
             #{chatId},
-            #{empId}
+            #{empId},
+            #{comId}
         )
     </insert>
 </mapper>

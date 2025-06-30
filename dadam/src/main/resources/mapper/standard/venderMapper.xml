@@ -20,6 +20,7 @@ SELECT
 		discount,
 		com_id
 FROM vender
+WHERE type='vt01'
 </select>
 
 </mapper>

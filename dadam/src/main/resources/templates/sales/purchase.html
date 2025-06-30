@@ -139,6 +139,17 @@
 						aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
+				<!-- 검색조건 -->
+						<div class="input-group col-md-6 w-50 mb-3">
+							<select class="form-select col-4" id="reqSelect">
+								<option value="purReqCode" selected>발주서 의뢰</option>
+								<option value="note">비고</option>
+							</select>
+							<input type="text" class="form-control col-6" placeholder="검색어를 입력하세요" id="reqInput">
+			                    <button class="btn btn-outline-secondary col-2" type="button" id="reqSearchBtn">
+			                        <i class="fas fa-search"></i>
+			                    </button>
+			              </div>
 					<div class="container-fluid">
 						<div id="requestGrid"></div>
 					</div>
@@ -162,8 +173,20 @@
 						aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<div class="container-fluid">
-						<div id="vdrGrid"></div>
+				
+						<!-- 검색조건 -->
+			                <div class="input-group col-md-6 w-50 mb-3">
+							<select class="form-select col-4" id="vdrSelect">
+								<option value="vdrCode" selected>거래처코드</option>
+								<option value="vdrName">거래처명</option>
+							</select>
+							<input type="text" class="form-control col-6" placeholder="검색어를 입력하세요" id="vdrInput">
+			                    <button class="btn btn-outline-secondary col-2" type="button" id="vdrSearchBtn">
+			                        <i class="fas fa-search"></i>
+			                    </button>
+			                </div>					
+			            <div class="container-fluid">
+					   <div id="vdrGrid"></div>
 					</div>
 				</div>
 				<div class="modal-footer">
@@ -174,7 +197,7 @@
 			</div>
 		</div>
 	</div>
-	<!-- 아이템 리스트-->
+	<!-- 아이템 모달-->
 	<div class="modal fade" id="itemModal" tabindex="-1"
 		aria-labelledby="itemModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-xl">
@@ -184,6 +207,17 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal"
 						aria-label="Close"></button>
 				</div>
+				<!-- 검색조건 -->
+			                <div class="input-group col-md-6 w-50 mb-3">
+							<select class="form-select col-4" id="vdrSelect">
+								<option value="itemCode" selected>품목코드</option>
+								<option value="itemName">품목명</option>
+							</select>
+							<input type="text" class="form-control col-6" placeholder="검색어를 입력하세요" id="vdrInput">
+			                    <button class="btn btn-outline-secondary col-2" type="button" id="vdrSearchBtn">
+			                        <i class="fas fa-search"></i>
+			                    </button>
+			                </div>	
 				<div class="modal-body">
 					<div class="container-fluid">
 						<div id="itemGrid"></div>
@@ -198,10 +232,6 @@
 		</div>
 	</div>
 	<script th:inline="javascript">
-	//세션
-	let empId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
-	let empName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.username : '김지현'}]];
-	
 	
 	//필수값 가져오기
 	function getName(name){
@@ -337,13 +367,7 @@
     		},
     		 columns:[
             	{header:'거래처코드',name:'vdrCode',align:'center'},
-            	{header:'거래처구분',name:'type',align:'center'}, 
             	{header:'거래처명',name:'vdrName',align:'center'},
-            	{header:'할인율',name:'discount',align:'center',
-            		formatter: function(item){
-                   	  return item.value+'%';
-                     }
-            	} 
             ]
     	})
 		//아이템 그리드 생성
@@ -449,7 +473,7 @@
 			}
 		})
 		//발주의뢰 모달창
-		function requestModal(rowKey){
+		function requestModal(){
 			$('#requestModal').modal('show');
 			$.ajax({
 				url : "/erp/sales/purRequestList",
@@ -460,17 +484,81 @@
 				}
 			})
 		}
+		//발주 의뢰 검색
+		function requestSearchModal(type,value){
+			$.ajax({
+				url : "/erp/sales/purRequestList",
+				method : "GET",
+				data: {
+					type : type,
+					value : value
+				}
+				success : function(result) {
+					//console.log('주문정보 불러오기', result);
+					requestGrid.resetData(result);
+				}
+			})
+		}
+		//발주 의뢰 클릭 검색
+		$('#reqSearchBtn').on('click', ev=> {
+			 let value = $('#reqInput').val();
+			 let type = $("#reqSelect option:selected").val();
+			 requestSearchModal(type,value);
+		})
+		//발주 엔터 검색
+		$('#reqInput').on('keydown',ev => {
+			if(ev.keyCode ==13){
+				let value = $('#reqInput').val();
+				let type = $("#reqSelect option:selected").val();
+				requestSearchModal(type,value);
+			}
+		})
+		
+		
 		//거래러 업체 모달창
 		function vdrModal(){
 			$('#vdrModal').modal('show');
 			$.ajax({
-				url:"/erp/standard/venderAll",
+				url:"/erp/sales/vederList",
 				method:"GET",
 				success:function(result){
 					vdrGrid.resetData(result);
 				}
 			})
 		}
+		//발주의뢰 검색함수
+		function vdrSearchModal(type,value){
+			$.ajax({
+				url:"/erp/sales/vederList",
+				method:"GET",
+				data:{
+					type: type,
+					value:value
+				},
+				success:function(result){
+					vdrGrid.resetData(result);
+				}
+			})
+		}
+		  //검색
+		$('#vdrSearchBtn').on('click', ev=> {
+			//형태
+			let type = $("#vdrSelect option:selected").val();
+			//값
+			let value = $("#vdrInput").val();
+			vdrSearchModal(type,value)				
+		});
+		//인풋 enter
+		$('#vdrInput').on('keydown',ev=>{
+			if(ev.keyCode==13){
+				//형태
+				let type = $("#vdrSelect option:selected").val();
+				//값
+				let value = $("#vdrInput").val();
+				
+				vdrSearchModal(type,value)
+			}
+		});
 		//모달 그리드 클릭시 발동
 		requestGrid.on('click', ev => {
 			//행클릭시 발주의뢰 코드 값 가져오기
@@ -880,7 +968,7 @@
 		                }
 		    	 }) 
 	     })
-		
+	  
     </script>
 </body>
 </html>

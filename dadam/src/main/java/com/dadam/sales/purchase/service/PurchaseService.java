@@ -3,6 +3,7 @@ package com.dadam.sales.purchase.service;
 import java.util.List;
 
 import com.dadam.common.service.GridData;
+import com.dadam.standard.vender.service.VenderVO;
 
 public interface PurchaseService {
 	
@@ -11,7 +12,7 @@ public interface PurchaseService {
 	//발주상세조회
 	public List<PurchaseOrderDetailVO> findPurListByOrdNo(String param);
 	//발주의뢰 코드보기
-	public List<PurchaseOrderVO> requestList();
+	public List<PurchaseOrderVO> requestList(String type, String value);
 	//발주의뢰 상세코드
 	public List<PurchaseOrderVO> requestDeatilList(String param);
 	//발주 등록
@@ -22,5 +23,7 @@ public interface PurchaseService {
 	public int purOderDtUpdate(GridData<PurchaseOrderDetailVO> vo);
 	//발주 메인 삭제
 	public int purDelete(String purOrdCode);
+	//모달창 거래처 조회
+	public List<VenderVO> venderList(String type,String value);
 	
 }
