@@ -38,8 +38,7 @@ public class ChitVO {
     private String name;
     private String chitDtId;
     private String empId;
-    
-    private String ITYPE;
+   
    
     
     private List<ChitVO> createdRows;
