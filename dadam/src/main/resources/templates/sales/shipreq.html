@@ -73,7 +73,17 @@
 		
 	.require{
 		color :red;
+		font-weight: bold;
 	}
+	.require.complete {
+	color: #198754; /* Bootstrap success green */
+	font-weight: bold;	
+	}
+	.require.partial {
+	color: #fd7e14; /* 주황색 */
+	font-weight: bold;
+}
+
 </style>
 </head>
 <body class="bg-light">
@@ -104,9 +114,7 @@
                     <button class="btn btn-primary" id="saveBtn">
                         <i class="fas fa-save"></i> 저장
                     </button>
-					<button class="btn btn-primary" id="reqBtn">
-                        <i class="fas fa-save"></i> 주문서불러오기
-                    </button>
+				
                 </div>
             </div>
         </div>
@@ -202,7 +210,7 @@
 	//세션
 	let empId = 'emp-101';
 	let empName = '예담';
-	
+	let maxShipReqNO; 
 	
 	//필수값 가져오기
 	function getName(name){
@@ -211,7 +219,7 @@
 		return header;
 	}
         // 메인그리드
-        const mainGrid = new tui.Grid({
+		 const mainGrid = new tui.Grid({
             // toastui 아이디 가져오기
             el: document.getElementById('mainGrid'),
             scrollX: false,
@@ -226,19 +234,18 @@
             // 필드값 구성
             columns: [
                 {header: '사원', name: 'empId', align: 'center', editor: 'text'},
+								{header: '회사ID', name: 'comId', align: 'center', editor: 'text'},
                 {header: '출하의뢰코드', name: 'shipReqCode', align: 'center',customHeader:getName('출하의뢰코드')},
                 {header: '거래처이름', name: 'vdrName', align: 'center',customHeader:getName('거래처이름')},
                 {header: '거래처코드', name: 'vdrCode', align: 'center'},
-                {header: '출고창고', name: 'whCode', align: 'center', editor: 'text',customHeader:getName('출고창고')},
                 {header: '출고예정일자', name: 'shipExpDate', align: 'center', editor: 'datePicker',customHeader:getName('출고예정일자')},
                 {header: '총금액합계', name: 'totPrice', align: 'right', 
-                	formatter: function(price){
-                     	  return priceFormat(price.value)+'원';
-                       },	
-                },
-                {header: '상태', name: 'status', align: 'center'},
-				{header: '주문번호', name: 'ordCode', align: 'center'},
-				{header: '등록일자', name: 'createdDate', align: 'center'}
+                	formatter: function(price){return priceFormat(price.value)+'원';},},
+                {header: '상태', name: 'status', align: 'center',
+										formatter:function(status){return headstatus(status.value)}
+								},
+								{header: '주문번호', name: 'ordCode', align: 'center'},
+								{header: '등록일자', name: 'createdDate', align: 'center'}
             ],
         });
 		//
@@ -255,27 +262,22 @@
                 {header:'출하의뢰상세코드', name: 'shipReqDtlCode', align: 'center', width: 120},
                 {header:'품목코드', name: 'itemCode', align: 'center', width: 120},
                 {header:'품목이름', name: 'name', align: 'center',customHeader:getName('품목이름')},
-                {header:'수량', name: 'quantity', align: 'center', editor: 'text',customHeader:getName('수량'),
+                {header:'수량', name: 'quantity', align: 'center',customHeader:getName('수량'),
                 formatter: function(quantity){return quantity.value+'개'; }, },
                 {header:'개당가격', name: 'price', align: 'right',
-                	formatter: function(price){
-                   	  return priceFormat(price.value)+'원';
-                     },		
+											formatter: function(price){	return priceFormat(price.value)+'원';},		
                 },
                 {header:'공급가액', name: 'supPrice', align: 'right', 
-                	formatter: function(price){
-                     	  return priceFormat(price.value)+'원';
-                       },	
-                },
+										formatter: function(price){return priceFormat(price.value)+'원';},},
                 {header:'부가세', name: 'vatPrice', align: 'right', 
                 	formatter: function(price){return priceFormat(price.value)+'원';},	
                 },
                 {header:'할인금액', name: 'discPrice', align: 'right', 
-                	formatter: function(discPrice){  return discPrice.value+'원'; }, },
-				{header:'합계금액', name: 'totPrice', align: 'center', 
-                	formatter: function(totPrice){ return priceFormat(totPrice.value)+'원';},	
-                },	
-                {header:'상태', name: 'status', align: 'center'},
+                	formatter: function(discPrice){  return discPrice.value+'원'; },},
+								{header:'합계금액', name: 'totPrice', align: 'right', 
+                	formatter: function(totPrice){ return priceFormat(totPrice.value)+'원';},},	
+                {header:'상태', name: 'status', align: 'center',},
+								{header:'회사ID', name: 'comId', align: 'center'},
 				
             ]
         });
@@ -293,19 +295,19 @@
             // 필드값 구성
             columns: [
                 {header:'주문코드', name: 'ordCode', align: 'center'},
-				{header:'거래처코드', name: 'vdrCode', align: 'center'},
-				{header:'거래처명', name: 'vdrName', align: 'center'},
-                {header: '등록일자', name: 'createdDate', align: 'center'},
-                {header: '상태', name: 'status', align: 'center'},
-                {header: '총공급세',	name: 'totSupPrice',	align:'right',
-				 	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},   
-                {header: '총부가세',	name: 'totVatPrice',	align:'right',
-				    formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
-                {header: '총할인금액',	name: 'totDisc',	align:'right',
-				    formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},      
-                {header: '총금액합계',	name: 'totPrice',	align:'right',
-				     formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
-				{header: '납기일자', name: 'reqDlvDate', align: 'center'}		  
+								{header:'거래처코드', name: 'vdrCode', align: 'center'},
+								{header:'거래처명', name: 'vdrName', align: 'center'},
+                {header:'등록일자', name: 'createdDate', align: 'center'},
+                {header:'상태', name: 'status', align: 'center'},
+                {header:'총공급세',	name: 'totSupPrice',	align:'right',
+				 							formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},   
+                {header:'총부가세',	name: 'totVatPrice',	align:'right',
+				    					formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+                {header:'총할인금액',	name: 'totDisc',	align:'right',
+				    					formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},      
+                {header:'총금액합계',	name: 'totPrice',	align:'right',
+				     					formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+								{header:'납기일자', name: 'reqDlvDate', align: 'center'}		  
             ]
         });
       //vdr 모달안에  vdrGrid 생성  
@@ -320,7 +322,7 @@
             	{header:'거래처구분',name:'type',align:'center'}, 
             	{header:'거래처명',name:'vdrName',align:'center'},
             	{header:'할인율',name:'discount',align:'center',
-            		formatter: function(discount){return discount.value+'%'; }
+            			formatter: function(discount){return discount.value+'%'; }
             	} 
             ]
     	})
@@ -336,7 +338,7 @@
             	{header:'창고코드',name:'whCode',align:'center'},
             	{header:'창고이름',name:'name',align:'center'}, 
             	{header:'위치정보',name:'locCode',align:'center'},
-				{header:'메모',name:'note',align:'center'}]	
+							{header:'메모',name:'note',align:'center'}]	
 		})
 
 		warehouseGrid.on('click',ev=>{
@@ -350,13 +352,14 @@
 							  warehouseGrid.getRow(ev.rowKey).name); //창고이름을 넣어줌
 			$('#warehouseModal').modal('hide');
 		})
-
 		
       //그리드 숨기기
       mainGrid.hideColumn('empId');
       mainGrid.hideColumn('vdrCode');
-      detailGrid.hideColumn('itemCode');       //
+			mainGrid.hideColumn('comId');  
+      detailGrid.hideColumn('itemCode');      
       detailGrid.hideColumn('shipReqDtlCode'); //출하상세번호 
+			detailGrid.hideColumn('comId'); 
         // 메인 리스트 불러오기
         function mainList() {
     	  pageStatus= 'search'
@@ -372,6 +375,8 @@
                 success: function(result) {
                     console.log('출하의뢰정보 불러오기', result);
                     mainGrid.resetData(result);
+										maxShipReqNO='sr-'+String(Number(mainGrid.getData()[0].shipReqCode.substr(3))+1); 
+										console.log('출하번호 가장큰거=>',maxShipReqNO);
                     //디테일 그리드 초기화
                     detailGrid.resetData([]);
                 },
@@ -396,7 +401,9 @@
 					data: {ordCode: ordcode},
 					success: function(result){
 							console.log('주문상세=>',result)
-							detailGrid.resetData(result);}
+							detailGrid.resetData(result);
+						
+						}
 				})
 		}
 		//출하의뢰 상세
@@ -424,9 +431,11 @@
       	  searchBtn.prop('disabled', false);
       	  //추가버튼 비활성화
       	  newBtn.prop('disabled', true);    
- 	      let data = mainGrid.getData();
+ 	      	let data = mainGrid.getData();
         	//그리드 초기화ㅣ
           mainGrid.resetData([{empId: empId,empName : empName}])
+					console.log('키번호',mainGrid.getData()[0].rowKey); 
+					mainGrid.setValue(mainGrid.getData()[0].rowKey,"shipReqCode",maxShipReqNO); 
           detailGrid.resetData([{}]);
          		
         });
@@ -434,48 +443,39 @@
 		let mainRowKey = null;
 		//메인그리드 클릭창
 		mainGrid.on('click',ev => {
-			console.log('shipReqCode',mainGrid.getCheckedRows()[0].shipReqCode);
-			shipReqDtlList(mainGrid.getCheckedRows()[0].shipReqCode);
-
+			// console.log('shipReqCode',mainGrid.getCheckedRows()[0].shipReqCode);
+			 console.log('ev.targetType:', ev.targetType);
+ 			 console.log('ev.columnName:', ev.columnName);
+ 			 console.log('ev.rowKey:', ev.rowKey);
+			 if(pageStatus=='search'){
+			 		shipReqDtlList(mainGrid.getCheckedRows()[0].shipReqCode);
+			}
 			if (!ev.targetType || ev.targetType !== 'cell') {
 			    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
 			    return;
 			  }
+			if(ev.targetType=='cell' &&ev.columnName=='shipReqCode'&&ev.rowKey==0){
+						requestModal(); //모달이열림
+			}
 			mainRowKey = ev.rowKey;
 			//출하의뢰코드 클릭시
 			if(ev.columnName == 'shipReqCode'){
-				console.log(pageStatus)
+					console.log(pageStatus)
+					console.log('shipReqCode 칼럼이 눌림');
 				if(pageStatus=='search'){
 					return;
 				}
-				requestModal();
+			
 				//리플래쉬
 			  $(requestModal).on('shown.bs.modal',e => {
         			requestGrid.refreshLayout();
-        	  })
-			}
-			//거래처 코드 클릭시
-			//if(ev.columnName == 'vdrName' ||ev.columnName == 'vdrCode'){
-			//	vdrModal()
-			//	 $(vdrModal).on('shown.bs.modal',e => {
-			//		 vdrGrid.refreshLayout();
-        	//  })
-			//}
-			//출하창코 클릭시
-			if(ev.columnName=='whCode'){
-				warehouseModal()
-				 $(warehouseModal).on('shown.bs.modal',e => {
-					 warehouseGrid.refreshLayout();
-        	  })
+        })
 			}
 			const checkedRows = mainGrid.getCheckedRowKeys();
 			if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
 				mainGrid.uncheckAll(); // 전체 해제
 				mainGrid.check(ev.rowKey); // 현재 행만 체크
 				}			
-
-			
-
 		})
 		//주문의뢰 모달창
 		function requestModal(){	
@@ -488,6 +488,7 @@
 			})
 			$('#requestModal').modal('show');
 		}
+
 		//거래처 업체 모달창
 		function vdrModal(){
 			$('#vdrModal').modal('show');
@@ -524,7 +525,9 @@
 			mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,'ordCode',requestGrid.getRow(ev.rowKey).ordCode);//주문번호
 			mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,'status',requestGrid.getRow(ev.rowKey).status); //상태			
 								  
-			ordDtlList(requestGrid.getRow(ev.rowKey).ordCode); //주문상세조회하고 난후 detail리스트에 resetdata 처리해줌  
+			ordDtlList(requestGrid.getRow(ev.rowKey).ordCode); //주문상세조회하고 난후 detail리스트에 resetdata 처리해줌
+			
+		
 			//모달 지우기
 			$('#requestModal').modal('hide');
 
@@ -538,8 +541,8 @@
 			//업체이름
 			let vdrName = vdrGrid.getRow(ev.rowKey).vdrName;
 			//메인그리드로 전달
-		//	mainGrid.setValue(mainRowKey,'vdrCode',vdrCode)
-		//	mainGrid.setValue(mainRowKey,'vdrName',vdrName)
+			//	mainGrid.setValue(mainRowKey,'vdrCode',vdrCode)
+			//	mainGrid.setValue(mainRowKey,'vdrName',vdrName)
 			
 			$('#vdrModal').modal('hide');
 		})
@@ -587,7 +590,7 @@
 		detailGrid.on('click', ev => {
 			detailRowKey= ev.rowKey;
 		   //아이템리스트 가져오기 
-		
+		console.log(detailGrid.getCheckedRows()); 
 		})
 		//금액 변환
 		function updateDetailPrice(rowKey) {
@@ -646,13 +649,11 @@
 	     function shipReqAdd(){
 	    		let mainGridInfo = mainGrid.getData(); //[{},{},{}]
 	    		let detailGridInfo = detailGrid.getData(); //[{}]
-	    		
-	    		
 	    		//메인 그리드 해당 값이 기입했는지 체크
 	    		let mainResult = mainGridInfo.every(item => {
 	    				
-	    			return item.vdrCode &&
-	    			       item.shipExpDate && item.whCode
+	    			return item.vdrName &&
+	    			       item.shipExpDate 
 						   					&& item.ordCode	
 	    			       ;
 	    		})
@@ -677,13 +678,15 @@
 	    		
 	    		//등록데이터 정리
 	    		let mainData = mainGrid.getData(); //[{},{},{}]
-	    		let detailData = detailGrid.getModifiedRows(); //[{},{},{}]
+	    		let detailData = detailGrid.getData(); //[{},{},{}]
 	    		console.log(mainData);
 	    		console.log(detailData);
 	    		let dataToSend = {
-	    				head : mainData[0], 
-	    				dtl : detailData
+	    				head : mainData[0], //{}   
+	    				dtl : detailData    //[{},{}]
 	    		};
+	    		console.log(dataToSend)
+					console.log(dataToSend);	
 	    		//등록ajax
 	    		$.ajax({
 	    			url: '/erp/sales/shipReqAdd',
@@ -739,9 +742,11 @@
 	    			method:'GET',
 	    			success:result => {
 	    				detailGrid.resetData(result);
-	    			}
-	    		})
-	    	} 
+	    			}})
+	    	}
+
+				console.log('mainRowData shipReqCode', mainRowData);
+
 	     })
 	     //수정 함수
 	     async function shipReqModify(){
@@ -819,6 +824,22 @@
 		var dateString = year + '-' + month + '-' + day;
 		return dateString;
 	} 
+	function headstatus(status){
+		if(status=='srq01'){
+				return `<span class="require">출하요청</span>`
+		}else if(status=='srq02') {
+			return `<span class="require partial">부분출고</span>`; 
+		}else if(status=='srq03'){
+			return `<span class="require complete">출하완료</span>`
+		}else{
+			return status;
+		} 
+	}
+	function formatRed(price){
+		return  `<span class="require">${price}</span>`;
+	}
+
+
     </script>
 </body>
 </html>
