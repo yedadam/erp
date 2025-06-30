@@ -95,6 +95,12 @@ public class PurchaseRestController {
 		int result = service.purDelete(param);
 		return result;
 	}
+	//자동완성기능
+	@GetMapping("/venderAuto")
+	public List<VenderVO> venderAuto(@RequestParam String type, @RequestParam String value){
+		List<VenderVO> result = service.autoVender(type,value);
+		return result;
+	} 
 	
 	
 }

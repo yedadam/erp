@@ -206,4 +206,19 @@ AND com_id = #{comId}
 	AND com_id = #{comId}
 </delete>
 
+<!-- 자동완성 기능 -->
+<select id="autoVender">
+   SELECT vdr_code,vdr_name 
+   FROM vender
+   where com_id = #{comId}
+   AND type='vt02'
+  <choose>
+            <when test="type.equals('vdrCode')">
+                AND vdr_code LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('vdrName')">
+            	 AND vdr_name LIKE '%'||#{value}||'%'
+            </when>
+   </choose>
+ </select>
 </mapper>

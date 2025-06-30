@@ -25,5 +25,7 @@ public interface PurchaseService {
 	public int purDelete(String purOrdCode);
 	//모달창 거래처 조회
 	public List<VenderVO> venderList(String type,String value);
+	//자동 완성 기능
+	public List<VenderVO> autoVender(String type, String value);
 	
 }

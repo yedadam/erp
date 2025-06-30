@@ -165,4 +165,11 @@ public class PurchaseServiceImpl implements PurchaseService{
 		
 		return result;
 	}
+	
+	@Override
+	public List<VenderVO> autoVender(String type,String value) {
+		initAuthInfo();
+		List<VenderVO> result = mapper.autoVender(comId,type,value);
+		return result;
+	}
 }

@@ -5,35 +5,6 @@
 	layout:fragment="Content">
 <head>
     <style>
-        .main-table {
-            border: 2px solid #0d6efd;
-        }
-        .main-table th {
-            background-color: #e3f2fd;
-            text-align: center;
-            vertical-align: middle;
-            font-weight: bold;
-            border: 1px solid #ddd;
-        }
-        .main-table td {
-            text-align: center;
-            vertical-align: middle;
-            border: 1px solid #ddd;
-        }
-        .detail-table {
-            margin-top: 20px;
-        }
-        .detail-table th {
-            background-color: #f8f9fa;
-            text-align: center;
-            font-size: 14px;
-            padding: 8px;
-        }
-        .detail-table td {
-            text-align: center;
-            font-size: 14px;
-            padding: 8px;
-        }
         .search-container {
             margin-bottom: 20px;
         }
@@ -42,43 +13,71 @@
         }
         .tui-pagination{
         	padding-bottom:10px;
-				}  
+		}  
 	   .start-action {
 			display: inline-block;
-	padding: 3px 8px;
-	font-size: 12px;
-	border-radius: 12px;
-	border: 1px solid #facc15;        /* 연한 노랑 */
-	background-color: #fefce8;        /* 연노랑 배경 */
-	color: #92400e;                   /* 진한 주황갈색 */
+			padding: 3px 8px;
+			font-size: 12px;
+			border-radius: 12px;
+			border: 1px solid #facc15;        /* 연한 노랑 */
+			background-color: #fefce8;        /* 연노랑 배경 */
+			color: #92400e;                   /* 진한 주황갈색 */
 		}
 		.end-action {
 			display: inline-block;
-	padding: 3px 8px;
-	font-size: 12px;
-	border-radius: 12px;
-	border: 1px solid #22c55e;        /* 연초록 */
-	background-color: #ecfdf5;        /* 아주 연한 민트 */
-	color: #065f46;                   /* 진한 초록 */
+			padding: 3px 8px;
+			font-size: 12px;
+			border-radius: 12px;
+			border: 1px solid #22c55e;        /* 연초록 */
+			background-color: #ecfdf5;        /* 아주 연한 민트 */
+			color: #065f46;                   /* 진한 초록 */
 		}
 		.del-action {
 			display: inline-block;
-	padding: 3px 8px;
-	font-size: 12px;
-	border-radius: 12px;
-	border: 1px solid #f87171;        /* 연한 빨강 */
-	background-color: #fef2f2;        /* 아주 연한 빨강 */
-	color: #991b1b;                   /* 진한 빨강 */
+			padding: 3px 8px;
+			font-size: 12px;
+			border-radius: 12px;
+			border: 1px solid #f87171;        /* 연한 빨강 */
+			background-color: #fef2f2;        /* 아주 연한 빨강 */
+			color: #991b1b;                   /* 진한 빨강 */
 		}
 		
-	.require{
-		color :red;
-	}
+		.require{
+			color :red;
+		}
+		#autocompleteList {
+		    border: 1px solid #dee2e6;
+		    border-radius: 0 0 0.375rem 0.375rem;
+		    background-color: #fff;
+		}
+		#autocompleteList .list-group-item {
+ 		   cursor: pointer;
+		}
+		#autocompleteList .list-group-item:hover {
+ 		   background-color: #f8f9fa;
+		}
+	     .autocomplete-item:hover {
+		    background-color: #f0f9ff;  
+		    color: #0c4a6e;             
+		}
+		
+		 .autocomplete-item i {
+		    width: 16px;
+		    text-align: center;
+		 }
+		
+		.autocomplete-item.no-result {
+		    color: #6c757d;             
+		    background-color: #f8f9fa;  
+		    cursor: default;
+		 }
 </style>
 </head>
 <body class="bg-light">
     <div class="container-fluid mt-4">
         <h3 class="mb-4">구매관리</h3>
+        
+        
         
         <!-- 검색 및 버튼 영역 -->
         <div class="row mb-3">
@@ -109,12 +108,27 @@
         </div>
 
         <!-- 메인 테이블 -->
-     
-            <!-- 그리드 -->
-            <div id="mainGrid"></div>
-  
+		<div id="mainGridWrapper" style="position: relative;">
+			<div id="mainGrid"></div>
 
-        <!-- 상세 정보 테이블 -->
+			<!-- Lottie 로딩 바 애니메이션 -->
+			<div id="gridSpinner"
+				style="position: absolute; top: 38px; left: 0; width: 100%; height: calc(100% - 38px); background: #fff; z-index: 10; display: none;"
+				class="d-flex align-items-center justify-content-center">
+
+				<!-- dotlottie-player로 변경 -->
+				<dotlottie-player
+					src="https://lottie.host/2cc6f5f8-11ca-42dc-aa76-12a046c8f86d/64CNuM1mPm.lottie"
+					background="transparent" speed="1"
+					style="width: 400px; height: 200px; filter: hue-rotate(3.142rad);" loop autoplay>
+				</dotlottie-player>
+			</div>
+		</div>
+
+
+
+
+		<!-- 상세 정보 테이블 -->
 
              <div class="text-end">
                 <div class="btn-group-custom">
@@ -174,20 +188,28 @@
 				</div>
 				<div class="modal-body">
 				
-						<!-- 검색조건 -->
-			                <div class="input-group col-md-6 w-50 mb-3">
-							<select class="form-select col-4" id="vdrSelect">
-								<option value="vdrCode" selected>거래처코드</option>
-								<option value="vdrName">거래처명</option>
-							</select>
-							<input type="text" class="form-control col-6" placeholder="검색어를 입력하세요" id="vdrInput">
-			                    <button class="btn btn-outline-secondary col-2" type="button" id="vdrSearchBtn">
-			                        <i class="fas fa-search"></i>
-			                    </button>
-			                </div>					
+						<!-- 검색 조건 -->
+						<div class="position-relative mb-3" style="max-width: 500px;">
+						    <div class="input-group">
+						        <select class="form-select col-4" id="vdrSelect" style="max-width: 30%;">
+						            <option value="vdrCode" selected>거래처코드</option>
+						            <option value="vdrName">거래처명</option>
+						        </select>
+						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="vdrInput" autocomplete="off">
+						        <button class="btn btn-outline-secondary" type="button" id="vdrSearchBtn">
+						            <i class="fas fa-search"></i>
+						        </button>
+						    </div>
+						
+						    <!-- 자동완성 리스트 -->
+						    <ul id="autocompleteList"
+						        class="list-group position-absolute w-100 shadow-sm"
+						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+						    </ul>
+						</div>
 			            <div class="container-fluid">
-					   <div id="vdrGrid"></div>
-					</div>
+					        <div id="vdrGrid"></div>
+					   </div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary"
@@ -233,7 +255,26 @@
 	</div>
 	<script th:inline="javascript">
 	
-	//필수값 가져오기
+	
+	
+	//자동검색기능
+	$(document).ready(function () {
+		  setupAutocomplete({
+		    inputSelector: '#vdrInput',
+		    selectSelector: '#vdrSelect',
+		    listSelector: '#autocompleteList',
+		    ajaxUrl: '/erp/sales/venderAuto'
+		  });
+
+	});
+	
+	
+	
+	//모달창꺼졌을때 검색창 지우기
+	  $('#vdrModal').on('hide.bs.modal',e => {
+		  $('#vdrInput').val('');
+	  })
+	//필수값 별찍기
 	function getName(name){
 		const header = document.createElement('span');
 		header.innerHTML=`<span class="require">* </span>${name}`
@@ -292,7 +333,6 @@
                 },
             ],
         });
-		//
         // 상세그리드
         const detailGrid = new tui.Grid({
             // toastui 아이디 가져오기
@@ -399,19 +439,25 @@
     	  //조회버튼 비활성화
     	  searchBtn.prop('disabled', true);
     	  //추가버튼 활성화
-    	  newBtn.prop('disabled', false);    
+    	  newBtn.prop('disabled', false);   
+    	  // 로딩 스피너 표시
+    	  $('#gridSpinner').addClass('d-flex').show();
             $.ajax({
                 url: "/erp/sales/purMainList",
                 method: "GET",
                 success: function(result) {
-                    console.log('주문정보 불러오기', result);
                     mainGrid.resetData(result);
                     //디테일 그리드 초기화
                     detailGrid.resetData([]);
+                    $('#gridSpinner').css('display', 'none');
                 },
                 error: function(xhr, status, error) {
                     console.log("실패:", xhr.status, error);
                 }
+            }).always(function() {
+            	 setTimeout(function() {
+            		 $('#gridSpinner').removeClass('d-flex').hide();
+            	    }, 1500);
             });
         }
       //금액 포맷 함수('#,###')
@@ -477,7 +523,6 @@
 				url : "/erp/sales/purRequestList",
 				method : "GET",
 				success : function(result) {
-					//console.log('주문정보 불러오기', result);
 					requestGrid.resetData(result);
 				}
 			})
@@ -490,9 +535,8 @@
 				data: {
 					type : type,
 					value : value
-				}
+				},
 				success : function(result) {
-					//console.log('주문정보 불러오기', result);
 					requestGrid.resetData(result);
 				}
 			})
@@ -837,7 +881,6 @@
 	     })
 	     //조회버튼
 	     $('#searchBtn').on('click',ev => {
-	    	 
 	    	 mainList();
 	     })
 	     //상세조회
