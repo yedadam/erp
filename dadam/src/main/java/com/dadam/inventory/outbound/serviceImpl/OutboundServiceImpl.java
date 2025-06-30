@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dadam.inventory.hold.service.HoldVO;
 import com.dadam.inventory.outbound.mapper.OutboundMapper;
 import com.dadam.inventory.outbound.service.OutboundService;
 import com.dadam.inventory.outbound.service.OutboundVO;
@@ -16,10 +17,12 @@ public class OutboundServiceImpl implements OutboundService{
 	@Autowired
 	OutboundMapper outboundmapper;
 	
+	// 발주서 리스트
 	@Override
-	public List<OutboundVO> selectShipRequestOutBound(OutboundVO vo) {
-		List<OutboundVO> list = outboundmapper.selectShipRequestOutBound(vo);
+	public List<HoldVO> selectHoldOutboundList(HoldVO vo) {
+		List<HoldVO> list = outboundmapper.selectHoldOutboundList(vo);
 		return list;
 	}
+	
 
 }

@@ -143,7 +143,7 @@
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>수금조회</span>
                 </a>
-                <a class="nav-link" th:href="@{/erp/sales}">
+                <a class="nav-link" th:href="@{/erp/sales/purchase}">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>발주관리</span>
                 </a>
@@ -171,6 +171,12 @@
 	                <a class="nav-link" href="/erp/inventory/inbound">
 	                    <i class="fas fa-fw fa-industry"></i>
 	                    <span>입고관리</span>
+	                </a>
+	            </li>
+	            <li class="nav-item">
+	                <a class="nav-link" href="/erp/inventory/hold">
+	                    <i class="fas fa-fw fa-pause-circle"></i>
+	                    <span>홀드관리</span>
 	                </a>
 	            </li>
 	            <li class="nav-item">
@@ -291,7 +297,32 @@
                 <div th:replace="common/fragments/header :: HeaderFragment"></div>
 
                 <!-- Main Content -->
-                <main>
+                <!-- 채팅방 생성 슬라이드 -->
+				<div class="offcanvas offcanvas-end" tabindex="-1"
+					id="chatRoomCreateDrawer">
+					<div class="offcanvas-header">
+						<h5 class="offcanvas-title">채팅방 만들기</h5>
+						<button type="button" class="btn-close text-reset" id="createX"
+							data-bs-dismiss="offcanvas"></button>
+					</div>
+					<div class="offcanvas-body">
+						<div class="mb-3">
+							<label for="chatRoomName" class="form-label">채팅방 이름</label> <input
+								type="text" id="chatRoomName" class="form-control"
+								placeholder="예: 개발팀 단체방">
+						</div>
+						<!-- 생성 버튼 -->
+						<button class="btn btn-primary mb-3 w-100"
+							onclick="createChatRoom()">채팅방 생성</button>
+						<!-- 사원목록 -->
+						<div class="list-group">
+
+						</div>
+
+						
+					</div>
+				</div>
+				<main>
                     <div>
                         <th:block layout:fragment="Content"></th:block>
                     </div>
@@ -301,8 +332,207 @@
             <div th:replace="common/fragments/footer :: FooterFragment"></div>
         </div>
     </div>
+	
 
-    <!-- Custom JS for toggle behavior -->
-    <script src="/js/toggle.js"></script>
+	<!-- 채팅창 UI -->
+	<div id="chatPopup" class="card shadow"
+		style="position: fixed; bottom: 90px; right: 20px; width: 350px; height: 500px; display: none; flex-direction: column; z-index: 9999;">
+		<div
+			class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+			<span>채팅방</span>
+			<button class="btn btn-sm btn-light" onclick="toggleChat()">닫기
+				✖</button>
+		</div>
+
+		<!-- 메시지 영역 -->
+		<div id="chatBox" class="card-body"
+			style="overflow-y: auto; flex: 1; background: #f9f9f9;">
+			
+		</div>
+
+		<!-- 입력창 -->
+		<div class="card-footer">
+			<div class="input-group">
+				<input type="text" id="chatInput" class="form-control"
+					placeholder="메시지 입력...">
+				<button class="btn btn-primary" onclick="sendChat()">전송</button>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+	//방생성
+	 function createChatRoom() {
+		    const chatRoomName = $('#chatRoomName').val();
+		    const selectedEmpIds = $("input[name='selectedEmployees']:checked").map(function() {
+		      return $(this).val();
+		    }).get();
+		
+		    if (!chatRoomName) {
+		      alert("채팅방 이름을 입력해주세요.");
+		      return;
+		    }
+		
+		    if (selectedEmpIds.length === 0) {
+		      alert("참여할 사원을 선택해주세요.");
+		      return;
+		    }
+		
+		    // 전송할 리스트 구성
+		    const paramList = $.map(selectedEmpIds, function(empId) {
+		      return {
+		        name: chatRoomName,
+		        empId: empId,
+		        comId: 'com01',     // 🔸 실제 로그인된 회사 ID
+		        loginId: 'emp001'   // 🔸 실제 로그인된 사용자 ID (VO에서 필요하면 추가)
+		      };
+		    });
+		
+		    $.ajax({
+		      type: 'POST',
+		      url: '/erp/chatDtlAdd',
+		      contentType: 'application/json',
+		      data: JSON.stringify(paramList),
+		      success: function(result) {
+		        alert('채팅방이 성공적으로 생성되었습니다.');
+		     	// 채팅창 열기
+		        $('#chatPopup').css('display', 'flex'); 
+		     	// 오프캔버스 닫기 (수동)
+		        $('#chatRoomCreateDrawer').removeClass('show'); 
+		        $('body').removeClass('offcanvas-backdrop');
+		        $('#chatRoomCreateDrawer').offcanvas('hide'); 
+		      },
+		      error: function() {
+		        alert('채팅방 생성 중 오류 발생');
+		      }
+		    });
+		  }
+	
+		  function toggleChat() {
+		    const chat = document.getElementById('chatPopup');
+		    chat.style.display = (chat.style.display === 'none' ? 'flex' : 'none');
+		  }
+		
+	
+		  
+		  
+		  //사원목록 조회
+		  async function loadEmployeeList() {
+			  $.ajax({
+				    url: '/erp/chatEmpList',
+				    method: 'GET',
+				    dataType: 'json',
+				    success: function (employees) {
+				      const $listGroup = $('.offcanvas-body .list-group');
+				      $listGroup.empty(); // 기존 목록 비우기
+
+				      employees.forEach(function (emp) {
+				        const profileUrl = emp.profileImgPath || '/default.png';
+				        const item = `
+				        
+				          <label class="list-group-item d-flex align-items-center">
+				            <input class="form-check-input me-2" type="checkbox" value="${emp.empId}" name="selectedEmployees">
+				            <img src="${profileUrl}" class="rounded-circle me-3" width="40" height="40">
+				            <div>
+				              <div>${emp.empName}</div>
+				              <small class="text-muted">${emp.deptName}</small>
+				            </div>
+				          </label>
+				        `;
+				        $listGroup.append(item);
+				      });
+				    },
+				    error: function () {
+				      alert('사원 목록을 불러오지 못했습니다.');
+				    }
+				  });
+		}
+		  //슬라이더 열릴때마다 호출
+		  $('#chatRoomCreateDrawer').on('show.bs.offcanvas', function () {
+			  loadEmployeeList();
+			});
+		  
+		  
+		  let stompClient = null;		 
+		
+		  function connect() {
+			  const socket = new SockJS('/ws/chat');
+			    stompClient = Stomp.over(socket);
+
+			    stompClient.connect({}, function(frame) {
+			        console.log('STOMP 연결됨: ' + frame);
+			        
+			        // 현재 채팅방 ID 가져오기
+			        const currentRoomId = $('#chatPopup').attr('data-room-id');
+			        if (currentRoomId) {
+			            if (currentSubscription) {
+			                currentSubscription.unsubscribe();
+			            }
+			            currentSubscription = stompClient.subscribe(`/topic/chat.${currentRoomId}`, function(response) {
+			                const message = JSON.parse(response.body);
+			                if (message.sender !== 'emp-101') {
+			                    showChatMessage(message);
+			                }
+			            });
+			        }
+			    }, function(error) {
+			        console.error('STOMP 연결 실패:', error);
+			    });
+		  }
+		  
+		  $(document).ready(function() {
+			    connect();
+			});
+		//채팅보내기
+			 function sendChat() {
+				    if (!stompClient || !stompClient.connected) {
+				        alert('서버에 연결되어 있지 않습니다. 잠시 후 다시 시도하세요.');
+				        return;
+				    }
+				
+				    const message = $('#chatInput').val().trim();
+				    if (!message) return;
+				
+				    const roomId = $('#chatPopup').attr('data-room-id');
+				    if (!roomId) {
+				        alert('채팅방을 선택하세요.');
+				        return;
+				    }
+				
+				    const chatMessage = {
+				        roomId: roomId,
+				        empId: 'emp-101', // 로그인된 사용자 정보로 변경 필요
+				        message: message,
+				        empName : '신현욱'
+				    };
+				
+				    stompClient.send(`/app/chat.${roomId}`, {}, JSON.stringify(chatMessage));
+				    $('#chatInput').val('');
+				}
+		  //보내는 화면 표시
+		  function showChatMessage(msg) {
+			  	const myEmpId = 'emp-101'; 
+
+			    const isMine = (msg.empId === myEmpId);
+			    const alignClass = isMine ? 'text-end' : '';
+			    const bubbleColor = isMine ? 'bg-primary text-white' : 'bg-white';
+			    const senderName = isMine ? '나' : msg.empName;
+
+			    const html = `
+			        <div class="${alignClass} mb-2">
+			            <div class="fw-bold">
+			                ${senderName} <small class="text-muted">${new Date().toLocaleTimeString()}</small>
+			            </div>
+			            <div class="${bubbleColor} rounded p-2 d-inline-block">${msg.message}</div>
+			        </div>
+			    `;
+
+			    $('#chatBox').append(html);
+			    $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight); // 항상 맨 아래로
+			}
+		  
+		  
+		  
+	</script>
 </body>
 </html>

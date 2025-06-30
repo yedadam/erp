@@ -4,20 +4,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dadam.common.service.GridData;
-import com.dadam.sales.purchase.service.PurReqVO;
-import com.dadam.sales.purchase.service.PurchaseOrderDetailVO;
-import com.dadam.sales.purchase.service.PurchaseOrderVO;
-import com.dadam.sales.purchase.service.PurchaseService;
 import com.dadam.sales.shipreq.service.ShipReqDtlVO;
+import com.dadam.sales.shipreq.service.ShipReqFrontVO;
 import com.dadam.sales.shipreq.service.ShipReqVO;
 import com.dadam.sales.shipreq.service.ShipreqService;
 
@@ -43,6 +37,18 @@ public class ShipreqRestController {
 		List<ShipReqDtlVO> result = service.findShipreqDtlList(shipReqCode);
 		return result;
 	}
+	
+	@PostMapping("/shipReqAdd")
+	public int shipReqreg(@RequestBody ShipReqFrontVO req) {
+		//등록메서드 집어넣기
+		//req.getHead()
+		System.out.println(req);
+		service.insertShipreqReg(req);		
+		return 0;
+	}
+	
+	
+	
 	//발주 의뢰 조회
 //	@GetMapping("/purRequestList")
 //	public List<PurchaseOrderVO> purRequestList(@RequestParam(name = "param", required = false) PurchaseOrderVO param) {

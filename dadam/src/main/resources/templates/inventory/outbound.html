@@ -48,12 +48,6 @@
 <body class="bg-light">
     <div class="container-fluid mt-4">
         <h3 class="mb-4">출고관리</h3>
-        	<!-- 테이블 전환 -->
-        	<div class="btn-group-custom">
-					<button class="btn btn-warning" id="outBoundPage" type="button"><i class="fas fa-eye"></i> 출고관리</button>
-					<button class="btn btn-secondary" id="holdPage" type="button"><i class="fas fa-eye"></i> 홀드관리</button>
-			</div>
-        
         <!-- 검색 및 버튼 영역 -->
         <div class="row mb-3">
             <div class="col-md-6">
@@ -68,9 +62,12 @@
             <!-- custom button -->
             <div class="col-md-6 text-end">
                 <div class="btn-group-custom">
+                	<button class="btn btn-danger" id="reset">
+						<i class="fas fa-square-minus"></i> 초기화
+					</button>
                     <button class="btn btn-primary" data-bs-toggle="modal"
-						data-bs-target="#inboundModal" id="ouModal">
-                        <i class="fas fa-pen"></i> 출고
+						data-bs-target="#outboundModal" id="ouModal">
+                        <i class="fas fa-warehouse"></i> 출고
                     </button>
                 </div>
             </div>
@@ -79,7 +76,7 @@
             <div id="mainGrid"></div>
     </div>
 <!-- 출고를 위한 모달 -->
-<div class="modal fade" id="inboundModal" tabindex="-1"
+<div class="modal fade" id="outboundModal" tabindex="-1"
 	aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
@@ -88,15 +85,13 @@
 			</div>
 			<div class="modal-body">
 					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
-						<!-- <button type="button" id="resetBtn" class="btn btn-danger">초기화</button> -->
-						<button type="button" id="registerBtn" class="btn btn-primary">출고</button>
+						<button class="btn btn-danger" id="resetModal">
+						<i class="fas fa-square-minus"></i> 초기화
+						</button>
+						<button class="btn btn-primary" id="registerBtn">
+                        <i class="fas fa-warehouse"></i> 출고
+                    	</button>
 					</div>
-					<!-- 	<div class="form-floating mb-3">
-						<input type="date" class="form-control" id="dateInput"
-							placeholder="name@example.com"> <label
-							for="floatingInput">일자</label>
-					</div> -->
-
 					<div id="gridModal"></div>
 			</div>
 			<div class="modal-footer"></div>
@@ -110,93 +105,158 @@ const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentica
 shipRequestList();
 function shipRequestList(){
 	$.ajax({
-		url:"/erp/inventory/shipRequestList",
+		url:"/erp/inventory/holdOutList",
 		method:"GET"
 		,data: {
 			comId: userComId
 		}
 	   ,success:function(result) {
-		   console.log(result)
 		   shipRequestgrid.resetData(result);
 	   } // ajax호출 끝
 	})
  };
- 
+// 출하의뢰 그리드
 const shipRequestgrid = new tui.Grid({
     el: document.getElementById('mainGrid'),
-    //checkbox부여
     rowHeaders: ['checkbox'],
     //페이지네이션
     pageOptions: {
-        perPage: 5,
+        perPage: 10,
         useClient: true,
     },
     //필드값 구성
     columns:[
-        { header: '출하상세코드',name:'ship_req_dtl_code',align:'center'},
-        { header: '제품명',name:'item_name',align:'center'},
+    	{ header: '홀드코드',name:'holdCode',align:'center'},
+        { header: '제품명',name:'itemName',align:'center'},
         { header: '수량',name:'quantity',align:'center'},
-        { header: '상태',name:'status',align:'center',
-        	formatter: function(status){
-        		if(status.value == 'pds-01'){
-        			return status.value = '입고대기'
-        		}else if(status.value == 'pds-02'){
-        			return status.value = '부분입고'
-        		}else{
-        			return status.value = '입고완료'
-        		}
-        	},
+        { header: '구분',name:'typeName',align:'center',
         	filter: 'select'
         	},
-        { header: '거래처',name:'vdr_name',align:'center'},
-        { header: '담당자',name:'empId',align:'center'},
-        { header: '등록일',name:'vdrCode',align:'center'},
-        { header: '출고예정일',name:'reccvDate',align:'center'},
+        { header: '상태',name:'statusName',align:'center',
+        	filter: 'select'
+        	},
+        { header: '등록일자',name:'createdDate',align:'center'},
+        { header: '비고',name:'note',align:'center'}
+        /* { header: '출하상세코드',name:'shipReqDtlCode',align:'center'},
+        { header: '제품명',name:'itemName',align:'center'},
+        { header: '수량',name:'quantity',align:'center'},
+        { header: '상태',name:'statusName',align:'center',
+        	filter: 'select'
+        	},
+        { header: '거래처',name:'vdrName',align:'center'},
+        { header: '담당자',name:'empName',align:'center'},
+        { header: '등록일',name:'createdDate',align:'center'},
+        { header: '출고예정일',name:'shipExpDate',align:'center'}, */
     ],
 });
-	let data = [];
+// 모달안에 출고 그리드
+const outBoundGrid = new tui.Grid({
+    el: document.getElementById('gridModal'),
+    //checkbox부여
+    //페이지네이션
+    pageOptions: {
+        perPage: 10,
+        useClient: true,
+    },
+    //필드값 구성
+    columns:[
+        { header: '출하상세코드',name:'shipReqDtlCode',align:'center'},
+        { header: '품목명',name:'itemName',align:'center'},
+        { header: '출하의뢰수량',name:'quantity',align:'center'},
+        { header: '출고수량',name:'qty',align:'center', editor: 'text'},
+        { header: '비고',name:'note',align:'center', editor: 'text'},
+        { header: '추가/삭제', name: 'origin', align:'center'
+    		/* , renderer: CustomButton} */
+    	, formatter: (rowKey) => {
+    		if(rowKey.value){
+    			return `<button class="btn btn-sm btn-primary add-btn">+</button>`;
+    		}else{
+    		return `<button class="btn btn-sm btn-danger add-btn">-</button>`;
+    		}
+    	}}
+    ],
+    columnOptions: {
+		frozenCount: 3,
+		frozenBorderWidth: 2
+		}
+});
+
+
+
+ 	let data = [];
 	// 체크한경우 데이터 넣기
-	shipRequestList.on('check', checkRow)
-	shipRequestList.on('checkAll', checkRow)
+	shipRequestgrid.on('check', checkRow)
+	shipRequestgrid.on('checkAll', checkRow)
 	// 체크아웃한경우 데이터 뺴기
-	shipRequestList.on('uncheck', checkRow);
-	shipRequestList.on('uncheckAll', checkRow);
+	shipRequestgrid.on('uncheck', checkRow);
+	shipRequestgrid.on('uncheckAll', checkRow);
 	
 	// check 처리
 	function checkRow(){
 		data= [];
-		  let rowCheck = shipRequestList.getCheckedRows();
+		  let rowCheck = shipRequestgrid.getCheckedRows();
 		  
 		  rowCheck.filter(item =>{
 			  ee = {
-				  purOrdDtlCode: item.purOrdDtlCode,
+				  shipReqDtlCode: item.shipReqDtlCode,
 				  itemCode: item.itemCode,
 				  itemName: item.itemName,
 				  quantity : item.quantity,
 				  price: item.price,
-				  /* pquantity: item.pquantity,
-			      notStock: item.notStock, */
-				  loc : '',
 				  qty : '',
 				  note: '',
 				  origin: true
 			  }
 			  data.push(ee);
 		  })
-		  outboundGrid.resetData(data);
+		  outBoundGrid.resetData(data);
 	}
 	
 	// 초기화
-	$('#resetBtn').on('click', ()=>{
-		shipRequestList.uncheckAll();
+	$('#reset').on('click', ()=>{
+		shipRequestgrid.uncheckAll();
 	})
-	
+	// 초기화
+	$('#resetModal').on('click', ()=>{
+		checkRow();
+	})
+	// 모달안에서 그리드부를떄 참고.
+	$('#outboundModal').on('shown.bs.modal',function(){
+		outBoundGrid.refreshLayout();
+	})
+	// 행추가 rowKey
+	outBoundGrid.on('click', (ev)=>{
+		let { rowKey, columnName } = ev;
+		
+		// rowKey = 키값, columnName = 셀의 이름
+		let addData = {
+				  shipReqDtlCode: '',
+				  itemCode: '',
+				  itemName: '',
+				  quantity: '',
+				  price: '',
+				  qty : '',
+				  note: '',
+				  origin: false
+				    };
+		
+		// 컬럼명과 값을 확인 후 추가 진행
+		if(columnName === 'origin' &&
+				outBoundGrid.getValue(rowKey, columnName) === true){
+			
+		let idx = outBoundGrid.getIndexOfRow(rowKey);
+		
+		outBoundGrid.appendRow(addData, {
+			  at: idx + 1
+			});
+		}
+	});
 		//행삭제
-	outboundGrid.on('click', (ev)=>{
+	outBoundGrid.on('click', (ev)=>{
 		let { rowKey, columnName } = ev;
 		// 조건문 = 컬럼명, 값
-		if(columnName === 'origin' && outboundGrid.getValue(rowKey, columnName) === false){
-		 outboundGrid.removeRow(rowKey);
+		if(columnName === 'origin' && outBoundGrid.getValue(rowKey, columnName) === false){
+		outBoundGrid.removeRow(rowKey);
 		}
 	})
 </script>

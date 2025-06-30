@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.inventory.hold.mapper.HoldMapper">
+	
+	<select id="selectHoldList" resultType="HoldVO" parameterType="HoldVO">
+		SELECT  
+				hold_code,
+		        stk_code,
+		        item_code,
+		        getitemName(item_code) itemName,
+		        quantity,
+		        getsubcode(type) typeName,
+		        type,
+		        getsubCode(status) statusName,
+		        status,
+		        note,
+		        created_date
+		FROM hold
+		WHERE com_id = #{comId}
+	</select>
+
+	<select id="selectShipRequestModal" resultType="OutboundVO" parameterType="HoldVO">
+		SELECT 
+			 	sd.ship_req_dtl_code,
+			 	sd.item_code,
+			 	it.name item_name,
+                it.price,
+			 	sd.status,
+                subcode(sd.status) statusName,
+			 	sd.quantity,
+			 	sd.tot_price,
+                sd.ship_req_code,
+                getvdrname(sr.vdr_code) vdrName,
+                sr.vdr_code,
+			 	sr.ship_exp_date,
+			 	sr.emp_id,
+                getempName(sr.emp_id) empName,
+                sr.created_date,
+                sd.dlive_date
+		FROM shipRequestDetail sd left join shiprequest sr
+                                    	on(sd.ship_req_code = sr.ship_req_code AND sd.com_id = sr.com_id)
+                                        join item it
+                                        on(sd.item_code = it.item_code AND sd.com_id = it.com_id)
+        WHERE sd.com_id = #{comId}
+	</select>
+	<!-- <select id="selectOutBoundList" resultType="outBoundVO">
+	
+	</select> -->
+</mapper>

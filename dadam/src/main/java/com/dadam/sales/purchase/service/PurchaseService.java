@@ -20,4 +20,7 @@ public interface PurchaseService {
 	public int purOrderUpdate(PurchaseOrderVO param);
 	//발주 상세 없데이트
 	public int purOderDtUpdate(GridData<PurchaseOrderDetailVO> vo);
+	//발주 메인 삭제
+	public int purDelete(String purOrdCode);
+	
 }

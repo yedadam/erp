@@ -1,0 +1,66 @@
+package com.dadam.chat.web;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.dadam.chat.service.ChatMessageVO;
+import com.dadam.chat.service.ChatService;
+import com.dadam.chat.service.ChatVO;
+
+@Controller
+@RequestMapping("/erp")
+public class ChatConroller {
+	
+	@Autowired
+	ChatService service;
+	
+	 @Autowired
+	 private SimpMessagingTemplate messagingTemplate;
+	
+	@GetMapping("/chatEmpList")
+	@ResponseBody
+	public List<ChatVO> chatEmpList(){
+		List<ChatVO> result= service.empList();
+		return result;
+	}
+	//상세등록
+	@PostMapping("/chatDtlAdd")
+	@ResponseBody
+	public int chatDtlAdd(@RequestBody List<ChatVO> vo) {
+		int result = service.chatRoomAdd(vo);
+		return result;
+	}
+	//채팅목록조회
+	@GetMapping("/chatList")
+	@ResponseBody
+	public List<ChatVO> chatList(String empId){
+		List<ChatVO> result = service.chatList(empId);
+		return result;
+	}
+	
+    @GetMapping("/history")
+    @ResponseBody
+    public List<ChatVO> getChatHistory(@RequestParam String roomId) {
+        return service.selectChatMessages(roomId);
+    }
+    
+    @MessageMapping("/chat.{roomId}")
+    public void sendMessage(@DestinationVariable String roomId, @Payload ChatMessageVO chatMessage) {
+    	//메시지 전송
+        messagingTemplate.convertAndSend("/topic/chat." + roomId, chatMessage);
+        
+    }
+}

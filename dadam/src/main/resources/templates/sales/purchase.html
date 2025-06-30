@@ -197,10 +197,10 @@
 			</div>
 		</div>
 	</div>
-	<script>
+	<script th:inline="javascript">
 	//세션
-	let empId = 'emp-101';
-	let empName = '예담';
+	let empId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
+	let empName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.username : '김지현'}]];
 	
 	
 	//필수값 가져오기
@@ -317,9 +317,7 @@
                 {header: '발주의뢰코드', name: 'purReqCode', align: 'center'},
                 {header: '등록일자', name: 'createdDate', align: 'center'},
                 {header: '담당자', name: 'empId', align: 'center', editor: 'text',},
-                {header: '상태', name: 'status', align: 'center', editor: 'text'
-                	 
-                },
+                {header: '상태', name: 'status', align: 'center', editor: 'text'},
                 {header: '비고', name: 'note', align: 'center', editor: 'text',
                 	formatter: function(price){
                      	  return priceFormat(price.value)+'원';
@@ -556,6 +554,7 @@
 		mainGrid.on('click', ev => {
 		
 		  const checkedRows = mainGrid.getCheckedRowKeys();
+		  console.log(checkedRows)
 		  if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
 		    mainGrid.uncheckAll();
 		    mainGrid.check(ev.rowKey);  // 여기서 check 이벤트는 따로 안 뜸 (정상)
@@ -755,7 +754,8 @@
 	     })
 	     //상세조회
 	     mainGrid.on('check',ev => {
-	    if(!ev.rowKey){
+	    	 console.log('클릭한 ev.rowKey',ev.rowKey)
+	    if(ev.rowKey==undefined){
 	    	return;
 	    }
 	    	if(pageStatus=='search'){
@@ -771,6 +771,8 @@
 	    		})
 	    	} 
 	     })
+	     
+	     
 	     //수정 함수
 	     async function purchaseModify(){
 	    	 let checkedRows = detailGrid.getModifiedRows();
@@ -841,6 +843,41 @@
 	    	 
 	     }
 	     
+	     //삭제
+	     $('#delBtn').on('click',ev => {
+	    	 let checkedRows = detailGrid.getModifiedRows();
+	    	 let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
+	    	 let mainRowData = mainGrid.getRow(mainRowIndex);
+	    	 
+	    	 if(mainRowData.status!='진행중'){
+	    		  Swal.fire('실패','이미 입고처리된 항목에 대해선 입고가 불가합니다.','error')
+	    		  return;
+	    	  }
+	    	 if( mainGrid.getCheckedRowKeys().length<1){
+	    		 Swal.fire('실패','메인그리드에 해당하는 값을 체크해주세요','error');
+	    		 return;
+	    	 }
+	    	 
+	    	 if(pageStatus=='add'){
+	    		 Swal.fire('실패','등록 중 삭제가 불가합니다.','error');
+	    		 return;
+	    	 }
+	    	 	//삭제시작
+	    		 $.ajax({
+		    		 url:`/erp/sales/purDelete/${mainRowData.purOrdCode}`,
+		    		 method:'DELETE',
+		    		 success : result => {
+		                 if(result > 0){
+		                	  Swal.fire('삭제','삭제가 정상적으로 등록되었습니다.','succes')
+		                	  mainList();
+			                  return;
+		                 }
+		             },
+		             error: function(xhr, status, error) {
+		                    console.log("실패:", xhr.status, error);
+		                }
+		    	 }) 
+	     })
 		
     </script>
 </body>
