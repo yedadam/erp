@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dadam.inventory.inbound.service.InboundService;
@@ -35,7 +36,8 @@ public class InventoryInboundRestController {
 	}
 	// 창고 리스트
 	@GetMapping("/warehouseList")
-	public List<InboundVO> warehouseList() {
-		return inboundservice.warehouseList();
+	public List<InboundVO> warehouseList(@RequestParam String comId) {
+		 System.out.println("넘어온 comId = " + comId);
+		return inboundservice.warehouseList(comId);
 	}
 }

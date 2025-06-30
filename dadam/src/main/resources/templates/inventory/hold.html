@@ -103,17 +103,16 @@
 
 			<!-- custom button -->
 			<div class="col-md-6 text-end">
-				<div class="btn-group-custom">
-					<button class="btn btn-secondary me-2" id="insertBtn">
-						<i class="fas fa-pen"></i> 추가
-					</button>
-					<button class="btn btn-warning me-2" id="selectBtn">
+				<div class="btn-group-custom" id="btnGroup">
+					<button class="btn btn-secondary me-1" id="insertBtn">
+						<i class="fas fa-pen"></i> 추가</button>
+					<button class="btn btn-warning me-1" id="selectBtn">
 						<i class="fas fa-eye"></i> 조회
 					</button>
-					<button class="btn btn-danger me-2" id="deleteBtn">
-						<i class="fas fa-trash"></i> 홀드해제
+					<button class="btn btn-danger me-1" id="deleteBtn">
+						<i class="fas fa-trash"></i> 삭제
 					</button>
-					<button class="btn btn-primary me-2" id="saveBtn">
+					<button class="btn btn-primary me-1" id="saveBtn">
 						<i class="fas fa-save"></i> 저장
 					</button>
 				</div>
@@ -132,13 +131,15 @@
 				</div>
 				<div class="modal-body">
 					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
-						<button class="btn btn-primary" id="registerBtn">
+						<button class="btn btn-primary" id="shipRequestBtn" data-bs-dismiss="modal">
 							<i class="fas fa-square-check"></i> 선택
 						</button>
 					</div>
 					<div id="shipRequestGrid"></div>
 				</div>
-				<div class="modal-footer"></div>
+				<div class="modal-footer">
+				 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -153,13 +154,15 @@
 				</div>
 				<div class="modal-body">
 					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
-						<button class="btn btn-primary" id="registerBtn">
+						<button class="btn btn-primary" id="transferBtn" data-bs-dismiss="modal">
 							<i class="fas fa-warehouse"></i> 선택
 						</button>
 					</div>
 					<div id="transferGrid"></div>
 				</div>
-				<div class="modal-footer"></div>
+				<div class="modal-footer">
+				 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -184,6 +187,7 @@ $('#insertBtn').on('click', function() {
 $('#selectBtn').on('click', function() {
 	changeView('조회');
 });
+
 // 페이지 전환 처리
 function changeView(viewType){
 	if(holdGrid) {
@@ -217,7 +221,7 @@ function holdList(){
 	})
  };
  
-// 홀드 그리드
+// 조회 그리드
 function selectGrid(){
 	holdGrid = new tui.Grid({
 	    el: document.getElementById('mainGrid'),
@@ -244,7 +248,14 @@ function selectGrid(){
 	    ],
 	});
 	// 조회 이벤트
-	
+	// 추가버튼 생성 삭제버튼 홀드해제버튼으로 변경
+	/* $('#deleteBtn').html('<i class="fas fa-trash"></i> 홀드해제');
+	$('#btnGroup').prepend('<button class="btn btn-secondary me-2" id="insertBtn"><i class="fas fa-pen"></i> 추가</button>'); */
+	$('#selectBtn').prop('disabled', true);
+	$('#insertBtn').prop('disabled', false);
+	$('#shipRequestModalBtn').remove();
+	$('#transferModalBtn').remove();
+	$('#saveBtn').off('click', saveBtninsert);
 };// 조회버튼 끝
 
 
@@ -260,36 +271,33 @@ function insertGrid(){
 	    },
 	    //필드값 구성
 	    columns:[
-	        { header: '품목명',name:'holdCode',align:'center'},
+	        { header: '품목명',name:'itemName',align:'center'},
 	        { header: '수량',name:'quantity',align:'center'},
-	        { header: '타입',name:'type',align:'center'},
+	        { header: '분류',name:'typeName',align:'center'},
+	        { header: '의뢰등록일',name:'createdDate',align:'center'},
+	        { header: '출고예정일',name:'date',align:'center'},
+	        { header: '출고위치',name:'location',align:'center'},
 	        { header: '비고',name:'note',align:'center', editor:'text'},
-	        { header: '선택',name:'chosetype',align:'center'
-	        	, formatter: (type) =>{
-	        		if(type.value == '출하의뢰'){
-	        			return '출하의뢰'
-	        		}else if(type.value == '재고이동'){
-	        			return '재고이동'
-	        		}else{
-	        			return `<button class="btn btn-info" data-bs-toggle="modal"
-						data-bs-target="#shipRequestModal">출하의뢰</button> / 
-						<button class="btn btn-info" data-bs-toggle="modal"
-							data-bs-target="#transferModal">재고이동</button>`
-	        		}
-	        	}
-	        	}
 	    ],
 	});
 	// 등록화면 이벤트
 	
-	// 모달안에서 그리드부를떄 참고.
+	// 모달안에서 그리드 처리
 	$('#shipRequestModal').on('shown.bs.modal',function(){
 		shipRequest.refreshLayout();
 	})
 	$('#transferModal').on('shown.bs.modal',function(){
 		transfer.refreshLayout();
 	})
-	
+		/* $('#btnGroup').remove('#insertBtn');
+		$('#deleteBtn').html('<i class="fas fa-trash"></i> 삭제');
+		$('#insertBtn').remove(); */
+		$('#selectBtn').prop('disabled', false);
+		$('#insertBtn').prop('disabled', true);
+		$('#btnGroup').prepend('<button class="btn btn-info me-1" id="shipRequestModalBtn" data-bs-toggle="modal" data-bs-target="#shipRequestModal">출하의뢰</button> <button class="btn btn-info me-1" id="transferModalBtn" data-bs-toggle="modal" data-bs-target="#transferModal">재고이동</button>');
+		// 이벤트 차단
+		$('#saveBtn').off('click');	
+		
 	// 모달 그리드 그리기
 	
 	// 출하의뢰
@@ -326,12 +334,36 @@ function insertGrid(){
 	   } // ajax호출 끝
 	})
 	
-	
+	// 출하의뢰 선택이벤트
+	$('#shipRequestBtn').on('click',()=>{
+		let check = shipRequest.getCheckedRows();
+		let checkData;
+		let shipData = [];
+		check.filter((item, idx)=>{
+			checkData={
+						  itemCode: item.itemCode
+						, itemName: item.itemName
+						, quantity: item.quantity
+						, empId: item.empId
+						, empName: item.empName
+						, createdDate: item.createdDate
+						, date: item.shipExpDate
+						, vdrCode: item.vdrCode
+						, location: item.vdrName
+						, status: item.status
+						, type: 'ht02'
+						, typeName: '출하의뢰'
+						, 
+			}
+			shipData.push(checkData);
+		})
+		holdGrid.resetData(shipData);
+	})
 	
 	
 	
 	// 재고이동
-	transfer = new tui.Grid({
+/* 	transfer = new tui.Grid({
 	    el: document.getElementById('transferGrid'),
 	    rowHeaders: ['check'],
 	    //페이지네이션
@@ -346,32 +378,25 @@ function insertGrid(){
 	        { header: '타입',name:'type',align:'center'},
 	        { header: '비고',name:'note',align:'center', editor:'text'},
 	    ],
-	});
+	}) */
 	
-	$.ajax({
-		url:"/erp/inventory/transferList",
-		method:"GET"
-		,data: {
-			comId: userComId
-		}
-	   ,success:function(result) {
-		   transfer.resetData(result);
-	   } // ajax호출 끝
-	})
+	
+	// 저장 버튼
+	$('#saveBtn').on('click', saveBtninsert);
 	
 } // 등록버튼 끝
 
 
 // insertGrid에 들어갈 값
 function insertList(){
-	defaultData = [{
+/* 	defaultData = [{
 			  holdCode: ''
 			, itemName: ''
 			, quantity: ''
 			, type: ''
 			, chosetype: ''
 			, note: ''
-			}];
+			}]; */
 	holdGrid.resetData(defaultData);
 }
 // 모달안에 출고 그리드
@@ -435,7 +460,30 @@ function insertList(){
 		  })
 		  holdGrid.resetData(data);
 	} */
-	
+	// 등록
+function saveBtninsert(){
+		let param = [];
+		holdGrid.getData().forEach((item,idx)=>{
+			let saveData={
+							  itemCode: item.itemCode
+							, quantity: item.quantity
+							, type: item.type
+							, status: item.status
+							, note : item.note
+			}
+			param.push(saveData)
+		})
+			console.log(param);
+		// 등록
+		/* $.ajax({
+			url:"/erp/inventory/insertHoldList",
+			method:"POST",
+			data:{comId},
+			success:function(result){
+				console.log(result);
+			} 
+		})*/
+	}
 </script>
 </body>
 </html>
