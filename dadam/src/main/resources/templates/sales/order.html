@@ -245,19 +245,19 @@
 		//필드값 구성
 		columns: [
 			{header: '주문번호',name: 'ordCode',	align: 'center',width: 300,	},
-			{header: '등록일자',	name: 'createdDate',align: 'center',editor: 'text',	editor: 'datePicker'},
-			{header: '거래처이름',name: 'vdrName',	align: 'center',editor: 'text'	},
-			{header: '거래처코드',name: 'vdrCode',align: 'center',editor: 'text'},
-			{header: '납기일자',name: 'reqDlvDate',align: 'center',editor: 'text',editor: 'datePicker'},
+			{header: '등록일자',	name: 'createdDate',align: 'center',	editor: 'datePicker'},
+			{header: '거래처이름',name: 'vdrName',	align: 'center'},
+			{header: '거래처코드',name: 'vdrCode',align: 'center'},
+			{header: '납기일자',name: 'reqDlvDate',align: 'center',editor: 'datePicker'},
 			{header: '총금액',	name: 'totPrice',	align:'right',
 				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
-				editor: 'text'},
+				},
 			{header: '여신한도',name: 'creditPrice',align:'right', 
 				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
-				editor: 'text'},
+				},
 			{header: '여신잔액',name: 'creditBalPrice',	align:'right',
 				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원', 	
-			editor: 'text'},
+			},
 			{header: '지불방식',	name: 'payMethod',align: 'center',
 				formatter: 'listItemText',	
 				editor: {type: 'select',
@@ -272,7 +272,7 @@
 			}, {
 				header: '할인율',name: 'discount',
 				align: 'center',
-				editor: 'text',
+			
 				formatter: function (discount) {
 					if (discount.value == null) {
 						return discount.value = ' ';

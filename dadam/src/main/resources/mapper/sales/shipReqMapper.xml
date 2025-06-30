@@ -17,8 +17,10 @@
 		COM_ID,
 		ORD_CODE
 		FROM shiprequest
+		order by ship_req_code desc
 	</select>
-	<select id="findShipreqDtlList" parameterType="String" resultType="com.dadam.sales.shipreq.service.ShipReqDtlVO">
+	<select id="findShipreqDtlList" parameterType="String"
+		resultType="com.dadam.sales.shipreq.service.ShipReqDtlVO">
 		SELECT
 		sd.ship_req_dtl_code,
 		s.VDR_CODE,
@@ -28,20 +30,76 @@
 		sd.quantity quantity,
 		getitemprice(sd.item_code) * sd.quantity supPrice,
 		getitemprice(sd.item_code) * sd.quantity/10 vatPrice,
-		(getitemprice(sd.item_code) * sd.quantity + getitemprice(sd.item_code) *
+		(getitemprice(sd.item_code) * sd.quantity + getitemprice(sd.item_code)
+		*
 		sd.quantity/10)*v.discount/100 discPrice,
-		(getitemprice(sd.item_code) * sd.quantity+getitemprice(sd.item_code) *
+		(getitemprice(sd.item_code)
+		* sd.quantity+getitemprice(sd.item_code) *
 		sd.quantity/10)*(1-v.discount/100) totPrice,
 		sd.STATUS,
 		s.COM_ID
-		FROM shiprequest s JOIN shiprequestdetail sd
-		ON sd.ship_req_code=s.ship_req_code
+		FROM
+		shiprequest s JOIN shiprequestdetail sd
+		ON
+		sd.ship_req_code=s.ship_req_code
 		JOIN vender v ON s.vdr_code=v.vdr_code
 		WHERE s.ship_req_code=#{shipReqCode}
 		order by sd.ship_req_dtl_code
 	</select>
+	<insert id="insertShipreqHead" parameterType="com.dadam.sales.shipreq.service.ShipReqVO">
+		  INSERT INTO shiprequest (
+		    SHIP_REQ_CODE,
+		    VDR_CODE,
+		    CREATED_DATE,
+		    SHIP_EXP_DATE,
+		    STATUS,
+		    EMP_ID,
+		    UPDATE_DATE,
+		    UPDATE_ID,
+		    TOT_PRICE,
+		    COM_ID,
+		    ORD_CODE
+		  ) VALUES (
+		    #{shipReqCode},
+		    #{vdrCode},
+		    SYSDATE,
+		    #{shipExpDate},
+		    'sr01',
+		    #{empId},
+		    SYSDATE,
+		    #{updateId},
+		    #{totPrice},
+		    #{comId},
+		    #{ordCode}
+		  )
+</insert>
 
-
+<insert id="insertShipreqDtl" parameterType="com.dadam.sales.shipreq.service.ShipReqDtlVO">
+	 <selectKey resultType="string" keyProperty="shipReqDtlCode" order="BEFORE">
+	  SELECT 'srd-' || TO_CHAR(NVL(MAX(TO_NUMBER(SUBSTR(ship_req_dtl_code, 5))), 100) + 1)
+	  FROM shiprequestdetail
+	</selectKey>
+		  INSERT INTO shiprequestdetail (
+		    ship_req_dtl_code,
+		    ITEM_CODE,
+		    STATUS,
+		    QUANTITY,
+		    TOT_PRICE,
+		    COM_ID,
+		    SHIP_REQ_CODE,
+		    DLIVE_DATE
+		  ) VALUES (
+		    #{shipReqDtlCode},
+		    #{itemCode},
+		    'srd01',
+		    #{quantity},
+		    #{totPrice},
+		    #{comId},
+		    #{shipReqCode},
+		    #{dliveDate}
+		  )
+</insert>
+	
 
 
 
