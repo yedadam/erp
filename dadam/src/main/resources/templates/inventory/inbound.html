@@ -134,18 +134,16 @@
 	</div>
 </div>
 <script th:inline="javascript">
-const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
-const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '김지현'}]];
-const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
+let empId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'e1018'}]];
+let empName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.username : '김지현'}]];
+let comId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
 //ajax -> toastUi에 넣기
 function purchaseList(){
 	$.ajax({
 		url:"/erp/inventory/purchaseList",
-		method:"GET"
-		,data: {
-			comId: userComId
-		}
-	   ,success:function(result) {
+		method:"GET",
+		data: {comId},
+	    success:function(result) {
 		   purcharsegrid.resetData(result);
 	   } // ajax호출 끝
 	})
@@ -156,19 +154,254 @@ let warehouse = [];
 function warehouseList(){
 	  $.ajax({
 		url:"/erp/inventory/warehouseList",
-		async: false,
-		method:"GET"
-	   ,success:function(result) {
-		 warehouse = result.map(item => ({
+		method:"GET",
+		data: {comId},
+	    success:function(result) {
+		  warehouse = result.map(item => ({
 			   text:item.name,
 			   value:item.locCode
 		   }));
+		// inboundGrid 그리기
+			const inboundGrid = new tui.Grid({
+				el: document.getElementById('gridModal'),
+				pageOptions: {
+			        perPage: 20,
+			        useClient: true,
+			    },
+			    columns:[
+					    	{ header: '발주상세코드', name: 'purOrdDtlCode', align:'center'},
+					    	{ header: '품목코드', name: 'itemCode', align:'center'},
+					    	{ header: '품목명', name: 'itemName', align:'center'},
+					    	{ header: '발주량', name: 'quantity', align:'center'},
+					    	/* { header: '기입고량', name: 'pquantity', align:'center'},
+					    	{ header: '미입고량', name: 'notStock', align:'center'}, */
+					    	{ header: '위치', name: 'loc', align:'center', width: 200
+					    		, formatter:'listItemText'
+					    		,  editor: {
+					    		    type: 'select',
+					    		    options: {
+					    		      listItems: warehouse
+					    		    }
+					    		  }},
+					    	{ header: '입고수량', name: 'qty', align:'center', editor: 'text'},
+					    	{ header: '비고', name: 'note', align:'center', editor: 'text'},
+					    	{ header: '추가/삭제', name: 'origin', align:'center'
+					    		/* , renderer: CustomButton} */
+					    	, formatter: (rowKey) => {
+					    		if(rowKey.value){
+					    			return `<button class="btn btn-sm btn-primary add-btn">+</button>`;
+					    		}else{
+					    		return `<button class="btn btn-sm btn-danger add-btn">-</button>`;
+					    		}
+					    	}}
+			    		],
+			    		columnOptions: {
+						frozenCount: 4,
+						frozenBorderWidth: 2
+			    		}
+			});
+			// 체크한경우 데이터 넣기
+			purcharsegrid.on('check', checkRow)
+			purcharsegrid.on('checkAll', checkRow)
+			// 체크아웃한경우 데이터 뺴기
+			purcharsegrid.on('uncheck', checkRow);
+			purcharsegrid.on('uncheckAll', checkRow);
+			
+			let data;
+			// check 처리
+			function checkRow(){
+				data= [];
+				  let rowCheck = purcharsegrid.getCheckedRows();
+				  
+				  
+				  rowCheck.filter(item =>{
+					  ee = {
+						  purOrdDtlCode: item.purOrdDtlCode,
+						  itemCode: item.itemCode,
+						  itemName: item.itemName,
+						  quantity : item.quantity,
+						  price: item.price,
+						  /* pquantity: item.pquantity,
+					      notStock: item.notStock, */
+						  loc : '',
+						  qty : '',
+						  note: '',
+						  origin: true
+					  }
+					  data.push(ee);
+				  })
+				  inboundGrid.resetData(data);
+			}
+			
+			
+			
+			// 초기화
+			$('#reset').on('click', ()=>{
+				purcharsegrid.uncheckAll();
+			})
+			// 모달 초기화
+			$('#resetModal').on('click', ()=>{
+				inboundGrid.resetData(data);
+			})
+			
+			// 입고 등록
+			$('#registerBtn').on('click', ()=>{
+				let scr1data = inboundGrid.getData();
+				$.each(scr1data, (idx, item)=>{
+					if(item.loc == ""){
+						Swal.fire({
+							  icon: "error",
+							  title: "빈행 발견!",
+							  text: "위치를 지정해주세요!"
+							});
+						return false;
+					}else if(item.qty == ""){
+						Swal.fire({
+							  icon: "error",
+							  title: "빈행 발견!",
+							  text: "수량을 입력해주세요!"
+							});
+						return false;
+					}
+					
+				})
+				let param = []
+				let code = '';
+				let items = '';
+				let params = []
+				let quantityCheck = 0;
+				let check = 0;
+				let prices = 0;
+				let status = ''; // 부분입고
+				$.each(scr1data, (idx, item)=>{
+					if(item.purOrdDtlCode != ""){
+					code = item.purOrdDtlCode
+					items = item.itemCode
+					prices = item.price
+					quantityCheck = item.quantity
+					check = 0;
+					}
+
+					check += Number(item.qty)
+					if(quantityCheck < check){
+						Swal.fire({
+							  icon: "error",
+							  title: "발주량보다 입고수량이 많습니다!",
+							  text: "수량을 변경해주세요!"
+							});
+						return false;
+					}else if(quantityCheck == check){
+							status = 'pct-02'; // 입고완료
+					}else{
+							status = 'pct-01'; // 부분 입고	
+					}
+						let params = {
+									  purOrdDtlCode: code,
+									  itemCode: items,
+									  locCode: item.loc,
+									  quantity: item.qty,
+									  price: prices,
+									  note: item.note,
+									  empId: empName,
+									  comId: comId,
+									  currQty: 0,
+									  status: status
+								}
+						param.push(params);
+							})
+					$.ajax({
+						url:"/erp/inventory/purchaseRegister",
+						method:"POST",
+						contentType: 'application/json',
+						data: JSON.stringify(param),
+						success:()=>{
+						Swal.fire({
+							  icon: "succes",
+							  title: "입고 완료!",
+							  text: "입고가 완료되었습니다."
+							});
+						$('#inboundModal').modal('hide');
+						purcharsegrid.uncheckAll();
+						},
+						error: function(jqXHR, textStatus, errorThrown){
+							Swal.fire({
+								  icon: "error",
+								  title: "입고 실패!",
+								  text: "실패"
+								});
+						$('#inboundModal').modal('hide');
+						purcharsegrid.uncheckAll();
+						}
+						})
+				})
+			
+			// 행추가 rowKey값이 고정이 아니라서 문제가 있음.
+			inboundGrid.on('click', (ev)=>{
+				let { rowKey, columnName } = ev;
+				
+				// rowKey = 키값, columnName = 셀의 이름
+				let addData = {
+						      purOrdDtlCode: '',
+						      itemCode: '',
+						      itemName: '',
+						      quantity: ''
+						      /* , pquantity: ''
+						      , notStock: '' */
+						      , loc: ''
+						      , qty: ''
+						      , note: ''
+						      , origin: false
+						    };
+				
+				// 컬럼명과 값을 확인 후 추가 진행
+				if(columnName === 'origin' &&
+						inboundGrid.getValue(rowKey, columnName) === true){
+					
+				let idx = inboundGrid.getIndexOfRow(rowKey);
+				
+				 inboundGrid.appendRow(addData, {
+					  at: idx + 1
+					});
+				}
+			});
+			
+			
+			//행삭제
+		inboundGrid.on('click', (ev)=>{
+				let { rowKey, columnName } = ev;
+				// 조건문 = 컬럼명, 값
+				if(columnName === 'origin' && inboundGrid.getValue(rowKey, columnName) === false){
+				 inboundGrid.removeRow(rowKey);
+				}
+			})
+
+			 // 모달안에서 그리드부를떄 참고.
+			$('#inboundModal').on('shown.bs.modal',function(){
+				/* if (inboundGrid.getRowCount() === 0) {
+					inboundGrid.resetData([
+						{
+							purOrdDtlCode: '',
+							itemCode: '',
+							itemName: '',
+							quantity: '',
+							pquantity: '',
+						    notStock: '',
+							loc: '',
+							qty: '',
+							note: '',
+							origin: false
+						}
+					]);
+				} */
+				inboundGrid.refreshLayout();
+			})
 	   } // ajax호출 끝
 	})
  };
  
 warehouseList();
 //메인그리드 그리기
+
 const purcharsegrid = new tui.Grid({
 	//toastui 아이디 가져오기
     el: document.getElementById('Grids'),
@@ -215,239 +448,6 @@ const purcharsegrid = new tui.Grid({
     ],
 });
 
-	// 체크한경우 데이터 넣기
-	purcharsegrid.on('check', checkRow)
-	purcharsegrid.on('checkAll', checkRow)
-	// 체크아웃한경우 데이터 뺴기
-	purcharsegrid.on('uncheck', checkRow);
-	purcharsegrid.on('uncheckAll', checkRow);
-	
-	let data;
-	// check 처리
-	function checkRow(){
-		data= [];
-		  let rowCheck = purcharsegrid.getCheckedRows();
-		  
-		  
-		  rowCheck.filter(item =>{
-			  ee = {
-				  purOrdDtlCode: item.purOrdDtlCode,
-				  itemCode: item.itemCode,
-				  itemName: item.itemName,
-				  quantity : item.quantity,
-				  price: item.price,
-				  /* pquantity: item.pquantity,
-			      notStock: item.notStock, */
-				  loc : '',
-				  qty : '',
-				  note: '',
-				  origin: true
-			  }
-			  data.push(ee);
-		  })
-		  inboundGrid.resetData(data);
-	}
-	
-	// inboundGrid 그리기
-	const inboundGrid = new tui.Grid({
-		el: document.getElementById('gridModal'),
-		pageOptions: {
-	        perPage: 20,
-	        useClient: true,
-	    },
-	    columns:[
-			    	{ header: '발주상세코드', name: 'purOrdDtlCode', align:'center'},
-			    	{ header: '품목코드', name: 'itemCode', align:'center'},
-			    	{ header: '품목명', name: 'itemName', align:'center'},
-			    	{ header: '발주량', name: 'quantity', align:'center'},
-			    	/* { header: '기입고량', name: 'pquantity', align:'center'},
-			    	{ header: '미입고량', name: 'notStock', align:'center'}, */
-			    	{ header: '위치', name: 'loc', align:'center', width: 200
-			    		, formatter:'listItemText'
-			    		,  editor: {
-			    		    type: 'select',
-			    		    options: {
-			    		      listItems: warehouse
-			    		    }
-			    		  }},
-			    	{ header: '입고수량', name: 'qty', align:'center', editor: 'text'},
-			    	{ header: '비고', name: 'note', align:'center', editor: 'text'},
-			    	{ header: '추가/삭제', name: 'origin', align:'center'
-			    		/* , renderer: CustomButton} */
-			    	, formatter: (rowKey) => {
-			    		if(rowKey.value){
-			    			return `<button class="btn btn-sm btn-primary add-btn">+</button>`;
-			    		}else{
-			    		return `<button class="btn btn-sm btn-danger add-btn">-</button>`;
-			    		}
-			    	}}
-	    		],
-	    		columnOptions: {
-				frozenCount: 4,
-				frozenBorderWidth: 2
-	    		}
-	});
-	
-	// 초기화
-	$('#reset').on('click', ()=>{
-		purcharsegrid.uncheckAll();
-	})
-	// 모달 초기화
-	$('#resetModal').on('click', ()=>{
-		inboundGrid.resetData(data);
-	})
-	
-	// 입고 등록
-	$('#registerBtn').on('click', ()=>{
-		let scr1data = inboundGrid.getData();
-		$.each(scr1data, (idx, item)=>{
-			if(item.loc == ""){
-				Swal.fire({
-					  icon: "error",
-					  title: "빈행 발견!",
-					  text: "위치를 지정해주세요!"
-					});
-				return false;
-			}else if(item.qty == ""){
-				Swal.fire({
-					  icon: "error",
-					  title: "빈행 발견!",
-					  text: "수량을 입력해주세요!"
-					});
-				return false;
-			}
-			
-		})
-		let param = []
-		let code = '';
-		let items = '';
-		let params = []
-		let quantityCheck = 0;
-		let check = 0;
-		let prices = 0;
-		let status = ''; // 부분입고
-		$.each(scr1data, (idx, item)=>{
-			if(item.purOrdDtlCode != ""){
-			code = item.purOrdDtlCode
-			items = item.itemCode
-			prices = item.price
-			quantityCheck = item.quantity
-			check = 0;
-			}
-
-			check += Number(item.qty)
-			if(quantityCheck < check){
-				Swal.fire({
-					  icon: "error",
-					  title: "발주량보다 입고수량이 많습니다!",
-					  text: "수량을 변경해주세요!"
-					});
-				return false;
-			}else if(quantityCheck == check){
-					status = 'pct-02'; // 입고완료
-			}else{
-					status = 'pct-01'; // 부분 입고	
-			}
-				let params = {
-							  purOrdDtlCode: code,
-							  itemCode: items,
-							  locCode: item.loc,
-							  quantity: item.qty,
-							  price: prices,
-							  note: item.note,
-							  empId: userID,
-							  comId: userComId,
-							  currQty: 0,
-							  status: status
-						}
-				param.push(params);
-					})
-			$.ajax({
-				url:"/erp/inventory/purchaseRegister",
-				method:"POST",
-				contentType: 'application/json',
-				data: JSON.stringify(param),
-				success:()=>{
-				Swal.fire({
-					  icon: "succes",
-					  title: "입고 완료!",
-					  text: "입고가 완료되었습니다."
-					});
-				$('#inboundModal').modal('hide');
-				purcharsegrid.uncheckAll();
-				},
-				error: function(jqXHR, textStatus, errorThrown){
-					Swal.fire({
-						  icon: "error",
-						  title: "입고 실패!",
-						  text: "실패"
-						});
-				$('#inboundModal').modal('hide');
-				purcharsegrid.uncheckAll();
-				}
-				})
-		})
-	
-	// 행추가 rowKey값이 고정이 아니라서 문제가 있음.
-	inboundGrid.on('click', (ev)=>{
-		let { rowKey, columnName } = ev;
-		
-		// rowKey = 키값, columnName = 셀의 이름
-		let addData = {
-				      purOrdDtlCode: '',
-				      itemCode: '',
-				      itemName: '',
-				      quantity: ''
-				      /* , pquantity: ''
-				      , notStock: '' */
-				      , loc: ''
-				      , qty: ''
-				      , note: ''
-				      , origin: false
-				    };
-		
-		// 컬럼명과 값을 확인 후 추가 진행
-		if(columnName === 'origin' &&
-				inboundGrid.getValue(rowKey, columnName) === true){
-			
-		let idx = inboundGrid.getIndexOfRow(rowKey);
-		
-		 inboundGrid.appendRow(addData, {
-			  at: idx + 1
-			});
-		}
-	});
-	
-	
-	//행삭제
-inboundGrid.on('click', (ev)=>{
-		let { rowKey, columnName } = ev;
-		// 조건문 = 컬럼명, 값
-		if(columnName === 'origin' && inboundGrid.getValue(rowKey, columnName) === false){
-		 inboundGrid.removeRow(rowKey);
-		}
-	})
-
-	 // 모달안에서 그리드부를떄 참고.
-	$('#inboundModal').on('shown.bs.modal',function(){
-		/* if (inboundGrid.getRowCount() === 0) {
-			inboundGrid.resetData([
-				{
-					purOrdDtlCode: '',
-					itemCode: '',
-					itemName: '',
-					quantity: '',
-					pquantity: '',
-				    notStock: '',
-					loc: '',
-					qty: '',
-					note: '',
-					origin: false
-				}
-			]);
-		} */
-		inboundGrid.refreshLayout();
-	})
 </script>
 </body>
 </html>

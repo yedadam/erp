@@ -13,7 +13,7 @@ public interface InboundMapper {
 	// 조회
 	public List<PurchaseVO> inboundPurchaseFindAll(PurchaseVO vo);
 	// 창고 조회
-	public List<InboundVO> warehouseList();
+	public List<InboundVO> warehouseList(String comId);
 	// 등록
 	public void insertPurchaseInbound(PurchaseVO vo);
 	// 상태값 업데이트
