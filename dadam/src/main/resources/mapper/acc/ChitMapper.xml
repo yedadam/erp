@@ -66,8 +66,8 @@
      'chit-' || chit_seq.NEXTVAL  
    , #{chitCode} 
    , #{acctCode}
-   , #{ITYPE}
-   , #{price}
+   , #{iType}
+   , #{iPrice}
    , SYSDATE
    , 'com-101'
   )
@@ -76,11 +76,16 @@
 	<update id="update">
 	  UPDATE chit
 	  	 SET phy_emp_id = #{empId}
-	  	   , status = 
+	  	   , status = '01'
 	  	   , note = #{note}
 	  	   , update = SYSDATE
 	  	   , type = #{iType}
 	   WHERE chit_code = #{chitCode}
 	</update>
+	
+	<delete id="delete" parameterType="ChitVO">
+  DELETE FROM indignation
+   WHERE chit_dt_id = #{chitDtId}
+</delete>
 
 </mapper>
