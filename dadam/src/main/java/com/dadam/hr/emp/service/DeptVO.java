@@ -17,5 +17,9 @@ public class DeptVO {
     private Date createdDate;
     /** 회사ID */
     private String comId;
+    /** 사용여부 */
+    private String acctYn;
+    /** 비고 */
+    private String remark;
 }
  
