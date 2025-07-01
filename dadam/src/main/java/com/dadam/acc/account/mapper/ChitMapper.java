@@ -13,8 +13,7 @@ public interface ChitMapper {
 	
 	public void insert(ChitVO chit);
 	public void update(ChitVO chit);
-	public void dalete(String chitCode);
+	public void delete(ChitVO chit);
 	
 	public String generateChitCode();
-
 }

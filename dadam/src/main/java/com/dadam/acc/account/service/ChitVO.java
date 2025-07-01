@@ -24,7 +24,8 @@ public class ChitVO {
     private String taxCode;        // 세금계산서번호
     private String vdrCode;        // 거래처코드
     private String articleCode;    // 항목코드(FK)
-    private String ttype;           // 구분
+    private String tType;           // 구분
+    private String tName;
     private Double supplyPrice;    // 공급가액
     private Double vatPrice;       // 부가세
     private Double totPrice;       // 총금액
@@ -32,18 +33,38 @@ public class ChitVO {
     
     //분개테이블
     private String acctId;  	   //계정과목
-    private String iType;
+    private String iType;  // IType
     private Double iPrice;
+    private String aname;
+    private String iname;
     private String acctCode;
     private String name;
     private String chitDtId;
     private String empId;
-   
-   
     
+   
     private List<ChitVO> createdRows;
     private List<ChitVO> updatedRows;
     private List<ChitVO> deletedRows;
     
-     
+    
+	public String gettType() {
+		return tType;
+	}
+	public void settType(String tType) {
+		this.tType = tType;
+	}
+	public String getiType() {
+		return iType;
+	}
+	public void setiType(String iType) {
+		this.iType = iType;
+	}
+	public Double getiPrice() {
+		return iPrice;
+	}
+	public void setiPrice(Double iPrice) {
+		this.iPrice = iPrice;
+	}
+    
 }

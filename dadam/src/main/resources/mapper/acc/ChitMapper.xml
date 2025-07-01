@@ -2,90 +2,91 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.acc.account.mapper.ChitMapper">
 
-	<!-- 전표 리스트
-		출력 컬럼 날짜, 전표명, 계정과목, 거래처, 금액, 세금계산서 발행유무, 처리상태, 구분, 등록부서, 처리자,승인자,비고  -->
-	<select id="chitFindAll" resultType="ChitVO">
-		SELECT c.created_date 	<!-- 등록일자 -->
-			 , c.chit_title  	<!-- 전표명 -->
-			 , c.chit_code
-			 , i.acct_code 		<!-- 계정과목 -->
-			 , getVdrName(c.vdr_code) as vdrCode   	<!-- 거래처 -->
-			 , c.tot_price  	<!-- 금액 -->
-			 , c.tax_code  		<!-- 세금계산서 -->
-			 , getSubCode(c.status) as status  		<!-- 처리상태  -->
-			 , getSubCode(c.type) as type 			<!-- 구분 -->
-			 , getDeptName(c.dept_code)  as deptCode 	<!-- 등록부서 -->
-			 , getEmpName(c.phy_emp_id)	 as phyEmpId	<!-- 처리자 -->
-			 , getEmpName(c.appr_emp_id) as apprEmpId	<!-- 승인자 -->
-			 , c.note			<!-- 비고 -->
-			 , i.type as itype
-			 , i.price as iprice
-		  FROM chit c
-		  LEFT JOIN indignation i ON c.chit_code = i.chit_code
+	<!-- 전표 리스트 출력 컬럼 날짜, 전표명, 계정과목, 거래처, 금액, 세금계산서 발행유무, 처리상태, 구분, 등록부서, 처리자,승인자,비고 -->
+	<select id="chitFindAll" resultType="ChitVO"
+		parameterType="ChitVO">
+SELECT c.created_date 	
+	 , c.chit_title  	
+	 , c.chit_code
+	 , i.acct_code
+	 , getVdrName(c.vdr_code) as vdrCode   	
+	 , c.tot_price  
+	 , c.tax_code  		
+	 , getSubCode(c.status) as status  		
+	 , getSubCode(c.type) as tType 			
+	 , getDeptName(c.dept_code) as deptCode 
+	 , getEmpName(c.phy_emp_id) as phyEmpId	
+	 , getEmpName(c.appr_emp_id) as apprEmpId	
+	 , c.note			
+	 , i.type as iType
+	 , i.price as iPrice
+	 , getSubCode(i.type) as INAME
+	 , a.name as ANAME
+  FROM chit c
+  LEFT JOIN indignation i ON c.chit_code = i.chit_code
+  LEFT JOIN Account a ON i.acct_code = a.acct_code
+ ORDER BY c.chit_code
 	</select>
-	
+
 	<select id="acctCodeFindByCode" resultType="map">
-	   SELECT acct_code as acctCode, name as aname
-	     FROM account
-	    WHERE acct_yn = 'Y' 
-	      AND (acct_code LIKE #{keyword} || '%'
-           OR name LIKE '%' || #{keyword} || '%')
- 
-	    ORDER BY acct_code
+		SELECT acct_code as acctCode, name as aname
+		FROM account
+		WHERE acct_yn = 'Y'
+		AND (acct_code LIKE #{keyword} || '%'
+		OR name LIKE '%' || #{keyword} || '%')
+		ORDER BY acct_code
 	</select>
-	
+
 	<select id="indTypeFindByCode" resultType="map">
-  SELECT sub_code AS iType, sub_name AS iName
-    FROM subcodes
-   WHERE main_code = 'itp'
-     AND (sub_code LIKE '%' || #{keyword} || '%'
-          OR sub_name LIKE '%' || #{keyword} || '%')
-   ORDER BY sub_code
+		SELECT SUBSTR(sub_code, -2) AS iType, sub_name AS iName
+		FROM subcodes
+		WHERE main_code = 'itp'
+		AND (sub_code LIKE '%' || #{keyword} || '%'
+		OR sub_name LIKE '%' || #{keyword} || '%')
+		ORDER BY sub_code
 	</select>
-	
-	<select id="chitTypeFindByCode" resultType="map">
-  SELECT sub_code AS tType, sub_name AS tName
-    FROM subcodes
-   WHERE main_code = 'cht'
-     AND (sub_code LIKE '%' || #{keyword} || '%'
-          OR sub_name LIKE '%' || #{keyword} || '%')
-   ORDER BY sub_code
-	</select>
-	
-	
-<insert id="insert" parameterType="ChitVO">
-  INSERT INTO indignation (
-     chit_dt_id
-   , chit_code
-   , acct_code
-   , type
-   , price
-   , created_date
-   , com_id)
-  VALUES (
-     'chit-' || chit_seq.NEXTVAL  
-   , #{chitCode} 
-   , #{acctCode}
-   , #{iType}
-   , #{iPrice}
-   , SYSDATE
-   , 'com-101'
-  )
-</insert>
-	
+
+
+
+	<insert id="insert" parameterType="ChitVO">
+		<selectKey resultType="string" keyProperty="chitDtId"
+			order="BEFORE">
+			SELECT 'chdt-' ||
+			(NVL(MAX(TO_NUMBER(SUBSTR(chit_dt_id,6))),100)+1) chitDtId
+			FROM
+			indignation
+		</selectKey>
+		INSERT INTO indignation (
+		chit_dt_id
+		, chit_code
+		, acct_code
+		, type
+		, price
+		, created_date
+		, com_id)
+		VALUES (
+		#{chitDtId}
+		, #{chitCode}
+		, #{acctCode}
+		, #{iType}
+		, #{iPrice}
+		, SYSDATE
+		, 'com-101'
+		)
+	</insert>
+
 	<update id="update">
-	  UPDATE chit
-	  	 SET phy_emp_id = #{empId}
-	  	   , status = '01'
-	  	   , note = #{note}
-	  	   , update_date = SYSDATE
-	  	   , type = #{iType}
-	   WHERE chit_code = #{chitCode}
+		UPDATE chit
+		SET phy_emp_id = 'e1001'
+		, status = '01'
+		, note = #{note}
+		, update_date = SYSDATE
+		WHERE chit_code = #{chitCode}
 	</update>
-	
+
 	<delete id="delete" parameterType="ChitVO">
-  DELETE FROM indignation
-   WHERE chit_dt_id = #{chitDtId}
-</delete>
+		DELETE FROM indignation
+		WHERE chit_dt_id = #{chitDtId}
+	</delete>
 
 </mapper>

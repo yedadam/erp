@@ -39,26 +39,24 @@ public class ChitServiceImpl implements ChitService{
 	@Override
 	public void saveAll(ChitVO chit) {
 		
-
-	    System.out.println("👉 impl에 넘어온 데이터: " + chit);
-
-	    if (chit.getCreatedRows() != null) {
-	        for (ChitVO row : chit.getCreatedRows()) {
-	            chitMapper.insert(row);
-	        }
-	    }
-
-	    if (chit.getUpdatedRows() != null) {
-	        for (ChitVO row : chit.getUpdatedRows()) {
-	            chitMapper.update(row);
-	        }
-	    }
-
-//	    if (chit.getDeletedRows() != null) {
-//	        for (ChitVO row : chit.getDeletedRows()) {
-//	            chitMapper.delete(row);
-//	        }
-//	    }
+		System.out.println("👉 impl에 넘어온 데이터: " +chit);
+		if (chit.getCreatedRows() != null) {
+			for(ChitVO row: chit.getCreatedRows()) {
+				chitMapper.insert(row);
+			}
+		}
+		
+		if (chit.getUpdatedRows() != null) {
+			for(ChitVO row: chit.getUpdatedRows()) {
+				chitMapper.update(row);
+			}
+		}
+		
+		if (chit.getDeletedRows() != null) {
+			for(ChitVO row: chit.getDeletedRows()) {
+				chitMapper.delete(row);
+			}
+		}
 	}
 	
 

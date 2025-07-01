@@ -1,15 +1,16 @@
 package com.dadam.acc.account.web;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dadam.acc.account.service.ChitService;
@@ -42,10 +43,19 @@ public class ChitRestController {
 	}
 	
 	@PostMapping("/saveAll")
-	 public void saveAll(@RequestBody ChitVO chit) {
-		System.out.println("👉 INSERT할 데이터: " + chit);
-		chitService.saveAll(chit);
+	@ResponseBody
+	public ResponseEntity<?> saveAll(@RequestBody ChitVO chit) {
+	    System.out.println("👉 받은 전체 payload: " + chit);
+	    
+	    List<ChitVO> created = chit.getCreatedRows();
+	    System.out.println("줄");
+	    System.out.println(chit.getCreatedRows());
+	    System.out.println("업데이트");
+	    System.out.println(chit.getUpdatedRows());
+
+	    chitService.saveAll(chit);
+
+	    return ResponseEntity.ok().body(Map.of(
+	    ));
 	}
-
-
 }
