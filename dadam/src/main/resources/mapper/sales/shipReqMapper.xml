@@ -17,6 +17,12 @@
 		COM_ID,
 		ORD_CODE
 		FROM shiprequest
+		WHERE com_id=#{comId}
+		<choose>
+				<when test="type.equals('shipReqCode')">
+					 AND ship_req_code LIKE '%'||#{value}||'%'
+				</when>	
+			</choose>
 		order by ship_req_code desc
 	</select>
 	<select id="findShipreqDtlList" parameterType="String"
