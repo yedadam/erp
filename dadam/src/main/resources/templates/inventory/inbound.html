@@ -247,24 +247,23 @@ function warehouseList(){
 			// 입고 등록
 			$('#registerBtn').on('click', ()=>{
 				let scr1data = inboundGrid.getData();
-				$.each(scr1data, (idx, item)=>{
+				for(item in scr1data){
 					if(item.loc == ""){
 						Swal.fire({
 							  icon: "error",
 							  title: "빈행 발견!",
 							  text: "위치를 지정해주세요!"
 							});
-						return false;
+						return;
 					}else if(item.qty == ""){
 						Swal.fire({
 							  icon: "error",
 							  title: "빈행 발견!",
 							  text: "수량을 입력해주세요!"
 							});
-						return false;
+						return;
 					}
-					
-				})
+				}
 				let param = []
 				let code = '';
 				let items = '';
@@ -273,7 +272,7 @@ function warehouseList(){
 				let check = 0;
 				let prices = 0;
 				let status = ''; // 부분입고
-				$.each(scr1data, (idx, item)=>{
+				for(item in scr1data){
 					if(item.purOrdDtlCode != ""){
 					code = item.purOrdDtlCode
 					items = item.itemCode
@@ -289,7 +288,7 @@ function warehouseList(){
 							  title: "발주량보다 입고수량이 많습니다!",
 							  text: "수량을 변경해주세요!"
 							});
-						return false;
+						return;
 					}else if(quantityCheck == check){
 							status = 'pct-02'; // 입고완료
 					}else{
@@ -308,7 +307,7 @@ function warehouseList(){
 									  status: status
 								}
 						param.push(params);
-							})
+							}
 					$.ajax({
 						url:"/erp/inventory/purchaseRegister",
 						method:"POST",
