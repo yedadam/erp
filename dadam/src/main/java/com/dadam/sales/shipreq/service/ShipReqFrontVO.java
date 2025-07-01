@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class ShipReqFrontVO {
 	ShipReqVO head;  //{}
-	List<ShipReqDtlVO> dtl; //[{},{},{}]
+	List<ShipReqDtlVO> dtl; //[{},{},{}] 
 }

@@ -209,7 +209,7 @@
             <li class="nav-item">
                 <a class="nav-link" href="charts.html">
                     <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Charts</span>
+                    <span>사원관리</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -509,7 +509,8 @@
 				        roomId: roomId,
 				        empId: empId, // 로그인된 사용자 정보로 변경 필요
 				        message: message,
-				        empName : empName
+				        empName : empName,
+				        comId : comId
 				    };
 				
 				    stompClient.send(`/app/chat.${roomId}`, {}, JSON.stringify(chatMessage));

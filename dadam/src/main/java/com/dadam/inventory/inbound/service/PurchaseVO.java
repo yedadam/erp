@@ -15,7 +15,7 @@ public class PurchaseVO {
 
 	private String note;   // 메모
 	private String empId;  // 담당자 
-	private String comId;  // 회사id 혹시몰라서
+	private String comId;  // 회사id
 	private String lot;
 	private int price;
 	@JsonFormat(pattern = "yyyy/MM/dd")

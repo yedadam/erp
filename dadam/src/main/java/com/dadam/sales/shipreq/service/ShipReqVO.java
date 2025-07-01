@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class ShipReqVO {
 	
-	private String shipReqCode; //출하번호 ddddddddddddssdfsdfsdffsdfsdfsfd
+	private String shipReqCode; //출하번호 
  	private String vdrCode; //거래처번호
 	private String vdrName; //거래처이름
 	@JsonFormat(pattern = "yyyy-MM-dd")

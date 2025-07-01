@@ -21,6 +21,7 @@ public class OutboundVO {
 	private String statusName;
 	private int quantity;
 	private int totPrice;
+	private int price;
 	private String vdrCode;
 	private String vdrName;
 	private String shipReqCode;
@@ -33,4 +34,5 @@ public class OutboundVO {
 	private String empId;
 	private String empName;
 	private String comId;
+	private String lot;
 }

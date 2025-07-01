@@ -21,4 +21,5 @@ public class EmployeesVO {
 	private String profileImgPath;
 	private String note;
 	private String sal;
+	private Date subsExpiration;
 }

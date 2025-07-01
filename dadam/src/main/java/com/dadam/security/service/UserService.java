@@ -27,9 +27,9 @@ public class UserService implements UserDetailsService{
 
    
    /**
-    * Spring Security에서 사용자의 인증 정보를 로딩하는 메서드입니다.
-    * 요청된 URL 경로에 따라 ERP 로그인과 메인 로그인 구분 처리를 하며,
-    * ERP 로그인 시에는 username에 '사원ID|회사ID' 형태로 전달된 값을 파싱하여 처리합니다.
+    * Spring Security에서 사용자의 인증 정보를 로딩하는 메서드
+    * 요청된 URL 경로에 따라 ERP 로그인과 메인 로그인 구분 처리를 함
+    * ERP 로그인 시에는 username에 사원ID및회사ID 형태로 전달된 값을 파싱하여 처리
     *
     * @param username 사용자 ID 또는 '사원ID|회사ID' 형태의 복합 값
     * @return UserDetails 인증에 사용할 사용자 정보 객체

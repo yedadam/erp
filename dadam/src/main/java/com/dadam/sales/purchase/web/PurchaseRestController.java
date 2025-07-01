@@ -31,9 +31,9 @@ public class PurchaseRestController {
     	  
 	//조회
 	@GetMapping("/purMainList")
-	public List<PurchaseOrderVO> purchaseList(@RequestParam(name = "param", required = false) PurchaseOrderVO param) {
+	public List<PurchaseOrderVO> purchaseList(@RequestParam (required = false,defaultValue = "") String type,@RequestParam (required = false, defaultValue = "") String value) {
 		
-		List<PurchaseOrderVO> result = service.findPurchaseList(param);
+		List<PurchaseOrderVO> result = service.findPurchaseList(type,value);
 		
 		return result;
 	}
@@ -58,7 +58,7 @@ public class PurchaseRestController {
 		return result;
 	}
 	
-	//발주의뢰 조회  
+	//거래처 조회  
 	@GetMapping("/vederList")
 	public List<VenderVO> venderList(@RequestParam (required = false) String type,@RequestParam (required = false) String value){
 		List<VenderVO> result = service.venderList(type,value);

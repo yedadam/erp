@@ -61,9 +61,9 @@
 		        #{itemCode} AS item_code,
 		        #{quantity} AS quantity,
 		        #{comId}   AS com_id,
-		        #{stkCode} AS stk_code
-		    FROM dual00.
-		    
+		        #{stkCode} AS stk_code,
+		        #{lot} AS lot
+		    FROM dual
 		) data
 		ON (
 		    stk.loc_code = data.loc_code AND stk.item_code = data.item_code AND stk.com_id = data.com_id
@@ -79,16 +79,21 @@
         loc_code,
         item_code, 
         quantity, 
-        com_id
+        com_id,
+        lot
     )
     VALUES (
         data.stk_code,
         data.loc_code,
         data.item_code,
         data.quantity,
-        data.com_id 
+        data.com_id,
+        data.lot
     )
 	</update>
 	
+	<update id="prcPurchaseOrderStatus" parameterType="PurchaseVO">
+	{ CALL prc_purchaseOrder_status( #{purOrdDtlCode, mode=IN, jdbcType=VARCHAR})}
+	</update>
 	
 </mapper>

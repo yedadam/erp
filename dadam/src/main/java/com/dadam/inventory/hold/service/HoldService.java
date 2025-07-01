@@ -11,4 +11,6 @@ public interface HoldService {
 	public List<HoldVO> selectHoldList(HoldVO vo);
 	// 발주서 모달 조회
 	public List<OutboundVO> selectShipRequestModal(HoldVO vo);
+	// lot 모달 조회
+	public List<HoldVO> selectHoldLotList(HoldVO vo);
 }

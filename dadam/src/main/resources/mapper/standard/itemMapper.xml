@@ -7,6 +7,14 @@
 		       type,
 		       price
 			   FROM item
-		WHERE com_id = 'com-101'
+		WHERE com_id = #{comId}
+		<choose>
+			  <when test="type.equals('itemCode')">
+	                AND item_code LIKE '%'||#{value}||'%'
+	          </when>
+	          <when test="type.equals('name')">
+	            	 AND name LIKE '%'||#{value}||'%'
+	          </when>
+		</choose>
 	</select>
 </mapper>
