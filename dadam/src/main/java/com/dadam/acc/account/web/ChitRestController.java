@@ -1,5 +1,6 @@
 package com.dadam.acc.account.web;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dadam.acc.account.service.AccountVO;
 import com.dadam.acc.account.service.ChitService;
 import com.dadam.acc.account.service.ChitVO;
 
@@ -44,18 +46,18 @@ public class ChitRestController {
 	
 	@PostMapping("/saveAll")
 	@ResponseBody
-	public ResponseEntity<?> saveAll(@RequestBody ChitVO chit) {
-	    System.out.println("👉 받은 전체 payload: " + chit);
-	    
-	    List<ChitVO> created = chit.getCreatedRows();
-	    System.out.println("줄");
-	    System.out.println(chit.getCreatedRows());
-	    System.out.println("업데이트");
-	    System.out.println(chit.getUpdatedRows());
+	public Map<String, Object> saveAccounts(@RequestBody ChitVO chit) {
+	    Map<String, Object> result = new HashMap<>();
 
-	    chitService.saveAll(chit);
+	    try {
+	    	chitService.saveAll(chit);
+	        result.put("result", "success");
+	        result.put("message", "저장이 완료되었습니다.");
+	    } catch (IllegalArgumentException e) {
+	        result.put("result", "fail");
+	        result.put("message", "유효성 오류: " + e.getMessage());
+	    }
 
-	    return ResponseEntity.ok().body(Map.of(
-	    ));
+	    return result;
 	}
 }
