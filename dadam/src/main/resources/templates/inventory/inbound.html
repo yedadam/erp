@@ -312,23 +312,15 @@ function warehouseList(){
 					$.ajax({
 						url:"/erp/inventory/purchaseRegister",
 						method:"POST",
+						dataType:"json",
 						contentType: 'application/json',
 						data: JSON.stringify(param),
 						success:()=>{
 						Swal.fire({
-							  icon: "succes",
+							  icon: "success",
 							  title: "입고 완료!",
 							  text: "입고가 완료되었습니다."
 							});
-						$('#inboundModal').modal('hide');
-						purcharsegrid.uncheckAll();
-						},
-						error: function(jqXHR, textStatus, errorThrown){
-							Swal.fire({
-								  icon: "error",
-								  title: "입고 실패!",
-								  text: "실패"
-								});
 						$('#inboundModal').modal('hide');
 						purcharsegrid.uncheckAll();
 						}

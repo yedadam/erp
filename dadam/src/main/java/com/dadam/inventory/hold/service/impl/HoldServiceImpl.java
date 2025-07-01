@@ -32,4 +32,11 @@ public class HoldServiceImpl implements HoldService{
 		return list;
 	}
 	
+	// lot리스트
+	@Override
+	public List<HoldVO> selectHoldLotList(HoldVO vo) {
+		List<HoldVO> list = holdMapper.selectHoldLotList(vo);
+		return list;
+	}
+	
 }

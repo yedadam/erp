@@ -20,4 +20,6 @@ public interface InboundMapper {
 	public void updatePurchaseOrderDetailInbound(PurchaseVO vo);
 	// 재고테이블 반영
 	public void updateStockInbound(PurchaseVO vo);
+	// 프로시저
+	public void prcPurchaseOrderStatus(PurchaseVO vo);
 }

@@ -39,7 +39,6 @@ public class InboundServiceImpl implements InboundService{
 		for (PurchaseVO vo : list) {
 			// 입고항목 등록
 			inboundMapper.insertPurchaseInbound(vo);
-			// 재고 항목 머지문
 			inboundMapper.updateStockInbound(vo);
 			String status = "pds-03"; // 입고 완료
 			if("pct-01".equals(vo.getStatus())) {
@@ -48,12 +47,16 @@ public class InboundServiceImpl implements InboundService{
 			// 품목 중복값을 제거하기위해서 map을 사용
 			map.put(vo.getPurOrdDtlCode(), status);
 		}
-		// for문조건으로 entrySet을 사용해서 map의 모든값(key, value)을 꺼내서 
+		
+		// 재고 항목 머지문
+		// for문조건으로 entrySet을 사용해서 map의 모든값(key, value)을 꺼내서
 		for (Map.Entry<String, String> entry : map.entrySet()) {
 			PurchaseVO vo = new PurchaseVO();
+			vo.setComId(list.get(0).getComId());
 			vo.setPurOrdDtlCode(entry.getKey());
 			vo.setStatus(entry.getValue());
 			inboundMapper.updatePurchaseOrderDetailInbound(vo);
+			inboundMapper.prcPurchaseOrderStatus(vo);
 		}
 		
 	}
