@@ -134,9 +134,9 @@
 	</div>
 </div>
 <script th:inline="javascript">
-let empId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'e1018'}]];
-let empName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.username : '김지현'}]];
-let comId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
+// let empId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'e1018'}]];
+//let empName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.username : '김지현'}]];
+//let comId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
 //ajax -> toastUi에 넣기
 function purchaseList(){
 	$.ajax({

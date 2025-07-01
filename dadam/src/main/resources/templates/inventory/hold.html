@@ -167,9 +167,9 @@
 		</div>
 	</div>
 	<script th:inline="javascript">
-const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
-const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '김지현'}]];
-const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
+// const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
+// const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '김지현'}]];
+// const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
 //필수값 가져오기
 let holdGrid;
 // 초기 조회
@@ -212,9 +212,7 @@ function holdList(){
 	$.ajax({
 		url:"/erp/inventory/holdList",
 		method:"GET"
-		,data: {
-			comId: userComId
-		}
+		,data: {comId}
 	   ,success:function(result) {
 		   holdGrid.resetData(result);
 	   } // ajax호출 끝
@@ -326,9 +324,7 @@ function insertGrid(){
 	$.ajax({
 		url:"/erp/inventory/shipRequestList",
 		method:"GET"
-		,data: {
-			comId: userComId
-		}
+		,data: {comId}
 	   ,success:function(result) {
 		   shipRequest.resetData(result);
 	   } // ajax호출 끝
