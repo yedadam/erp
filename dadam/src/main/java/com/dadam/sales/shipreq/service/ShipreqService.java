@@ -7,5 +7,7 @@ public interface ShipreqService {
 	public List<ShipReqDtlVO> findShipreqDtlList(String shipReqCode);
 	public int  insertShipreqReg(ShipReqFrontVO req); //등록할때 헤더,디테일 등록하기
 	public int updateShiPExpDate(ShipReqVO head);  // 납기일자 변경하기 
+	public int deleteShipReq(ShipReqFrontVO req); //클릭하고 삭제시 주문상태 업데이트,디테일삭제,헤더삭제 
+	public int deleteShipReqDtlBydtlno(ShipReqFrontVO req);
 }
  

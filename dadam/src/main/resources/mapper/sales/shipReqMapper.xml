@@ -64,7 +64,7 @@
 		    #{vdrCode},
 		    SYSDATE,
 		    #{shipExpDate},
-		    'sr01',
+		    'srq01',
 		    #{empId},
 		    SYSDATE,
 		    #{updateId},
@@ -73,7 +73,6 @@
 		    #{ordCode}
 		  )
 </insert>
-
 <insert id="insertShipreqDtl" parameterType="com.dadam.sales.shipreq.service.ShipReqDtlVO">
 	 <selectKey resultType="string" keyProperty="shipReqDtlCode" order="BEFORE">
 	  SELECT 'srd-' || TO_CHAR(NVL(MAX(TO_NUMBER(SUBSTR(ship_req_dtl_code, 5))), 100) + 1)
@@ -110,5 +109,26 @@
 	SET ship_exp_date= #{shipExpDate} 
 	WHERE ship_req_code= #{shipReqCode} 
 	</update>
+	<!-- 주문상태 값 바꾸기  -->
+	<update id="updateOrdStatus" parameterType="String">
+	update orders 
+	SET status='ost01'
+	WHERE ord_code=#{ordCode}
+	</update> 
+	<!-- 출하헤더 삭제시 출하디테일삭제 -->
+	<delete id="deleteShipreqDtl" parameterType="String">
+	delete shiprequestdetail
+	where ship_req_code=#{shipReqCode}
+	</delete>
+	<!-- 출하헤더삭제 -->
+	<delete id="deleteShipreqHead" parameterType="String">
+	delete shiprequest
+	where ship_req_code=#{shipReqCode}
+	</delete>
+	<!-- 출하 디테일 단건삭제 -->	
+	<delete id="deleteShipReqDtlBydtlno" parameterType="String">
+	delete shiprequestdetail
+	where ship_req_code=#{shipReqDtlCode}
+	</delete>
 
 </mapper>

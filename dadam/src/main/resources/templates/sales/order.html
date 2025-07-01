@@ -349,26 +349,26 @@
 		el: document.getElementById('ordDtlGrid'),
 		rowHeaders: ['checkbox'],
 		columns: [
-			{header: '주문상세정보',	name: 'ordDtlCode',	align: 'center',	width: 300,	editor: 'text'	},
-			{header: '품목코드',	name: 'itemCode',align: 'center',	editor: 'text'},
-			{header: '이름',	name: 'name',align: 'center',	editor: 'text'},
-			{header: '가격',	name: 'price',	align: 'right',
+			{header: '주문상세정보',name: 'ordDtlCode',	align: 'center',	width: 300,	editor: 'text'	},
+			{header: '품목코드',name: 'itemCode',align: 'center',	editor: 'text'},
+			{header: '이름',name: 'name',align: 'center',	editor: 'text'},
+			{header: '가격',name: 'price',	align: 'right',
 				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',	
 				editor: 'text'	},
-			{header: '수량',	name: 'quantity',align: 'center',	
+			{header: '수량',name: 'quantity',align: 'center',	
 			 	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '개',
 				editor: 'text',
 			},
-			{header: '공급가액',	name: 'supPrice',align: 'right',
+			{header: '공급가액',name: 'supPrice',align: 'right',
 			 formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',	
 			 editor: 'text'	},
-			{header: '부가세',	name: 'vatPrice',	align: 'right',
+			{header: '부가세',name: 'vatPrice',	align: 'right',
 			formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
 			editor: 'text'},
-			{header: '할인금액',	name: 'discPrice',	align: 'right',	
+			{header: '할인금액',name: 'discPrice',	align: 'right',	
 			formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
 			editor: 'text'}, 
-			{header: '총가격',	name: 'totPrice',	align: 'right',
+			{header: '총가격',name: 'totPrice',	align: 'right',
 			formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
 			editor: 'text'}
 		]
@@ -383,7 +383,7 @@
 		},
 		columns: [
 			{header: '종류',	name: 'type',align: 'center',	editor: 'text'},
-			{header: '품목코드',	name: 'itemCode',align: 'center',editor: 'text'},
+			{header: '품목코드',name: 'itemCode',align: 'center',editor:'text'},
 			{header: '품목명',name: 'name',align: 'center',	editor: 'text'},
 			{header: '가격',	name: 'price',align:'right',	editor: 'text'}
 		]
@@ -427,6 +427,8 @@
 		orderGrid.setValue(rowNo[0], "vdrName", rowData.vdrName);
 		orderGrid.setValue(rowNo[0], "vdrCode", rowData.vdrCode);
 		vdrdiscount = rowData.discount / 100; //거래처 추가할때 할인율을 변수로 지정해서 받아옴
+	
+		
 	})
 	//item 항목 선택 했을때 항목 적용 newItemInfoList 에 추가할 품목과 해당 행의 번호가 모두 저장됨 
 	itemGrid.on('click', (ev) => {
@@ -582,8 +584,8 @@
 			});
 			return;
 		}
-		//여신잔액이 없는경우
-		if (regHeader.creditBalPrice <= 0) {
+		//여신잔액이 총금액보다 경우
+		if (regHeader.creditBalPrice < regHeader.totPrice) {
 			Swal.fire({
 				icon: "error",
 				title: "error",
@@ -591,6 +593,8 @@
 			});
 			return;
 		}
+
+
 		regHeader.empId = userID;
 		regHeader.comId = userComId;
 		const dtlObj = ordDtlGrid.getModifiedRows(); 
@@ -837,16 +841,6 @@
 		const info = orderGrid.getRow(newNo);
 		return info;
 	}
-	// function formatPrice(value){
-	// 	if(value.value==null){
-	// 		return  value.value=' ';
-	// 	}else if(value>0){
-	// 		return 	value.value=value.value+'원'
-	// 	}
-	// 	console.log('value',value.value);
-	// }	
-
-
 	const topOptions = {
 			  includeHiddenColumns: true,
 			  onlySelected: false,

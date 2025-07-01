@@ -3,6 +3,7 @@ package com.dadam.sales.shipreq.web;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -54,6 +55,18 @@ public class ShipreqRestController {
 		System.out.println(param);
 		int result = service.updateShiPExpDate(param);
 		return result;
+	}
+	
+	//삭제하기 헤더 
+	@DeleteMapping("/shipReqDel")
+	public int shipReqDel(@RequestBody ShipReqFrontVO req) {
+		service.deleteShipReq(req);  //주문상태 ost01-> 디테일삭제 -> 헤더삭제 
+		return 0; 
+	}
+	@DeleteMapping("/shipReqDelDtl")
+	public int shipReqDelDtl(@RequestBody ShipReqFrontVO req) {
+		service.deleteShipReqDtlBydtlno(req); 
+		return 0; 
 	}
 	
 	//발주 의뢰 조회

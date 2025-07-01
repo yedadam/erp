@@ -223,6 +223,9 @@
 		    listSelector: '#autocompleteList',
 		    ajaxUrl: '/erp/sales/venderAuto'
 		  });
+
+	});
+
 	})
 	//자동 발주의뢰 검색기능
 	$('#reqInput').on('keyup',ev=> {
@@ -251,8 +254,7 @@
 			    ajaxUrl: '/erp/sales/purMainList'
 		 });
 	})
-	
-	
+
 	
 	//모달창꺼졌을때 검색창 지우기
 	  $('#vdrModal').on('hide.bs.modal',e => {
@@ -308,19 +310,10 @@
     				},
                  },
                 {header: '총공급가액', name: 'totSupPrice', align: 'center', 
-                	formatter: function(price){
-                     	  return priceFormat(price.value)+'원';
-                       },	
-                },
+                	formatter: function(price){ return priceFormat(price.value)+'원'; },},
                 {header: '총부가세', name: 'totVatPrice', align: 'center',
-                	formatter: function(price){
-                     	  return priceFormat(price.value)+'원';
-                       },	
-                },
-                {header: '총금액합계', name: 'totAmtSum', align: 'center', 
-                	formatter: function(price){
-                     	  return priceFormat(price.value)+'원';
-                       },	
+                	formatter: function(price){ return priceFormat(price.value)+'원';},	},
+                {header: '총금액합계', name: 'totAmtSum', align: 'center', formatter: function(price){ return priceFormat(price.value)+'원';},	
                 },
             ],
         });
@@ -362,7 +355,7 @@
                 {header: '금액', name: 'totPrice', align: 'center', 
                 	formatter: function(price){
                      	  return priceFormat(price.value)+'원';
-                       },	
+											 },	
                 },
             ],
         });
