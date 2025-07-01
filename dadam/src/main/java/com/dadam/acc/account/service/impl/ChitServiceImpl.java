@@ -54,11 +54,11 @@ public class ChitServiceImpl implements ChitService{
 	        }
 	    }
 
-	    if (chit.getDeletedRows() != null) {
-	        for (ChitVO row : chit.getDeletedRows()) {
-	            chitMapper.delete(row);
-	        }
-	    }
+//	    if (chit.getDeletedRows() != null) {
+//	        for (ChitVO row : chit.getDeletedRows()) {
+//	            chitMapper.delete(row);
+//	        }
+//	    }
 	}
 	
 
