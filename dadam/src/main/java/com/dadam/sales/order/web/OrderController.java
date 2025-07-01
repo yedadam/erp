@@ -45,9 +45,9 @@ public class OrderController {
 	
 	@GetMapping("/orderList")
 	@ResponseBody
-	public List<OrdersVO> orderList(Model model) {
+	public List<OrdersVO> orderList(@RequestParam(defaultValue = "",required = false) String type,@RequestParam(defaultValue = "",required = false) String value) {
 	//	model.addAttribute("ordList",orderservice.findOrderList()); 
-		List<OrdersVO> result = orderService.findOrderList();
+		List<OrdersVO> result = orderService.findOrderList(type,value);
 		return result;
 	}
 	@GetMapping("/ordDtlList")

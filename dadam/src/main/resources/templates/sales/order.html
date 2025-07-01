@@ -125,9 +125,27 @@
 			<div class="modal-dialog modal-dialog-centered">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title" id="exampleModalToggleLabel">Modal 1</h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
+									<!--아이템검색 -->
+								<div class="position-relative mb-3" style="max-width: 500px;">
+										<div class="input-group">
+												<select class="form-select col-4" id="itemSelect" style="max-width: 30%;">
+														<option value="itemCode" selected>아이템코드</option>
+														<option value="name">아이템명</option>
+												</select>
+												<input type="text" class="form-control" placeholder="검색어를 입력하세요" id="itemInput" autocomplete="off">
+												<button class="btn btn-outline-secondary" type="button" id="itemSearchBtn">
+														<i class="fas fa-search"></i>
+												</button>
+										</div>
+										<!-- 자동완성 리스트 -->
+										<ul id="autoitemList"
+												class="list-group position-absolute w-100 shadow-sm"
+												style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+										</ul>
+								</div>
+						<!--end item-->
 					<div id="itemList"></div>
 					<div class="modal-footer">
 						<button class="btn btn-primary" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal"
@@ -145,6 +163,25 @@
 						<h1 class="modal-title fs-5" id="exampleModalLabel">거래처목록</h1>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
+					<!-- 검색 조건 -->
+						<div class="position-relative mb-3" style="max-width: 500px;">
+						    <div class="input-group">
+						        <select class="form-select col-4" id="vdrSelect" style="max-width: 30%;">
+						            <option value="vdrCode" selected>거래처코드</option>
+						            <option value="vdrName">거래처명</option>
+						        </select>
+						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="vdrInput" autocomplete="off">
+						        <button class="btn btn-outline-secondary" type="button" id="vdrSearchBtn">
+						            <i class="fas fa-search"></i>
+						        </button>
+						    </div>
+						
+						    <!-- 자동완성 리스트 -->
+						    <ul id="autoVdrList"
+						        class="list-group position-absolute w-100 shadow-sm"
+						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+						    </ul>
+						</div>
 					<div id="vdrList"></div>
 					<div class="modal-body">
 						<div class="container-fluid">
@@ -158,58 +195,6 @@
 			</div>
 		</div>
 
-		<!-- 거래처 모달 2 -->
-		<div class="modal fade" id="vdrmymodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-			<div class="modal-dialog modal-xl">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h1 class="modal-title fs-5" id="exampleModalLabel">거래처목록</h1>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-					<div id="vdrList"></div>
-					<div class="modal-body">
-						<div class="row card">
-							<div class="form-floating mb-3">
-								<input type="date" class="form-control" id="floatingInput" placeholder="날짜 선택">
-								<label for="floatingInput">일자</label>
-							</div>
-						</div>
-						<div class="container-fluid">
-							<div id="modal"></div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- 거래처 모달 3 -->
-		<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-			<div class="modal-dialog modal-xl">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h1 class="modal-title fs-5" id="exampleModalLabel">거래처목록</h1>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-					<div id="vdrList"></div>
-					<div class="modal-body">
-						<div class="row card">
-							<div class="form-floating mb-3">
-								<input type="date" class="form-control" id="floatingInput" placeholder="날짜 선택">
-								<label for="floatingInput">일자</label>
-							</div>
-						</div>
-						<div class="container-fluid">
-							<div id="modal"></div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					</div>
-				</div>
-			</div>
-		</div>
 
 	</div>
 </body>
@@ -230,7 +215,47 @@
 	orderList(); //주문조회  
 	itemList(); //제품조회 
 	vdrList(); //거래처조회 
-	//setTimeout(); //초기설정
+	//자동완성기능
+	$('#vdrInput').on('keyup',ev => {
+		 setupAutocomplete({
+			    inputSelector: '#vdrInput',                              //인풋에 겁색값
+			    selectSelector: $('#vdrSelect  option:selected').val(),  //selected 결과값
+			    listSelector: '#autoVdrList',                            //자동완성 되는값 
+			    ajaxUrl: '/erp/standard/venderAll'                     //ajaxurl
+		 });
+	});
+	$('#vdrInput').on('keyup',ev => {
+		if(ev.keyCode ==13){
+			let type = $("#vdrSelect option:selected").val();
+			let value = $("#vdrInput").val();
+			let url ='/erp/standard/venderAll';
+			let grid = vdrGrid
+			commonSearch(type,value,url,grid);
+		}
+	})
+
+	//아이템 검색 자동완성
+	$('#itemInput').on('keyup',ev => {
+		 setupAutocomplete({
+			    inputSelector: '#itemInput',                              //인풋에 겁색값
+			    selectSelector: $('#itemSelect  option:selected').val(),  //selected 결과값
+			    listSelector: '#autoitemList',                            //자동완성 되는값 
+			    ajaxUrl: '/erp/standard/itemAll'                     //ajaxurl
+		 });
+	});
+	$('#itemInput').on('keyup',ev => {
+		if(ev.keyCode ==13){
+			let type = $("#itemSelect option:selected").val();
+			let value = $("#itemInput").val();
+			let url ='/erp/standard/itemAll';
+			let grid = itemGrid
+			commonSearch(type,value,url,grid);
+		}
+	})
+	
+	
+	
+	
 	const orderGrid = new tui.Grid({
 		//toastui 아이디 가져오기
 		el: document.getElementById('orderGrid'),
@@ -286,6 +311,12 @@
 	//체크박스눌렀을때 특정태그안에 하위요소 찾기
 	//행클릭시 작동
 	orderGrid.on('click', (ev) => {
+
+		if (ev.columnName == "vdrCode" || ev.columnName == "vdrName") {
+			console.log('vdr코드클릭됨');
+			openVdrmodal();
+		} //모달열기
+
 		//등록중인 행을 클릭하다가 다른행클릭했다가 다시갔을때 Dtl grid가 reset 됨    
 		if (orderGrid.getCheckedRows()[0].ordCode == null ||
 			orderGrid.getCheckedRows()[0].reqDlvDate == null &&
@@ -299,10 +330,7 @@
 				orderGrid.uncheckAll(); // 전체 해제
 				orderGrid.check(ev.rowKey); // 현재 행만 체크
 		}
-		if (ev.columnName == "vdrCode" || ev.columnName == "vdrName") {
-			console.log('vdr코드클릭됨');
-			openVdrmodal();
-		} //모달열기
+
 		const rowData = orderGrid.getRow(ev.rowKey);
 		if (rowData && rowData.ordCode?.trim()) {
 			ordDtlList(rowData.ordCode);
@@ -814,8 +842,8 @@
 		myModal.show(modalToggle);
 	}
 
-	function openVdrmodal() { //거래처모달 띄우는함수 
-		vdrmymodal.show(vdrmodalToggle);
+	function openVdrmodal() {  
+		vdrmymodal.show(vdrmodalToggle); //거래처모달 띄우는함수
 	}
 	//날짜 포맷바꾸는 함수 Sun May 30 2021 15:47:29 GMT+0900 (대한민국 표준시) => yyyy-MM-dd 
 	function dateformatyymmdd(today) {
@@ -846,9 +874,12 @@
 			  onlySelected: false,
 			  fileName: '주문 정보 조회',
 			};
+	
 	$('#excel').on('click',function(){
 		 orderGrid.export('xlsx',topOptions); 
 	})
+	
+
 
 	const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1001'}]];
 	const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '정은애'	}]];

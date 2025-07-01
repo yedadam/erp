@@ -28,8 +28,8 @@ public class ShipreqRestController {
     	  
 	//조회
 	@GetMapping("/shipReqList")
-	public List<ShipReqVO> shipReqList() {
-		List<ShipReqVO> result = service.findShipreqList();
+	public List<ShipReqVO> shipReqList(@RequestParam(defaultValue = "",required = false) String type,@RequestParam(defaultValue = "",required = false) String value){
+		List<ShipReqVO> result = service.findShipreqList(type,value);
 		System.out.println("조회");
 		return result;
 	}

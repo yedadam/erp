@@ -3,6 +3,8 @@ package com.dadam.sales.order.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,17 +13,32 @@ import com.dadam.sales.order.service.OrdDtlVO;
 import com.dadam.sales.order.service.OrdReqVO;
 import com.dadam.sales.order.service.OrderService;
 import com.dadam.sales.order.service.OrdersVO;
+import com.dadam.security.service.LoginUserAuthority;
 @Transactional
 @Service
 public class OrderServiceImpl implements OrderService {
+	
+	 String comId = "com-101";
+	    public void initAuthInfo() {
+	        //로그인 객체값 연결
+	        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	        //로그인 객체 가져오기
+	        Object principal = auth.getPrincipal();
+
+	        if (principal instanceof LoginUserAuthority) {
+	        	LoginUserAuthority user = (LoginUserAuthority) principal;
+	            comId = user.getComId();
+	            System.out.println("회사명: " + comId);
+	        }
+	    }
 
 	@Autowired
 	OrderMapper orderMapper;
 
 	// 전체조회
 	@Override
-	public List<OrdersVO> findOrderList() {
-		List<OrdersVO> result = orderMapper.findOrderList();
+	public List<OrdersVO> findOrderList(String type,String value) {
+		List<OrdersVO> result = orderMapper.findOrderList(type,value,comId);
 		return result;
 	}
 

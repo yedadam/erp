@@ -6,5 +6,5 @@ import org.springframework.stereotype.Service;
 
 public interface VenderService {
      
-	public List<VenderVO> venderFindAll(); 
+	public List<VenderVO> venderFindAll(String type,String value); 
 }

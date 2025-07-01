@@ -2,8 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.sales.order.mapper.OrderMapper">
 	<!-- 주문리스트 조회 -->
-	<select id="findOrderList"
-		resultType="com.dadam.sales.order.service.OrdersVO">
+	<select id="findOrderList" resultType="com.dadam.sales.order.service.OrdersVO">
 		select o.ord_code,
 		o.created_date,
 		v.vdr_name,
@@ -17,10 +16,20 @@
 		v.credit_bal_price,
 		o.pay_method,
 		o.status,
-		v.discount
+		v.discount,
+		o.com_id
 		from orders o JOIN vender v ON
 		o.vdr_code=v.vdr_code
-		order by o.ord_code desc
+		WHERE o.com_id = #{comId}
+		<choose>
+				<when test="type.equals('ordCode')">
+					 AND o.ord_code LIKE '%'||#{value}||'%'
+				</when>	
+				<when test="type.equals('vdrCode')">
+					 AND o.vdr_code LIKE '%'||#{value}||'%'	
+				</when>
+			</choose>
+		order by o.ord_code desc			
 	</select>
 
 	<!-- 주문건당 상세내역 보기 -->

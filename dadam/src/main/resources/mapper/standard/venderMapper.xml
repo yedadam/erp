@@ -21,6 +21,15 @@ SELECT
 		com_id
 FROM vender
 WHERE type='vt01'
+AND com_id = #{comId}
+<choose>
+  <when test="type.equals('vdrCode')">
+         AND vdr_code LIKE '%'||#{value}||'%'
+  </when>
+  <when test="type.equals('vdrName')">
+         AND vdr_name LIKE '%'||#{value}||'%'
+  </when>
+</choose>
 </select>
 
 </mapper>
