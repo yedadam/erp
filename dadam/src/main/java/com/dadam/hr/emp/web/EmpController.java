@@ -112,6 +112,15 @@ public class EmpController {
         return "hr/emp-all";
     }
 
+    /**
+     * 부서 목록(모던 레이아웃) 화면으로 이동
+     * @return 부서 목록 페이지 view name
+     */
+    @GetMapping("/dept-list")
+    public String deptListPage() {
+        return "hr/dept-list";
+    }
+
     private String saveProfileImage(MultipartFile profileImg) {
         try {
             String uploadDir = System.getProperty("user.dir") + "/uploads/profile/";
