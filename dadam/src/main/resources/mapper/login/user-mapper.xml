@@ -13,13 +13,17 @@
      WHERE com_id=#{userId}   
      </select>
      <select id="loginForErp" resultType="EmployeesVO">
-     SELECT emp_id,
-            com_id,
+     SELECT      emp_id,
+            e.com_id,
             pwd,
-            emp_name
-     FROM employees
+            emp_name,
+            subs_expiration
+     FROM employees e JOIN erpSubs s1 ON (e.com_id = s1.com_id)
      WHERE emp_id=#{username}
-     AND com_id=#{comId}
+     AND e.com_id=#{comId}
+     AND s1.subs_expiration = (SELECT MAX(subs_expiration)
+        						FROM erpSubs
+        					   WHERE com_id = e.com_id)
      </select>
      
   </mapper>

@@ -22,10 +22,21 @@
  
         <form th:action="@{/erp/login}" class="login__register" id="login-in" method="post">
           <h1 class="login__title">Sign In</h1>
-					<div th:if="${param.error}"
-						class="alert alert-info alert-dismissible fade show mt-3"
-						role="alert">
-						<strong>로그인 실패!</strong><br> 아이디 또는 비밀번호가 일치하지 않습니다.
+                  <div th:if="${param.error}"> 
+              <!-- <p th:text="${session['SPRING_SECURITY_LAST_EXCEPTION'].message}">에러 메시지 없음</p> -->                   <div th:switch="${session['SPRING_SECURITY_LAST_EXCEPTION'].message}">
+					<div th:case="'사용자 계정의 유효 기간이 만료 되었습니다.'">
+						<div class="alert alert-danger alert-dismissible fade show mt-3"
+							role="alert">
+							<strong>계정 만료</strong><br> 구독이 만료되 계정입니다.
+						</div>
+					</div>
+					<div th:case="*">
+						<div class="alert alert-warning alert-dismissible fade show mt-3"
+							role="alert">
+							<strong>로그인 실패!</strong><br> 아이디 또는 비밀번호가 일치하지 않습니다.
+						</div>
+					</div>                       
+                   </div>
 					</div>
 					<div class="login__box">
             <i class='bx bx-user login__icon'></i>

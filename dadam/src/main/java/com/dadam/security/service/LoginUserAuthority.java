@@ -1,7 +1,9 @@
 package com.dadam.security.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.sql.Date;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -54,9 +56,12 @@ public class LoginUserAuthority implements UserDetails {
     public String getComId(){
     	return userVO.getComId();
     }
+    //계정 만료
     @Override
     public boolean isAccountNonExpired() {
-        return true; // 계정이 만료되지 않았다고 가정
+    	Date exp = userVO.getSubsExpiration();
+        if (exp == null) return true;
+        return !exp.toLocalDate().isBefore(LocalDate.now());
     }
 
     @Override
