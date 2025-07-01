@@ -155,7 +155,7 @@
 				<div class="modal-body">
 					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
 						<button class="btn btn-primary" id="transferBtn" data-bs-dismiss="modal">
-							<i class="fas fa-warehouse"></i> 선택
+							<i class="fas fa-square-check"></i> 선택
 						</button>
 					</div>
 					<div id="transferGrid"></div>
@@ -176,8 +176,8 @@
 				</div>
 				<div class="modal-body">
 					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
-						<button class="btn btn-primary" id="lotBtn" data-bs-dismiss="modal">
-							<i class="fas fa-warehouse"></i> 선택
+						<button class="btn btn-primary" id="lotBtn">
+							<i class="fas fa-square-check"></i> 선택
 						</button>
 					</div>
 					<div id="lotGrid"></div>
@@ -218,6 +218,7 @@ function changeView(viewType){
 		// dom 초기화
 		$('#mainGrid').html('');
 		$('#shipRequestGrid').html('');
+		$('#lotGrid').html('');
 	}
 	// 그리드 변경
 	if(viewType === '조회'){
@@ -275,6 +276,7 @@ function selectGrid(){
 	$('#shipRequestModalBtn').remove();
 	$('#transferModalBtn').remove();
 	$('#saveBtn').off('click', saveBtninsert);
+	
 };// 조회버튼 끝
 
 
@@ -290,6 +292,7 @@ function insertGrid(){
 	    },
 	    //필드값 구성
 	    columns:[
+	        { header: '구분코드',name:'code',align:'center'},
 	        { header: '품목명',name:'itemName',align:'center'},
 	        { header: 'LOT',name:'lot',align:'center', editor: 'text'
 	        	/* , formatter:function(rowKey){
@@ -364,6 +367,32 @@ function insertGrid(){
 	   } 
 	}) // ajax호출 끝
 	
+	// 출하의뢰 선택이벤트
+	$('#shipRequestBtn').on('click',()=>{
+		let check = shipRequest.getCheckedRows();
+		let checkData;
+		let shipData = [];
+		check.filter((item, idx)=>{
+			checkData={
+						  code: item.shipReqDtlCode
+						, itemCode: item.itemCode
+						, itemName: item.itemName
+						, quantity: item.quantity
+						, empId: item.empId
+						, empName: item.empName
+						, createdDate: item.createdDate
+						, date: item.shipExpDate
+						, vdrCode: item.vdrCode
+						, location: item.vdrName
+						, status: item.status
+						, type: 'ht02'
+						, typeName: '출하의뢰'
+			}
+			shipData.push(checkData);
+		})
+		holdGrid.resetData(shipData);
+	});
+	
 	// LOT
 	stklot = new tui.Grid({
 	    el: document.getElementById('lotGrid'),
@@ -377,65 +406,87 @@ function insertGrid(){
 	    columns:[
 	        { header: 'lot',name:'lot',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
-	        { header: '수량',name:'quantity',align:'center'},
+	        { header: '재고수량',name:'quantity',align:'center'},
+	        { header: '수량',name:'qty',align:'center', editor: 'text'},
 	        { header: '위치',name:'locCode',align:'center'}
 	    ],
 	});
-	/* function lotbutton(){
-		let itemCode='';
-		$('#lotModalBtn').on('click',()=>{
-			console.log('눌러짐');	
-		})
-		return `<button class="btn btn-info" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"  id="lotModalBtn" data-bs-toggle="modal" data-bs-target="#lotModal">선택</button>`;
-	} */
+	let rowKey;
+	let columnName;
 	holdGrid.on('click', (ev)=>{
 		  let itemCode='';
-		  let { rowKey, columnName } = ev;
+		  rowKey = ev.rowKey;
+		  columnName = ev.columnName;
 		  if (columnName === 'lot') {
 		    let rowData = holdGrid.getRow(rowKey);
 			itemCode = rowData.itemCode;
+			
 			$.ajax({
 				url:"/erp/inventory/holdlotList",
 				method:"GET"
 				,data: {comId, itemCode}
 			   ,success:function(result) {
-				   stklot.resetData(result);
-		    		console.log(result);
-		    		$('#lotModal').modal('show');
+					stklot.resetData(result);
+			    	$('#lotModal').modal('show');
 			   } 
 			}) // ajax호출 끝
 		  }
-		})
-			
+		});
 	
-	// 출하의뢰 선택이벤트
-	$('#shipRequestBtn').on('click',()=>{
-		let check = shipRequest.getCheckedRows();
+	
+	// lot 선택이벤트 formatter와 등록이벤트처리할떄 db에 상세추가해야할듯..
+	$('#lotBtn').on('click',()=>{
+		// 변수선언
+		let stkLot = stklot.getData();
+		let sum = 0;
+		let check = stklot.getCheckedRows();
 		let checkData;
-		let shipData = [];
+		let lotList=[];
+		let lotData = [];
+		let holdList = holdGrid.getData();
+		let rowData = holdGrid.getRow(rowKey);
+		code = rowData.code;
+		// 입력한값의 전체를 합산
+		stkLot.forEach((item)=>{
+			sum += Number(item.qty)
+		})
+		for(item in stkLot){
+			if(item.qty == ""){
+				Swal.fire({
+					  icon: "error",
+					  title: "빈행 발견!",
+					  text: "수량을 입력해주세요!"
+					});
+				return;
+			}else if(sum > rowData.quantity){
+				Swal.fire({
+					  icon: "error",
+					  title: "수량이 오버!",
+					  text: "수량을 알맞게주세요!"
+					});
+				return;
+			}
+		}
 		check.filter((item, idx)=>{
 			checkData={
-						  itemCode: item.itemCode
-						, itemName: item.itemName
-						, quantity: item.quantity
-						, empId: item.empId
-						, empName: item.empName
-						, createdDate: item.createdDate
-						, date: item.shipExpDate
-						, vdrCode: item.vdrCode
-						, location: item.vdrName
-						, status: item.status
-						, type: 'ht02'
-						, typeName: '출하의뢰'
-						, 
+						lot: item.lot,
+						itemcode: item.itemcode,
+						itemName: item.itemName,
+						quantity: item.quantity,
+						qty: item.qty,
+						locCode: item.locCode
 			}
-			shipData.push(checkData);
+			lotData.push(checkData);
 		})
-		holdGrid.resetData(shipData);
+		lotList.push(lotData);
+		holdList.forEach((item,idx)=>{
+			if(item.code === code){
+				item.lot = lotList;
+			}
+		})
+		holdGrid.resetData(holdList);
+		$('#lotModal').modal('hide');
 	})
-	
-	
-	
 	// 재고이동
 /* 	transfer = new tui.Grid({
 	    el: document.getElementById('transferGrid'),
@@ -459,69 +510,7 @@ function insertGrid(){
 	$('#saveBtn').on('click', saveBtninsert);
 	
 } // 등록버튼 끝
-
-// 모달안에 출고 그리드
-/* const outBoundGrid = new tui.Grid({
-    el: document.getElementById('gridModal'),
-    //checkbox부여
-    //페이지네이션
-    pageOptions: {
-        perPage: 10,
-        useClient: true,
-    },
-    //필드값 구성
-    columns:[
-        { header: '출하상세코드',name:'shipReqDtlCode',align:'center'},
-        { header: '품목명',name:'itemName',align:'center'},
-        { header: '출하의뢰수량',name:'quantity',align:'center'},
-        { header: '출고수량',name:'qty',align:'center', editor: 'text'},
-        { header: '비고',name:'note',align:'center', editor: 'text'},
-        { header: '추가/삭제', name: 'origin', align:'center'
-    	, formatter: (rowKey) => {
-    		if(rowKey.value){
-    			return `<button class="btn btn-sm btn-primary add-btn">+</button>`;
-    		}else{
-    		return `<button class="btn btn-sm btn-danger add-btn">-</button>`;
-    		}
-    	}}
-    ],
-    columnOptions: {
-		frozenCount: 3,
-		frozenBorderWidth: 2
-		}
-}); */
-
-
-
- /* 	let data = [];
-	// 체크한경우 데이터 넣기
-	shipRequestgrid.on('check', checkRow)
-	shipRequestgrid.on('checkAll', checkRow)
-	// 체크아웃한경우 데이터 뺴기
-	shipRequestgrid.on('uncheck', checkRow);
-	shipRequestgrid.on('uncheckAll', checkRow);
-	
-	// check 처리
-	function checkRow(grid){
-		data= [];
-		  let rowCheck = grid.getCheckedRows();
-		  
-		  rowCheck.filter(item =>{
-			  ee = {
-				  shipReqDtlCode: item.shipReqDtlCode,
-				  itemCode: item.itemCode,
-				  itemName: item.itemName,
-				  quantity : item.quantity,
-				  price: item.price,
-				  qty : '',
-				  note: '',
-				  origin: true
-			  }
-			  data.push(ee);
-		  })
-		  holdGrid.resetData(data);
-	} */
-	// 등록
+// 등록
 function saveBtninsert(){
 		let param = [];
 		holdGrid.getData().forEach((item,idx)=>{
