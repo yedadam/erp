@@ -53,7 +53,7 @@
 	color: #92400e;                   /* 진한 주황갈색 */
 		}
 		.end-action {
-			display: inline-block;
+	display: inline-block;
 	padding: 3px 8px;
 	font-size: 12px;
 	border-radius: 12px;
@@ -61,8 +61,8 @@
 	background-color: #ecfdf5;        /* 아주 연한 민트 */
 	color: #065f46;                   /* 진한 초록 */
 		}
-		.del-action {
-			display: inline-block;
+	 .del-action {
+	display: inline-block;
 	padding: 3px 8px;
 	font-size: 12px;
 	border-radius: 12px;
@@ -70,6 +70,16 @@
 	background-color: #fef2f2;        /* 아주 연한 빨강 */
 	color: #991b1b;                   /* 진한 빨강 */
 		}
+		 .middle-action {
+	display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid #f87171;        /* 연한 빨강 */
+	background-color: darksalmon;        /* 아주 연한 빨강 */
+	color: #991b1b;                   /* 진한 빨강 */
+		}	
+
 		
 	.require{
 		color :red;
@@ -295,19 +305,19 @@
             // 필드값 구성
             columns: [
                 {header:'주문코드', name: 'ordCode', align: 'center'},
-				{header:'거래처코드', name: 'vdrCode', align: 'center'},
-				{header:'거래처명', name: 'vdrName', align: 'center'},
-                {header:'등록일자', name: 'createdDate', align: 'center'},
-                {header:'상태', name: 'status', align: 'center'},
+								{header:'거래처코드', name: 'vdrCode', align: 'center'},
+								{header:'거래처명', name: 'vdrName', align: 'center'},
+        				{header:'등록일자', name: 'createdDate', align: 'center'},
+        				{header:'상태', name: 'status', align: 'center'},
                 {header:'총공급세',	name: 'totSupPrice',	align:'right',
-				 		formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},   
+				 						formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},   
                 {header:'총부가세',	name: 'totVatPrice',	align:'right',
-				    	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+				    				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
                 {header:'총할인금액',	name: 'totDisc',	align:'right',
-				    	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},      
+				    				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},      
                 {header:'총금액합계',	name: 'totPrice',	align:'right',
-				     	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
-				{header:'납기일자', name: 'reqDlvDate', align: 'center'}		  
+				     				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+								{header:'납기일자', name: 'reqDlvDate', align: 'center'}		  
             ]
         });
       //vdr 모달안에  vdrGrid 생성  
@@ -417,7 +427,6 @@
 						}
 			})
 		} 
-
         // 페이지 로드 시 메인 리스트 호출
         let pageStatus = "search";
         mainList();
@@ -435,8 +444,7 @@
           mainGrid.resetData([{empId: empId,empName : empName}])
 					console.log('키번호',mainGrid.getData()[0].rowKey); 
 					mainGrid.setValue(mainGrid.getData()[0].rowKey,"shipReqCode",maxShipReqNO); 
-          detailGrid.resetData([{}]);
-         		
+          detailGrid.resetData([{}]);       		
         });
 		//메인그리드 클릭 RowKey
 		let mainRowKey = null;
@@ -565,12 +573,76 @@
 		$('#rowDelBtn').on('click', ev => {
 			//클릭된 정보 가져오기
 			const checkedRows = detailGrid.getCheckedRows();
+			console.log('상세그리드 heckedRows',checkedRows);
 			//행삭제
-			checkedRows.forEach(item => {
-		    console.log(item)
-		    detailGrid.removeRow(item.rowKey)
-		  })
+			// checkedRows.forEach(item => {
+		  //   console.log(item)
+		  //   detailGrid.removeRow(item.rowKey)
+		  // })
+
+				let dataToSend = {
+	    				head : mainGrid.getCheckedRows()[0], //{}   
+	    				dtl : checkedRows    //[{},{}]
+	    		};	
+			
+					if(head.status=='srq03'){
+						 Swal.fire('실패','이미 출하완료된 건입니다','error');
+							 return; 
+					}
+
+					
+				$.ajax({
+				url: '/erp/sales/shipReqDelDtl',
+				type:'DELETE',
+				contentType: 'application/json',
+				data: JSON.stringify(dataToSend),
+				success: function(res) {
+	    		console.log('전송 성공', res);
+	    		Swal.fire({
+	    					title: "출하요청이 삭제 되었습니다",
+	    					icon: "success",
+	    					draggable: true
+	    				});
+	    				mainList();
+	    		},
+				error: function(xhr, status, error) {
+	          console.log("실패:", xhr.status, error);
+	       }
+			})				
 		})
+		$('#delBtn').on('click',ev =>{
+			const head=mainGrid.getCheckedRows()[0]; //{}
+			const detail=	detailGrid.getData(); //[{},{},{}]
+			if(head.status=='srq03'){
+			 Swal.fire('실패','이미 출하완료된 건입니다','error');
+							return; 
+			}
+			let dataToSend = {
+	    			head :head, 		//{}   
+	    			dtl : detail    //[{},{}]
+	    		};
+			$.ajax({
+				url: '/erp/sales/shipReqDel',
+				type:'DELETE',
+				contentType: 'application/json',
+				data: JSON.stringify(dataToSend),
+				success: function(res) {
+	    		console.log('전송 성공', res);
+	    		Swal.fire({
+	    					title: "출하삭제되었습니다",
+	    					icon: "success",
+	    					draggable: true
+	    				});
+	    				mainList();
+	    		},
+				error: function(xhr, status, error) {
+	          console.log("실패:", xhr.status, error);
+	       }
+			})
+		})
+
+
+
 		//라디오버튼처럼 작동
 		mainGrid.on('click', ev => {
 		
@@ -738,46 +810,33 @@
 			})
 	    }
 			console.log('mainRowData shipReqCode', mainRowData);
-			console.log()
+	
 	     })
 	     //수정 함수
 	     async function shipReqModify(){
 	    	 let checkedRows = detailGrid.getModifiedRows();
 	    	 let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
+				 let mainRowData = mainGrid.getRow(mainRowIndex);
+
+			
+
 	    	 if( mainGrid.getCheckedRowKeys().length<1){
 	    		 Swal.fire('실패','메인그리드에 해당하는 값을 체크해주세요','error');
 	    		 return;
-	    	 }
-	    	 let mainRowData = mainGrid.getRow(mainRowIndex);
+	    	 }	
+					if(mainRowData.status=='srq03'){
+						 Swal.fire('실패','이미 출하완료된 건입니다','error');
+							return;
+					}
+				
+						//메인그리드 해당란 다있는지 체크
+						if(mainRowData.vdrCode==null){
+							Swal.fire('dddd','해당하는값을 입력해ㅇㅇㅇㅇ주세요','error');
+							return; 
+						}
 
-			 console.log('mainRowData',mainRowData); 
-			 console.log('checkedRows',checkedRows);
-			 console.log(mainRowData.vdrCode);
-	    	 //메인그리드 해당란 다있는지 체크
-	    	 if(mainRowData.vdrCode==null){
-	    		Swal.fire('dddd','해당하는값을 입력해ㅇㅇㅇㅇ주세요','error');
-	    		return; 
-	    	 }
-			 if(mainRowData.status=='srq03'){
-				Swal.fire('실패','이미 출하완료된 건 입니다','error'); 
-			 }
-
-			//디테일 값 있는지 체크
-			//	 let detailGridInfo=detailGrid.getData();
-			//	 let detailResult = detailGridInfo.some(item => {
-			//			return !item.itemCode || item.quantity ==0 ||
-			//			       item.supPrice==0 || item.totPrice==0;
-			//		})
-	    	//console.log(detailResult);
-	    	//  if(detailResult){
-	    	//	  Swal.fire('실패','해당 하는 값을 입력해주세요.','error')
-	    	//	  return;
-	    	//  } 
 	    	  console.log(mainRowData)
-	    	 //if(mainRowData.status!='진행중'){
-	    	 //	  Swal.fire('실패','이미 입고처리된 항목에 대해선 입고가 불가합니다.','error')
-	    	 //	  return;
-	    	 // }
+	    
 
 	    	 //메인창
 	    	 console.log('수정함수 작동중',mainRowData)
@@ -788,37 +847,13 @@
 	    		 data:JSON.stringify(mainRowData),
 	    		 success :  Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success'),
 				        
-				//  result => {
-	             //    if(result <1 ){
-	             //   	  Swal.fire('저장','저장이 정상적으로 실패하였습니다.','error')
-		         //         return;
-	             //    }
-	            // },
-	             error: function(xhr, status, error) {
+
+	        error: function(xhr, status, error) {
 	                    console.log("실패:", xhr.status, error);
-	                }
+	        }
 	    	 }) 
 	}
-	  //상세 수정
-	 //   	 await $.ajax({
-	 //   		 url:'/erp/sales/shipReqDtlModify',
-	 //   		 method:'PUT',
-	 //   		 contentType: "application/json",
-	 //   		 data:JSON.stringify({
-	 //   			 createdRows : checkedRows.createdRows,
-	 //   			 updatedRows : checkedRows.updatedRows,
-	 //   			 deleteRows : checkedRows.deletedRows,
-	 //   		 }),
-	 //   		 success : result => {
-	 //                    Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success')
-	 //                    mainList();
-	 //            },
-	 //            error: function(xhr, status, error) {
-	 //           	 	Swal.fire('실패','수정이 실패하였습니다..','error')
-	 //                   console.log("실패:", xhr.status, error);
-	 //               }
-	 //   	 })
-	 //    }
+
 		function dateformatyymmdd(today) {
 		var today = today;
 		var year = today.getFullYear();
@@ -829,11 +864,11 @@
 	} 
 	function headstatus(status){
 		if(status=='srq01'){
-				return `<span class="require">출하요청</span>`
+				return `<span class="del-action">출하요청</span>`
 		}else if(status=='srq02') {
-			return `<span class="require partial">부분출고</span>`; 
+			return `<span class="middle-action">부분출고</span>`; 
 		}else if(status=='srq03'){
-			return `<span class="require complete">출하완료</span>`
+			return `<span class="end-action">출하완료</span>`
 		}else{
 			return status;
 		} 

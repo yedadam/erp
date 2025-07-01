@@ -12,4 +12,8 @@ public interface ShipreqMapper {
 	public int insertShipreqDtl(ShipReqDtlVO dtl); //디테일 등록 
 	public int updateStatusByordNo(String ordCode); //헤더등록시 상태값이 변경됨 
 	public int updateShiPExpDate(ShipReqVO head);  //납기일자 변경하기 
+	public int updateOrdStatus(String ordCode); //주문상태 바꾸기 
+	public int deleteShipreqDtl(String shipReqCode ); //출하헤더 삭제시출하디테일 삭제하기
+	public int deleteShipreqHead(String shipReqCode);//출하헤더 삭제하기
+	public int deleteShipReqDtlBydtlno(String shipReqDtlCode); // 
 }

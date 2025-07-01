@@ -31,7 +31,6 @@ public class ShipreqServiceImpl implements ShipreqService {
 
 	@Override
 	public int insertShipreqReg(ShipReqFrontVO req) {
-		
 		String shipreqCode=req.getHead().getShipReqCode();
 		String ordCode=req.getHead().getOrdCode(); 
 				
@@ -47,10 +46,29 @@ public class ShipreqServiceImpl implements ShipreqService {
 		}
 		return 0;
 	}
-
 	@Override
 	public int updateShiPExpDate(ShipReqVO head) {
 		shipreqMapper.updateShiPExpDate(head); 
 		return 0;
-	}  
+	}
+
+	@Override
+	public int deleteShipReq(ShipReqFrontVO req) {
+		shipreqMapper.updateOrdStatus(req.getHead().getOrdCode()); 
+		System.out.println("updateOrdStatus완료");
+		shipreqMapper.deleteShipreqDtl(req.getHead().getShipReqCode());
+		System.out.println("deleteShipreqDtl완료");
+		shipreqMapper.deleteShipreqHead(req.getHead().getShipReqCode());
+		return 0;
+	}
+	//dtl번호받아서 삭제하기 
+	@Override
+	public int deleteShipReqDtlBydtlno(ShipReqFrontVO req) {	
+		for(int i=0; i<req.getDtl().size();i++) {
+			shipreqMapper.deleteShipReqDtlBydtlno(req.getDtl().get(i).getShipReqDtlCode()); 
+		}
+		return 0;
+	}
+
+	 
 }
