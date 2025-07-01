@@ -52,398 +52,321 @@ dialog {
 </style>
 </head>
 <body>
-	<h3>전표관리</h3>
+  <h3>전표관리
+    <button id="columnToggleBtn" title="컬럼 설정" style="border:none; background:none; font-size:18px; cursor:pointer;">⚙️</button>
+  </h3>
 
-	<dialog id="columnDialog">
-	<div id="columnOptions"></div>
-	</dialog>
+  <dialog id="columnDialog">
+    <div id="columnOptions"></div>
+  </dialog>
 
-	<div>
-		<button class="open">목록</button>
-	</div>
-	<div>
-		<button class="saveBtn" id="saveBtn">등록</button>
-	</div>
+  <div>
+    <button class="saveBtn" id="saveBtn">등록</button>
+  </div>
 
-	<div class="col-14">
-		<div id="chitGrid" class="mx-5"></div>
-	</div>
+  <div class="col-14">
+    <div id="chitGrid" class="mx-5"></div>
+  </div>
+
 
 
 </body>
 
 <script>
+//리팩토링된 전표관리 Grid 스크립트
+//(핵심 로직 구조화 및 불필요한 중복 제거)
 
-function createChitAutoCompleteEditor({
-	  urlBuilder,
-	  deps = [],
-	  onSelectClear = [],
-	  displayField = 'name',       // 한글로 보여줄 필드명
-	  saveField = 'code',          // 저장될 코드 필드명
-	  displayNameField = null      // 실제 한글명을 저장할 컬럼명 (ex. ANAME, INAME, TNAME)
-	}) {
-	  function CustomEditor(props) {
-	    const el = document.createElement('input');
-	    el.type = 'text';
-	    el.className = 'form-control';
-	    el.value = props.value || '';
+document.addEventListener('DOMContentLoaded', () => {
+/** ------------------------- 자동완성 에디터 ------------------------- */
+function createChitAutoCompleteEditor({ urlBuilder, deps = [], onSelectClear = [], displayField = 'name', saveField = 'code', displayNameField = null }) {
+ function CustomEditor(props) {
+   const el = document.createElement('input');
+   el.type = 'text';
+   el.className = 'form-control';
+   el.value = props.value || '';
 
-	    $(el).autocomplete({
-	      source: function (request, response) {
-	        const depValues = deps.map(dep => props.grid.getValue(props.rowKey, dep));
-	        if (depValues.includes('') || depValues.includes(undefined)) {
-	          return response([]);
-	        }
+   $(el).autocomplete({
+     source(request, response) {
+       const depValues = deps.map(dep => props.grid.getValue(props.rowKey, dep));
+       if (depValues.includes('') || depValues.includes(undefined)) return response([]);
 
-	        const url = urlBuilder({ keyword: request.term, deps: depValues });
+       const url = urlBuilder({ keyword: request.term, deps: depValues });
+       $.getJSON(url, data => {
+         const results = data.map(item => ({
+           label: `${item[saveField]} ${item[displayField]}`,
+           value: item[saveField],
+           realValue: item[saveField],
+           displayName: item[displayField]
+         }));
+         response(results);
+       });
+     },
+     minLength: 0,
+     select(event, ui) {
+       props.grid.setValue(props.rowKey, props.columnInfo.name, ui.item.realValue);
+       if (displayNameField) props.grid.setValue(props.rowKey, displayNameField, ui.item.displayName);
+       onSelectClear.forEach(col => props.grid.setValue(props.rowKey, col, ''));
+     }
+   }).focus(() => $(el).autocomplete("search", ""));
 
-	        $.ajax({
-	          url: url,
-	          method: 'GET',
-	          dataType: 'json',
-	          success: function (data) {
-	            const results = data.map(item => ({
-	              label: `${item[saveField]} ${item[displayField]}`,
-	              value: item[saveField],            // 입력 시 표시되는 값
-	              realValue: item[saveField],        // 저장될 코드
-	              displayName: item[displayField]    // 저장할 한글명
-	            }));
-	            response(results);
-	          },
-	          error: function (xhr, status, err) {
-	            console.error('자동완성 실패:', err);
-	            response([]);
-	          }
-	        });
-	      },
-	      minLength: 0,
-	      select: function (event, ui) {
-	        const codeValue = ui.item.realValue;
-	        const nameValue = ui.item.displayName;
-
-	        props.grid.setValue(props.rowKey, props.columnInfo.name, codeValue);
-
-	        // ✅ 한글 이름이 들어갈 컬럼 지정 시 설정
-	        if (displayNameField) {
-	          props.grid.setValue(props.rowKey, displayNameField, nameValue);
-	        }
-
-	        onSelectClear.forEach(col => props.grid.setValue(props.rowKey, col, ''));
-	      }
-	    }).focus(function () {
-	      $(this).autocomplete("search", "");
-	    });
-
-	    this.el = el;
-	  }
-
-	  CustomEditor.prototype.getElement = function () {
-	    return this.el;
-	  };
-
-	  CustomEditor.prototype.getValue = function () {
-	    return this.el.value;
-	  };
-
-	  return CustomEditor;
-	}
-
-
+   this.el = el;
+ }
+ CustomEditor.prototype.getElement = function () { return this.el; };
+ CustomEditor.prototype.getValue = function () { return this.el.value; };
+ return CustomEditor;
+}
 
 const acctTypeEditor = createChitAutoCompleteEditor({
-	  urlBuilder: ({ keyword }) => `/erp/chit/acctCodeFind?keyword=${keyword}`,
-	  displayField: 'ANAME',
-	  saveField: 'ACCTCODE',
-	  displayNameField: 'ANAME'
-	});
+ urlBuilder: ({ keyword }) => `/erp/chit/acctCodeFind?keyword=${keyword}`,
+ displayField: 'ANAME', saveField: 'ACCTCODE', displayNameField: 'ANAME'
+});
+const indTypeEditor = createChitAutoCompleteEditor({
+ urlBuilder: ({ keyword }) => `/erp/chit/indTypeFindByCode?keyword=${keyword}`,
+ displayField: 'INAME', saveField: 'ITYPE', displayNameField: 'INAME'
+});
 
-	const indTypeEditor = createChitAutoCompleteEditor({
-	  urlBuilder: ({ keyword }) => `/erp/chit/indTypeFindByCode?keyword=${keyword}`,
-	  displayField: 'INAME',
-	  saveField: 'ITYPE',
-	  displayNameField: 'INAME'
-	});
-
-	const typeCodeEditor = createChitAutoCompleteEditor({
-	  urlBuilder: ({ keyword }) => `/erp/chit/chitTypeFindByCode?keyword=${keyword}`,
-	  displayField: 'TNAME',
-	  saveField: 'TTYPE',
-	  displayNameField: 'TNAME'
-	});
-	
-
-
-
-let chitGrid = new tui.Grid({
-	el: document.getElementById('chitGrid'),
-	
-	scrollX : false,
-	scrollY : true,
-	treeColumnOptions: {
-		  name: 'createdDate',   // 아이콘이 표시될 컬럼
-		  useIcon: true
-		},
+/** ------------------------- Grid 구성 ------------------------- */
+const chitGrid = new tui.Grid({
+ el: document.getElementById('chitGrid'),
+ scrollX: false,
+ scrollY: true,
  editingEvent: 'click',
-	columns:[
-		{header: '등록일자',name:'createdDate',align:'center'},
-		{header: '전표명',name:'chitTitle',align:'center'},
-		{header: '거래처',name:'vdrCode',align:'center'},
-		{header: '계정과목',name:'acctCode',align:'center',
-			editor : { type : acctTypeEditor } ,
-			formatter: ({ row }) => row.ANAME || ''
-		},  
-		{ name: 'ANAME', header: '', hidden: true }, // 자동완성에서 보여주는 이름
-		{header: '전표구분',name:'iType',align:'center',
-				editor : { type :  indTypeEditor },
-				formatter: ({ row }) => row.INAME || ''
-		},  
-		{ name: 'INAME', header: '', hidden: true  },// 자동완성에서 보여주는 이름
-		{header: '거래유형',name:'tType',align:'center',
-				editor : { type :  typeCodeEditor },
-				formatter: ({ row }) => row.TNAME || ''
-		},  
-		{ name: 'TNAME', header: '', hidden: true },// 자동완성에서 보여주는 이름
-		{ header: '금액', name: 'iPrice', align: 'center',
-			  editor: {
-	    	  type: 'text',
-    		  options: {
-      	   	  inputType: 'number'
-    		}
-  		}
-		},
-		{header: '총금액',name:'totPrice',align:'right', 
-			formatter: ({value}) => value ? parseInt(value).toLocaleString()+ '원': ''},
-		{header: '세금계산서',name:'taxCode',align:'center',
-				formatter:({ value }) => {
-				    const taxCode = value;
-				    let label = '';
-				    if (taxCode === 'tay02' ) label = "계산서 발행"
-				    if (taxCode === 'tay01' ) label = '발행 완료';
-				    else label = ''; 
-				    return `<span class="grid-action">${label}</span>`;
-				}},
-		{header: '처리상태',name:'status',align:'center', hidden: true},
-		{header: '등록부서',name:'deptCode',align:'center', hidden: true},
-		{header: '처리자',name:'phyEmpId',align:'center', hidden: true},
-		{header: '승인자',name:'apprEmpId',align:'center', hidden: true},
-		{header: '비고',name:'note',align:'center', hidden: true},
-		{ header: '추가/삭제', name: 'origin', align: 'center',
-			  formatter: ({ row }) => 
-		row.origin === 'init' ? '<button class="btn btn-sm btn-primary add-btn">+</button>' 
-				: '<button class="btn btn-sm btn-primary add-btn">+</button><button class="btn btn-sm btn-danger del-btn">-</button>' }
-	],
-})
+ treeColumnOptions: { name: 'createdDate', useIcon: true },
+ columns: [
+   { header: '등록일자', name: 'createdDate', align: 'center' },
+   { header: '전표명', name: 'chitTitle', align: 'center' },
+   { header: '거래처', name: 'vdrCode', align: 'center' },
+   { header: '거래유형', name: 'tType', align: 'center' },
+   {
+     header: '총금액', name: 'totPrice', align: 'right',
+     formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : ''
+   },
+   {
+     header: '세금계산서', name: 'taxCode', align: 'center',
+     formatter: ({ value }) => value === 'tay02' ? '<span class="grid-action">계산서 발행</span>' : value === 'tay01' ? '<span class="grid-action">발행 완료</span>' : ''
+   },
+   {
+     header: '결제상태', name: 'status', align: 'center', width: 100,
+     formatter: ({ value }) => value === 'Y' ? '결제 가능' : ''
+   },
+   { header: '계정과목', name: 'acctCode', align: 'center', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.ANAME || row.aname },
+   { header: '전표구분', name: 'iType', align: 'center', editor: { type: indTypeEditor }, formatter: ({ row }) => row.INAME || row.iname },
+   { header: '금액', name: 'iPrice', align: 'center', editor: { type: 'text', options: { inputType: 'number' } } },
+   { name: 'ANAME', hidden: true },
+   { name: 'INAME', hidden: true },
+   { name: 'status', hidden: true },
+   { name: 'deptCode', hidden: true },
+   { name: 'phyEmpId', hidden: true },
+   { name: 'apprEmpId', hidden: true },
+   { name: 'note', hidden: true },
+   {
+     header: '추가/삭제', name: 'origin', align: 'center',
+     formatter: ({ row }) => row.origin === 'init'
+       ? '<button class="btn btn-sm btn-primary add-btn">분개</button>'
+       : '<button class="btn btn-sm btn-primary add-btn">분개</button><button class="btn btn-sm btn-danger del-btn">삭제</button>'
+   }
+ ]
+});
 
-
-
-// 아작스 통신 시작
-function chitList(){
-	$.ajax({
-		url: "/erp/chit/chitFindAll",
-		method:"GET",
-		success : function(result){
-			chitGrid.resetData(result);
-		}
-	})
-}
-chitList()
-setTimeout(checkBalanceHighlight, 200);
-
-  // 저장
-$('#saveBtn').on('click', function () {
-  const changes = chitGrid.getModifiedRows();
-
-  for (const row of changes.createdRows) {
-    if (!row.acctCode || !row.iType || !row.iPrice) {
-      alert("계정과목, 전표구분, 거래유형, 금액을 모두 입력해야 합니다.");
-      return;
-    }
-  }
-
-  const payload = {
-    createdRows: changes.createdRows,
-    updatedRows: changes.updatedRows,
-    deletedRows: changes.deletedRows
-  };
-
-  $.ajax({
-    url: "/erp/chit/saveAll",
-    method: "POST",
-    contentType: "application/json",
-    data: JSON.stringify(payload),
-    success: function (res) {
-      // 서버가 JSON을 응답했다면 아래처럼 확인 가능
-      if (res.result === "success") {
-        alert(res.message || "등록 완료!");
-        chitList();
-      } else {
-        alert("실패: " + (res.message || "알 수 없는 오류"));
+/** ------------------------- 데이터 처리 ------------------------- */
+function flatToNestedTree(rawList) {
+  const parentMap = {};
+  const treeList = [];
+  
+  rawList.forEach(row => {
+    if (!row.acctCode) {
+      // 부모 행
+      const parent = {
+        ...row,
+        _attributes: { expanded: true },
+        _children: []
+      };
+      parentMap[row.chitCode] = parent;
+      treeList.push(parent);
+    } else {
+      // 자식 행
+      const parent = parentMap[row.chitCode];
+      if (!parent) {
+        console.warn("부모 없음:", row.chitCode, row);
+        return;
       }
-    },
-    error: function (xhr, status, error) {
-      console.error("등록 실패:", error);
-      alert("서버 오류 발생: " + error);
+      parent._children.push({
+        ...row,
+        _attributes: {
+          tree: {
+            parent: treeList.indexOf(parent)
+          }
+        }
+      });
     }
   });
+
+  return treeList;
+}
+
+
+function extractOnlyChildren(list = []) {
+ return list.filter(row => !!row.acctCode);
+}
+ 
+function checkBalanceAndMark() {
+ const data = chitGrid.getData();
+ const parentMap = {};
+ data.forEach(row => {
+   const parentKey = row._attributes?.tree?.parent;
+   if (parentKey !== undefined) {
+     if (!parentMap[parentKey]) parentMap[parentKey] = [];
+     parentMap[parentKey].push(row);
+   }
+ });
+ Object.entries(parentMap).forEach(([parentKey, children]) => {
+   let debit = 0, credit = 0;
+   children.forEach(r => {
+     const amt = Number(r.iPrice) || 0;
+     if (r.iType === 'itp01') debit += amt;
+     if (r.iType === 'itp02') credit += amt;
+   });
+   const isBalanced = debit > 0 && debit === credit;
+   const el = chitGrid.getElement(Number(parentKey), 'totPrice');
+   if (el) el.style.backgroundColor = isBalanced ? '#e6ffe6' : '';
+   chitGrid.setValue(Number(parentKey), 'isBalanced', isBalanced ? 'Y' : 'N');
+ });
+}
+
+/** ------------------------- 이벤트 바인딩 ------------------------- */
+$('#saveBtn').on('click', function () {
+ const { createdRows, updatedRows, deletedRows } = chitGrid.getModifiedRows();
+ const payload = {
+   createdRows: extractOnlyChildren(createdRows),
+   updatedRows: extractOnlyChildren(updatedRows),
+   deletedRows: extractOnlyChildren(deletedRows)
+ };
+ for (const row of payload.createdRows) {
+   if (!row.acctCode || !row.iType || !row.iPrice) return alert("계정과목, 전표구분, 금액을 모두 입력해야 합니다.");
+ }
+ $.ajax({
+   url: "/erp/chit/saveAll",
+   method: "POST",
+   contentType: "application/json",
+   data: JSON.stringify(payload),
+   success(res) {
+     if (res.result === "success") {
+       alert(res.message + ` (${res.createdCount}건)`);
+       chitList();
+     } else alert("실패: " + res.message);
+   },
+   error(xhr, status, error) {
+     alert("서버 오류 발생: " + error);
+   }
+ });
 });
-  //아작스 통신 끝
+
+chitGrid.on('click', (ev) => {
+ const { rowKey, columnName } = ev;
+ if (columnName !== 'origin') return;
+ const target = ev.nativeEvent.target;
+ const parentRow = chitGrid.getRow(rowKey);
+ if (!parentRow || parentRow.acctCode) return alert("전표테이블은 수정할 수 없습니다. 추가하여 분개 해주세요.");
+ const parentKey = parentRow._rowKey ?? rowKey;
+ if (target.classList.contains('add-btn')) {
+	  const newRow = {
+	    chitCode: parentRow.chitCode,
+	    acctCode: '', iType: '', iPrice: '', ANAME: '', INAME: '', origin: true,
+	    _attributes: {
+	      tree: {
+	        parent: parentKey
+	      }
+	    }
+	  };
+
+	  chitGrid.appendRow(newRow, { focus: true });
+
+
+	  // 부모의 _children에 push! (트리 구조 내부 동기화)
+	  if (!parentRow._children) parentRow._children = [];
+	  parentRow._children.push(newRow);
+	}
+ if (target.classList.contains('del-btn')) chitGrid.removeRow(rowKey);
+});
 
 chitGrid.on('afterChange', ev => {
-	const { columnName, value, rowKey } = ev.changes[0];
-	if (columnName === 'acctCode' && value) {
-		const firstDigit = value.toString().charAt(0);
-		if (['1', '5'].includes(firstDigit)) {
-			chitGrid.setValue(rowKey, 'iType', 'itp01');
-			chitGrid.setValue(rowKey, 'INAME', '차변');
-		} else if (['2', '3', '4'].includes(firstDigit)) {
-			chitGrid.setValue(rowKey, 'iType', 'itp02');
-			chitGrid.setValue(rowKey, 'INAME', '대변');
-		} else {
-			chitGrid.setValue(rowKey, 'iType', '');
-			chitGrid.setValue(rowKey, 'INAME', '');
-		}
-	}
-});
-	
-// 행추가 rowKey
-chitGrid.on('click', (ev) => {
-  const { rowKey, columnName } = ev;
-  if (columnName !== 'origin') return;
-
-  const target = ev.nativeEvent.target;
-
-  // 현재 행(부모)의 데이터 가져오기
-  const parentRow = chitGrid.getRow(rowKey);
-  const parentChitCode = parentRow?.chitCode || ''; // 부모 전표코드 (없으면 공백)
-	console.log(parentRow)
-  // 추가 버튼
-  if (target.classList.contains('add-btn')) {
-    chitGrid.appendRow(
-      {
-        chitCode: parentChitCode, // 부모 전표코드 세팅
-        acctCode: '',
-        iType: '',
-        ttype: '',
-        iPrice: '',
-        taxCode: '',
-        totPrice: '',
-        origin: true
-      },
-      {
-        at: chitGrid.getIndexOfRow(rowKey) + 1,
-        focus: true
-      }
-    );
-  }
-
-  // 삭제 버튼
-  if (target.classList.contains('del-btn')) {
-    chitGrid.removeRow(rowKey);
-  }
+ const { columnName, value, rowKey } = ev.changes[0];
+ if (columnName === 'acctCode' && value) {
+   const firstDigit = value.toString()[0];
+   if (['1', '5'].includes(firstDigit)) {
+     chitGrid.setValue(rowKey, 'iType', 'itp01');
+     chitGrid.setValue(rowKey, 'INAME', '차변');
+   } else if (['2', '3', '4'].includes(firstDigit)) {
+     chitGrid.setValue(rowKey, 'iType', 'itp02');
+     chitGrid.setValue(rowKey, 'INAME', '대변');
+   } else {
+     chitGrid.setValue(rowKey, 'iType', '');
+     chitGrid.setValue(rowKey, 'INAME', '');
+   }
+ }
 });
 
-
-function checkBalanceHighlight() {
-	  console.log("금액 체크");
-
-	  const data = chitGrid.getData();  // 현재 그리드의 전체 데이터 가져오기
-
-	  // 1. 자식 행들을 parentRowKey 기준으로 그룹화 (즉, 각 전표별로 모으기)
-	  const grouped = {};
-
-	  data.forEach(row => {
-	    const parentKey = row._attributes?.parentRowKey;  // 상위 전표의 rowKey
-	    if (parentKey !== undefined) {
-	      if (!grouped[parentKey]) grouped[parentKey] = [];  // 초기화
-	      grouped[parentKey].push(row);  // 해당 전표의 자식 항목으로 추가
-	    }
-	  });
-
-	  // 2. 각 그룹(전표)별로 차변/대변 합산 및 총금액 비교
-	  for (const parentKey in grouped) {
-	    const children = grouped[parentKey];
-	    let debit = 0;
-	    let credit = 0;
-
-	    children.forEach(r => {
-	      const amount = Number(r.iPrice) || 0;
-	      if (r.iType === 'itp01') debit += amount;   // 차변 금액 합산
-	      if (r.iType === 'itp02') credit += amount;  // 대변 금액 합산
-	    });
-
-	    // 부모행(전표)의 총금액 가져오기
-	    const total = Number(chitGrid.getRow(Number(parentKey)).totPrice) || 0;
-
-	    // 총금액 셀 DOM 요소 가져오기
-	    const rowEl = chitGrid.getElement(Number(parentKey), 'totPrice');
-
-	    // 3. 배경색 초기화
-	    rowEl.style.backgroundColor = '';
-
-	    // 4. 조건: 차변 또는 대변 합이 총금액과 같으면 → 연한 초록색 배경 표시
-	    if (debit === total || credit === total) {
-	      console.log("조건 확인");
-	      rowEl.style.backgroundColor = '#e6ffe6';  // ✔️ 연한 초록
-	    }
-	  }
-	}
-
-	
-	
 chitGrid.on('editingFinish', ({ columnName }) => {
-	  if (columnName === 'iPrice') {
-		  
-	    console.log("iPrice 입력 확인");
-	    checkBalanceHighlight();  // ← 금액 셀에 입력 시만 실행
-	  }
-	});
+ if (['iPrice', 'iType'].includes(columnName)) checkBalanceAndMark();
+});
+
+function chitList() {
+	  $.get("/erp/chit/chitFindAll", result => {
+	    chitGrid.resetData(flatToNestedTree(result));
+	    checkBalanceAndMark();
+	  });
+	}
+
+// 첫 데이터 로딩
+chitList();
+});
+
 
 // 다이어로그
-const dialog = document.getElementById('columnDialog');
-const openButton = document.querySelector('button.open');
+    const dialog = document.getElementById('columnDialog');
+    const openButton = document.getElementById('columnToggleBtn');
 
-// ① 다이얼로그 열기
-openButton.addEventListener('click', (e) => {  // ← e 추가!
-  // 다이얼로그 안에 체크박스 생성
-  const optionsDiv = document.getElementById('columnOptions');
-  optionsDiv.innerHTML = ''; // 초기화
-  const ignoreColumns = ['ANAME', 'INAME'];
-  chitGrid.getColumns().forEach(col => {
-	  if (ignoreColumns.includes(col.name)) return;
-    const isVisible = chitGrid.getColumn(col.name).hidden !== true;
+    openButton.addEventListener('click', (e) => {
+      const optionsDiv = document.getElementById('columnOptions');
+      optionsDiv.innerHTML = '';
+      const ignoreColumns = ['ANAME', 'INAME', 'TNAME'];
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.value = col.name;
-    checkbox.checked = isVisible;
+      chitGrid.getColumns().forEach(col => {
+        if (ignoreColumns.includes(col.name)) return;
 
-    checkbox.addEventListener('change', (e) => {
-      if (e.target.checked) {
-        chitGrid.showColumn(e.target.value);
-      } else {
-        chitGrid.hideColumn(e.target.value);
-      }
+        const isVisible = chitGrid.getColumn(col.name).hidden !== true;
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = col.name;
+        checkbox.checked = isVisible;
+
+        checkbox.addEventListener('change', (e) => {
+          if (e.target.checked) {
+            chitGrid.showColumn(e.target.value);
+          } else {
+            chitGrid.hideColumn(e.target.value);
+          }
+        });
+
+        const label = document.createElement('label');
+        label.className = 'column-option';
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(' ' + col.header));
+
+        optionsDiv.appendChild(label);
+      });
+
+      e.stopPropagation();
+      dialog.show();
+    });
+ // 다이얼로그 외부 클릭 시 닫기
+    document.addEventListener('click', (event) => {
+      if (!dialog.open) return;
+      if (dialog.contains(event.target)) return;
+      dialog.close();
     });
 
-    const label = document.createElement('label');
-    label.className = 'column-option';
-    label.appendChild(checkbox);
-    label.appendChild(document.createTextNode(' ' + col.header));
-
-    optionsDiv.appendChild(label);
-  });
-
-  e.stopPropagation(); 
-  dialog.show();
-});
-
-
-//3. 다이얼로그 외부 클릭 시 닫기
-document.addEventListener('click', (event) => {
-  if (!dialog.open) return;
-  if (dialog.contains(event.target)) return;
-  dialog.close();
-});
 
 </script>
 </html>
