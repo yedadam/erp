@@ -35,7 +35,7 @@
 	</select>
 	
 	<select id="indTypeFindByCode" resultType="map">
-  SELECT sub_code AS iType, sub_name AS iname
+  SELECT sub_code AS iType, sub_name AS iName
     FROM subcodes
    WHERE main_code = 'itp'
      AND (sub_code LIKE '%' || #{keyword} || '%'
@@ -44,7 +44,7 @@
 	</select>
 	
 	<select id="chitTypeFindByCode" resultType="map">
-  SELECT sub_code AS ttype, sub_name AS tname
+  SELECT sub_code AS tType, sub_name AS tName
     FROM subcodes
    WHERE main_code = 'cht'
      AND (sub_code LIKE '%' || #{keyword} || '%'
@@ -78,7 +78,7 @@
 	  	 SET phy_emp_id = #{empId}
 	  	   , status = '01'
 	  	   , note = #{note}
-	  	   , update = SYSDATE
+	  	   , update_date = SYSDATE
 	  	   , type = #{iType}
 	   WHERE chit_code = #{chitCode}
 	</update>

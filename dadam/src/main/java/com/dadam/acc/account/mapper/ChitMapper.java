@@ -16,4 +16,5 @@ public interface ChitMapper {
 	public void dalete(String chitCode);
 	
 	public String generateChitCode();
+
 }
