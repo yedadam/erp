@@ -37,6 +37,9 @@ public class LoginUserAuthority implements UserDetails {
     public String getUsername() {
         return userVO.getEmpName(); // userVO의 아이디 반환
     }
+    public String getEmpName() {
+        return userVO.getEmpName(); // userVO의 아이디 반환
+    }
     
     
     public String getMainName() {

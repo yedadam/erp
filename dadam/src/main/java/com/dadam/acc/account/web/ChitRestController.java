@@ -42,22 +42,10 @@ public class ChitRestController {
 	}
 	
 	@PostMapping("/saveAll")
-    public Map<String, Object> saveAll(@RequestBody ChitVO vo) {
-        Map<String, Object> result = new HashMap<>();
-
-        try {
-            // 실제 저장 로직 수행
-            System.out.println("VO 확인: " + vo);
-
-            result.put("result", "success");
-            result.put("message", "전표 저장 성공!");
-        } catch (Exception e) {
-            result.put("result", "fail");
-            result.put("message", e.getMessage());
-        }
-
-        return result;
-    }
+	 public void saveAll(@RequestBody ChitVO chit) {
+		System.out.println("👉 INSERT할 데이터: " + chit);
+		chitService.saveAll(chit);
+	}
 
 
 }

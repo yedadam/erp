@@ -50,3 +50,65 @@
 .tui-grid-border-line-bottom {
   border-bottom: none !important;
 }
+
+
+        .tui-pagination{
+        	padding-bottom:10px;
+		}  
+	   .start-action {
+			display: inline-block;
+			padding: 3px 8px;
+			font-size: 12px;
+			border-radius: 12px;
+			border: 1px solid #facc15;        /* 연한 노랑 */
+			background-color: #fefce8;        /* 연노랑 배경 */
+			color: #92400e;                   /* 진한 주황갈색 */
+		}
+		.end-action {
+			display: inline-block;
+			padding: 3px 8px;
+			font-size: 12px;
+			border-radius: 12px;
+			border: 1px solid #22c55e;        /* 연초록 */
+			background-color: #ecfdf5;        /* 아주 연한 민트 */
+			color: #065f46;                   /* 진한 초록 */
+		}
+		.del-action {
+			display: inline-block;
+			padding: 3px 8px;
+			font-size: 12px;
+			border-radius: 12px;
+			border: 1px solid #f87171;        /* 연한 빨강 */
+			background-color: #fef2f2;        /* 아주 연한 빨강 */
+			color: #991b1b;                   /* 진한 빨강 */
+		}
+		
+		.require{
+			color :red;
+		}
+		#autocompleteList {
+		    border: 1px solid #dee2e6;
+		    border-radius: 0 0 0.375rem 0.375rem;
+		    background-color: #fff;
+		}
+		#autocompleteList .list-group-item {
+ 		   cursor: pointer;
+		}
+		#autocompleteList .list-group-item:hover {
+ 		   background-color: #f8f9fa;
+		}
+	     .autocomplete-item:hover {
+		    background-color: #f0f9ff;  
+		    color: #0c4a6e;             
+		}
+		
+		 .autocomplete-item i {
+		    width: 16px;
+		    text-align: center;
+		 }
+		
+		.autocomplete-item.no-result {
+		    color: #6c757d;             
+		    background-color: #f8f9fa;  
+		    cursor: default;
+		 }

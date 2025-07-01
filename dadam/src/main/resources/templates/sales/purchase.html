@@ -5,72 +5,7 @@
 	layout:fragment="Content">
 <head>
     <style>
-        .search-container {
-            margin-bottom: 20px;
-        }
-        .btn-group-custom {
-            margin-bottom: 20px;
-        }
-        .tui-pagination{
-        	padding-bottom:10px;
-		}  
-	   .start-action {
-			display: inline-block;
-			padding: 3px 8px;
-			font-size: 12px;
-			border-radius: 12px;
-			border: 1px solid #facc15;        /* 연한 노랑 */
-			background-color: #fefce8;        /* 연노랑 배경 */
-			color: #92400e;                   /* 진한 주황갈색 */
-		}
-		.end-action {
-			display: inline-block;
-			padding: 3px 8px;
-			font-size: 12px;
-			border-radius: 12px;
-			border: 1px solid #22c55e;        /* 연초록 */
-			background-color: #ecfdf5;        /* 아주 연한 민트 */
-			color: #065f46;                   /* 진한 초록 */
-		}
-		.del-action {
-			display: inline-block;
-			padding: 3px 8px;
-			font-size: 12px;
-			border-radius: 12px;
-			border: 1px solid #f87171;        /* 연한 빨강 */
-			background-color: #fef2f2;        /* 아주 연한 빨강 */
-			color: #991b1b;                   /* 진한 빨강 */
-		}
-		
-		.require{
-			color :red;
-		}
-		#autocompleteList {
-		    border: 1px solid #dee2e6;
-		    border-radius: 0 0 0.375rem 0.375rem;
-		    background-color: #fff;
-		}
-		#autocompleteList .list-group-item {
- 		   cursor: pointer;
-		}
-		#autocompleteList .list-group-item:hover {
- 		   background-color: #f8f9fa;
-		}
-	     .autocomplete-item:hover {
-		    background-color: #f0f9ff;  
-		    color: #0c4a6e;             
-		}
-		
-		 .autocomplete-item i {
-		    width: 16px;
-		    text-align: center;
-		 }
-		
-		.autocomplete-item.no-result {
-		    color: #6c757d;             
-		    background-color: #f8f9fa;  
-		    cursor: default;
-		 }
+    
 </style>
 </head>
 <body class="bg-light">
@@ -81,16 +16,27 @@
         
         <!-- 검색 및 버튼 영역 -->
         <div class="row mb-3">
-            <div class="col-md-6">
-                <div class="input-group search-container" style="width: 400px;">
-                    <input type="text" class="form-control" placeholder="검색어를 입력하세요">
-                    <button class="btn btn-outline-secondary" type="button">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
+            <div class="position-relative col-md-6">
+						    <div class="input-group">
+						        <select class="form-select col-4" id="purSelect" style="max-width: 30%;">
+						            <option value="purOrdCode" selected>발주코드</option>
+						            <option value="empName">담당자</option>
+						            <option value="vdrName">거래처이름</option>
+						        </select>
+						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="purInput" autocomplete="off">
+						        <button class="btn btn-outline-secondary" type="button" id="reqSearchBtn">
+						            <i class="fas fa-search"></i>
+						        </button>
+						    </div>
+						
+						    <!-- 자동완성 리스트 -->
+						    <ul id="purReqList"
+						        class="list-group position-absolute w-100 shadow-sm"
+						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+						    </ul>
+			</div>
             <div class="col-md-6 text-end">
-                <div class="btn-group-custom">
+                <div class="btn-group-custom mb-3">
                 	<button class="btn btn-secondary me-2" id="newBtn">
                         <i class="fas fa-pen"></i> 추가
                     </button>
@@ -118,18 +64,14 @@
 
 				<!-- dotlottie-player로 변경 -->
 				<dotlottie-player
-					src="https://lottie.host/2cc6f5f8-11ca-42dc-aa76-12a046c8f86d/64CNuM1mPm.lottie"
+					src="https://lottie.host/e8b36d4d-46d8-429f-98b8-d8c1c4dde598/p6hfbX0nTd.lottie"
 					background="transparent" speed="1"
-					style="width: 400px; height: 200px; filter: hue-rotate(3.142rad);" loop autoplay>
+					style="width: 200px; height: 100px;" loop autoplay>
 				</dotlottie-player>
 			</div>
 		</div>
 
-
-
-
 		<!-- 상세 정보 테이블 -->
-
              <div class="text-end">
                 <div class="btn-group-custom">
                 	<button class="btn btn-primary me-2" id="rowAddBtn">
@@ -154,16 +96,25 @@
 				</div>
 				<div class="modal-body">
 				<!-- 검색조건 -->
-						<div class="input-group col-md-6 w-50 mb-3">
-							<select class="form-select col-4" id="reqSelect">
-								<option value="purReqCode" selected>발주서 의뢰</option>
-								<option value="note">비고</option>
-							</select>
-							<input type="text" class="form-control col-6" placeholder="검색어를 입력하세요" id="reqInput">
-			                    <button class="btn btn-outline-secondary col-2" type="button" id="reqSearchBtn">
-			                        <i class="fas fa-search"></i>
-			                    </button>
-			              </div>
+						<div class="position-relative mb-3" style="max-width: 500px;">
+						    <div class="input-group">
+						        <select class="form-select col-4" id="reqSelect" style="max-width: 30%;">
+						            <option value="purReqCode" selected>발주의뢰코드</option>
+						            <option value="empId">담당자</option>
+						            <option value="note">비고</option>
+						        </select>
+						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="reqInput" autocomplete="off">
+						        <button class="btn btn-outline-secondary" type="button" id="reqSearchBtn">
+						            <i class="fas fa-search"></i>
+						        </button>
+						    </div>
+						
+						    <!-- 자동완성 리스트 -->
+						    <ul id="autoReqList"
+						        class="list-group position-absolute w-100 shadow-sm"
+						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+						    </ul>
+						</div>
 					<div class="container-fluid">
 						<div id="requestGrid"></div>
 					</div>
@@ -224,22 +175,30 @@
 		aria-labelledby="itemModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
-				<div class="modal-header">
+				<div class="modal-header mb-3">
 					<h1 class="modal-title fs-5" id="itemModalLabel">품목 항목</h1>
 					<button type="button" class="btn-close" data-bs-dismiss="modal"
 						aria-label="Close"></button>
 				</div>
-				<!-- 검색조건 -->
-			                <div class="input-group col-md-6 w-50 mb-3">
-							<select class="form-select col-4" id="vdrSelect">
-								<option value="itemCode" selected>품목코드</option>
-								<option value="itemName">품목명</option>
-							</select>
-							<input type="text" class="form-control col-6" placeholder="검색어를 입력하세요" id="vdrInput">
-			                    <button class="btn btn-outline-secondary col-2" type="button" id="vdrSearchBtn">
-			                        <i class="fas fa-search"></i>
-			                    </button>
-			                </div>	
+				<!-- 검색 조건 -->
+						<div class="position-relative mb-3 ms-3" style="max-width: 500px;">
+						    <div class="input-group">
+						        <select class="form-select col-4" id="itemSelect" style="max-width: 30%;">
+						            <option value="name" selected>품목명</option>
+						            <option value="itemCode">품목코드</option>
+						        </select>
+						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="itemInput" autocomplete="off">
+						        <button class="btn btn-outline-secondary" type="button" id="itemSearchBtn">
+						            <i class="fas fa-search"></i>
+						        </button>
+						    </div>
+						
+						    <!-- 자동완성 리스트 -->
+						    <ul id="autoItemList"
+						        class="list-group position-absolute w-100 shadow-sm"
+						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+						    </ul>
+						</div>
 				<div class="modal-body">
 					<div class="container-fluid">
 						<div id="itemGrid"></div>
@@ -256,19 +215,56 @@
 	<script th:inline="javascript">
 	
 	
-	
-	//자동검색기능
-	$(document).ready(function () {
-		  setupAutocomplete({
+	//자동 거래처 검색기능
+	$('#vdrInput').on('keyup',ev => {
+	 setupAutocomplete({
 		    inputSelector: '#vdrInput',
-		    selectSelector: '#vdrSelect',
+		    selectSelector: $('#vdrSelect  option:selected').val(),
 		    listSelector: '#autocompleteList',
 		    ajaxUrl: '/erp/sales/venderAuto'
 		  });
+
 	});
+
+	})
+	//자동 발주의뢰 검색기능
+	$('#reqInput').on('keyup',ev=> {
+		  setupAutocomplete({
+			    inputSelector: '#reqInput',                              //인풋에 겁색값
+			    selectSelector: $('#reqSelect  option:selected').val(),  //selected 결과값
+			    listSelector: '#autoReqList',                            //자동완성 되는값 
+			    ajaxUrl: '/erp/sales/purRequestList'                     //ajaxurl
+		 });
+	})
+	//자동 발주의뢰 검색기능
+	$('#itemInput').on('keyup',ev => {
+		  setupAutocomplete({
+			    inputSelector: '#itemInput',
+			    selectSelector: $('#itemSelect  option:selected').val(),
+			    listSelector: '#autoItemList',
+			    ajaxUrl: '/erp/standard/itemAll'
+		 });
+	})
+	//자동 발주건 검색기능
+	$('#purInput').on('keyup', ev => {
+		  setupAutocomplete({
+			    inputSelector: '#purInput',
+			    selectSelector: $('#purSelect  option:selected').val(),
+			    listSelector: '#purReqList',
+			    ajaxUrl: '/erp/sales/purMainList'
+		 });
+	})
+
 	
 	//모달창꺼졌을때 검색창 지우기
 	  $('#vdrModal').on('hide.bs.modal',e => {
+		  $('#vdrInput').val('');
+	  })
+	 //모달창꺼졌을때 검색창 지우기
+	  $('#reqModal').on('hide.bs.modal',e => {
+		  $('#vdrInput').val('');
+	  })
+	   $('#itemModal').on('hide.bs.modal',e => {
 		  $('#vdrInput').val('');
 	  })
 	//필수값 별찍기
@@ -515,32 +511,23 @@
 				}
 			})
 		}
-		//발주 의뢰 검색
-		function requestSearchModal(type,value){
-			$.ajax({
-				url : "/erp/sales/purRequestList",
-				method : "GET",
-				data: {
-					type : type,
-					value : value
-				},
-				success : function(result) {
-					requestGrid.resetData(result);
-				}
-			})
-		}
+	
 		//발주 의뢰 클릭 검색
 		$('#reqSearchBtn').on('click', ev=> {
 			 let value = $('#reqInput').val();
 			 let type = $("#reqSelect option:selected").val();
-			 requestSearchModal(type,value);
+			 let url = "/erp/sales/purRequestList";
+			 let grid = requestGrid;
+			 requestSearchModal(type,value,url,grid);
 		})
 		//발주 엔터 검색
 		$('#reqInput').on('keydown',ev => {
 			if(ev.keyCode ==13){
-				let value = $('#reqInput').val();
-				let type = $("#reqSelect option:selected").val();
-				requestSearchModal(type,value);
+				 let value = $('#reqInput').val();
+				 let type = $("#reqSelect option:selected").val();
+				 let url = "/erp/sales/purRequestList";
+				 let grid = requestGrid;
+				 requestSearchModal(type,value,url,grid);
 			}
 		})
 		
@@ -556,37 +543,42 @@
 				}
 			})
 		}
-		//발주의뢰 검색함수
-		function vdrSearchModal(type,value){
-			$.ajax({
-				url:"/erp/sales/vederList",
-				method:"GET",
-				data:{
-					type: type,
-					value:value
-				},
-				success:function(result){
-					vdrGrid.resetData(result);
-				}
-			})
-		}
-		  //검색
+		
+		//검색
 		$('#vdrSearchBtn').on('click', ev=> {
-			//형태
-			let type = $("#vdrSelect option:selected").val();
-			//값
-			let value = $("#vdrInput").val();
-			vdrSearchModal(type,value)				
+			let type = $("#vdrSelect option:selected").val(); //검색 조건을 넣을 인풋창
+			let value = $("#vdrInput").val();                 //검색할 인풋값
+			let url ='/erp/sales/vederList';                  //보낼 url
+			let grid = vdrGrid                                //resetData할 grid
+			commonSearch(type,value,url,grid)			
 		});
 		//인풋 enter
 		$('#vdrInput').on('keydown',ev=>{
 			if(ev.keyCode==13){
-				//형태
 				let type = $("#vdrSelect option:selected").val();
-				//값
 				let value = $("#vdrInput").val();
-				
-				vdrSearchModal(type,value)
+				let url ='/erp/sales/vederList';
+				let grid = vdrGrid
+				commonSearch(type,value,url,grid)
+			}
+		});
+	
+		//품목 그리드 검색
+		$('#itemSearchBtn').on('clcik',ev=> {
+			let type= $('#itemSelect option:selected').val();
+			let value=$('#itemInput').val();
+			let url='/erp/standard/itemAll';
+			grid = itemGrid 
+			commonSearch(type,value,url,grid);
+		})
+		//인풋 enter
+		$('#itemInput').on('keydown',ev=>{
+			if(ev.keyCode==13){
+				let type= $('#itemSelect option:selected').val();
+				let value=$('#itemInput').val();
+				let url='/erp/standard/itemAll';
+				grid = itemGrid 
+				commonSearch(type,value,url,grid);
 			}
 		});
 		//모달 그리드 클릭시 발동
