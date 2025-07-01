@@ -166,6 +166,28 @@
 			</div>
 		</div>
 	</div>
+	<!-- LOT선택을 위한 모달 -->
+	<div class="modal fade" id="lotModal" tabindex="-1"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1>LOT선택</h1>
+				</div>
+				<div class="modal-body">
+					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
+						<button class="btn btn-primary" id="lotBtn" data-bs-dismiss="modal">
+							<i class="fas fa-warehouse"></i> 선택
+						</button>
+					</div>
+					<div id="lotGrid"></div>
+				</div>
+				<div class="modal-footer">
+				 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
 	<script th:inline="javascript">
 // const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
 // const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '김지현'}]];
@@ -203,7 +225,6 @@ function changeView(viewType){
 		holdList();
 	}else if(viewType === '등록'){
 		insertGrid();
-		insertList();
 	}
 }
 
@@ -261,7 +282,7 @@ function selectGrid(){
 function insertGrid(){
 	holdGrid = new tui.Grid({
 	    el: document.getElementById('mainGrid'),
-	    rowHeaders: ['rowNum'],
+	    rowHeaders: ['checkbox'],
 	    //페이지네이션
 	    pageOptions: {
 	        perPage: 10,
@@ -270,7 +291,16 @@ function insertGrid(){
 	    //필드값 구성
 	    columns:[
 	        { header: '품목명',name:'itemName',align:'center'},
-	        { header: '수량',name:'quantity',align:'center'},
+	        { header: 'LOT',name:'lot',align:'center', editor: 'text'
+	        	/* , formatter:function(rowKey){
+	        		if(rowKey.value == ''){
+	        			return `<span class="badge text-bg-secondary">선택하세요</span>`;
+	        		}else{
+	        			return value;
+	        		}
+	        	} */
+	        },
+	        { header: '필요수량',name:'quantity',align:'center'},
 	        { header: '분류',name:'typeName',align:'center'},
 	        { header: '의뢰등록일',name:'createdDate',align:'center'},
 	        { header: '출고예정일',name:'date',align:'center'},
@@ -287,11 +317,15 @@ function insertGrid(){
 	$('#transferModal').on('shown.bs.modal',function(){
 		transfer.refreshLayout();
 	})
+	$('#lotModal').on('shown.bs.modal',function(){
+		stklot.refreshLayout();
+	})
 		/* $('#btnGroup').remove('#insertBtn');
 		$('#deleteBtn').html('<i class="fas fa-trash"></i> 삭제');
 		$('#insertBtn').remove(); */
 		$('#selectBtn').prop('disabled', false);
 		$('#insertBtn').prop('disabled', true);
+		// 출하의뢰 버튼 생성
 		$('#btnGroup').prepend('<button class="btn btn-info me-1" id="shipRequestModalBtn" data-bs-toggle="modal" data-bs-target="#shipRequestModal">출하의뢰</button> <button class="btn btn-info me-1" id="transferModalBtn" data-bs-toggle="modal" data-bs-target="#transferModal">재고이동</button>');
 		// 이벤트 차단
 		$('#saveBtn').off('click');	
@@ -322,13 +356,57 @@ function insertGrid(){
 	    ],
 	});
 	$.ajax({
-		url:"/erp/inventory/shipRequestList",
+		url:"/erp/inventory/holdshipRequestList",
 		method:"GET"
 		,data: {comId}
 	   ,success:function(result) {
 		   shipRequest.resetData(result);
-	   } // ajax호출 끝
-	})
+	   } 
+	}) // ajax호출 끝
+	
+	// LOT
+	stklot = new tui.Grid({
+	    el: document.getElementById('lotGrid'),
+	    rowHeaders: ['checkbox'],
+	    //페이지네이션
+	    pageOptions: {
+	        perPage: 5,
+	        useClient: true,
+	    },
+	    //필드값 구성
+	    columns:[
+	        { header: 'lot',name:'lot',align:'center'},
+	        { header: '제품명',name:'itemName',align:'center'},
+	        { header: '수량',name:'quantity',align:'center'},
+	        { header: '위치',name:'locCode',align:'center'}
+	    ],
+	});
+	/* function lotbutton(){
+		let itemCode='';
+		$('#lotModalBtn').on('click',()=>{
+			console.log('눌러짐');	
+		})
+		return `<button class="btn btn-info" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"  id="lotModalBtn" data-bs-toggle="modal" data-bs-target="#lotModal">선택</button>`;
+	} */
+	holdGrid.on('click', (ev)=>{
+		  let itemCode='';
+		  let { rowKey, columnName } = ev;
+		  if (columnName === 'lot') {
+		    let rowData = holdGrid.getRow(rowKey);
+			itemCode = rowData.itemCode;
+			$.ajax({
+				url:"/erp/inventory/holdlotList",
+				method:"GET"
+				,data: {comId, itemCode}
+			   ,success:function(result) {
+				   stklot.resetData(result);
+		    		console.log(result);
+		    		$('#lotModal').modal('show');
+			   } 
+			}) // ajax호출 끝
+		  }
+		})
+			
 	
 	// 출하의뢰 선택이벤트
 	$('#shipRequestBtn').on('click',()=>{
@@ -382,19 +460,6 @@ function insertGrid(){
 	
 } // 등록버튼 끝
 
-
-// insertGrid에 들어갈 값
-function insertList(){
-/* 	defaultData = [{
-			  holdCode: ''
-			, itemName: ''
-			, quantity: ''
-			, type: ''
-			, chosetype: ''
-			, note: ''
-			}]; */
-	holdGrid.resetData(defaultData);
-}
 // 모달안에 출고 그리드
 /* const outBoundGrid = new tui.Grid({
     el: document.getElementById('gridModal'),

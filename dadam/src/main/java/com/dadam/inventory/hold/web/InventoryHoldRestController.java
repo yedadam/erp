@@ -26,8 +26,15 @@ public class InventoryHoldRestController {
 	}
 	
 	// 발주서 리스트
-	@GetMapping("/shipRequestList")
+	@GetMapping("/holdshipRequestList")
 	public List<OutboundVO> selectShipRequestModal(HoldVO vo) {
 		return holdservice.selectShipRequestModal(vo);
 	}
+	
+	// 로트 리스트
+	@GetMapping("/holdlotList")
+	public List<HoldVO> selectHoldLotList(HoldVO vo){
+		return holdservice.selectHoldLotList(vo);
+	}
+	
 }

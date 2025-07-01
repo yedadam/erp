@@ -14,6 +14,7 @@
 		        getsubCode(status) statusName,
 		        status,
 		        note,
+		        lot,
 		        created_date
 		FROM hold
 		WHERE com_id = #{comId}
@@ -43,7 +44,16 @@
                                         on(sd.item_code = it.item_code AND sd.com_id = it.com_id)
         WHERE sd.com_id = #{comId}
 	</select>
-	<!-- <select id="selectOutBoundList" resultType="outBoundVO">
-	
-	</select> -->
+	<select id="selectHoldLotList" resultType="HoldVO">
+		SELECT
+				st.lot,
+				st.loc_code,
+				st.item_code,
+				it.name item_name,
+				it.price,
+				st.quantity
+		FROM stock st join item it
+                        on(st.item_code = it.item_code AND st.com_id = it.com_id)
+        WHERE st.com_id = #{comId} AND st.item_code = #{itemCode}
+	</select>
 </mapper>
