@@ -8,7 +8,7 @@ import com.dadam.standard.vender.service.VenderVO;
 public interface PurchaseService {
 	
 	//발주메인 리스트 조회
-	public List<PurchaseOrderVO> findPurchaseList(PurchaseOrderVO vo);
+	public List<PurchaseOrderVO> findPurchaseList(String type, String value);
 	//발주상세조회
 	public List<PurchaseOrderDetailVO> findPurListByOrdNo(String param);
 	//발주의뢰 코드보기

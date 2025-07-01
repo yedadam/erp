@@ -6,5 +6,5 @@ import org.springframework.stereotype.Service;
 
 public interface ItemService {
 
-	public List<ItemVO> itemFindAll();
+	public List<ItemVO> itemFindAll(String type,String value);
 }
