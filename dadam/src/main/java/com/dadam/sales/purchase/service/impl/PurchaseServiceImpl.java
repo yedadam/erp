@@ -44,14 +44,10 @@ public class PurchaseServiceImpl implements PurchaseService{
 	PurchaseMapper mapper;
 	//전체조회
 	@Override
-	public List<PurchaseOrderVO> findPurchaseList(PurchaseOrderVO vo) {
+	public List<PurchaseOrderVO> findPurchaseList(String type, String value) {
 		initAuthInfo();
 		//검색하지 않았을때
-		if(vo == null) {
-			vo = new PurchaseOrderVO();
-			vo.setComId(comId);
-		}
-		List<PurchaseOrderVO> result = mapper.findPurchaseList(vo);
+		List<PurchaseOrderVO> result = mapper.findPurchaseList(comId,type,value);
 		return result;
 	}
 	//단건조회

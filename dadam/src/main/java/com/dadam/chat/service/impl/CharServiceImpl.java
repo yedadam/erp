@@ -20,11 +20,11 @@ public class CharServiceImpl implements ChatService{
 	
 	//comName 가져오기
 	String comId = "com-101";
-	public void initAuthInfo() {
+	public void initAuthInfo() {  
 		//로그인 객체값 연결
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		//로그인 객체 가져오기
-		Object principal = auth.getPrincipal();
+		Object principal = auth.getPrincipal(); 
 		
 		if (principal instanceof LoginUserAuthority) {
 			LoginUserAuthority user = (LoginUserAuthority) principal;
@@ -76,8 +76,6 @@ public class CharServiceImpl implements ChatService{
 	//채팅메시지 등록
 	@Override
 	public int insertChatMessage(ChatMessageVO vo) {
-		initAuthInfo();
-		vo.setComId(comId);
 	    int result = mapper.insertChatMessage(vo);
 		return result;
 	}

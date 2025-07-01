@@ -21,6 +21,17 @@
        subCode(status) status
    FROM purchaseOrder
    WHERE com_id = #{comId}
+   <choose>
+            <when test="type.equals('purOrdCode')">
+                AND PUR_ORD_CODE LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('empName')">
+            	 AND getEmpName(EMP_ID) LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('vdrName')">
+            	 AND getVdrName(VDR_CODE) LIKE '%'||#{value}||'%'
+            </when>
+   </choose>
    ORDER BY PUR_ORD_CODE DESC
    
 </select>
@@ -60,6 +71,9 @@
             </when>
             <when test="type.equals('note')">
             	 AND note LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('empName')">
+            	 AND getEmpName(EMP_ID) LIKE '%'||#{value}||'%'
             </when>
    </choose>
  </select>
