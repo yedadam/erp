@@ -17,9 +17,9 @@ public class ChitVO {
     private String apprEmpId;      // 승인자(FK)
     private String status;         // 상태
     private String note;           // 비고
-    @JsonFormat(pattern = "yyyy/MM/dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createdDate;      // 등록일자
-    @JsonFormat(pattern = "yyyy/MM/dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date updateDate;       // 수정일자
     private String taxCode;        // 세금계산서번호
     private String vdrCode;        // 거래처코드
@@ -67,4 +67,6 @@ public class ChitVO {
 		this.iPrice = iPrice;
 	}
     
+	private String empName;
+	private String type;
 }
