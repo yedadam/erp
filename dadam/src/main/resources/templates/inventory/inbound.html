@@ -161,7 +161,7 @@ function warehouseList(){
 			   text:item.name,
 			   value:item.locCode
 		   }));
-		// inboundGrid 그리기
+		// inboundGrid 그리기 실제 입고수량을 체크해야하는데 아직못함.
 			const inboundGrid = new tui.Grid({
 				el: document.getElementById('gridModal'),
 				pageOptions: {
@@ -212,8 +212,6 @@ function warehouseList(){
 			function checkRow(){
 				data= [];
 				  let rowCheck = purcharsegrid.getCheckedRows();
-				  
-				  
 				  rowCheck.filter(item =>{
 					  ee = {
 						  purOrdDtlCode: item.purOrdDtlCode,
@@ -246,8 +244,9 @@ function warehouseList(){
 			
 			// 입고 등록
 			$('#registerBtn').on('click', ()=>{
+				// inboundGrid
 				let scr1data = inboundGrid.getData();
-				for(item in scr1data){
+				for(let item of scr1data){
 					if(item.loc == ""){
 						Swal.fire({
 							  icon: "error",
@@ -267,12 +266,14 @@ function warehouseList(){
 				let param = []
 				let code = '';
 				let items = '';
-				let params = []
+				let params = [];
 				let quantityCheck = 0;
 				let check = 0;
 				let prices = 0;
 				let status = ''; // 부분입고
-				for(item in scr1data){
+				
+				// 헤더부분의 값을 담음 덮어쓰기는 의도한거임.
+				scr1data.forEach((item) =>{
 					if(item.purOrdDtlCode != ""){
 					code = item.purOrdDtlCode
 					items = item.itemCode
@@ -280,8 +281,9 @@ function warehouseList(){
 					quantityCheck = item.quantity
 					check = 0;
 					}
-
+					// qty를 계속더해서 최대값을 구함
 					check += Number(item.qty)
+					// quantityCheck=헤더부분의 수량, check=입력한 수량
 					if(quantityCheck < check){
 						Swal.fire({
 							  icon: "error",
@@ -294,7 +296,7 @@ function warehouseList(){
 					}else{
 							status = 'pct-01'; // 부분 입고	
 					}
-						let params = {
+						params = {
 									  purOrdDtlCode: code,
 									  itemCode: items,
 									  locCode: item.loc,
@@ -307,8 +309,8 @@ function warehouseList(){
 									  status: status
 								}
 						param.push(params);
-							}
-					$.ajax({
+				})
+				 	$.ajax({
 						url:"/erp/inventory/purchaseRegister",
 						method:"POST",
 						dataType:"json",
@@ -323,9 +325,9 @@ function warehouseList(){
 						$('#inboundModal').modal('hide');
 						purcharsegrid.uncheckAll();
 						}
-						})
-				})
-			
+					});
+				});
+	  
 			// 행추가 rowKey값이 고정이 아니라서 문제가 있음.
 			inboundGrid.on('click', (ev)=>{
 				let { rowKey, columnName } = ev;
@@ -354,7 +356,7 @@ function warehouseList(){
 					  at: idx + 1
 					});
 				}
-			});
+			})
 			
 			
 			//행삭제
@@ -388,7 +390,7 @@ function warehouseList(){
 			})
 	   } // ajax호출 끝
 	})
- };
+ }
  
 warehouseList();
 //메인그리드 그리기

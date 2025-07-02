@@ -17,9 +17,10 @@
     	 , v.credit_bal_price
     	 , v.credit_period
     	 , get_credit_status(credit_bal_price) status
-    	 , (SELECT MAX(c.created_date)
+    	 , (SELECT MAX(c.update_date)
          	  FROM chit c
-             WHERE c.vdr_code = v.vdr_code) AS createdDate
+             WHERE c.vdr_code = v.vdr_code
+               AND c.status = 'sta03') AS createdDate
 	  FROM vender v
 	 ORDER BY v.vdr_code
 	</select>
@@ -40,6 +41,7 @@
 	  FROM chit c
 	  JOIN vender v ON c.vdr_code = v.vdr_code
 	 WHERE c.vdr_code = #{vdrCode}
+	   AND c.status = 'sta03'
 	</select>
 
 </mapper>

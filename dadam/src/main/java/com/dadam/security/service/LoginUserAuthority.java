@@ -56,6 +56,9 @@ public class LoginUserAuthority implements UserDetails {
     public String getComId(){
     	return userVO.getComId();
     }
+    public String getDeptCode() {
+    	return userVO.getDeptCode();
+    }
     //계정 만료
     @Override
     public boolean isAccountNonExpired() {

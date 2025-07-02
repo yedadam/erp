@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.standard.item.mapper.ChitStandardMapper">
+ <select id="ChitList">
+  SELECT CHIT_CODE,
+   		 CHIT_TITLE,
+		 DEPT_CODE,
+		 PHY_EMP_ID,
+		 getEmpName(PHY_EMP_ID) emp_name,
+		 APPR_EMP_ID,
+	     STATUS,
+		 NOTE,
+		 type,
+		 CREATED_DATE,
+		 ARTICLE_CODE,
+		 SUPPLY_PRICE,
+		 VAT_PRICE,
+		 TOT_PRICE,
+		 article_code
+   FROM chit
+   WHERE com_id = #{comId}
+  <choose>
+	  <when test="deptCode.equals('de1001')">
+	  </when>
+	  <when test="deptCode != null">
+	     AND dept_code = #{deptCode}
+	  </when>    
+  </choose>
+ </select>
+
+
+<select id="moneyList">
+  SELECT TXN_HIST_CODE,
+         TXN_DATE,
+         TXN_TYPE,
+         PRICE,
+         BANK,
+         ACCT_NO
+  FROM transaction
+  WHERE com_id = #{comId} 
+  AND txn_type ='tt01'
+</select>
+
+<select id="adjList">
+  SELECT adj_code,
+        a.item_code,
+        name,
+        ajd_qty,
+       price * ajd_qty price,
+       note
+  FROM adjust a JOIN item i ON(a.item_code = i.item_code)
+  WHERE i.com_id = #{comId}
+</select>
+<select id="salaryList">
+     SELECT sal_pay_code,
+         base_sal,
+         bonus,
+         extra_allow,
+         tot_price,
+         emp_id,
+         getEmpName(emp_id) emp_name
+  FROM salaryPayment
+  WHERE com_id = #{comId}
+</select>
+</mapper>

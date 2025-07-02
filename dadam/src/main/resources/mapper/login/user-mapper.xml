@@ -17,7 +17,8 @@
             e.com_id,
             pwd,
             emp_name,
-            subs_expiration
+            subs_expiration,
+            e.dept_code
      FROM employees e JOIN erpSubs s1 ON (e.com_id = s1.com_id)
      WHERE emp_id=#{username}
      AND e.com_id=#{comId}

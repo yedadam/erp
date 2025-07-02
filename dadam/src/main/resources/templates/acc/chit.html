@@ -31,8 +31,8 @@
 
 dialog {
 	position: fixed;
-	top: 200px;
-	left: 80%;
+	top: 120px;
+	left: -15%;
 	transform: translateX(-50%);
 	z-index: 9999;
 	border: 1px solid #ccc;
@@ -147,73 +147,73 @@ const chitGrid = new tui.Grid({
  scrollX: false,
  scrollY: true,
  editingEvent: 'click',
- treeColumnOptions: { name: 'createdDate', useIcon: false },
+ treeColumnOptions: { name: 'chitTitle', useIcon: true },
  columns: [
    { header: '등록일자', name: 'createdDate', align: 'center' },
    { header: '전표명', name: 'chitTitle', align: 'center' },
    { header: '거래처', name: 'vdrCode', align: 'center' },
    { header: '거래유형', name: 'tType', align: 'center' },
-   {
-     header: '총금액', name: 'totPrice', align: 'right',
-     formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : ''
-   },
-   {
-     header: '세금계산서', name: 'taxCode', align: 'center',
-     formatter: ({ value }) => value === 'tay02' ? '<span class="grid-action">계산서 발행</span>' : value === 'tay01' ? '<span class="grid-action">발행 완료</span>' : ''
-   },
-   {
-     header: '결제상태', name: 'status', align: 'center', width: 100,
-     formatter: ({ value }) => value === 'Y' ? '결제 가능' : ''
-   },
+   { header: '공급가액', name: 'supplyPrice', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '', hidden: true },
+   { header: '부가세', name: 'vatPrice', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '', hidden: true },
+   { header: '총금액', name: 'totPrice', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : ''},
+   { header: '세금계산서', name: 'taxCode', align: 'center', 
+	   formatter: ({ value }) => value === 'tay02' ? '<span class="grid-action">계산서 발행</span>' 
+			   				   : value === 'tay01' ? '<span class="grid-action">발행 완료</span>' : ''},
+   { header: '결제상태', name: 'status', align: 'center', width: 100,
+     	formatter: ({ value }) => value === '등록' ? '등록' 
+     						    : value === '결제' ? '<button class="btn grid-action pay-btn">결제</button>' : ''},
    { header: '계정과목', name: 'acctCode', align: 'center', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.ANAME || row.aname },
    { header: '전표구분', name: 'iType', align: 'center', editor: { type: indTypeEditor }, formatter: ({ row }) => row.INAME || row.iname },
-   { header: '금액', name: 'iPrice', align: 'center', editor: { type: 'text', options: { inputType: 'number' } } },
+   { header: '금액', name: 'iPrice', align: 'center', editor 	: { type: 'text', options: { inputType: 'number' } } },
    { name: 'ANAME', hidden: true },
    { name: 'INAME', hidden: true },
-   { name: 'status', hidden: true },
-   { name: 'deptCode', hidden: true },
-   { name: 'phyEmpId', hidden: true },
-   { name: 'apprEmpId', hidden: true },
-   { name: 'note', hidden: true },
+   { header: '담당부서', name: 'deptCode', hidden: true },
+   { header: '결제자', name: 'phyEmpId', hidden: true },
+   { header: '승인자', name: 'apprEmpId', hidden: true },
+   { header: '비고', name: 'note', hidden: true },
    {
 	   header: '추가/삭제', name: 'origin', align: 'center',
-	   formatter: ({ row }) =>
-	     row.origin === 'init'
-	       ? '<button class="btn btn-sm btn-primary add-btn">분개</button>'
-	       : '<button class="btn btn-sm btn-danger del-btn">삭제</button>'
+	   formatter: ({ row }) => {
+	     const isChild = row._attributes?.tree?.parent !== undefined;
+	     const isNewRow = row.origin === true;
+	    const isStatus = row._attributes?.tree?.status == '등록' || '결제';
+	     if (isChild || isNewRow) {
+	       return '<button class="btn btn-sm btn-danger del-btn">삭제</button>';
+	     }
+	     return '<button class="btn btn-sm btn-primary add-btn">분개</button>';
+	   }
 	 }
  ]
 });
 
 /** ------------------------- 데이터 처리 ------------------------- */
-/**
+ 
 function convertToGridTree(data) {
+  //map
   const grouped = new Map();
 
   // chit_code로 그룹핑
   data.forEach(row => {
-    const code = row.chitCode || row.chit_code;
-    if (!grouped.has(code)) grouped.set(code, []);
-    grouped.get(code).push(row);
+    const code = row.chitCode;
+    grouped.set(code, row);
   });
 
   const treeList = [];
 
-  grouped.forEach((rows, chitCode) => {
-    // 자식 정보 먼저 제외하고, 부모 후보 추출
-    const parentCandidates = rows.filter(r => !r.acctCode);
-    const childCandidates = rows.filter(r => r.acctCode);
+  grouped.forEach((row, chitCode) => {
 
     // 부모 전표가 없는 경우 예외 처리
-    const first = parentCandidates[0] || childCandidates[0];
+    const first = row;
 
     const parentIndex = treeList.length;
 
     const parent = {
       chitCode: chitCode,
       chitTitle: first?.chitTitle ?? '',
-      createdDate: first?.createdDate ?? '',
+      createdDate: first?.createdDate ?? '', 	
       vdrCode: first?.vdrCode ?? '',
+      supply_price: first?.supplyPrice ?? '',
+      vat_price: first?.vatPrice ?? '',  	  
       totPrice: first?.totPrice ?? '',
       taxCode: first?.taxCode ?? '',
       status: first?.status ?? '',
@@ -223,34 +223,33 @@ function convertToGridTree(data) {
       apprEmpId: first?.apprEmpId ?? '',
       note: first?.note ?? '',
       origin: 'init',
-      _attributes: { expanded: true },
-      _children: [] // ✅ 반드시 있어야 함
+      _attributes: { expanded: false },
+      _children: [] 
     };
-
-    // ✅ 분개가 있을 경우만 push
-    childCandidates.forEach(row => {
-      parent._children.push({
-        chitCode: row.chitCode,
-        acctCode: row.acctCode,
-        iType: row.iType,
-        iPrice: row.iPrice,
-        ANAME: row.ANAME,
-        INAME: row.INAME,
-        note: row.note,
-        origin: true,
-        _attributes: {
-          tree: { parent: parentIndex }
-        }
-      });
-    });
-
-    treeList.push(parent);
+   
+    if(first.parent == null){
+    	
+    	treeList.push(parent);
+    	grouped.set(chitCode, parent);
+    }
+    else {
+    	 grouped.get(first.parent)._children.push({
+             chitCode: row.chitCode,
+             acctCode: row.acctCode,
+             iType: row.iType,
+             iPrice: row.iPrice,
+             ANAME: row.ANAME,
+             INAME: row.INAME,
+             iname: row.iname,
+             aname: row.aname,
+             note: row.note,
+             origin: true,
+           });   
+    }
   });
-
   return treeList;
 }
 
-**/
 
 /**
  * Grid에서 수정/추가된 행들 중 자식(분개) 행만 추출하는 필터 함수
@@ -296,7 +295,41 @@ function checkBalanceAndMark() {
    chitGrid.setValue(Number(parentKey), 'isBalanced', isBalanced ? 'Y' : 'N'); // 그리드 내 상태 필드 값 설정
  });
 }
+// 차/대변의 값에 따라 행 표시.
+function highlightParentsWithChildren() {
+  const data = chitGrid.getData();
 
+  data.forEach((row, idx) => {
+    if (Array.isArray(row._children) && row._children.length > 0) {
+      let debit = 0, credit = 0;
+      let allTyped = true;
+
+      row._children.forEach(child => {
+        const amt = parseFloat((child.iPrice + '').replace(/,/g, '')) || 0; // ✅ 명확하게 숫자로 변환
+        const type = child.iType;
+
+        if (!type || isNaN(amt)) {
+          allTyped = false;
+          return;
+        }
+
+        if (type === 'itp01') debit += amt;
+        if (type === 'itp02') credit += amt;
+      });
+
+      const el = chitGrid.getElement(idx, 'chitTitle');
+      if (el) {
+        if (!allTyped) {
+          el.style.backgroundColor = '';
+        } else if (debit > 0 && debit === credit) {
+          el.style.backgroundColor = '#e0f2fe'; // 연파랑
+        } else {
+          el.style.backgroundColor = '#fee2e2'; // 연빨강
+        }
+      }
+    }
+  });
+}
 
 /** ------------------------- 이벤트 바인딩 ------------------------- */
 $('#saveBtn').on('click', function () {
@@ -328,22 +361,46 @@ $('#saveBtn').on('click', function () {
 });
 
 chitGrid.on('click', (ev) => {
- const { rowKey, columnName } = ev;
- if (columnName !== 'origin') return;
- const target = ev.nativeEvent.target;
- const parentRow = chitGrid.getRow(rowKey);
- if (!parentRow || parentRow.acctCode) return alert("전표테이블은 수정할 수 없습니다. 추가하여 분개 해주세요.");
- const parentKey = parentRow._rowKey ?? rowKey;
- if (target.classList.contains('add-btn')) {
-	  const newRow = {
-	    chitCode: parentRow.chitCode,
-	    acctCode: '', iType: '', iPrice: '', ANAME: '', INAME: '', origin: true
-	  };
 
-	  chitGrid.appendRow(newRow, { parentRowKey: parentKey, focus: true });
-	}
- if (target.classList.contains('del-btn')) chitGrid.removeRow(rowKey);
-});
+	  const { rowKey, columnName } = ev;
+	  if (columnName !== 'origin') return;
+
+	  const target = ev.nativeEvent.target;
+	  const button = target.closest('button');
+	  if (!button) return;
+
+	  // 여기에서 반드시 정의해줘야 함!!
+	  const parentRow = chitGrid.getRow(rowKey);
+	  if (!parentRow) return;
+
+	  const isChild = parentRow._attributes?.tree?.parent !== undefined;
+	  if (isChild) return alert("분개행에는 분개를 추가할 수 없습니다.");
+
+	  if (button.classList.contains('add-btn')) {
+	    const newRow = {
+	      chitCode: parentRow.chitCode,
+	      acctCode: '',  // 계정코드 자동입력
+	      iType: '',	 // 차/대변 자동 입력
+	      iPrice: '', 	 // 금액 자동 입력(총 금액 기준)
+	      ANAME: '',
+	      INAME: '',
+	      origin: true,
+	      _attributes: {}
+	    };
+
+	    chitGrid.appendRow(newRow, {
+	      parentRowKey: rowKey,
+	      position: 'last',
+	      focus: true
+	    });
+	    chitGrid.expand(rowKey);
+	  }
+
+	  if (button.classList.contains('del-btn')) {
+	    chitGrid.removeRow(rowKey);
+	  }
+	});
+
 
 chitGrid.on('afterChange', ev => {
  const { columnName, value, rowKey } = ev.changes[0];
@@ -369,10 +426,11 @@ chitGrid.on('editingFinish', ({ columnName }) => {
 function chitList() {
     $.get("/erp/chit/chitFindAll", result => {
       console.log('서버에서 내려온 원본 데이터:', result);
- //     const gridData = convertToGridTree(result);
- //     console.log('트리 변환 후 데이터:', gridData);
- //     chitGrid.resetData(gridData);
-      chitGrid.resetData(result);
+      const gridData = convertToGridTree(result);
+      console.log('트리 변환 후 데이터:', gridData);
+      chitGrid.resetData(gridData);
+//      chitGrid.resetData(result);
+      highlightParentsWithChildren();
       checkBalanceAndMark();
     });
   }
