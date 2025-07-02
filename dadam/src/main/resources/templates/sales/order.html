@@ -361,14 +361,12 @@
 			{header: '지불방식',	name: 'payMethod',align: 'center',
 				formatter: 'listItemText',	
 				editor: {type: 'select',
-						 options: {listItems: payMethod}
+						 		 options: {listItems: payMethod}
 						}//Map형태로 담아옴 [{"text":"","value":""}]
 			},
 			{header: '진행상태',	name: 'status',align: 'center',
 				formatter: 'listItemText',
-				editor: {type: 'select',
-						options: {listItems: ordStatus}
-				}
+				editor: {type: 'select',options: {listItems: ordStatus}}
 			}, 
 			{header: '할인율',name: 'discount',align: 'center',
 				formatter: function (discount) {
@@ -931,17 +929,7 @@
 		const info = orderGrid.getRow(newNo);
 		return info;
 	}
-	// function formatPrice(value){
-	// 	if(value.value==null){
-	// 		return  value.value=' ';
-	// 	}else if(value>0){
-	// 		return 	value.value=value.value+'원'
-	// 	}
-	// 	console.log('value',value.value);
-	// }	
-
-
-	const topOptions = {
+		const topOptions = {
 			  includeHiddenColumns: true,
 			  onlySelected: false,
 			  fileName: '주문 정보 조회',
