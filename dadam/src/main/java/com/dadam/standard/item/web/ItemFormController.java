@@ -11,10 +11,7 @@ import com.dadam.sales.order.service.OrderService;
 
 import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
-@RequestMapping("/erp")
-
 @RequestMapping("/erp/standard")
-
 @Controller
 public class ItemFormController {
 	
