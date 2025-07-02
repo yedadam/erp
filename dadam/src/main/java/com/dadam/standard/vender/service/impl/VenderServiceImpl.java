@@ -15,6 +15,7 @@ import com.dadam.standard.vender.service.VenderVO;
 public class VenderServiceImpl implements VenderService {
 	//comName 가져오기
     String comId = "com-101";
+    String empId="e1014";
     public void initAuthInfo() {
         //로그인 객체값 연결
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -24,6 +25,8 @@ public class VenderServiceImpl implements VenderService {
         if (principal instanceof LoginUserAuthority) {
         	LoginUserAuthority user = (LoginUserAuthority) principal;
             comId = user.getComId();
+        
+            user.getUserId(); 
             System.out.println("회사명: " + comId);
         }
     }

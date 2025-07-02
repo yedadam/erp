@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layouts/default_layout}" layout:fragment="Content">
+
+<head>
+  <style>
+    .main-table {
+      border: 2px solid #0d6efd;
+    }
+
+    .main-table th {
+      background-color: #e3f2fd;
+      text-align: center;
+      vertical-align: middle;
+      font-weight: bold;
+      border: 1px solid #ddd;
+    }
+
+    .main-table td {
+      text-align: center;
+      vertical-align: middle;
+      border: 1px solid #ddd;
+    }
+
+    .detail-table {
+      margin-top: 20px;
+    }
+
+    .detail-table th {
+      background-color: #f8f9fa;
+      text-align: center;
+      font-size: 14px;
+      padding: 8px;
+    }
+
+    .detail-table td {
+      text-align: center;
+      font-size: 14px;
+      padding: 8px;
+    }
+
+    .search-container {
+      margin-bottom: 20px;
+    }
+
+    .btn-group-custom {
+      margin-bottom: 20px;
+    }
+
+    .tui-pagination {
+      padding-bottom: 10px;
+    }
+
+    .start-action {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 12px;
+      border-radius: 12px;
+      border: 1px solid #facc15;
+      /* 연한 노랑 */
+      background-color: #fefce8;
+      /* 연노랑 배경 */
+      color: #92400e;
+      /* 진한 주황갈색 */
+    }
+
+    .end-action {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 12px;
+      border-radius: 12px;
+      border: 1px solid #22c55e;
+      /* 연초록 */
+      background-color: #ecfdf5;
+      /* 아주 연한 민트 */
+      color: #065f46;
+      /* 진한 초록 */
+    }
+
+    .del-action {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 12px;
+      border-radius: 12px;
+      border: 1px solid #f87171;
+      /* 연한 빨강 */
+      background-color: #fef2f2;
+      /* 아주 연한 빨강 */
+      color: #991b1b;
+      /* 진한 빨강 */
+    }
+
+    .middle-action {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 12px;
+      border-radius: 12px;
+      border: 1px solid #f87171;
+      /* 연한 빨강 */
+      background-color: darksalmon;
+      /* 아주 연한 빨강 */
+      color: #991b1b;
+      /* 진한 빨강 */
+    }
+
+
+    .require {
+      color: red;
+      font-weight: bold;
+    }
+
+    .require.complete {
+      color: #198754;
+      /* Bootstrap success green */
+      font-weight: bold;
+    }
+
+    .require.partial {
+      color: #fd7e14;
+      /* 주황색 */
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body class="bg-light">
+  <div class="container-fluid mt-4">
+    <h3 class="mb-4">거래처관리</h3>
+
+    <!-- 검색 및 버튼 영역 -->
+    <div class="row mb-3">
+      <!-- 검색 조건 -->
+     	<div class="position-relative mb-3" style="max-width: 500px;">
+						    <div class="input-group">
+						        <select class="form-select col-4" id="vdrSelect" style="max-width: 30%;">
+						            <option value="vdrCode" selected>거래처코드</option>
+						            <option value="vdrName">거래처명</option>
+						        </select>
+						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="vdrInput" autocomplete="off">
+						        <button class="btn btn-outline-secondary" type="button" id="vdrSearchBtn">
+						            <i class="fas fa-search"></i>
+						        </button>
+						    </div>
+						
+						    <!-- 자동완성 리스트 -->
+						    <ul id="autoVdrList"
+						        class="list-group position-absolute w-100 shadow-sm"
+						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+						    </ul>
+						</div>
+      <!--검색창 끝-->
+      <div class="col-md-6 text-end">
+        <div class="btn-group-custom">
+          <button class="btn btn-secondary me-2" id="newBtn">
+            <i class="fas fa-pen"></i> 추가
+          </button>
+          <button class="btn btn-warning me-2" id="searchBtn">
+            <i class="fas fa-eye"></i> 조회
+          </button>
+          <button class="btn btn-danger me-2" id="delBtn">
+            <i class="fas fa-trash"></i> 삭제
+          </button>
+          <button class="btn btn-primary" id="saveBtn">
+            <i class="fas fa-save"></i> 저장
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- 메인 테이블 -->
+
+    <!-- 그리드 -->
+    <div id="mainGrid"></div>
+
+
+    <!-- 상세 정보 테이블 -->
+
+    <div class="text-end">
+      <div class="btn-group-custom">
+        <button class="btn btn-primary me-2" id="rowAddBtn">
+          행추가
+        </button>
+        <button class="btn btn-danger me-2" id="rowDelBtn">
+          행삭제
+        </button>
+      </div>
+    </div>
+    <div id="detailGrid"></div>
+  </div>
+
+
+  <!-- 거래처 모달-->
+
+  <!--창고모달-->
+
+  <script th:inline="javascript">
+    var type = /*[[${type}]]*/ []; 
+
+    let maxShipReqNO;
+    	
+  $('#vdrInput').on('keyup',ev => {
+		 setupAutocomplete({
+			    inputSelector: '#vdrInput',                              //인풋에 겁색값
+			    selectSelector: $('#vdrSelect  option:selected').val(),  //selected 결과값
+			    listSelector: '#autoVdrList',                            //자동완성 되는값 
+			    ajaxUrl: '/erp/standard/venderAll'                     //ajaxurl
+		 });
+	});
+	$('#vdrInput').on('keyup',ev => {
+      if(ev.keyCode ==13){
+        let type = $("#vdrSelect option:selected").val();
+        let value = $("#vdrInput").val();
+        let url ='/erp/standard/venderAll';
+        let grid = vdrGrid
+        commonSearch(type,value,url,grid);
+      }
+	})
+    //필수값 가져오기
+    function getName(name) {
+      const header = document.createElement('span');
+      header.innerHTML = `<span class="require">* </span>${name}`
+      return header;
+    }
+    // 메인그리드
+    let mainGrid = new tui.Grid({
+      // toastui 아이디 가져오기
+      el: document.getElementById('mainGrid'),
+      scrollX: false,
+      scrollY: false,
+      // checkbox 부여
+      rowHeaders: ['checkbox'],
+      // 페이지네이션
+      pageOptions: {
+        perPage: 10,
+        useClient: true,
+      },
+      // 필드값 구성
+      columns: [
+        {header: '거래처코드',name: 'vdrCode',align: 'center',editor: 'text',customHeader: getName('거래처코드')},
+        {header: '거래처명',name: 'vdrName',align: 'center',editor: 'text',customHeader: getName('거래처명')},
+        {header: '구분',name: 'type',align: 'center',formatter: 'listItemText',editor: {type: 'select',options: {listItems: type}}, customHeader: getName('구분')},
+        {header: '대표자명',name: 'ceoName',editor: 'text',align: 'center'},
+        {header: '연락처',name: 'tel',align: 'center',editor: 'text'},
+        {header: '할인율',name: 'discount',align: 'center',formatter(discount) {
+            if(discount.value==null){
+              return '0 %';
+            }else{
+              return discount.value + '%'} 
+            },editor: 'text'
+        },
+        {header: '담당자',name: 'empId',align: 'center'},
+        {header: '회사ID',name: 'comId',align: 'center'},
+        {header: '주소',name: 'addr',align: 'left',editor: 'text',width: 300},
+        {header: '사업자등록번호',name: 'bizNo',align: 'center',editor: 'text', width: 120},
+        {header: '이메일',name: 'email',align: 'center',editor: 'text'},
+        {header: '은행',name: 'bank',align: 'center',editor: 'text'},
+        {header: '계좌번호',name: 'acctNo',align: 'center',editor: 'text'},
+        {header: '여신기간',name: 'creditPeriod',align: 'center',editor: 'text'},
+        {header: '여신금액',name: 'creditPrice',align: 'right',editor: 'text',
+            formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+         {header: '여신잔량', name: 'creditBalPrice',align: 'right',editor: 'text',
+             formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'}
+      ],
+    });
+    // 상세그리드
+    const detailGrid = new tui.Grid({
+      // toastui 아이디 가져오기
+      el: document.getElementById('detailGrid'),
+      scrollX: false,
+      scrollY: false,
+      // checkbox 부여
+      rowHeaders: ['checkbox'],
+      // 필드값 구성
+      columns: [{header: '주소',name: 'addr',align: 'center',editor: 'text',width: 300},
+                {header: '상세주소',name: 'addrDetail',align: 'center',editor: 'text',width: 300},
+                {header: '사업자등록번호',name: 'bizNo',align: 'center',editor: 'text', width: 120},
+                {header: '이메일',name: 'email',align: 'center',editor: 'text'},
+                {header: '은행',name: 'bank',align: 'center',editor: 'text'},
+                {header: '계좌번호',name: 'acctNo',align: 'center',editor: 'text'},
+                {header: '여신기간',name: 'creditPeriod',align: 'center',editor: 'text'},
+                {header: '여신금액',name: 'creditPrice',align: 'right',editor: 'text',
+                  formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+                {header: '여신잔량', name: 'creditBalPrice',align: 'right',editor: 'text',
+                  formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+      ]
+    });
+    //그리드 숨기기
+    mainGrid.hideColumn('comId');
+
+    mainGrid.hideColumn('addr');
+    mainGrid.hideColumn('bizNo');
+    mainGrid.hideColumn('email');
+    mainGrid.hideColumn('bank');
+    mainGrid.hideColumn('acctNo');
+    mainGrid.hideColumn('creditPeriod');
+    mainGrid.hideColumn('creditPrice');
+    mainGrid.hideColumn('creditBalPrice');
+    // 메인 리스트 불러오기
+    function mainList() {
+      pageStatus = 'search'
+      let searchBtn = $('#searchBtn');
+      let newBtn = $('#newBtn');
+      //조회버튼 비활성화
+      searchBtn.prop('disabled', true);
+      //추가버튼 활성화
+      newBtn.prop('disabled', false);
+      $.ajax({
+        url: "/erp/standard/venderAll",
+        method: "GET",
+        success: function (result) {
+          console.log(result)
+          mainGrid.resetData(result);
+      
+          //디테일 그리드 초기화
+          detailGrid.resetData([]);
+        },
+        error: function (xhr, status, error) {
+          console.log("실패:", xhr.status, error);
+        }
+      });
+    }
+    //금액 포맷 함수('#,###')
+    function priceFormat(price) {
+      if (price == null) {
+        return '0';
+      }
+      let result = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+      return result;
+    }
+
+    // 페이지 로드 시 메인 리스트 호출
+    let pageStatus = "search";
+    mainList();
+    // 신규버튼 이벤트 처리
+    $('#newBtn').on('click', function (ev) {
+      pageStatus = "add"
+      let searchBtn = $('#searchBtn');
+      let newBtn = $('#newBtn');
+      //조회버튼 활성화
+      searchBtn.prop('disabled', false);
+      //추가버튼 비활성화
+      newBtn.prop('disabled', true);
+      let data = mainGrid.getData();
+      //그리드 초기화ㅣ
+      mainGrid.resetData([{
+        empId: empId,
+        empName: empName
+      }])
+      console.log('키번호', mainGrid.getData()[0].rowKey);
+  
+      detailGrid.resetData([{}]);
+      detailGrid.appendRow([{}]); 
+    });
+    //메인그리드 클릭 RowKey
+    let mainRowKey = null;
+    //메인그리드 클릭창
+    mainGrid.on('click', ev => {
+
+      const checkedRows = mainGrid.getCheckedRowKeys();
+      if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
+        mainGrid.uncheckAll(); // 전체 해제
+        mainGrid.check(ev.rowKey); // 현재 행만 체크
+      } 
+
+      // console.log('shipReqCode',mainGrid.getCheckedRows()[0].shipReqCode);
+      console.log('ev.targetType:', ev.targetType);
+      console.log('ev.columnName:', ev.columnName);
+      console.log('ev.rowKey:', ev.rowKey);
+    
+      if (!ev.targetType || ev.targetType !== 'cell') {
+        // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+        return;
+      }
+      if (ev.targetType == 'cell' && ev.columnName == 'shipReqCode' && ev.rowKey == 0) {
+        requestModal(); //모달이열림
+      }
+      mainRowKey = ev.rowKey;
+
+     
+    })
+   
+    detailGrid.on('afterChange',ev=>{
+      
+     
+                console.log('front 객체',front);
+
+    })
+
+
+    //모달 그리드 클릭시 발동
+    
+    //상세그리드 행추가
+    $('#rowAddBtn').on('click', ev => {
+      let mainRowIndex = mainGrid.getCheckedRowKeys()[0];
+      console.log(mainRowIndex)
+      if (pageStatus == 'search' && mainRowIndex == undefined) {
+        Swal.fire('에러', '메인그리드에 해당행을 클릭하세요', 'error')
+        return;
+      }
+      if (pageStatus == 'search') {
+        detailGrid.appendRow({
+          purOrdCode: mainGrid.getRow(mainRowIndex).purOrdCode
+        });
+      } else if (pageStatus == 'add') {
+        detailGrid.appendRow({});
+      }
+    })
+    //상세그리드 행삭제
+    $('#delBtn').on('click', ev => {
+      const head = mainGrid.getCheckedRows()[0]; //{}
+      const detail = detailGrid.getData(); //[{},{},{}]
+      if (head.status == 'srq03') {
+        Swal.fire('실패', '이미 출하완료된 건입니다', 'error');
+        return;
+      }
+      let dataToSend = {
+        head: head, //{}   
+        dtl: detail //[{},{}]
+      };
+      $.ajax({
+        url: '/erp/sales/shipReqDel',
+        type: 'DELETE',
+        contentType: 'application/json',
+        data: JSON.stringify(dataToSend),
+        success: function (res) {
+          console.log('전송 성공', res);
+          Swal.fire({
+            title: "출하삭제되었습니다",
+            icon: "success",
+            draggable: true
+          });
+          mainList();
+        },
+        error: function (xhr, status, error) {
+          console.log("실패:", xhr.status, error);
+        }
+      })
+    })
+    //라디오버튼처럼 작동
+    mainGrid.on('click', ev => {
+      const checkedRows = mainGrid.getCheckedRowKeys();
+      if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
+        mainGrid.uncheckAll();
+        mainGrid.check(ev.rowKey); // 여기서 check 이벤트는 따로 안 뜸 (정상)
+      }
+      console.log('선택된 row:', ev.rowKey);
+    });
+
+    //디테일 클릭 인덱스
+    let detailRowKey = null;
+    //디테일그리드 클릭시 발동
+    detailGrid.on('click', ev => {
+      detailRowKey = ev.rowKey;
+      //아이템리스트 가져오기 
+      console.log(detailGrid.getCheckedRows());
+    })
+   
+    //등록함수
+    function venderAdd() {
+      let mainGridInfo = mainGrid.getData(); //[{},{},{}]
+      let detailGridInfo = detailGrid.getData(); //[{}]
+      //메인 그리드 해당 값이 기입했는지 체크
+      let mainResult = mainGridInfo.every(item => {
+        return item.vdrName &&
+                item.vdrCode &&
+                item.type&&
+                item.discount;
+      })
+      //디테일 값 있는지 체크
+      let detailResult = detailGridInfo.some(item => {
+        return !item.bank || !item.acctNo  ||
+          !item.creditPeriod  || !item.creditPrice;
+      })
+      console.log(detailResult)
+      //값 체크
+      if (!mainResult) {
+        Swal.fire('실패', '메인 그리드에 입력란들을 기입하세요', 'error');
+        return;
+      } else if (detailResult) {
+        Swal.fire('실패', '상세 그리드에 입력란들을 기입하세요', 'error');
+        return;
+      }
+
+      //등록데이터 정리
+      let mainData = mainGrid.getModifiedRows(); // [{},{},{}]
+      let detailData = detailGrid.getData(); //[{},{},{}]
+      console.log('mainData',mainData);
+      let dataToSend = front; 
+      console.log('front verder add로 넘어옴!!!',front)
+     
+      //등록ajax
+      $.ajax({
+      	url: '/erp/standard/vender/register',
+      	type: 'POST',
+      	contentType: 'application/json',
+      	data: JSON.stringify(front),
+      	success: function(res) {
+      		console.log('전송 성공', res);
+      					Swal.fire({
+      			title: "서버넘기기 성공",
+      			icon: "success",
+      			draggable: true
+      		});
+      		mainList();
+      	},
+      	  error: function(xhr, status, error) {
+                    console.log("실패:", xhr.status, error);
+              }
+      })
+    }
+    //버튼클릭시 발동
+    let front;
+    $('#saveBtn').on('click', ev => {
+
+        front = {   vdrCode:mainGrid.getData()[0].vdrCode, //거래처코드
+                    vdrName:mainGrid.getData()[0].vdrName, //거래처이름
+                    type:mainGrid.getData()[0].type,       //구분  
+                    ceoName:mainGrid.getData()[0].ceoName, //대표자명 
+                    tel:mainGrid.getData()[0].tel,         //연락처 
+                    discount:Number(mainGrid.getData()[0].discount), //할인율
+                    empId:mainGrid.getData()[0].empId,      //담당자
+                    comId:mainGrid.getData()[0].comId,     //회사ID
+
+                    addr: detailGrid.getData()[0].addr,   //주소 
+                    bizNo: detailGrid.getData()[0].bizNo, //사업자번호 
+                    bank: detailGrid.getData()[0].bank,   //은행
+                    email: detailGrid.getData()[0].email, //이메일 
+                    acctNo:detailGrid.getData()[0].acctNo, //계좌번호  
+                    creditPeriod:Number(detailGrid.getData()[0].creditPeriod),//여신기간
+                    creditPrice:Number(detailGrid.getData()[0].creditPrice), //여신금액 
+                    creditBalPrice:Number(detailGrid.getData()[0].creditBalPrice)  //여신잔량 
+                  };
+
+       console.log('front=>',front);            
+
+
+      //추가버튼 클릭시
+      if (pageStatus == 'add') {
+        //등록함수발동
+        venderAdd();
+      }
+      //조회버튼클릭시
+      if (pageStatus == 'search') {
+        venderModify();
+      }
+    })
+    //조회버튼
+    $('#searchBtn').on('click', ev => {
+      mainList();
+    })
+    //상세조회
+    mainGrid.on('check', ev => {
+
+
+console.log('detailGrid.getData()',detailGrid.getData()); 
+
+       if(detailGrid.getData().length==0){
+        console.log('행이없음');
+         detailGrid.resetData([]); 
+            // detailGrid.appendRow({addr:mainGrid.getData()[ev.rowKey].addr,
+            //                       bizNo:mainGrid.getData()[ev.rowKey].bizNo,
+            //                       email:mainGrid.getData()[ev.rowKey].email,
+            //                       bank:mainGrid.getData()[ev.rowKey].bank,
+            //                       acctNo:mainGrid.getData()[ev.rowKey].acctNo,
+            //                       creditPeriod:mainGrid.getData()[ev.rowKey].creditPeriod,
+            //                       creditPrice:mainGrid.getData()[ev.rowKey].creditPrice,
+            //                       creditBalPrice:mainGrid.getData()[ev.rowKey].creditBalPrice
+            //                    }); 
+       }else if(detailGrid.getData()!=null){ //행이 이미 있는경우 
+        console.log('행이 이미있음',detailGrid.getData()[0].rowKey);
+        detailGrid.resetData([]); 
+       }  
+
+      if (!ev.rowKey) {
+        return;
+      }
+      if (pageStatus == 'search') {
+        //체크된행 파악
+        let mainRowIndex = mainGrid.getCheckedRowKeys()[0];
+        detailGrid.appendRow({addr:mainGrid.getData()[ev.rowKey].addr,
+                              bizNo:mainGrid.getData()[ev.rowKey].bizNo,
+                              email:mainGrid.getData()[ev.rowKey].email,
+                              bank:mainGrid.getData()[ev.rowKey].bank,
+                              acctNo:mainGrid.getData()[ev.rowKey].acctNo,
+                              creditPeriod:mainGrid.getData()[ev.rowKey].creditPeriod,
+                              creditPrice:mainGrid.getData()[ev.rowKey].creditPrice,
+                              creditBalPrice:mainGrid.getData()[ev.rowKey].creditBalPrice
+                               }); }
+      }
+    )
+    //수정 함수
+     async function venderModify(){
+    	 let checkedRows = detailGrid.getModifiedRows();
+    	 let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
+       let mainRowData = mainGrid.getRow(mainRowIndex);
+
+    	 if( mainGrid.getCheckedRowKeys().length<1){
+    		 Swal.fire('실패','메인그리드에 해당하는 값을 체크해주세요','error');
+    		 return;
+    	 }	
+    
+    //메인그리드 해당란 다있는지 체크
+        if(mainRowData.vdrCode==null){
+          Swal.fire('dddd','해당하는값을 입력해ㅇㅇㅇㅇ주세요','error');
+          return; 
+        }
+    	 //메인창
+    	 console.log('수정함수 작동중',mainRowData)
+    	  // await $.ajax({
+    		//  url:'/erp/sales/shipReqMainModify',
+    		//  method:'PUT',
+    		//  contentType: "application/json",
+    		//  data:JSON.stringify(mainRowData),
+    		//  success :  Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success'),
+
+        //     error: function(xhr, status, error) {
+    		// 	console.log("실패:", xhr.status, error);
+        // 		}
+    	  //  }) 
+    }
+    //날자 포맷 함수       
+    function dateformatyymmdd(today) {
+      var today = today;
+      var year = today.getFullYear();
+      var month = ('0' + (today.getMonth() + 1)).slice(-2);
+      var day = ('0' + today.getDate()).slice(-2);
+      var dateString = year + '-' + month + '-' + day;
+      return dateString;
+    }
+  </script>
+</body>
+</html>

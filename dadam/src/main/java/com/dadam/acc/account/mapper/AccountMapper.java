@@ -18,9 +18,7 @@ public interface AccountMapper {
 	public String findSubclassCodeByName(String subclassName);
 	
 	public List<String> selectAcctTypes();
-
 	public List<String> selectAcctClasses(@Param("acctType") String typeCode );
-
 	public List<String> selectAcctSubClasses(@Param("acctClass") String classCode);
 	
 	public void update(AccountVO acct);

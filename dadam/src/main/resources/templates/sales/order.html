@@ -51,6 +51,8 @@
 		.tui-pagination {
 			padding-bottom: 10px;
 		}
+		
+
 	</style>
 </head>
 <body class="bg-light">
@@ -58,46 +60,59 @@
 		<div class="d-flex justify-content-between align-items-center mb-3">
 			<h2 class="fw-bold"> 주문관리</h2>
 		</div>
+		<!--수정하기 -->
 		<!-- 상단 버튼 정렬 -->
-		<div class="row mb-3">
-			<!--검색 및 버튼 영역-->
-					 <div class="col-md-6">
-              <div class="position-relative mb-3" style="max-width: 500px;">
-						    <div class="input-group">
-						        <select class="form-select col-4" id="orderSelect" style="max-width: 30%;">
-						            <option value="ordCode" selected>주문코드</option>
-						            <option value="vdrName">거래처명</option>
-									<option value="vdrCode">거래처코드</option>
-						        </select>
-						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="orderInput" autocomplete="off">
-						        <button class="btn btn-outline-secondary" type="button" id="orderSearchBtn">
-						            <i class="fas fa-search"></i>
-						        </button>
-						    </div>
-						    <!-- 자동완성 리스트 -->
-						    <ul id="autoOrderList"
-						        class="list-group position-absolute w-100 shadow-sm"
-						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
-						    </ul>
-						</div>
-            </div>
-			<div class="d-flex justify-content-end gap-2 flex-wrap mb-3">
-				<div class="col-md-6 text-end">
-						    <div class="btn-group-custom">
-										<button id="excel" class="btn btn-success me-2">
-																<i class="fas fa-pen"></i>엑셀다운</button>
-										<button id="addRow" class="btn btn-secondary me-2">
-																<i class="fas fa-eye"></i>행추가</button>
-										<button id="ordupd" class="btn btn-warning">
-													<i class="fas fa-save"></i>주문수정</button>
-										<button id="ordreg2" class="btn btn-primary">
-													<i class="fas fa-pen"></i> 주문등록</button>
-										<button id="deleteRow" class="btn btn-danger me-2">
-													<i class="fas fa-trash"></i>행삭제</button>
-					</div>
+			<div class="row align-items-center mb-3">
+			<!-- 🔍 검색창 영역 -->
+			<div class="col-md-6">
+				<div class="position-relative" style="max-width: 500px;">
+				<div class="input-group">
+					<select class="form-select" id="orderSelect" style="max-width: 30%;">
+					<option value="ordCode" selected>주문코드</option>
+					<option value="vdrName">거래처명</option>
+					<option value="vdrCode">거래처코드</option>
+					</select>
+					<input type="text" class="form-control" placeholder="검색어를 입력하세요" id="orderInput" autocomplete="off">
+					<button class="btn btn-outline-secondary" type="button" id="orderSearchBtn">
+					<i class="fas fa-search"></i>
+					</button>
+				</div>
+
+				<!-- 자동완성 리스트 -->
+				<ul id="autoOrderList"
+					class="list-group position-absolute w-100 shadow-sm"
+					style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+				</ul>
 				</div>
 			</div>
-		</div>
+
+			<!-- ✅ 버튼 그룹 영역 -->
+			<div class="col-md-6 text-end">
+				<div class="d-flex justify-content-end flex-wrap gap-2">
+				<button id="excel" class="btn btn-success">
+					<i class="fas fa-pen"></i> 엑셀다운
+				</button>
+				<button id="addRow" class="btn btn-secondary">
+					<i class="fas fa-eye"></i> 행추가
+				</button>
+				<button id="ordupd" class="btn btn-warning">
+					<i class="fas fa-save"></i> 주문수정
+				</button>
+				<button id="ordreg2" class="btn btn-primary">
+					<i class="fas fa-pen"></i> 주문등록
+				</button>
+				<button id="deleteRow" class="btn btn-danger">
+					<i class="fas fa-trash"></i> 행삭제
+				</button>
+				</div>
+			</div>
+			</div>
+
+		
+  <!-- 검색창 영역 -->
+ 
+
+		<!--수정하기-->
 		<!-- 주문 그리드 -->
 		<div id="orderGrid" class="mb-4"></div>
 		<!-- 상세 버튼 정렬 -->
@@ -132,45 +147,60 @@
 		<div id="ordDtlGrid"></div>
 
 		<!-- 품목 모달 -->
-		<div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
-			tabindex="-1">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="exampleModalToggleLabel">Modal 1</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-							<div class="position-relative mb-3" style="max-width: 500px;">
-										<div class="input-group">
-												<select class="form-select col-4" id="itemSelect" style="max-width: 30%;">
-														<option value="itemCode" selected>아이템코드</option>
-														<option value="name">아이템명</option>
-												</select>
-												<input type="text" class="form-control" placeholder="검색어를 입력하세요" id="itemInput" autocomplete="off">
-												<button class="btn btn-outline-secondary" type="button" id="itemSearchBtn">
-														<i class="fas fa-search"></i>
-												</button>
-										</div>
-										<!-- 자동완성 리스트 -->
-										<ul id="autoitemList"
-												class="list-group position-absolute w-100 shadow-sm"
-												style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
-										</ul>
-								</div>
-					<div id="itemList"></div>
-					<div class="modal-footer">
-						<button class="btn btn-primary" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal"
-							data-bs-dismiss="modal">품목선택</button>
-					</div>
-				</div>
-			</div>
-		</div>
+		<div class="modal fade" id="exampleModalToggle" tabindex="-1" aria-labelledby="exampleModalToggleLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      
+      <!-- 모달 헤더 -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalToggleLabel">품목 선택</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- 모달 바디 -->
+      <div class="modal-body">
+        <!-- 검색창 -->
+        <div class="position-relative mb-3" style="max-width: 500px;">
+          <div class="input-group">
+            <select class="form-select" id="itemSelect" style="max-width: 30%;">
+              <option value="itemCode" selected>아이템코드</option>
+              <option value="name">아이템명</option>
+            </select>
+            <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="itemInput" autocomplete="off">
+            <button class="btn btn-outline-secondary" type="button" id="itemSearchBtn">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+
+          <!-- 자동완성 리스트 -->
+          <ul id="autoitemList"
+              class="list-group position-absolute w-100 shadow-sm"
+              style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+          </ul>
+        </div>
+
+        <!-- 결과 리스트 영역 -->
+        <div id="itemList"></div>
+      </div>
+
+      <!-- 모달 푸터 -->
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal" data-bs-dismiss="modal">
+          품목 선택
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+	
 
 		<!-- 거래처 모달 1 -->
-		<div class="modal fade" id="vdrModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		 <div class="modal fade" id="vdrModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 			<div class="modal-dialog modal-xl">
 				<div class="modal-content">
-						<div class="position-relative mb-3" style="max-width: 500px;">
+					<div class="modal-body">
+					<!--검색창-->
+						<div class="position-relative mt-4 mb-0" style="max-width: 500px;">
 						    <div class="input-group">
 						        <select class="form-select col-4" id="vdrSelect" style="max-width: 30%;">
 						            <option value="vdrCode" selected>거래처코드</option>
@@ -188,18 +218,15 @@
 						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
 						    </ul>
 						</div>
-					<div id="vdrList"></div>
-					<div class="modal-body">
-						<div class="container-fluid">
-							<div id="modal"></div>
-						</div>
 					</div>
+						<!--검색창 끝 -->
+					<div id="vdrList"></div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 					</div>
 				</div>
 			</div>
-		</div>
+		</div>  
 
 		<!-- 거래처 모달 2 -->
 		<div class="modal fade" id="vdrmymodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -344,7 +371,7 @@
 		},
 		//필드값 구성
 		columns: [
-			{header: '주문번호',name: 'ordCode',	align: 'center',width: 300,	},
+			{header: '주문번호',name: 'ordCode',	align: 'center',width: 100,	},
 			{header: '등록일자',name: 'createdDate',align: 'center',	editor: 'datePicker'},
 			{header: '거래처이름',name: 'vdrName',	align: 'center'},
 			{header: '거래처코드',name: 'vdrCode',align: 'center'},
@@ -361,14 +388,13 @@
 			{header: '지불방식',	name: 'payMethod',align: 'center',
 				formatter: 'listItemText',	
 				editor: {type: 'select',
-						 options: {listItems: payMethod}
+						 		 options: {listItems: payMethod}
 						}//Map형태로 담아옴 [{"text":"","value":""}]
 			},
 			{header: '진행상태',	name: 'status',align: 'center',
 				formatter: 'listItemText',
-				editor: {type: 'select',
-						options: {listItems: ordStatus}
-				}
+				editor: {type: 'select',options: {listItems: ordStatus}
+			}
 			}, 
 			{header: '할인율',name: 'discount',align: 'center',
 				formatter: function (discount) {
@@ -447,12 +473,12 @@
 		el: document.getElementById('ordDtlGrid'),
 		rowHeaders: ['checkbox'],
 		columns: [
-			{header: '주문상세정보',name: 'ordDtlCode',	align: 'center',width: 300},
-			{header: '품목코드',name: 'itemCode',align: 'center'},
-			{header: '이름',name: 'name',align: 'center'},
+			{header: '주문상세정보',name: 'ordDtlCode',	align: 'center',width: 110},
+			{header: '품목코드',name: 'itemCode',align: 'center',editor:'text',width:200},
+			{header: '품목명',name: 'name',align: 'left',resizable: true,},
 			{header: '가격',name: 'price',	align: 'right',
 				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',	
-				editor: 'text'	},
+				editor: 'text'},
 			{header: '수량',name: 'quantity',align: 'center',	
 			 	formatter: ({value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '개',
 				editor: 'text',
@@ -521,6 +547,12 @@
 		orderGrid.setValue(rowNo[0], "vdrName", rowData.vdrName);
 		orderGrid.setValue(rowNo[0], "vdrCode", rowData.vdrCode);
 		vdrdiscount = rowData.discount / 100; //거래처 추가할때 할인율을 변수로 지정해서 받아옴
+
+		const vdrModalInstance = bootstrap.Modal.getInstance(document.getElementById('vdrModal'));
+		if (vdrModalInstance) {
+			vdrModalInstance.hide();
+		}
+
 	})
 	//item 항목 선택 했을때 항목 적용 newItemInfoList 에 추가할 품목과 해당 행의 번호가 모두 저장됨 
 	itemGrid.on('click', (ev) => {
@@ -545,6 +577,11 @@
 		ordDtlGrid.setValue(newNo, "vatPrice", rowData.price / 10); //부가세 
 		ordDtlGrid.setValue(newNo, "totPrice", rowData.price + rowData.price / 10); //총가격 아이템 선택시 기본세팅 수량 1기준으로 자동입력됨
 		ordDtlGrid.setValue(newNo, "discPrice", (rowData.price + rowData.price / 10) * vdrdiscount); // 총금액 * 할인율  
+
+		const itemModalInstance = bootstrap.Modal.getInstance(document.getElementById('exampleModalToggle'));
+		if (itemModalInstance) {
+			itemModalInstance.hide();
+		}
 	});
 	//데이터 불러오는 함수
 	function orderList() {
@@ -931,17 +968,7 @@
 		const info = orderGrid.getRow(newNo);
 		return info;
 	}
-	// function formatPrice(value){
-	// 	if(value.value==null){
-	// 		return  value.value=' ';
-	// 	}else if(value>0){
-	// 		return 	value.value=value.value+'원'
-	// 	}
-	// 	console.log('value',value.value);
-	// }	
-
-
-	const topOptions = {
+		const topOptions = {
 			  includeHiddenColumns: true,
 			  onlySelected: false,
 			  fileName: '주문 정보 조회',

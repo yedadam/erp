@@ -43,11 +43,12 @@ public class AccountRestController {
 	@ResponseBody
 	public Map<String, Object> saveAccounts(@RequestBody AccountVO accountVO) {
 	    Map<String, Object> result = new HashMap<>();
+	    System.out.println(result);
 
 	    try {
 	        accountService.saveAll(accountVO);
 	        result.put("result", "success");
-	        result.put("message", "저장이 완료되었습니다.");
+	        result.put("message", "저장이 완료되었습니다.  ");
 	    } catch (IllegalArgumentException e) {
 	        result.put("result", "fail");
 	        result.put("message", "유효성 오류: " + e.getMessage());
@@ -72,7 +73,7 @@ public class AccountRestController {
 	// 소분류 자동완성 코드 조회
 	@GetMapping("/api/account/subclass")
 	public List<String> getAcctSubClasses(@RequestParam String classCode) {
-		System.out.println("중분류 전달값" + classCode);
+		System.out.println("소분류 전달값" + classCode);
 	    return accountService.getAcctSubClasses(classCode);
 	}
 }

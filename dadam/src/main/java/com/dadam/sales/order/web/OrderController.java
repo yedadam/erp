@@ -82,7 +82,6 @@ public class OrderController {
 		orderService.updOrder(ord); 
 		return "updok"; 
 	}
-	
 	@ResponseBody
 	@PutMapping("/ord/updDtl")
 	public String updDtlOrd(@RequestBody OrdDtlVO dtl) {

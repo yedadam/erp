@@ -14,7 +14,7 @@
 	 ORDER BY acct_code
 </select>
 
-<!-- 조건 조회 -->
+<!-- 조건 조회    -->
 <select id="accFindByType" resultType="com.dadam.acc.account.service.AccountVO">
     SELECT acct_code,
    	       name, 
@@ -27,7 +27,7 @@
 	 ORDER BY acct_code
 </select>
 
-<!-- 대분류 조회 -->
+<!-- 대분류 조회   -->
 <select id="selectAcctTypes" resultType="string">
   SELECT type_name 
     FROM acct_type 
@@ -64,11 +64,11 @@ SELECT s.subclass_name
 	<!-- 계정 분류 코드 조회 AccountCategoryDTO -->
 	
 <!-- 계정코드 조회 함수 -->
-<select id="codeFind" resultType="string">
+<select id="codeFind" parameterType="AccountCodeVO" resultType="string">
 	SELECT getAccCode(
 	       #{typeCode}
 		 , #{classCode}
-		 , #{acctSubclass}) 
+		 , #{subclassCode}) 
 	  FROM dual
 </select>
 

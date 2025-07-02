@@ -7,25 +7,48 @@
 		parameterType="ChitVO">
 SELECT c.created_date 	
 	 , c.chit_title  	
+	 , '' parent
 	 , c.chit_code
-	 , i.acct_code
-	 , getVdrName(c.vdr_code) as vdrCode   	
+	 , getVdrName(c.vdr_code) as vdrCode
+	 , c.supply_price
+	 , c.vat_price
 	 , c.tot_price  
+	 , 0 iPrice
 	 , c.tax_code  		
 	 , getSubCode(c.status) as status  		
 	 , getSubCode(c.type) as tType 			
 	 , getDeptName(c.dept_code) as deptCode 
 	 , getEmpName(c.phy_emp_id) as phyEmpId	
 	 , getEmpName(c.appr_emp_id) as apprEmpId	
-	 , c.note			
-	 , i.type as iType
+	 , c.note	
+	 , '' acct_code
+	 , '' iType
+	 , '' INAME
+	 , '' ANAME
+  FROM chit c
+  UNION 
+SELECT i.created_date
+	 , ''  chit_title
+	 , chit_code parent
+	 , chit_dt_id  
+	 , '' vdrCode
+	 , 0 supply_price
+	 , 0 vat_price
+	 , 0 tot_price
 	 , i.price as iPrice
+	 , '' tax_code
+	 , '' status
+	 , '' tType
+	 , '' deptCode
+	 , '' phyEmpId
+	 , '' apprEmpId
+	 , '' note
+     , i.acct_code
+	 , i.type as iType
 	 , getSubCode(i.type) as INAME
 	 , a.name as ANAME
-  FROM chit c
-  LEFT JOIN indignation i ON c.chit_code = i.chit_code
+  FROM indignation i 
   LEFT JOIN Account a ON i.acct_code = a.acct_code
- ORDER BY c.chit_code
 	</select>
 
 	<select id="acctCodeFindByCode" resultType="map">
@@ -46,6 +69,10 @@ SELECT c.created_date
 		ORDER BY sub_code
 	</select>
 
+
+<select id="getStatusByChitCode" resultType="String">
+  SELECT status FROM chit WHERE chit_code = #{chitCode}
+</select>
 
 
 	<insert id="insert" parameterType="ChitVO">
@@ -77,16 +104,43 @@ SELECT c.created_date
 
 	<update id="update">
 		UPDATE chit
-		SET phy_emp_id = 'e1001'
-		, status = '01'
+		SET 
+		  phy_emp_id = 'e1001'
+		, status = 'cst02'
 		, note = #{note}
 		, update_date = SYSDATE
 		WHERE chit_code = #{chitCode}
 	</update>
+
+<update id="markAsPaid">
+  UPDATE chit
+  SET status = 'cst03', update_date = SYSDATE
+  WHERE chit_code = #{chitCode}
+</update>
 
 	<delete id="delete" parameterType="ChitVO">
 		DELETE FROM indignation
 		WHERE chit_dt_id = #{chitDtId}
 	</delete>
 
+
+
+<update id="결제버튼 클릭시 상태 업데이트">
+UPDATE chit
+   SET status = 'sta03'
+      update_date = SYSDATE
+ WHERE chit_code = #{chitCode};
+</update>
+
+<update id="결제버튼 클릭시 거래처 미수 금액 업데이트">
+UPDATE vender
+   SET credit_bal_price = credit_bal_price + #{금액}
+ WHERE vdr_code = (
+     SELECT vdr_code
+       FROM orders
+      WHERE article_code = #{article_code}
+ );
+</update>
+ 
+ 
 </mapper>
