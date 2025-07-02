@@ -2,30 +2,50 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.standard.item.mapper.ChitStandardMapper">
  <select id="ChitList">
-  SELECT CHIT_CODE,
-   		 CHIT_TITLE,
-		 DEPT_CODE,
-		 PHY_EMP_ID,
-		 getEmpName(PHY_EMP_ID) emp_name,
-		 APPR_EMP_ID,
-	     STATUS,
-		 NOTE,
-		 type,
-		 CREATED_DATE,
-		 ARTICLE_CODE,
-		 SUPPLY_PRICE,
-		 VAT_PRICE,
-		 TOT_PRICE,
-		 article_code
-   FROM chit
-   WHERE com_id = #{comId}
-  <choose>
-	  <when test="deptCode.equals('de1001')">
-	  </when>
-	  <when test="deptCode != null">
-	     AND dept_code = #{deptCode}
-	  </when>    
-  </choose>
+	  SELECT CHIT_CODE,
+	   		 CHIT_TITLE,
+			 DEPT_CODE,
+			 PHY_EMP_ID,
+			 getEmpName(PHY_EMP_ID) emp_name,
+			 APPR_EMP_ID,
+		     STATUS,
+			 NOTE,
+			 type,
+			 CREATED_DATE,
+			 ARTICLE_CODE,
+			 SUPPLY_PRICE,
+			 VAT_PRICE,
+			 TOT_PRICE,
+			 article_code
+	   FROM chit
+	   WHERE com_id = #{comId}
+	   <if test="deptCode.equals('de1005')">
+	     AND type IN('cht01','cht02')   
+	   </if>
+	   <if test="deptCode.equals('de1003')">
+	   	 AND type = 'cht03'  
+	   </if>
+	   <if test="deptCode.equals('de1004')">
+	   	 AND type = 'cht04'
+	   </if>
+	   <if test="deptCode.equals('de1002')">
+	     AND type IN('cht01','cht04')   
+	   </if>
+	   <choose>
+            <when test="type.equals('chitCode')">
+                AND chit_code LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('empName')">
+            	 AND getEmpName(EMP_ID) LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('chitTile')">
+            	 AND chit_tile LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('articleCode')">
+            	 AND article_code LIKE '%'||#{value}||'%'
+            </when>
+   </choose>
+   ORDER BY chit_code DESC
  </select>
 
 
@@ -39,6 +59,17 @@
   FROM transaction
   WHERE com_id = #{comId} 
   AND txn_type ='tt01'
+  <choose>
+            <when test="type.equals('txnHistCode')">
+                AND txn_hist_code LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('bank')">
+            	 AND bank LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('acctNo')">
+            	 AND acctNo LIKE '%'||#{value}||'%'
+            </when>
+   </choose>
 </select>
 
 <select id="adjList">
@@ -50,6 +81,14 @@
        note
   FROM adjust a JOIN item i ON(a.item_code = i.item_code)
   WHERE i.com_id = #{comId}
+  <choose>
+            <when test="type.equals('adjCode')">
+                AND adj_code LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('name')">
+            	 AND name LIKE '%'||#{value}||'%'
+            </when>
+   </choose>
 </select>
 <select id="salaryList">
      SELECT sal_pay_code,
@@ -61,5 +100,64 @@
          getEmpName(emp_id) emp_name
   FROM salaryPayment
   WHERE com_id = #{comId}
+   <choose>
+            <when test="type.equals('salPayCode')">
+                AND sal_pay_code LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('empName')">
+            	 AND getEmpName(EMP_ID) LIKE '%'||#{value}||'%'
+            </when>
+   </choose>
 </select>
+
+<insert id="chitStandardAdd">
+ <selectKey resultType="string" keyProperty="chitCode"
+	order="BEFORE">
+		SELECT 'chit-' || (NVL(MAX(TO_NUMBER(SUBSTR(chit_code,6))),100)+1)
+		FROM chit
+ </selectKey>
+  INSERT INTO chit (chit_code,
+                  chit_title,
+                  dept_code,
+                  phy_emp_id,
+                  status,
+                  created_date,
+                  article_code,
+                  type,
+                  supply_price,
+                  vat_price,
+                  tot_price,
+                  com_id)
+VALUES(#{chitCode},
+       #{chitTitle},
+       #{deptCode},
+       #{phyEmpId},
+        'cst01',
+       sysdate,
+       #{articleCode},
+       #{type},
+       #{supplyPrice},
+       #{vatPrice},
+       #{totPrice},
+       #{comId})
+</insert>
+<update id="chitStandardUpdate">
+  UPDATE chit
+	SET chit_title = #{chitTitle},
+	     dept_code = #{deptCode},
+	     phy_emp_id =#{phyEmpId},
+	     article_code = #{articleCode},
+	     type =#{type},
+	    supply_price =#{supplyPrice},
+	     vat_price =#{vatPrice},
+	    tot_price =#{totPrice}
+	WHERE chit_code = #{chitCode}
+	AND com_id = #{comId}
+</update>
+
+<delete id="chitStandardDelete">
+   DELETE FROM chit
+	WHERE com_id=#{comId}
+	AND chit_code= #{chitCode}
+</delete>
 </mapper>

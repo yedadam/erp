@@ -15,6 +15,9 @@ public interface ChitStandardMapper {
 	
 	public List<MoneyVO> adjList(@Param("type") String type, @Param("value") String value, @Param("comId") String comId);
 	
-	
 	public List<MoneyVO> salaryList(@Param("type") String type, @Param("value") String value, @Param("comId") String comId);
+	
+	public int chitStandardAdd(ChitVO vo);
+	public int chitStandardUpdate(ChitVO vo);
+	public int chitStandardDelete(ChitVO vo);
 }

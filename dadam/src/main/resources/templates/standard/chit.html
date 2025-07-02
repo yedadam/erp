@@ -10,60 +10,72 @@
 </head>
 <body class="bg-light">
     <div class="container-fluid mt-4">
-        <h3 class="mb-4">구매관리</h3>
+        <h3 class="mb-4">전표관리</h3>
         
-        
-        
-        <!-- 검색 및 버튼 영역 -->
-        <div class="row mb-3">
-            <div class="position-relative col-md-6">
-						    <div class="input-group">
-						        <select class="form-select col-4" id="purSelect" style="max-width: 30%;">
-						            <option value="purOrdCode" selected>발주코드</option>
-						            <option value="empName">담당자</option>
-						            <option value="vdrName">거래처이름</option>
-						        </select>
-						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="purInput" autocomplete="off">
-						        <button class="btn btn-outline-secondary" type="button" id="reqSearchBtn">
-						            <i class="fas fa-search"></i>
-						        </button>
-						    </div>
-						
-						    <!-- 자동완성 리스트 -->
-						    <ul id="purReqList"
-						        class="list-group position-absolute w-100 shadow-sm"
-						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
-						    </ul>
-			</div>
-            <div class="col-md-6 text-end">
-                <div class="btn-group-custom mb-3">
-                	<button class="btn btn-secondary me-2" id="newBtn">
-                        <i class="fas fa-pen"></i> 행추가
-                    </button>
-                    <button class="btn btn-danger me-2" id="delBtn">
-                        <i class="fas fa-trash"></i> 행삭제
-                    </button>
-                    <button class="btn btn-primary" id="purModalBtn">
-                        <i class="fas fa-save"></i> 발주서 가져오기
-                    </button>
-                    <button class="btn btn-primary" id="salesModalBtn">
-                        <i class="fas fa-save"></i> 매출서 가져오기
-                    </button>
-                    <button class="btn btn-primary" id="moneyModalBtn">
-                        <i class="fas fa-save"></i> 수금서 가져오기
-                    </button>
-                    <button class="btn btn-primary" id="invenModalBtn">
-                        <i class="fas fa-save"></i> 재고조정 가져오기
-                    </button>
-                    <button class="btn btn-primary" id="salaryModalBtn">
-                        <i class="fas fa-save"></i> 급여처리 가져오기
-                    </button>
-                    <button class="btn btn-primary" id="saveBtn">
-                        <i class="fas fa-save"></i> 저장
-                    </button>
-                </div>
-            </div>
-        </div>
+		<div class="row mb-4 align-items-start">
+		    <!-- 검색 영역 -->
+		    <div class="col-md-6 position-relative">
+		        <div class="input-group">
+		            <select class="form-select" id="chitSelect" style="max-width: 30%;">
+		                <option value="chitCode" selected>전표코드</option>
+		                <option value="empName">담당자</option>
+		                <option value="chitTile">전표제목</option>
+		                <option value="articleCode">항목코드</option>
+		            </select>
+		            <input type="text" class="form-control" id="chilInput" placeholder="검색어를 입력하세요" autocomplete="off">
+		            <button class="btn btn-outline-secondary" type="button" id="chitSearchBtn">
+		                <i class="fas fa-search"></i>
+		            </button>
+		        </div>
+		        <!-- 자동완성 리스트 -->
+		        <ul id="chitList"
+		            class="list-group position-absolute w-100 shadow-sm"
+		            style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+		        </ul>
+		    </div>
+		
+		    <!-- 버튼 영역 -->
+		    <div class="col-md-6">
+		        <div class="d-grid gap-2 d-md-flex justify-content-md-end flex-wrap">
+		            <button class="btn btn-secondary me-2 mb-2" id="newBtn">
+		                <i class="fas fa-pen"></i> 행추가
+		            </button>
+		            <button class="btn btn-danger me-2 mb-2" id="delBtn">
+		                <i class="fas fa-trash"></i> 행삭제
+		            </button>
+		
+		            <div th:if="${deptId == 'de1001' or deptId == 'de1005'}">
+		                <button class="btn btn-primary me-2 mb-2" id="purModalBtn">
+		                    <i class="fas fa-save"></i> 발주서
+		                </button>
+		                <button class="btn btn-primary me-2 mb-2" id="salesModalBtn">
+		                    <i class="fas fa-save"></i> 매출서
+		                </button>
+		            </div>
+		             <div th:if="${deptId == 'de1001' or deptId == 'de1003'}">
+		                <button class="btn btn-primary me-2 mb-2" id="moneyModalBtn">
+		                    <i class="fas fa-save"></i> 수금서
+		                </button>
+		             </div>
+		
+		            <div th:if="${deptId == 'de1001' or deptId == 'de1004'}">
+		                <button class="btn btn-primary me-2 mb-2" id="invenModalBtn">
+		                    <i class="fas fa-save"></i> 재고조정
+		                </button>
+		            </div>
+		
+		            <div th:if="${deptId == 'de1001' or deptId == 'de1002'}">
+		                <button class="btn btn-primary me-2 mb-2" id="salaryModalBtn">
+		                    <i class="fas fa-save"></i> 급여처리
+		                </button>
+		            </div>
+		
+		            <button class="btn btn-success mb-2" id="saveBtn">
+		                <i class="fas fa-save"></i> 저장
+		            </button>
+		        </div>
+		    </div>
+		</div>
 
         <!-- 메인 테이블 -->
 		<div id="mainGridWrapper" style="position: relative;">
@@ -89,7 +101,7 @@
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="vdrModalLabel">거래처 리스트</h1>
+					<h1 class="modal-title fs-5" id="vdrModalLabel">매입 리스트</h1>
 					<button type="button" class="btn-close" data-bs-dismiss="modal"
 						aria-label="Close"></button>
 				</div>
@@ -98,12 +110,13 @@
 						<!-- 검색 조건 -->
 						<div class="position-relative mb-3" style="max-width: 500px;">
 						    <div class="input-group">
-						        <select class="form-select col-4" id="vdrSelect" style="max-width: 30%;">
-						            <option value="vdrCode" selected>거래처코드</option>
-						            <option value="vdrName">거래처명</option>
+						        <select class="form-select col-4" id="purSelect" style="max-width: 30%;">
+						            <option value="purOrdCode" selected>발주코드</option>
+						            <option value="empName">담당자</option>
+						            <option value="vdrName">거래처이름</option>
 						        </select>
 						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="purInput" autocomplete="off">
-						        <button class="btn btn-outline-secondary" type="button" id="vdrSearchBtn">
+						        <button class="btn btn-outline-secondary" type="button" id="purSearchBtn">
 						            <i class="fas fa-search"></i>
 						        </button>
 						    </div>
@@ -132,7 +145,7 @@
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="salesModalLabel">거래처 리스트</h1>
+					<h1 class="modal-title fs-5" id="salesModalLabel">매출 리스트</h1>
 					<button type="button" class="btn-close" data-bs-dismiss="modal"
 						aria-label="Close"></button>
 				</div>
@@ -142,8 +155,9 @@
 						<div class="position-relative mb-3" style="max-width: 500px;">
 						    <div class="input-group">
 						        <select class="form-select col-4" id="salesSelect" style="max-width: 30%;">
-						            <option value="vdrCode" selected>거래처코드</option>
+						           <option value="ordCode" selected>주문코드</option>
 						            <option value="vdrName">거래처명</option>
+									<option value="vdrCode">거래처코드</option>
 						        </select>
 						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="salesInput" autocomplete="off">
 						        <button class="btn btn-outline-secondary" type="button" id="salesSearchBtn">
@@ -175,7 +189,7 @@
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="moneyLabel">거래처 리스트</h1>
+					<h1 class="modal-title fs-5" id="moneyLabel">수금 리스트</h1>
 					<button type="button" class="btn-close" data-bs-dismiss="modal"
 						aria-label="Close"></button>
 				</div>
@@ -184,9 +198,10 @@
 						<!-- 검색 조건 -->
 						<div class="position-relative mb-3" style="max-width: 500px;">
 						    <div class="input-group">
-						        <select class="form-select col-4" id="vdrSelect" style="max-width: 30%;">
-						            <option value="vdrCode" selected>거래처코드</option>
-						            <option value="vdrName">거래처명</option>
+						        <select class="form-select col-4" id="moneySelect" style="max-width: 30%;">
+						            <option value="txnHistCode" selected>수금코드</option>
+						            <option value="bank">은행</option>
+						            <option value="acctNo">계좌번호</option>
 						        </select>
 						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="moneyInput" autocomplete="off">
 						        <button class="btn btn-outline-secondary" type="button" id="moneySearchBtn">
@@ -228,8 +243,8 @@
 						<div class="position-relative mb-3" style="max-width: 500px;">
 						    <div class="input-group">
 						        <select class="form-select col-4" id="invenSelect" style="max-width: 30%;">
-						            <option value="vdrCode" selected>거래처코드</option>
-						            <option value="vdrName">거래처명</option>
+						            <option value="adjCode" selected>재고조정코드</option>
+						            <option value="name">품목명</option>
 						        </select>
 						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="invenInput" autocomplete="off">
 						        <button class="btn btn-outline-secondary" type="button" id="invenSearchBtn">
@@ -271,8 +286,8 @@
 						<div class="position-relative mb-3" style="max-width: 500px;">
 						    <div class="input-group">
 						        <select class="form-select col-4" id="salarySelect" style="max-width: 30%;">
-						            <option value="vdrCode" selected>거래처코드</option>
-						            <option value="vdrName">거래처명</option>
+						            <option value="salPayCode" selected>급여처리코드</option>
+						            <option value="empName">사원명</option>
 						        </select>
 						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="salaryInput" autocomplete="off">
 						        <button class="btn btn-outline-secondary" type="button" id="invenSearchBtn">
@@ -382,10 +397,13 @@
 			//체크된행을 가져오는 함수	
 			const checkedRows = mainGrid.getCheckedRows();
 			//채크
-			checkedRows.forEach(item => {
+			for(item of checkedRows){
 			    let check = mainGrid.getRow(item.rowKey).status
-			    if(check )
-			  })
+			    if(check=='cst02' || check=='cst03'){
+			    	Swal.fire('실패','이미 결제건에 대해새선 삭제가 불가합니다.', 'error');
+			    	return;
+			    }
+			}
 		    //행삭제
 			checkedRows.forEach(item => {
 		    console.log(item)
@@ -461,7 +479,25 @@
                   url: "/erp/sales/purMainList",
                   method: "GET",
                   success: function(result) {
-                      purGrid.resetData(result);
+                	  let mainData = mainGrid.getData();
+                	    let info = [];
+
+                	    // mainData에서 articleCode 모음 만들기 Set 사용으로 빠름
+                	    const articleCodes = new Set(
+                	        mainData
+                	            .filter(data => data.status !== 'cst03') // status 필터링
+                	            .map(data => data.articleCode)
+                	    );
+
+                	    // result에서 articleCode와 다른 purOrdCode만 info에 넣기
+                	    for (let item of result) {
+                	        if (!articleCodes.has(item.purOrdCode)) {
+                	            info.push(item);
+                	        }
+                	    }
+
+                	    // 3. 그 결과를 grid에 세팅
+                	    purGrid.resetData(info);
                   },
                   error: function(xhr, status, error) {
                       console.log("실패:", xhr.status, error);
@@ -504,7 +540,23 @@
            url: "/erp/sales/orderList",
            method: "GET",
            success: function(result) {
-        	   salesGrid.resetData(result);
+        	   let mainData = mainGrid.getData();
+	       	   let info = [];
+	
+	       	    // mainData에서 articleCode 모음 만들기 Set 사용으로 빠름
+	       	    const articleCodes = new Set(
+	       	        mainData
+	       	            .filter(data => data.status !== 'cst03') // status 필터링
+	       	            .map(data => data.articleCode)
+	       	    );
+	
+	       	    // result에서 articleCode와 다른 purOrdCode만 info에 넣기
+	       	    for (let item of result) {
+	       	        if (!articleCodes.has(item.ordCode)) {
+	       	            info.push(item);
+	       	        }
+	       	    }
+	        	   salesGrid.resetData(info);
            },
            error: function(xhr, status, error) {
                console.log("실패:", xhr.status, error);
@@ -557,7 +609,23 @@
            url: "/erp/standard/moneyList",
            method: "GET",
            success: function(result) {
-        	   moneyGrid.resetData(result);
+        	   let mainData = mainGrid.getData();
+	       	   let info = [];
+	
+	       	    // mainData에서 articleCode 모음 만들기 Set 사용으로 빠름
+	       	    const articleCodes = new Set(
+	       	        mainData
+	       	            .filter(data => data.status !== 'cst03') // status 필터링
+	       	            .map(data => data.articleCode)
+	       	    );
+	
+	       	    // result에서 articleCode와 다른 purOrdCode만 info에 넣기
+	       	    for (let item of result) {
+	       	        if (!articleCodes.has(item.txnHistCode)) {
+	       	            info.push(item);
+	       	        }
+	       	    }
+        	   moneyGrid.resetData(info);
            },
            error: function(xhr, status, error) {
                console.log("실패:", xhr.status, error);
@@ -608,7 +676,23 @@
            url: "/erp/standard/adjList",
            method: "GET",
            success: function(result) {
-        	   invenGrid.resetData(result);
+        	   let mainData = mainGrid.getData();
+	       	   let info = [];
+	
+	       	    // mainData에서 articleCode 모음 만들기 Set 사용으로 빠름
+	       	    const articleCodes = new Set(
+	       	        mainData
+	       	            .filter(data => data.status !== 'cst03') // status 필터링
+	       	            .map(data => data.articleCode)
+	       	    );
+	
+	       	    // result에서 articleCode와 다른 purOrdCode만 info에 넣기
+	       	    for (let item of result) {
+	       	        if (!articleCodes.has(item.adjCode)) {
+	       	            info.push(item);
+	       	        }
+	       	    }
+        	   invenGrid.resetData(info);
            },
            error: function(xhr, status, error) {
                console.log("실패:", xhr.status, error);
@@ -666,7 +750,23 @@
            url: "/erp/standard/salaryList",
            method: "GET",
            success: function(result) {
-        	   salaryGrid.resetData(result);
+        	   let mainData = mainGrid.getData();
+	       	   let info = [];
+	
+	       	    // mainData에서 articleCode 모음 만들기 Set 사용으로 빠름
+	       	    const articleCodes = new Set(
+	       	        mainData
+	       	            .filter(data => data.status !== 'cst03') // status 필터링
+	       	            .map(data => data.articleCode)
+	       	    );
+	
+	       	    // result에서 articleCode와 다른 purOrdCode만 info에 넣기
+	       	    for (let item of result) {
+	       	        if (!articleCodes.has(item.salPayCode)) {
+	       	            info.push(item);
+	       	        }
+	       	    }
+        	   salaryGrid.resetData(info);
            },
            error: function(xhr, status, error) {
                console.log("실패:", xhr.status, error);
@@ -752,6 +852,185 @@
 	   mainGrid.setValue(mainGrid.getCheckedRowKeys()[0],'type','cht06');
 	   $('#salaryModal').modal('hide');
    })
+   //저장
+   $('#saveBtn').on('click',ev => {
+	   let checkedRows = mainGrid.getModifiedRows();
+	   let mainGridInfo = mainGrid.getData();
+	   mainResult = mainGridInfo.some(item => {
+		   return !item.chitTitle ||  !item.articleCode ||
+		  			 item.totPrice==0;
+	   })
+	   if(mainResult){
+		   Swal.fire('실패','해당하는값을 다 입력해주세요','eroor');
+		   return;
+	   }
+	   console.log(checkedRows.updatedRows)
+	   $.ajax({
+  		 url:'/erp/standard/updateChit',
+  		 method:'POST',
+  		 contentType: "application/json",
+  		 data:JSON.stringify({
+  			 createdRows : checkedRows.createdRows,
+  			 updatedRows : checkedRows.updatedRows,
+  			 deleteRows : checkedRows.deletedRows,
+  		 }),
+  		 success : result => {
+                   Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success')
+                   mainList();
+           },
+           error: function(xhr, status, error) {
+          	 	Swal.fire('실패','수정이 실패하였습니다..','error')
+                  console.log("실패:", xhr.status, error);
+              }
+  	 })
+   })
+   
+   //자동 발주건 검색기능
+	$('#purInput').on('keyup', ev => {
+		  setupAutocomplete({
+			    inputSelector: '#purInput',
+			    selectSelector: $('#purSelect  option:selected').val(),
+			    listSelector: '#autoPurList',
+			    ajaxUrl: '/erp/sales/purMainList'
+		 });
+	})
+	$('#salesInput').on('keyup', ev => {
+		  setupAutocomplete({
+			    inputSelector: '#salesInput',
+			    selectSelector: $('#salesSelect  option:selected').val(),
+			    listSelector: '#autoSalesList',
+			    ajaxUrl: '/erp/sales/orderList'
+		 });
+	})
+	$('#moneyInput').on('keyup', ev => {
+		  setupAutocomplete({
+			    inputSelector: '#moneyInput',
+			    selectSelector: $('#moneySelect  option:selected').val(),
+			    listSelector: '#autoMoneyList',
+			    ajaxUrl: '/erp/standard/moneyList'
+		 });
+	})
+	$('#invenInput').on('keyup', ev => {
+		  setupAutocomplete({
+			    inputSelector: '#invenInput',
+			    selectSelector: $('#invenSelect  option:selected').val(),
+			    listSelector: '#autoInvenList',
+			    ajaxUrl: '/erp/standard/adjList'
+		 });
+	})
+	$('#salaryInput').on('keyup', ev => {
+		  setupAutocomplete({
+			    inputSelector: '#salaryInput',
+			    selectSelector: $('#salarySelect  option:selected').val(),
+			    listSelector: '#autoSalaryList',
+			    ajaxUrl: '/erp/standard/salaryList'
+		 });
+	})
+	$('#chilInput').on('keyup', ev => {
+		  setupAutocomplete({
+			    inputSelector: '#chilInput',
+			    selectSelector: $('#chitSelect  option:selected').val(),
+			    listSelector: '#chitList',
+			    ajaxUrl: '/erp/standard/chitList'
+		 });
+	})
+	//매입 검색
+		$('#purSearchBtn').on('click', ev=> {
+			 let value = $('#purInput').val();
+			 let type = $("#purSelect option:selected").val();
+			 let url = "/erp/sales/purMainList";
+			 let grid = purGrid;
+			 commonSearch(type,value,url,grid);
+		})
+		$('#purInput').on('keydown',ev => {
+			if(ev.keyCode ==13){
+				 let value = $('#purInput').val();
+				 let type = $("#purSelect option:selected").val();
+				 let url = "/erp/sales/purMainList";
+				 let grid = purGrid;
+				 commonSearch(type,value,url,grid);
+			}
+		})
+		$('#salesSearchBtn').on('click', ev=> {
+			 let value = $('#salesInput').val();
+			 let type = $("#salesSelect option:selected").val();
+			 let url = "/erp/sales/orderList";
+			 let grid = salesGrid;
+			 commonSearch(type,value,url,grid);
+		})
+		$('#salesInput').on('keydown',ev => {
+			if(ev.keyCode ==13){
+				 let value = $('#salesInput').val();
+				 let type = $("#salesSelect option:selected").val();
+				 let url = "/erp/sales/orderList";
+				 let grid = salesGrid;
+				 commonSearch(type,value,url,grid);
+			}
+		})
+		$('#moneySearchBtn').on('click', ev=> {
+			 let value = $('#moneyInput').val();
+			 let type = $("#moneySelect option:selected").val();
+			 let url = "/erp/standard/moneyList";
+			 let grid = moneyGrid;
+			 commonSearch(type,value,url,grid);
+		})
+		$('#moneyInput').on('keydown',ev => {
+			if(ev.keyCode ==13){
+				 let value = $('#moneyInput').val();
+				 let type = $("#moneySelect option:selected").val();
+				 let url = "/erp/standard/moneyList";
+				 let grid = moneyGrid;
+				 commonSearch(type,value,url,grid);
+			}
+		})
+		$('#invenSearchBtn').on('click', ev=> {
+			 let value = $('#invenInput').val();
+			 let type = $("#invenSelect option:selected").val();
+			 let url = "/erp/standard/adjList";
+			 let grid = invenGrid;
+			 commonSearch(type,value,url,grid);
+		})
+		$('#invenInput').on('keydown',ev => {
+			if(ev.keyCode ==13){
+				let value = $('#invenInput').val();
+				 let type = $("#invenSelect option:selected").val();
+				 let url = "/erp/standard/adjList";
+				 let grid = invenGrid;
+				 commonSearch(type,value,url,grid);
+			}
+		})
+		$('#invenSearchBtn').on('click', ev=> {
+			 let value = $('#salaryInput').val();
+			 let type = $("#salarySelect option:selected").val();
+			 let url = "/erp/standard/salaryList";
+			 let grid = salaryGrid;
+			 commonSearch(type,value,url,grid);
+		})
+		$('#salaryInput').on('keydown',ev => {
+			if(ev.keyCode ==13){
+				 let value = $('#salaryInput').val();
+				 let type = $("#salarySelect option:selected").val();
+				 let url = "/erp/standard/salaryList";
+				 let grid = salaryGrid;
+				 commonSearch(type,value,url,grid);
+			}
+		})
+		$('#chitSearchBtn').on('click', ev=> {
+			 let value = $('#chilInput').val();
+			 let type = $("#chitSelect option:selected").val();
+			 let url = "/erp/standard/chitList";
+			 let grid = mainGrid;
+			 commonSearch(type,value,url,grid);
+		})
+		$('#chilInput').on('keydown',ev => {
+			if(ev.keyCode ==13){
+				 let value = $('#chilInput').val();
+				 let type = $("#chitSelect option:selected").val();
+				 let url = "/erp/standard/chitList";
+				 let grid = mainGrid;
+				 commonSearch(type,value,url,grid);
+			}
+		})
 	</script>
 	</body>
 </html>
