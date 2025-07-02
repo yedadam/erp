@@ -30,6 +30,7 @@ public class ChitVO {
     private Double vatPrice;       // 부가세
     private Double totPrice;       // 총금액
     private String comId;          // 회사ID(FK)
+    private String parent;
     
     //분개테이블
     private String acctId;  	   //계정과목
