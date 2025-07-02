@@ -69,13 +69,15 @@ FROM erpSubs
        		         PWD,
             		EMP_NAME,
             		POSITION,
-            		EMP_STATUS)
+            		EMP_STATUS,
+            		DEPT_CODE)
 VALUES ('e1001',
        #{comId},
        '$2a$10$6SyT5kux10Cl9ZAAzWDkT.Fv523NRs6PdYXqQ6fseai/Y.RD39Tfy',
        #{empName},
        'pos00',
-       'GJ01')
+       'GJ01',
+       'de1001')
 </insert>
 <!-- 결제 중복 조회 -->
 <select id="sameCheck" resultType="int">

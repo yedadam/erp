@@ -8,7 +8,7 @@ import lombok.Data;
 public class EmployeesVO {
 	private String empId;
 	private String comId;
-	private String deptId;
+	private String deptCode;
 	private String pwd;
 	private String empName;
 	private String email;
