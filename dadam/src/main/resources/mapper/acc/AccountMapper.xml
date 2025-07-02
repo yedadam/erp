@@ -14,7 +14,7 @@
 	 ORDER BY acct_code
 </select>
 
-<!-- 조건 조회 -->
+<!-- 조건 조회    -->
 <select id="accFindByType" resultType="com.dadam.acc.account.service.AccountVO">
     SELECT acct_code,
    	       name, 
@@ -27,7 +27,7 @@
 	 ORDER BY acct_code
 </select>
 
-<!-- 대분류 조회 -->
+<!-- 대분류 조회   -->
 <select id="selectAcctTypes" resultType="string">
   SELECT type_name 
     FROM acct_type 

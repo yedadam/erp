@@ -89,7 +89,7 @@ public class AccountServiceImpl implements AccountService{
                  }
              }
 
-             // 코드 세팅 및 acct_code 생성
+             // 코드 세팅 및 acct_  code 생성
              AccountCodeVO codeVO = new AccountCodeVO();
              codeVO.setTypeCode(typeCode);
              codeVO.setClassCode(classCode);

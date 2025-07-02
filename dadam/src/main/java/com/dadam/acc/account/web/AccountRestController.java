@@ -47,7 +47,7 @@ public class AccountRestController {
 	    try {
 	        accountService.saveAll(accountVO);
 	        result.put("result", "success");
-	        result.put("message", "저장이 완료되었습니다.");
+	        result.put("message", "저장이 완료되었습니다.  ");
 	    } catch (IllegalArgumentException e) {
 	        result.put("result", "fail");
 	        result.put("message", "유효성 오류: " + e.getMessage());
