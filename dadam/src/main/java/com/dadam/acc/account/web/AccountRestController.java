@@ -43,6 +43,7 @@ public class AccountRestController {
 	@ResponseBody
 	public Map<String, Object> saveAccounts(@RequestBody AccountVO accountVO) {
 	    Map<String, Object> result = new HashMap<>();
+	    System.out.println(result);
 
 	    try {
 	        accountService.saveAll(accountVO);
@@ -72,7 +73,7 @@ public class AccountRestController {
 	// 소분류 자동완성 코드 조회
 	@GetMapping("/api/account/subclass")
 	public List<String> getAcctSubClasses(@RequestParam String classCode) {
-		System.out.println("중분류 전달값" + classCode);
+		System.out.println("소분류 전달값" + classCode);
 	    return accountService.getAcctSubClasses(classCode);
 	}
 }

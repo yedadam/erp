@@ -64,11 +64,11 @@ SELECT s.subclass_name
 	<!-- 계정 분류 코드 조회 AccountCategoryDTO -->
 	
 <!-- 계정코드 조회 함수 -->
-<select id="codeFind" resultType="string">
+<select id="codeFind" parameterType="AccountCodeVO" resultType="string">
 	SELECT getAccCode(
 	       #{typeCode}
 		 , #{classCode}
-		 , #{acctSubclass}) 
+		 , #{subclassCode}) 
 	  FROM dual
 </select>
 
