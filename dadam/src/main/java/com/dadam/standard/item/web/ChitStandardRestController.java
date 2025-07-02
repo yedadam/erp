@@ -4,11 +4,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dadam.acc.account.service.ChitVO;
+import com.dadam.common.service.GridData;
 import com.dadam.standard.item.service.ChitStandardService;
 import com.dadam.standard.item.service.MoneyVO;
 
@@ -39,6 +42,12 @@ public class ChitStandardRestController {
 	@GetMapping("/standard/salaryList")
 	public List<MoneyVO> salaryList(@RequestParam (defaultValue = "",required = false)String type,@RequestParam (defaultValue = "",required = false)String value){
 		List<MoneyVO> result = service.salaryList(type, value);
+		return result;
+	}
+	
+	@PostMapping("/standard/updateChit")
+	public int updateChit(@RequestBody GridData<ChitVO> vo){
+		int result = service.chitUpdate(vo);
 		return result;
 	}
 }
