@@ -51,13 +51,16 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public int orderInsert(OrdReqVO ord) {
 		// 헤더 등록
-		orderMapper.orderInsert(ord.getOrd());	
+		
+		ord.getOrd().setComId(comId);
+		orderMapper.orderInsert(ord.getOrd());
+		
 		String vdrCode = ord.getOrd().getVdrCode(); // vdrCode 거래처코드
 		Long totPrice = ord.getOrd().getTotPrice(); // totPrice
 		// 외상매입금일경우 여신차감
-		if (ord.getOrd().getPayMethod().equals("opm01")) {
+		
 			orderMapper.updateCreditBal(totPrice, vdrCode);
-		}
+
 		return 0;
 	}
 
