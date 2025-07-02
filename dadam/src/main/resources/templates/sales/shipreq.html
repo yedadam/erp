@@ -108,6 +108,8 @@
 						        <select class="form-select col-4" id="shipReqSelect" style="max-width: 30%;">
 						            <option value="shipReqCode" selected>출하의뢰코드</option>
 						            <option value="vdrName">거래처명</option>
+									<option value="vdrCode">거래처코드</option>
+									<option value="ordCode">주문코드</option>
 						        </select>
 						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="shipReqInput" autocomplete="off">
 						        <button class="btn btn-outline-secondary" type="button" id="shipReqSearchBtn">
@@ -178,7 +180,7 @@
 						        <select class="form-select col-4" id="ordSelect" style="max-width: 30%;">
 						            <option value="ordCode" selected>주문코드</option>
 						            <option value="vdrName">거래처명</option>
-												<option value="vdrCode">거래처코드</option>
+									<option value="vdrCode">거래처코드</option>
 						        </select>
 						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="ordInput" autocomplete="off">
 						        <button class="btn btn-outline-secondary" type="button" id="ordSearchBtn">
@@ -313,7 +315,7 @@
             // 필드값 구성
             columns: [
                 {header: '사원', name: 'empId', align: 'center', editor: 'text'},
-								{header: '회사ID', name: 'comId', align: 'center', editor: 'text'},
+				{header: '회사ID', name: 'comId', align: 'center', editor: 'text'},
                 {header: '출하의뢰코드', name: 'shipReqCode', align: 'center',customHeader:getName('출하의뢰코드')},
                 {header: '거래처이름', name: 'vdrName', align: 'center',customHeader:getName('거래처이름')},
                 {header: '거래처코드', name: 'vdrCode', align: 'center'},
@@ -321,12 +323,12 @@
                 {header: '총금액합계', name: 'totPrice', align: 'right', 
                 		formatter: function(price){return priceFormat(price.value)+'원';},},
                 {header: '상태', name: 'status', align: 'center',
-										formatter:function(status){return headstatus(status.value)}},
-								{header: '주문번호', name: 'ordCode', align: 'center'},
-								{header: '등록일자', name: 'createdDate', align: 'center'}
+						formatter:function(status){return headstatus(status.value)}
+									},
+				{header: '주문번호', name: 'ordCode', align: 'center'},
+				{header: '등록일자', name: 'createdDate', align: 'center'}
             ],
         });
-		//
         // 상세그리드
         const detailGrid = new tui.Grid({
             // toastui 아이디 가져오기
@@ -341,22 +343,20 @@
                 {header:'품목코드', name: 'itemCode', align: 'center', width: 120},
                 {header:'품목이름', name: 'name', align: 'center',customHeader:getName('품목이름')},
                 {header:'수량', name: 'quantity', align: 'center',customHeader:getName('수량'),
-                formatter: function(quantity){return quantity.value+'개'; }, },
+                	formatter: function(quantity){return quantity.value+'개'; }, },
                 {header:'개당가격', name: 'price', align: 'right',
-											formatter: function(price){	return priceFormat(price.value)+'원';},		
+					formatter: function(price){	return priceFormat(price.value)+'원';},		
                 },
                 {header:'공급가액', name: 'supPrice', align: 'right', 
-										formatter: function(price){return priceFormat(price.value)+'원';},},
+					formatter: function(price){return priceFormat(price.value)+'원';},},
                 {header:'부가세', name: 'vatPrice', align: 'right', 
-                	formatter: function(price){return priceFormat(price.value)+'원';},	
-                },
+                	formatter: function(price){return priceFormat(price.value)+'원';},},
                 {header:'할인금액', name: 'discPrice', align: 'right', 
                 	formatter: function(discPrice){  return discPrice.value+'원'; },},
-								{header:'합계금액', name: 'totPrice', align: 'right', 
+				{header:'합계금액', name: 'totPrice', align: 'right', 
                 	formatter: function(totPrice){ return priceFormat(totPrice.value)+'원';},},	
                 {header:'상태', name: 'status', align: 'center',},
-								{header:'회사ID', name: 'comId', align: 'center'},
-				
+				{header:'회사ID', name: 'comId', align: 'center'},	
             ]
         });
         
@@ -373,19 +373,19 @@
             // 필드값 구성
             columns: [
                 {header:'주문코드', name: 'ordCode', align: 'center'},
-								{header:'거래처코드', name: 'vdrCode', align: 'center'},
-								{header:'거래처명', name: 'vdrName', align: 'center'},
-        				{header:'등록일자', name: 'createdDate', align: 'center'},
-        				{header:'상태', name: 'status', align: 'center'},
+				{header:'거래처코드', name: 'vdrCode', align: 'center'},
+				{header:'거래처명', name: 'vdrName', align: 'center'},
+        		{header:'등록일자', name: 'createdDate', align: 'center'},
+        		{header:'상태', name: 'status', align: 'center'},
                 {header:'총공급세',	name: 'totSupPrice',	align:'right',
-				 						formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},   
+				 		formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},   
                 {header:'총부가세',	name: 'totVatPrice',	align:'right',
-				    				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+				    	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
                 {header:'총할인금액',	name: 'totDisc',	align:'right',
-				    				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},      
+				    	formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},      
                 {header:'총금액합계',	name: 'totPrice',	align:'right',
-				     				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
-								{header:'납기일자', name: 'reqDlvDate', align: 'center'}		  
+				     	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+				{header:'납기일자', name: 'reqDlvDate', align: 'center'}		  
             ]
         });
       //vdr 모달안에  vdrGrid 생성  
@@ -416,7 +416,7 @@
             	{header:'창고코드',name:'whCode',align:'center'},
             	{header:'창고이름',name:'name',align:'center'}, 
             	{header:'위치정보',name:'locCode',align:'center'},
-							{header:'메모',name:'note',align:'center'}]	
+				{header:'메모',name:'note',align:'center'}]	
 		})
 
 		warehouseGrid.on('click',ev=>{
@@ -870,27 +870,22 @@
 	     async function shipReqModify(){
 	    	 let checkedRows = detailGrid.getModifiedRows();
 	    	 let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
-				 let mainRowData = mainGrid.getRow(mainRowIndex);
-
-			
+			 let mainRowData = mainGrid.getRow(mainRowIndex);
 
 	    	 if( mainGrid.getCheckedRowKeys().length<1){
 	    		 Swal.fire('실패','메인그리드에 해당하는 값을 체크해주세요','error');
 	    		 return;
 	    	 }	
-					if(mainRowData.status=='srq03'){
-						 Swal.fire('실패','이미 출하완료된 건입니다','error');
-							return;
-					}
-				
-						//메인그리드 해당란 다있는지 체크
-						if(mainRowData.vdrCode==null){
-							Swal.fire('dddd','해당하는값을 입력해ㅇㅇㅇㅇ주세요','error');
-							return; 
-						}
+			if(mainRowData.status=='srq03'){
+				Swal.fire('실패','이미 출하완료된 건입니다','error');
+				return;
+			}	
+			//메인그리드 해당란 다있는지 체크
+			if(mainRowData.vdrCode==null){
+				Swal.fire('dddd','해당하는값을 입력해ㅇㅇㅇㅇ주세요','error');
+				return; 
+			}
 
-	    	  console.log(mainRowData)
-	    
 
 	    	 //메인창
 	    	 console.log('수정함수 작동중',mainRowData)
@@ -900,13 +895,12 @@
 	    		 contentType: "application/json",
 	    		 data:JSON.stringify(mainRowData),
 	    		 success :  Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success'),
-				        
-
-	        error: function(xhr, status, error) {
-	                    console.log("실패:", xhr.status, error);
-	        }
-	    	 }) 
-	}
+				        		
+			        error: function(xhr, status, error) {
+	    			console.log("실패:", xhr.status, error);
+	        		}
+	    	   }) 
+			}
 
 		function dateformatyymmdd(today) {
 		var today = today;

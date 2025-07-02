@@ -46,17 +46,17 @@ public class ChitServiceImpl implements ChitService{
 			}
 		}
 		
-		if (chit.getUpdatedRows() != null) {
-			for(ChitVO row: chit.getUpdatedRows()) {
-				chitMapper.update(row);
-			}
-		}
-		
-		if (chit.getDeletedRows() != null) {
-			for(ChitVO row: chit.getDeletedRows()) {
-				chitMapper.delete(row);
-			}
-		}
+//		if (chit.getUpdatedRows() != null) {
+//			for(ChitVO row: chit.getUpdatedRows()) {
+//				chitMapper.update(row);
+//			}
+//		}
+//		
+//		if (chit.getDeletedRows() != null) {
+//			for(ChitVO row: chit.getDeletedRows()) {
+//				chitMapper.delete(row);
+//			}
+//		}
 	}
 	
 

@@ -28,6 +28,9 @@
 				<when test="type.equals('vdrCode')">
 					 AND o.vdr_code LIKE '%'||#{value}||'%'	
 				</when>
+				<when test="type.equals('vdrName')">
+					 AND v.vdr_name LIKE '%'||#{value}||'%'	
+				</when>
 			</choose>
 		order by o.ord_code desc			
 	</select>

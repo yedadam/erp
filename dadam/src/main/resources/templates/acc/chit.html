@@ -73,11 +73,17 @@ dialog {
 </body>
 
 <script>
-//리팩토링된 전표관리 Grid 스크립트
-//(핵심 로직 구조화 및 불필요한 중복 제거)
 
-document.addEventListener('DOMContentLoaded', () => {
+
 /** ------------------------- 자동완성 에디터 ------------------------- */
+/**
+ * ---------------------- 자동완성 에디터 생성 ----------------------
+ * - Grid 내 특정 셀(계정과목, 전표유형 등)에 자동완성 기능을 부여하기 위한 공통 함수
+ * - 외부 API 요청 기반으로 입력어를 자동완성 리스트로 받아오며,
+ *   선택 시 displayField는 보여주고, saveField는 실제 값으로 저장함
+ * - deps: 다른 컬럼값에 의존하는 경우(ex. 상위 코드) 조건으로 사용
+ * - onSelectClear: 항목 선택 시 초기화할 컬럼 목록
+ */
 function createChitAutoCompleteEditor({ urlBuilder, deps = [], onSelectClear = [], displayField = 'name', saveField = 'code', displayNameField = null }) {
  function CustomEditor(props) {
    const el = document.createElement('input');
@@ -85,8 +91,10 @@ function createChitAutoCompleteEditor({ urlBuilder, deps = [], onSelectClear = [
    el.className = 'form-control';
    el.value = props.value || '';
 
+   // jQuery UI autocomplete 적용 (동적 소스 바인딩)
    $(el).autocomplete({
      source(request, response) {
+       // 의존 컬럼 값이 비어있으면 검색 생략
        const depValues = deps.map(dep => props.grid.getValue(props.rowKey, dep));
        if (depValues.includes('') || depValues.includes(undefined)) return response([]);
 
@@ -103,8 +111,11 @@ function createChitAutoCompleteEditor({ urlBuilder, deps = [], onSelectClear = [
      },
      minLength: 0,
      select(event, ui) {
+       // 실제 저장값 설정
        props.grid.setValue(props.rowKey, props.columnInfo.name, ui.item.realValue);
+       // 추가 표시용 필드도 설정
        if (displayNameField) props.grid.setValue(props.rowKey, displayNameField, ui.item.displayName);
+       // 선택 시 초기화할 컬럼들 비움
        onSelectClear.forEach(col => props.grid.setValue(props.rowKey, col, ''));
      }
    }).focus(() => $(el).autocomplete("search", ""));
@@ -116,6 +127,11 @@ function createChitAutoCompleteEditor({ urlBuilder, deps = [], onSelectClear = [
  return CustomEditor;
 }
 
+/**
+ * ---------------------- 자동완성 에디터 인스턴스 정의 ----------------------
+ * - acctTypeEditor: 계정과목용
+ * - indTypeEditor: 전표구분용
+ */
 const acctTypeEditor = createChitAutoCompleteEditor({
  urlBuilder: ({ keyword }) => `/erp/chit/acctCodeFind?keyword=${keyword}`,
  displayField: 'ANAME', saveField: 'ACCTCODE', displayNameField: 'ANAME'
@@ -131,7 +147,7 @@ const chitGrid = new tui.Grid({
  scrollX: false,
  scrollY: true,
  editingEvent: 'click',
- treeColumnOptions: { name: 'createdDate', useIcon: true },
+ treeColumnOptions: { name: 'createdDate', useIcon: false },
  columns: [
    { header: '등록일자', name: 'createdDate', align: 'center' },
    { header: '전표명', name: 'chitTitle', align: 'center' },
@@ -160,58 +176,100 @@ const chitGrid = new tui.Grid({
    { name: 'apprEmpId', hidden: true },
    { name: 'note', hidden: true },
    {
-     header: '추가/삭제', name: 'origin', align: 'center',
-     formatter: ({ row }) => row.origin === 'init'
-       ? '<button class="btn btn-sm btn-primary add-btn">분개</button>'
-       : '<button class="btn btn-sm btn-primary add-btn">분개</button><button class="btn btn-sm btn-danger del-btn">삭제</button>'
-   }
+	   header: '추가/삭제', name: 'origin', align: 'center',
+	   formatter: ({ row }) =>
+	     row.origin === 'init'
+	       ? '<button class="btn btn-sm btn-primary add-btn">분개</button>'
+	       : '<button class="btn btn-sm btn-danger del-btn">삭제</button>'
+	 }
  ]
 });
 
 /** ------------------------- 데이터 처리 ------------------------- */
-function flatToNestedTree(rawList) {
-  const parentMap = {};
+/**
+function convertToGridTree(data) {
+  const grouped = new Map();
+
+  // chit_code로 그룹핑
+  data.forEach(row => {
+    const code = row.chitCode || row.chit_code;
+    if (!grouped.has(code)) grouped.set(code, []);
+    grouped.get(code).push(row);
+  });
+
   const treeList = [];
-  
-  rawList.forEach(row => {
-    if (!row.acctCode) {
-      // 부모 행
-      const parent = {
-        ...row,
-        _attributes: { expanded: true },
-        _children: []
-      };
-      parentMap[row.chitCode] = parent;
-      treeList.push(parent);
-    } else {
-      // 자식 행
-      const parent = parentMap[row.chitCode];
-      if (!parent) {
-        console.warn("부모 없음:", row.chitCode, row);
-        return;
-      }
+
+  grouped.forEach((rows, chitCode) => {
+    // 자식 정보 먼저 제외하고, 부모 후보 추출
+    const parentCandidates = rows.filter(r => !r.acctCode);
+    const childCandidates = rows.filter(r => r.acctCode);
+
+    // 부모 전표가 없는 경우 예외 처리
+    const first = parentCandidates[0] || childCandidates[0];
+
+    const parentIndex = treeList.length;
+
+    const parent = {
+      chitCode: chitCode,
+      chitTitle: first?.chitTitle ?? '',
+      createdDate: first?.createdDate ?? '',
+      vdrCode: first?.vdrCode ?? '',
+      totPrice: first?.totPrice ?? '',
+      taxCode: first?.taxCode ?? '',
+      status: first?.status ?? '',
+      tType: first?.tType ?? '',
+      deptCode: first?.deptCode ?? '',
+      phyEmpId: first?.phyEmpId ?? '',
+      apprEmpId: first?.apprEmpId ?? '',
+      note: first?.note ?? '',
+      origin: 'init',
+      _attributes: { expanded: true },
+      _children: [] // ✅ 반드시 있어야 함
+    };
+
+    // ✅ 분개가 있을 경우만 push
+    childCandidates.forEach(row => {
       parent._children.push({
-        ...row,
+        chitCode: row.chitCode,
+        acctCode: row.acctCode,
+        iType: row.iType,
+        iPrice: row.iPrice,
+        ANAME: row.ANAME,
+        INAME: row.INAME,
+        note: row.note,
+        origin: true,
         _attributes: {
-          tree: {
-            parent: treeList.indexOf(parent)
-          }
+          tree: { parent: parentIndex }
         }
       });
-    }
+    });
+
+    treeList.push(parent);
   });
 
   return treeList;
 }
 
+**/
 
+/**
+ * Grid에서 수정/추가된 행들 중 자식(분개) 행만 추출하는 필터 함수
+ * - acctCode가 존재하는 행만 반환
+ */
 function extractOnlyChildren(list = []) {
  return list.filter(row => !!row.acctCode);
 }
- 
+
+/**
+ * 부모 전표별로 차변/대변 금액을 합산하여 밸런스 여부 체크
+ * - 차변 = 대변이고 둘 다 0 초과일 경우: "결제 가능" 상태로 표시
+ * - 부모의 'totPrice' 셀 배경을 연두색으로 변경
+ */
 function checkBalanceAndMark() {
- const data = chitGrid.getData();
- const parentMap = {};
+ const data = chitGrid.getData();      // 현재 그리드의 전체 데이터
+ const parentMap = {};                 // 부모 인덱스별 자식 행들을 저장할 맵
+
+ // 모든 행을 순회하면서 부모 인덱스 기준으로 자식 분리
  data.forEach(row => {
    const parentKey = row._attributes?.tree?.parent;
    if (parentKey !== undefined) {
@@ -219,19 +277,26 @@ function checkBalanceAndMark() {
      parentMap[parentKey].push(row);
    }
  });
+
+ // 부모별로 차변/대변 합산 및 일치 여부 확인
  Object.entries(parentMap).forEach(([parentKey, children]) => {
    let debit = 0, credit = 0;
+
    children.forEach(r => {
      const amt = Number(r.iPrice) || 0;
-     if (r.iType === 'itp01') debit += amt;
-     if (r.iType === 'itp02') credit += amt;
+     if (r.iType === 'itp01') debit += amt;   // 차변
+     if (r.iType === 'itp02') credit += amt;  // 대변
    });
-   const isBalanced = debit > 0 && debit === credit;
-   const el = chitGrid.getElement(Number(parentKey), 'totPrice');
-   if (el) el.style.backgroundColor = isBalanced ? '#e6ffe6' : '';
-   chitGrid.setValue(Number(parentKey), 'isBalanced', isBalanced ? 'Y' : 'N');
+
+   const isBalanced = debit > 0 && debit === credit; // 둘 다 0 초과이며 일치
+
+   const el = chitGrid.getElement(Number(parentKey), 'totPrice'); // 해당 부모행의 금액 셀
+   if (el) el.style.backgroundColor = isBalanced ? '#e6ffe6' : ''; // 배경색 표시
+
+   chitGrid.setValue(Number(parentKey), 'isBalanced', isBalanced ? 'Y' : 'N'); // 그리드 내 상태 필드 값 설정
  });
 }
+
 
 /** ------------------------- 이벤트 바인딩 ------------------------- */
 $('#saveBtn').on('click', function () {
@@ -251,7 +316,8 @@ $('#saveBtn').on('click', function () {
    data: JSON.stringify(payload),
    success(res) {
      if (res.result === "success") {
-       alert(res.message + ` (${res.createdCount}건)`);
+       alert(res.message);
+       chitGrid.resetData([]);
        chitList();
      } else alert("실패: " + res.message);
    },
@@ -271,20 +337,10 @@ chitGrid.on('click', (ev) => {
  if (target.classList.contains('add-btn')) {
 	  const newRow = {
 	    chitCode: parentRow.chitCode,
-	    acctCode: '', iType: '', iPrice: '', ANAME: '', INAME: '', origin: true,
-	    _attributes: {
-	      tree: {
-	        parent: parentKey
-	      }
-	    }
+	    acctCode: '', iType: '', iPrice: '', ANAME: '', INAME: '', origin: true
 	  };
 
-	  chitGrid.appendRow(newRow, { focus: true });
-
-
-	  // 부모의 _children에 push! (트리 구조 내부 동기화)
-	  if (!parentRow._children) parentRow._children = [];
-	  parentRow._children.push(newRow);
+	  chitGrid.appendRow(newRow, { parentRowKey: parentKey, focus: true });
 	}
  if (target.classList.contains('del-btn')) chitGrid.removeRow(rowKey);
 });
@@ -311,15 +367,18 @@ chitGrid.on('editingFinish', ({ columnName }) => {
 });
 
 function chitList() {
-	  $.get("/erp/chit/chitFindAll", result => {
-	    chitGrid.resetData(flatToNestedTree(result));
-	    checkBalanceAndMark();
-	  });
-	}
-
+    $.get("/erp/chit/chitFindAll", result => {
+      console.log('서버에서 내려온 원본 데이터:', result);
+ //     const gridData = convertToGridTree(result);
+ //     console.log('트리 변환 후 데이터:', gridData);
+ //     chitGrid.resetData(gridData);
+      chitGrid.resetData(result);
+      checkBalanceAndMark();
+    });
+  }
 // 첫 데이터 로딩
 chitList();
-});
+
 
 
 // 다이어로그
@@ -329,7 +388,7 @@ chitList();
     openButton.addEventListener('click', (e) => {
       const optionsDiv = document.getElementById('columnOptions');
       optionsDiv.innerHTML = '';
-      const ignoreColumns = ['ANAME', 'INAME', 'TNAME'];
+      const ignoreColumns = ['ANAME', 'INAME'];
 
       chitGrid.getColumns().forEach(col => {
         if (ignoreColumns.includes(col.name)) return;

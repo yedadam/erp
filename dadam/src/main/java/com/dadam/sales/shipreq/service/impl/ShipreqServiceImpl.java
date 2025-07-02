@@ -52,9 +52,14 @@ public class ShipreqServiceImpl implements ShipreqService {
 	public int insertShipreqReg(ShipReqFrontVO req) {
 		String shipreqCode=req.getHead().getShipReqCode();
 		String ordCode=req.getHead().getOrdCode(); 
-				
+			
+
+		req.getHead().setComId(comId); //comId를 설정 해줌  
+		System.out.println("comId"+req.getHead().getComId());
+		
 		shipreqMapper.insertShipreqHead(req.getHead()); //헤더먼저등록
-		shipreqMapper.updateStatusByordNo(ordCode); 	// 출고대기 ost02로 변경  
+		shipreqMapper.updateStatusByordNo(ordCode); 	// 출고대기 ost02로 변경 
+		
 		
 		System.out.println(shipreqCode);
 		System.out.println(req.getDtl());

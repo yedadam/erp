@@ -65,7 +65,7 @@ SELECT c.created_date
 		, created_date
 		, com_id)
 		VALUES (
-		#{chitDtId}
+		  #{chitDtId}
 		, #{chitCode}
 		, #{acctCode}
 		, #{iType}
