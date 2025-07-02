@@ -50,7 +50,7 @@ creGrid = new tui.Grid({
 	pagination: true,
 	pageOptions:{
 		useClient:true,
-		perPage:5
+		perPage:10
 	},
 	
 	columns:[
@@ -98,22 +98,21 @@ creGrid.on('click', (ev)=> {
 		detailGrid.resetData([]);
 		$('#detailContainer').hide();
 		
-//		creGrid.removeRowClassName(ev.rowKey, 'row-selected');
-//		selectedRowKey = null;
+		creGrid.removeRowClassName(ev.rowKey, 'row-selected');
+		selectedRowKey = null;
 	}else{
 		creGrid.uncheckAll();
 		creGrid.check(ev.rowKey);
 		
-//		if (selectedRowKey !== null) {
-//			creGrid.removeRowClassName(selectedRowKey, 'row-selected');
-//		}
+		if (selectedRowKey !== null) {
+			creGrid.removeRowClassName(selectedRowKey, 'row-selected');
+		}
 		
-//		selectedRowKey = ev.rowKey;
-//		creGrid.addRowClassName(ev.rowKey, 'row-selected');
+		selectedRowKey = ev.rowKey;
+		creGrid.addRowClassName(ev.rowKey, 'row-selected');
 	
 	const rowData = creGrid.getRow(ev.rowKey);
 	const vdrCode = rowData.vdrCode;
-	console.log('선택된 거래처 코드 : ', vdrCode);
 	
 	getCreditDetail(vdrCode);
 	}
