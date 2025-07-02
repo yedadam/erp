@@ -38,5 +38,10 @@ public class HoldServiceImpl implements HoldService{
 		List<HoldVO> list = holdMapper.selectHoldLotList(vo);
 		return list;
 	}
-	
+	// 홀드리스트 등록
+	@Override
+	public int insertHoldList(HoldVO vo) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

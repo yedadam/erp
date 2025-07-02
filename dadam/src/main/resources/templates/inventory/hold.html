@@ -283,8 +283,7 @@ function selectGrid(){
 	
 };// 조회버튼 끝
 
-// 전역으로 함수등록
-const lotList = new Map();
+
 // 등록 그리드
 function insertGrid(){
 	holdGrid = new tui.Grid({
@@ -300,9 +299,8 @@ function insertGrid(){
 	        { header: '구분코드',name:'code',align:'center'},
 	        { header: '품목명',name:'itemName',align:'center'},
 	        { header: 'LOT',name:'lot',align:'center', editor: 'text'
-	        	 , formatter:function({value}){
-	        		if (!Array.isArray(value) || value.length === 0) return '<span class="badge text-bg-info">선택</span>'
-	        		else return '<span class="badge text-bg-info">수정</span>';
+	        	 , formatter:function(row){
+	        			return '<span class="badge text-bg-danger fs-6">선택</span>'
 	        	}
 	        },
 	        { header: '필요수량',name:'quantity',align:'center'},
@@ -423,6 +421,7 @@ function insertGrid(){
 	    //필드값 구성
 	    columns:[
 	        { header: 'lot',name:'lot',align:'center'},
+	        { header: '위치',name:'locCode',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
 	        { header: '변경재고량',name:'quantity',align:'center'
 	        	, formatter:(row)=>{
@@ -430,11 +429,13 @@ function insertGrid(){
 	        		return val
 	        	}
 	        	},
-	        { header: '입력수량',name:'qty',align:'center'},
-	        { header: '위치',name:'locCode',align:'center'}
+	        { header: '입력수량',name:'qty',align:'center'}
+	        
 	    ],
 	});
-
+	
+	// 전역으로 함수등록
+	const lotList = new Map();
 	let subsgrid = [];
 	let rowKey;
 	let columnName;
@@ -472,7 +473,6 @@ function insertGrid(){
 		}else{
 			subLot.resetData(rowGrid);	
 		}
-		console.log(rowGrid)
 	});
 	
 	// lot 선택이벤트
@@ -499,16 +499,25 @@ function insertGrid(){
 					  text: "수량을 입력해주세요!"
 					});
 				return;
+			}else if(item.quantity < item.qty){
+				Swal.fire({
+					  icon: "error",
+					  title: "수량이 많음!",
+					  text: "재고수량을 확인해주세요!"
+					});
+				return;
 			}
 		}
+		// 발주서 수량과 비교
 		if(sum > rowData.quantity){
 			Swal.fire({
 				  icon: "error",
-				  title: "수량이 오버!",
-				  text: "수량을 알맞게주세요!"
+				  title: "홀드수량이 많음!",
+				  text: "수량을 확인해주세요!"
 				});
 			return;
 		}
+		
 		checkData = check.map((item)=> ({
 					lot: item.lot,
 					itemName: item.itemName,
@@ -519,6 +528,7 @@ function insertGrid(){
 		
 		// lotList는 map타입 
 		lotList.set(rowData.code, checkData);
+		subLot.resetData(lotList.get(rowData.code))
 		$('#lotModal').modal('hide');
 	})
 	// 재고이동
@@ -541,19 +551,21 @@ function insertGrid(){
 	
 	
 	// 저장 버튼
-	//$('#saveBtn').on('click', saveBtninsert);
+	$('#saveBtn').on('click', saveBtninsert);
 	
 } // 등록버튼 끝
 // 등록
 function saveBtninsert(){
 		let param = [];
 		holdGrid.getData().forEach((item,idx)=>{
+		let lotparam = lotList.get(item.code);
 			let saveData={
-							  itemCode: item.itemCode
-							, quantity: item.quantity
-							, type: item.type
-							, status: item.status
-							, note : item.note
+							  itemCode: item.itemCode		// 품목코드
+							, quantity: item.quantity		// 발주서수량
+							, type: item.type				// 재고이동, 출하의뢰 , 다른이유
+							, status: item.status			// 재고부족, 홀드중, 처리완료
+							, note : item.note				// 비고
+							, code : item.code				// 참조 테이블 코드
 			}
 			param.push(saveData)
 		})

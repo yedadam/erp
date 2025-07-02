@@ -56,4 +56,33 @@
                         on(st.item_code = it.item_code AND st.com_id = it.com_id)
         WHERE st.com_id = #{comId} AND st.item_code = #{itemCode}
 	</select>
+	
+	<insert id="insertHoldList" parameterType="HoldVO">
+	INSERT INTO hold
+	values(
+			#{holdCode},
+			#{stkCode},
+			#{itemCode},
+			#{quantity},
+			#{type},
+			#{status},
+			#{note},
+			#{comId},
+			sysdate,
+			#{code}
+			)
+	</insert>
+	
+	<insert id="insertHoldLotList" parameterType="HoldVO">
+	INSERT INTO holddetail
+	values(
+			#{holdDtlCode},
+			#{holdCode},
+			#{lot},
+			#{quantity},
+			#{comId}
+			)
+	</insert>
+	
+	
 </mapper>

@@ -16,4 +16,8 @@ public interface HoldMapper {
 	public List<OutboundVO> selectShipRequestModal(HoldVO vo);
 	// lot 모달 조회
 	public List<HoldVO> selectHoldLotList(HoldVO vo);
+	// 홀드등록
+	public int insertHoldList(HoldVO vo);
+	// 홀드Lot등록
+	public int insertHoldLotList(HoldVO vo);
 }
