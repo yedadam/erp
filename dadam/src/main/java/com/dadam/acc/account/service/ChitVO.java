@@ -55,6 +55,13 @@ public class ChitVO {
 	public void settType(String tType) {
 		this.tType = tType;
 	}
+	public String gettName() {
+		return tName;
+	}
+	public void settName(String tName) {
+		this.tName = tName;
+	}
+	
 	public String getiType() {
 		return iType;
 	}
@@ -68,12 +75,14 @@ public class ChitVO {
 		this.iPrice = iPrice;
 	}
     
+
+
 	private String empName;
 	private String type;
 	
 	
 	// 자동분개 설정용 필드
-	private Long ruleId;
+	private String ruleId;
 	private String indType;      // 차/대변
 	private String chitType;      // 거래유형
 	
