@@ -1,42 +1,69 @@
 package com.dadam.hr.attendance.web;
 
-import java.util.List;
-
+import com.dadam.hr.attendance.service.AttendanceService;
+import com.dadam.hr.attendance.service.AttendanceVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.dadam.hr.attendance.service.AttendanceService;
-import com.dadam.hr.attendance.service.AttendanceVO;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
- * 근태관리(Attendance) REST 컨트롤러
+ * 근태 관리 REST 컨트롤러
  */
 @RestController
-@RequestMapping("/api/attendance")
+@RequestMapping("/erp/hr")
 public class AttendanceRestController {
 
-    private final AttendanceService attendanceService;
-
+    /** 근태 서비스 */
     @Autowired
-    public AttendanceRestController(AttendanceService attendanceService) {
-        this.attendanceService = attendanceService;
+    private AttendanceService attendanceService;
+
+    /**
+     * 출근 등록
+     * @param vo - 근태 정보
+     * @param request - 요청 객체
+     * @return 처리 결과
+     */
+    @PostMapping("/attendanceCheckIn")
+    public String checkIn(@RequestBody AttendanceVO vo, HttpServletRequest request) {
+        try {
+            String ip = request.getRemoteAddr();
+            attendanceService.checkIn(vo, ip, null);
+            return "출근 완료";
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     /**
-     * 출근/퇴근 기록 저장
+     * 퇴근 등록
+     * @param vo - 근태 정보
+     * @param request - 요청 객체
+     * @return 처리 결과
      */
-    @PostMapping("/save")
-    public int saveAttendance(@RequestBody AttendanceVO attendance) {
-        return attendanceService.insertAttendance(attendance);
+    @PostMapping("/attendanceCheckOut")
+    public String checkOut(@RequestBody AttendanceVO vo, HttpServletRequest request) {
+        try {
+            String ip = request.getRemoteAddr();
+            attendanceService.checkOut(vo, ip, null);
+            return "퇴근 완료";
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     /**
-     * 사원ID, 연월로 출퇴근 기록 조회
+     * 근태 목록 조회
+     * @param comId - 회사ID
+     * @param empId - 사원번호
+     * @param fromDate - 시작일
+     * @param toDate - 종료일
+     * @return 근태 리스트
      */
-    @GetMapping("/list")
-    public List<AttendanceVO> getAttendanceList(@RequestParam String empId, @RequestParam String yearMonth) {
-        return attendanceService.selectByEmpIdAndMonth(empId, yearMonth);
+    @GetMapping("/attendanceList")
+    public List<AttendanceVO> getAttendanceList(@RequestParam String comId, @RequestParam String empId,
+                                                @RequestParam String fromDate, @RequestParam String toDate) {
+        return attendanceService.getAttendanceList(comId, empId, fromDate, toDate);
     }
-
-    // 필요시 추가 API 구현
 } 

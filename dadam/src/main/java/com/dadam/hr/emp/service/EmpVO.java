@@ -5,6 +5,9 @@ import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
+/**
+ * 사원 정보 VO
+ */
 @Data
 public class EmpVO {
     /** 사원번호 */
@@ -65,4 +68,20 @@ public class EmpVO {
     private String workTypeName;   // 근무유형명칭
     /** 재직상태명칭(한글) */
     private String empStatusName;  // 재직상태명칭
+
+    // 연차 관련 필드
+    /** 연차 총일수 */
+    private Double annualLeaveTotal;
+    /** 연차 사용일수 */
+    private Double annualLeaveUsed;
+    /** 연차 잔여일수 */
+    private Double annualLeaveRemain;
+
+    /**
+     * 연차 총일수 setter (int→double 변환)
+     * @param total - 연차 총일수
+     */
+    public void setAnnualLeaveTotal(int total) {
+        this.annualLeaveTotal = (double) total;
+    }
 } 

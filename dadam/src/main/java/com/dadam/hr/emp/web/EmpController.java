@@ -21,7 +21,9 @@ import com.dadam.hr.emp.service.EmpService;
 import com.dadam.hr.emp.service.EmpVO;
 import com.dadam.common.service.CodeService;
 
-// 사원관리 컨트롤러
+/**
+ * 사원 관리 컨트롤러
+ */
 // - 사원 전체조회, 상세조회, 등록, 수정, 삭제, 사번생성 등
 // - /erp/hr/emp-all, /erp/hr/empList 등 매핑
 // - 부서 목록 조회(등록/수정 폼용)
@@ -39,9 +41,9 @@ public class EmpController {
     private CodeService codeService;
 
     /**
-     * 사원 목록 페이지로 이동
-     * @return 사원 목록 페이지 view name
-     * 
+     * 사원 목록 페이지 이동
+     * @param model - 뷰 모델
+     * @return 사원 목록 뷰
      */
     @GetMapping("/emp")
     public String empPage(Model model) {
@@ -52,6 +54,13 @@ public class EmpController {
         return "hr/emplist";
     }
 
+    /**
+     * 사원 목록 조회
+     * @param keyword - 검색어
+     * @param status - 재직상태
+     * @param dept - 부서코드
+     * @return 사원 리스트
+     */
     @GetMapping("/empList")
     @ResponseBody
     public List<EmpVO> empList(@RequestParam(required = false) String keyword,
@@ -60,12 +69,23 @@ public class EmpController {
         return empService.findEmpList(keyword, status, dept);
     }
 
+    /**
+     * 사원 상세 조회
+     * @param empId - 사원번호
+     * @return 사원 정보
+     */
     @GetMapping("/empDetail")
     @ResponseBody
     public EmpVO empDetail(@RequestParam String empId) {
         return empService.findEmpDetail(empId);
     }
 
+    /**
+     * 사원 등록
+     * @param empVO - 사원 정보
+     * @param profileImg - 프로필 이미지
+     * @return 등록 결과
+     */
     @PostMapping("/insertEmp")
     @ResponseBody
     public String insertEmp(@ModelAttribute EmpVO empVO, @RequestParam(value = "profileImg", required = false) MultipartFile profileImg) {
@@ -81,6 +101,12 @@ public class EmpController {
         return result > 0 ? "ok" : "fail";
     }
 
+    /**
+     * 사원 수정
+     * @param empVO - 사원 정보
+     * @param profileImg - 프로필 이미지
+     * @return 수정 결과
+     */
     @PostMapping("/updateEmp")
     @ResponseBody
     public String updateEmp(@ModelAttribute EmpVO empVO, @RequestParam(value = "profileImg", required = false) MultipartFile profileImg) {
@@ -91,6 +117,11 @@ public class EmpController {
         return result > 0 ? "ok" : "fail";
     }
 
+    /**
+     * 사원 삭제
+     * @param param - 사원번호
+     * @return 삭제 결과
+     */
     @PostMapping("/deleteEmp")
     @ResponseBody
     public String deleteEmp(@RequestBody java.util.Map<String, String> param) {
@@ -100,12 +131,21 @@ public class EmpController {
         return result > 0 ? "ok" : "fail";
     }
 
+    /**
+     * 다음 사번 생성
+     * @return 사번
+     */
     @GetMapping("/nextEmpId")
     @ResponseBody
     public String nextEmpId() {
         return generateNextEmpId();
     }
 
+    /**
+     * 전체 사원 목록 페이지 이동
+     * @param model - 뷰 모델
+     * @return 전체 사원 목록 뷰
+     */
     @GetMapping("/emp-all")
     public String empAllPage(Model model) {
         model.addAttribute("empStatuses", codeService.getCodeMap("stt"));
@@ -113,14 +153,28 @@ public class EmpController {
     }
 
     /**
-     * 부서 목록(모던 레이아웃) 화면으로 이동
-     * @return 부서 목록 페이지 view name
+     * 부서 목록 페이지 이동
+     * @return 부서 목록 뷰
      */
     @GetMapping("/dept-list")
     public String deptListPage() {
-        return "hr/dept-list";
+        return "hr/dept";
     }
 
+    /**
+     * 조직도 페이지 이동
+     * @return 조직도 뷰
+     */
+    @GetMapping("/org-tree")
+    public String orgTreeFinalPage() {
+        return "hr/org-tree-final";
+    }
+
+    /**
+     * 프로필 이미지 저장
+     * @param profileImg - 이미지 파일
+     * @return 저장 경로
+     */
     private String saveProfileImage(MultipartFile profileImg) {
         try {
             String uploadDir = System.getProperty("user.dir") + "/uploads/profile/";
@@ -136,6 +190,10 @@ public class EmpController {
         }
     }
 
+    /**
+     * 사번 생성
+     * @return 사번
+     */
     private String generateNextEmpId() {
         String maxEmpId = empService.getMaxEmpId();
         if (maxEmpId == null || !maxEmpId.matches("e\\d+")) {

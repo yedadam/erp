@@ -3,6 +3,9 @@ package com.dadam.hr.emp.service;
 import lombok.Data;
 import java.util.Date;
 
+/**
+ * 부서 정보 VO
+ */
 @Data
 public class DeptVO {
     /** 부서코드 */
@@ -17,9 +20,11 @@ public class DeptVO {
     private Date createdDate;
     /** 회사ID */
     private String comId;
-    /** 사용여부 */
+    /** 사용여부 (Y/N) */
     private String acctYn;
     /** 비고 */
     private String remark;
+    /** 인원수 */
+    private Integer empCount;
 }
  

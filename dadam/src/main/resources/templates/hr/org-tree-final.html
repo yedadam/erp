@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>카드형 트리 조직도 - DB 연동</title>
+  <style>
+    body { background: #f4f6fa; font-family: 'Pretendard', Arial, sans-serif; margin: 0; }
+    .org-wrap { display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 24px 0; }
+    .org-search-bar {
+      display: flex; align-items: center; gap: 4px; margin-bottom: 10px;
+      width: 100%; max-width: 420px; justify-content: center;
+      height: 36px;
+    }
+    .org-search-bar input {
+      height: 32px; font-size: 0.95em; border-radius: 6px; border: 1px solid #ccc; padding: 0 10px; flex: none; width: 180px; max-width: 260px;
+    }
+    .org-search-bar button[type="submit"] {
+      height: 32px; min-width: 60px; font-size: 0.95em; border-radius: 6px; border: 1px solid #2563eb; background: #2563eb; color: #fff; font-weight: 500; cursor: pointer; margin-right: 2px;
+    }
+    .org-tree { padding-top: 0; transition: transform 0.2s; }
+    .org-tree ul {
+      padding-top: 8px; position: relative;
+      display: flex; justify-content: center;
+    }
+    .org-tree li {
+      list-style-type: none; text-align: center; position: relative;
+      margin: 0 2px;
+    }
+    .org-dept {
+      background: #f4f8ff; border-radius: 8px; border: 1.5px solid #2563eb;
+      font-weight: bold; font-size: 1em; padding: 6px 18px; margin-bottom: 8px;
+      display: inline-block; color: #2563eb; box-shadow: none; cursor: default;
+      white-space: nowrap;
+      min-width: 80px;
+      max-width: 220px;
+      writing-mode: initial;
+    }
+    .org-members {
+      display: flex; justify-content: center; gap: 10px; margin-bottom: 8px;
+    }
+    .org-card {
+      min-width: 70px; padding: 8px 10px; border-radius: 7px; background: #fff;
+      border: 1px solid #bbb; font-size: 0.95em; margin: 0 2px;
+      box-shadow: 0 1px 4px #f0f0f0; transition: border 0.2s;
+    }
+    .org-card.leader { border: 1.5px solid #facc15; background: #fffbe6; }
+    .org-card.selected { border: 2px solid #2563eb; background: #eaf1ff; }
+    .org-tree ul ul::before {
+      content: ''; position: absolute; top: 0; left: 50%; border-left: 1px solid #ccc;
+      width: 0; height: 8px; transform: translateX(-50%);
+    }
+    .org-tree li:not(:only-child)::after {
+      content: ''; position: absolute; top: 0; left: 50%; border-top: 1px solid #ccc;
+      width: 100%; height: 0; transform: translateX(-50%);
+    }
+    .org-name { font-weight: 600; font-size: 0.98em; }
+    .org-pos { color: #2563eb; font-size: 0.82em; }
+    .org-photo { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #eee; margin-bottom: 2px; }
+    .org-layout {
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      width: 100%;
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .org-main {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .org-detail-panel {
+      width: 260px;
+      min-height: 120px;
+      position: sticky;
+      top: 32px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px #eee;
+      padding: 16px 10px;
+      margin-top: 0;
+      margin-left: 12px;
+      font-size: 0.97em; color: #333;
+      z-index: 10;
+    }
+    .org-detail-photo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #eee; margin-bottom: 6px; }
+    .org-detail-name { font-size: 1.05em; font-weight: 700; margin-bottom: 2px; }
+    .org-detail-pos { color: #2563eb; font-weight: 600; }
+    .org-detail-contact, .org-detail-email, .org-detail-duty { color: #666; font-size:0.95em; margin-top: 2px; }
+    .zoom-controls {
+      display: flex; align-items: center; gap: 2px; margin: 0;
+    }
+    .zoom-controls button {
+      width: 32px; height: 32px; border-radius: 6px; border: 1px solid #2563eb; background: #fff; color: #2563eb; font-weight: bold; cursor: pointer; font-size: 1.1em; display: flex; align-items: center; justify-content: center;
+      padding: 0;
+    }
+    @media (max-width: 900px) {
+      .org-layout { flex-direction: column; align-items: stretch; gap: 0; }
+      .org-detail-panel { width: 98vw; max-width: 98vw; position: static; margin: 12px auto 0 auto; }
+    }
+    .org-members-vertical {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 0 0;
+      padding: 0;
+    }
+    .org-members-vertical li {
+      list-style: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="org-wrap">
+    <form class="org-search-bar" onsubmit="searchOrg(event)">
+      <input type="text" id="orgSearchInput" placeholder="이름, 직위, 부서 검색" autocomplete="off">
+      <button type="submit">검색</button>
+      <span class="zoom-controls">
+        <button onclick="zoomOrg(-0.1)" type="button">-</button>
+        <button onclick="zoomOrg(0.1)" type="button">+</button>
+      </span>
+    </form>
+    <div class="org-layout">
+      <div class="org-main">
+        <div class="org-tree" id="orgTree"></div>
+      </div>
+      <div class="org-detail-panel" id="orgDetailPanel">
+        <div style="color:#bbb; text-align:center;">카드를 클릭하면 상세정보가 표시됩니다.</div>
+      </div>
+    </div>
+  </div>
+  <iframe src="/erp/hr/org-tree" style="width:100%;height:700px;border:none;border-radius:16px;"></iframe>
+  <script>
+    let orgData = null;
+    let zoomLevel = 1;
+    // 직급 우선순위 매핑
+    const positionOrder = {
+      '대표': 1, '임원': 2, '부장': 3, '차장': 4, '과장': 5, '대리': 6, '사원': 7
+    };
+    function getPositionOrder(pos) {
+      return positionOrder[pos] || 99;
+    }
+    function zoomOrg(delta) {
+      zoomLevel = Math.max(0.5, Math.min(2, zoomLevel + delta));
+      document.querySelector('.org-tree').style.transform = `scale(${zoomLevel})`;
+    }
+    window.onload = function() {
+      fetch('/api/org')
+        .then(res => res.json())
+        .then(data => {
+          orgData = data;
+          render();
+        })
+        .catch(() => {
+          document.getElementById('orgTree').innerHTML = '<div style="color:#bbb; text-align:center; margin-top:40px;">조직도 데이터를 불러올 수 없습니다.</div>';
+        });
+    };
+
+    function getStatusIcon(status) {
+      if (status === "active") return "✔️";
+      if (status === "leave") return "⚠️";
+      if (status === "quit") return "❌";
+      return "";
+    }
+    function getStatusText(status) {
+      if (status === "active") return "재직";
+      if (status === "leave") return "휴직";
+      if (status === "quit") return "퇴사";
+      return "";
+    }
+
+    function renderOrgTree(node, searchTerm = "") {
+      const match = (str) => str && str.toLowerCase().includes(searchTerm.toLowerCase());
+      if (searchTerm && !(match(node.deptName) || (node.manager && match(node.manager.empName)) || (node.employees && node.employees.some(e => match(e.empName))))) {
+        if (!node.children || node.children.length === 0) return null;
+      }
+      const li = document.createElement('li');
+      // 부서명
+      const deptDiv = document.createElement('div');
+      deptDiv.className = 'org-dept';
+      deptDiv.textContent = node.deptName || '부서명없음';
+      li.appendChild(deptDiv);
+      // 사원(부서장+직원) 세로로
+      const membersUl = document.createElement('ul');
+      membersUl.className = 'org-members-vertical';
+      // 부서장
+      if (node.manager) {
+        const mgrLi = document.createElement('li');
+        const mgrCard = document.createElement('div');
+        mgrCard.className = 'org-card leader';
+        mgrCard.innerHTML = `
+          <img src="${node.manager.profileImgPath || 'https://via.placeholder.com/22'}" class="org-photo"><br>
+          <span class="org-name">${node.manager.empName || '이름없음'}</span><br>
+          <span class="org-pos">${node.manager.positionName || ''}</span>
+        `;
+        mgrCard.onclick = (e) => { e.stopPropagation(); selectCard(mgrCard); showDetailPanel(node.manager); };
+        mgrLi.appendChild(mgrCard);
+        membersUl.appendChild(mgrLi);
+      }
+      // 직원 카드 (직급순 정렬)
+      if (node.employees && node.employees.length > 0) {
+        node.employees
+          .slice()
+          .sort((a, b) => getPositionOrder(a.positionName) - getPositionOrder(b.positionName))
+          .forEach(emp => {
+            const empLi = document.createElement('li');
+            const empCard = document.createElement('div');
+            empCard.className = 'org-card';
+            empCard.innerHTML = `
+              <img src="${emp.profileImgPath || 'https://via.placeholder.com/22'}" class="org-photo"><br>
+              <span class="org-name">${emp.empName || '이름없음'}</span><br>
+              <span class="org-pos">${emp.positionName || ''}</span>
+            `;
+            empCard.onclick = (e) => { e.stopPropagation(); selectCard(empCard); showDetailPanel(emp); };
+            empLi.appendChild(empCard);
+            membersUl.appendChild(empLi);
+          });
+      }
+      if (membersUl.children.length > 0) li.appendChild(membersUl);
+      // 하위 부서
+      if (node.children && node.children.length > 0) {
+        const ul = document.createElement('ul');
+        node.children.forEach(child => {
+          const childNode = renderOrgTree(child, searchTerm);
+          if (childNode) ul.appendChild(childNode);
+        });
+        li.appendChild(ul);
+      }
+      return li;
+    }
+
+    function selectCard(card) {
+      document.querySelectorAll('.org-card.selected').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+    }
+
+    function showDetailPanel(person) {
+      const panel = document.getElementById('orgDetailPanel');
+      panel.innerHTML = `
+        <img src="${person.profileImgPath || 'https://via.placeholder.com/36'}" class="org-detail-photo"><br>
+        <div class="org-detail-name">${person.empName || '이름없음'}</div>
+        <div class="org-detail-pos">${person.positionName || ''}</div>
+        <div class="org-detail-contact">📞 ${person.tel || '-'}</div>
+        <div class="org-detail-email">✉️ ${person.email || '-'}</div>
+      `;
+    }
+
+    function render() {
+      if (!orgData) return;
+      const searchTerm = document.getElementById('orgSearchInput').value.trim();
+      const treeDiv = document.getElementById('orgTree');
+      treeDiv.innerHTML = '';
+      const ul = document.createElement('ul');
+      const tree = renderOrgTree(orgData, searchTerm);
+      if (tree) ul.appendChild(tree);
+      treeDiv.appendChild(ul);
+      document.getElementById('orgDetailPanel').innerHTML = '<div style="color:#bbb; text-align:center;">카드를 클릭하면 상세정보가 표시됩니다.</div>';
+    }
+    function searchOrg(e) {
+      e.preventDefault();
+      render();
+    }
+  </script>
+</body>
+</html> 
