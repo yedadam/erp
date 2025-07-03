@@ -425,13 +425,14 @@ function insertGrid(){
 	        { header: 'lot',name:'lot',align:'center'},
 	        { header: '위치',name:'locCode',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
-	        { header: '변경재고량',name:'quantity',align:'center'
+	        { header: 'lot재고',name:'quantity',align:'center'},
+	        { header: '입력수량',name:'qty',align:'center'},
+	        { header: '변경수량',name:'reqqty',align:'center'
 	        	, formatter:(row)=>{
-	        		let val = row.value - row.row.qty;
+	        		let val = row.row.quantity - row.row.qty;
 	        		return val
 	        	}
-	        	},
-	        { header: '입력수량',name:'qty',align:'center'}
+	        	}
 	        
 	    ],
 	});
@@ -528,9 +529,7 @@ function insertGrid(){
 			holdGrid.setValue(rowKey, 'status', 'hs01')
 			holdGrid.setValue(rowKey, 'statusName', '홀드중')
 		}
-		//그려진 그리드의 값을 변경
-		//mainGrid.setValue(mainRowKey,'purReqCode',get);
-		//}
+		// 파라메타 담기
 		checkData = check.map((item)=> ({
 					lot: item.lot,
 					itemCode: item.itemCode,

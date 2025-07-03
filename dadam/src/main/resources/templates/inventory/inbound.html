@@ -173,8 +173,8 @@ function warehouseList(){
 					    	{ header: '품목코드', name: 'itemCode', align:'center'},
 					    	{ header: '품목명', name: 'itemName', align:'center'},
 					    	{ header: '발주량', name: 'quantity', align:'center'},
-					    	/* { header: '기입고량', name: 'pquantity', align:'center'},
-					    	{ header: '미입고량', name: 'notStock', align:'center'}, */
+					    	{ header: '기입고량', name: 'currQty', align:'center'},
+					    	{ header: '미입고량', name: 'reqQty', align:'center'},
 					    	{ header: '위치', name: 'loc', align:'center', width: 200
 					    		, formatter:'listItemText'
 					    		,  editor: {
@@ -196,7 +196,7 @@ function warehouseList(){
 					    	}}
 			    		],
 			    		columnOptions: {
-						frozenCount: 4,
+						frozenCount: 6,
 						frozenBorderWidth: 2
 			    		}
 			});
@@ -219,8 +219,8 @@ function warehouseList(){
 						  itemName: item.itemName,
 						  quantity : item.quantity,
 						  price: item.price,
-						  /* pquantity: item.pquantity,
-					      notStock: item.notStock, */
+						  currQty: item.currQty,
+						  reqQty: item.reqQty,
 						  loc : '',
 						  qty : '',
 						  note: '',
@@ -278,7 +278,7 @@ function warehouseList(){
 					code = item.purOrdDtlCode
 					items = item.itemCode
 					prices = item.price
-					quantityCheck = item.quantity
+					quantityCheck = item.reqQty // 발주량 X 미입고량을 비교하는걸로 바꿈.
 					check = 0;
 					}
 					// qty를 계속더해서 최대값을 구함
@@ -292,15 +292,16 @@ function warehouseList(){
 							});
 						return;
 					}else if(quantityCheck == check){
-							status = 'pct-02'; // 입고완료
+							status = 'pct02'; // 입고완료
 					}else{
-							status = 'pct-01'; // 부분 입고	
+							status = 'pct01'; // 부분 입고
 					}
 						params = {
 									  purOrdDtlCode: code,
 									  itemCode: items,
 									  locCode: item.loc,
 									  quantity: item.qty,
+									  currQty: item.qty,
 									  price: prices,
 									  note: item.note,
 									  empId: empName,
@@ -323,6 +324,7 @@ function warehouseList(){
 							});
 						$('#inboundModal').modal('hide');
 						purcharsegrid.uncheckAll();
+						inboundGrid.refreshLayout();
 						}
 					});
 				});
@@ -369,22 +371,6 @@ function warehouseList(){
 
 			 // 모달안에서 그리드부를떄 참고.
 			$('#inboundModal').on('shown.bs.modal',function(){
-				/* if (inboundGrid.getRowCount() === 0) {
-					inboundGrid.resetData([
-						{
-							purOrdDtlCode: '',
-							itemCode: '',
-							itemName: '',
-							quantity: '',
-							pquantity: '',
-						    notStock: '',
-							loc: '',
-							qty: '',
-							note: '',
-							origin: false
-						}
-					]);
-				} */
 				inboundGrid.refreshLayout();
 			})
 	   } // ajax호출 끝
@@ -413,16 +399,7 @@ const purcharsegrid = new tui.Grid({
         { header: '발주상세코드',name:'purOrdDtlCode',align:'center'},
         { header: '제품명',name:'itemName',align:'center'},
         { header: '수량',name:'quantity',align:'center'},
-        { header: '상태',name:'status',align:'center',
-        	formatter: function(status){
-        		if(status.value == 'pds-01'){
-        			return status.value = '입고대기'
-        		}else if(status.value == 'pds-02'){
-        			return status.value = '부분입고'
-        		}else{
-        			return status.value = '입고완료'
-        		}
-        	},
+        { header: '상태',name:'statusName',align:'center',
         	filter: 'select'
         	},
         { header: '입고예정일자',name:'expDlvDate',align:'center'},
