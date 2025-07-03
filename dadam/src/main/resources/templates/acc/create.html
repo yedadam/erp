@@ -10,29 +10,36 @@
   }
 </style>
 </head>
-<body>
+<body class="bg-light">
+  <div class="container-fluid mt-4" style="max-width: 1200px;">
+    
+    <!-- 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="fw-bold mb-0">여신 관리</h3>
+      <small class="text-muted ms-2">
+        ※ 조회 / 여신금액 초과 / 여신기간 초과 시 표시 예정 · 공통코드 처리 예정
+      </small>
+    </div>
 
-<h6> 조회, 여신금액 초과, 여신 기간 초과시 표시, 공통코드 처리 </h6>
-	<div class="container" style="max-width: 1200px; margin: 0 auto;">
-		<h2>여신 관리</h2>
-		<!-- Toast UI Grid 영역 -->
-		<div>
-			<div class="col-12">
-				<div id="creGrid" class="mx-6"></div>
-			</div>
-		</div>
+    <!-- 메인 여신 그리드 -->
+    <div class="col-12">
+      <div id="creGrid" class="mx-3"></div>
+    </div>
 
-		<div id="detailContainer" style="display: none;" >
-			<div class="col-12">
-				<hr>
-				<h4>상세 거래 내역</h4>
-				<div id="detailGrid" class="mx-6"></div>
-			</div>
-		</div>
-	</div>
+    <!-- 상세 거래 내역 -->
+    <div id="detailContainer" class="mt-4" style="display: none;">
+      <hr>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="fw-bold mb-0">상세 거래 내역</h5>
+      </div>
+      <div class="col-12">
+        <div id="detailGrid" class="mx-3"></div>
+      </div>
+    </div>
 
-
+  </div>
 </body>
+
 
 <script>
 let creGrid, detailGrid;
@@ -72,7 +79,7 @@ creGrid = new tui.Grid({
 // 여신 헤더 아작스
 function creditList(){
 	$.ajax({
-		url: "/erp/credit/creditFindAll",
+		url: "/erp/accounting/creditFindAll",
 		method:"GET",
 		success: function(result){
 			console.log(result)
@@ -120,7 +127,7 @@ creGrid.on('click', (ev)=> {
 
 function getCreditDetail(vdrCode){
 	$.ajax({
-		url: "/erp/credit/creditFindByCode",
+		url: "/erp/accounting/creditFindByCode",
 		method:"GET",
 		data : { vdrCode : vdrCode },
 		success: function(result){

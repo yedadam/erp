@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.acc.account.mapper.BalanceSheetMapper">
+
+<select id="balanceSheetFindAll">
+	SELECT acct_code, acct_name, acct_type
+		   SUM(CASE WHEN i.type = 'itp01' THEN price ELSE 0 END) AS debit_total, 
+           SUM(CASE WHEN i.type = 'itp02' THEN price ELSE 0 END) AS credit_total
+      FROM vw_income_statement_base
+     WHERE com_id = #{comId}
+       AND TO_CHAR)(created_date, 'YYYY' ) = #{baseYear}
+     GROUP BY acct_type, acct_name
+     ORDER BY acct_type, acct_name
+</select>
+
+
+
+</mapper>

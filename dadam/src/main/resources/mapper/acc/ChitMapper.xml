@@ -1,60 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.acc.account.mapper.ChitMapper">
-
+	 <!-- , getVdrName(c.vdr_code) as vdrCode 
+	 			 , '' vdrCode -->
 	<!-- 전표 리스트 출력 컬럼 날짜, 전표명, 계정과목, 거래처, 금액, 세금계산서 발행유무, 처리상태, 구분, 등록부서, 처리자,승인자,비고 -->
 	<select id="chitFindAll" resultType="ChitVO"
-		parameterType="ChitVO">
-SELECT c.created_date 	
-	 , c.chit_title  	
-	 , '' parent
-	 , c.chit_code
-	 , getVdrName(c.vdr_code) as vdrCode
-	 , c.supply_price
-	 , c.vat_price
-	 , c.tot_price  
-	 , 0 iPrice
-	 , c.tax_code  		
-	 , getSubCode(c.status) as status  		
-	 , getSubCode(c.type) as tType 			
-	 , getDeptName(c.dept_code) as deptCode 
-	 , getEmpName(c.phy_emp_id) as phyEmpId	
-	 , getEmpName(c.appr_emp_id) as apprEmpId	
-	 , c.note	
-	 , '' acct_code
-	 , '' iType
-	 , '' INAME
-	 , '' ANAME
+		parameterType="string">
+   SELECT
+    c.created_date AS createdDate,
+    c.chit_title AS chitTitle,
+    '' AS parent,
+    c.chit_code AS chitCode,
+    getVdrName((SELECT vdr_code FROM orders WHERE ord_code = article_code)) AS vdrCode,
+    article_code,
+    c.supply_price AS supplyPrice,
+    c.vat_price AS vatPrice,
+    c.tot_price AS totPrice,
+    0 AS iPrice,
+    c.tax_code AS taxCode,
+    getSubCode(c.status) AS status,
+    getSubCode(c.type) AS tType,
+    getDeptName(c.dept_code) AS deptCode,
+    getEmpName(c.phy_emp_id) AS phyEmpId,
+    getEmpName(c.appr_emp_id) AS apprEmpId,
+    c.note AS note,
+    '' AS acctCode,
+    '' AS iType,
+    '' AS iName,
+    '' AS aName
   FROM chit c
-  UNION 
-SELECT i.created_date
-	 , ''  chit_title
-	 , chit_code parent
-	 , chit_dt_id  
-	 , '' vdrCode
-	 , 0 supply_price
-	 , 0 vat_price
-	 , 0 tot_price
-	 , i.price as iPrice
-	 , '' tax_code
-	 , '' status
-	 , '' tType
-	 , '' deptCode
-	 , '' phyEmpId
-	 , '' apprEmpId
-	 , '' note
-     , i.acct_code
-	 , i.type as iType
-	 , getSubCode(i.type) as INAME
-	 , a.name as ANAME
-  FROM indignation i 
-  LEFT JOIN Account a ON i.acct_code = a.acct_code
+  WHERE com_id = #{comId}
+
+  UNION ALL
+
+  SELECT
+    i.created_date AS createdDate,
+    '' AS chitTitle,
+    i.chit_code AS parent,
+    i.chit_dt_id AS chitCode,
+    '' AS vdrCode,
+    '' AS article_code,
+    0 AS supplyPrice,
+    0 AS vatPrice,
+    0 AS totPrice,
+    i.price AS iPrice,
+    '' AS taxCode,
+    '' AS status,
+    '' AS tType,
+    '' AS deptCode,
+    '' AS phyEmpId,
+    '' AS apprEmpId,
+    i.note AS note,
+    i.acct_code AS acctCode,
+    i.type AS iType,
+    getSubCode(i.type) AS iName,
+    a.name AS aName
+  FROM indignation i
+  LEFT JOIN account a ON i.acct_code = a.acct_code
+  WHERE i.com_id = #{comId}
 	</select>
 
 	<select id="acctCodeFindByCode" resultType="map">
-		SELECT acct_code as acctCode, name as aname
+	  SELECT acct_code as acctCode, name as aname
 		FROM account
-		WHERE acct_yn = 'Y'
+	   WHERE com_id = #{comId}
+		AND acct_yn = 'Y'
 		AND (acct_code LIKE #{keyword} || '%'
 		OR name LIKE '%' || #{keyword} || '%')
 		ORDER BY acct_code
@@ -63,7 +73,8 @@ SELECT i.created_date
 	<select id="indTypeFindByCode" resultType="map">
 		SELECT SUBSTR(sub_code, -2) AS iType, sub_name AS iName
 		FROM subcodes
-		WHERE main_code = 'itp'
+		WHERE com_id = #{comId}
+		AND main_code = 'itp'
 		AND (sub_code LIKE '%' || #{keyword} || '%'
 		OR sub_name LIKE '%' || #{keyword} || '%')
 		ORDER BY sub_code
@@ -71,76 +82,121 @@ SELECT i.created_date
 
 
 <select id="getStatusByChitCode" resultType="String">
-  SELECT status FROM chit WHERE chit_code = #{chitCode}
+  SELECT status 
+    FROM chit 
+   WHERE chit_code = #{chitCode}
+     AND com_id= #{comId}
 </select>
 
 
-	<insert id="insert" parameterType="ChitVO">
+	<insert id="insert" parameterType="ChitVO"  >
 		<selectKey resultType="string" keyProperty="chitDtId"
 			order="BEFORE">
 			SELECT 'chdt-' ||
 			(NVL(MAX(TO_NUMBER(SUBSTR(chit_dt_id,6))),100)+1) chitDtId
-			FROM
-			indignation
+			FROM indignation
+			WHERE com_id = #{comId}
 		</selectKey>
-		INSERT INTO indignation (
-		chit_dt_id
+   INSERT INTO indignation (
+		  chit_dt_id
 		, chit_code
 		, acct_code
 		, type
 		, price
 		, created_date
 		, com_id)
-		VALUES (
+   VALUES (
 		  #{chitDtId}
 		, #{chitCode}
 		, #{acctCode}
 		, #{iType}
 		, #{iPrice}
 		, SYSDATE
-		, 'com-101'
+		, #{comId}
 		)
 	</insert>
 
-	<update id="update">
+	<update id="update" parameterType="ChitVO">
 		UPDATE chit
 		SET 
-		  phy_emp_id = 'e1001'
+		  phy_emp_id = {empId}
 		, status = 'cst02'
 		, note = #{note}
 		, update_date = SYSDATE
 		WHERE chit_code = #{chitCode}
+		  AND com_id= #{comId}
 	</update>
 
-<update id="markAsPaid">
-  UPDATE chit
-  SET status = 'cst03', update_date = SYSDATE
-  WHERE chit_code = #{chitCode}
-</update>
 
 	<delete id="delete" parameterType="ChitVO">
-		DELETE FROM indignation
+	   DELETE FROM indignation
 		WHERE chit_dt_id = #{chitDtId}
+		  AND com_id= #{comId}
 	</delete>
 
 
 
-<update id="결제버튼 클릭시 상태 업데이트">
+<update id="modifySta" parameterType="string">
 UPDATE chit
-   SET status = 'sta03'
-      update_date = SYSDATE
- WHERE chit_code = #{chitCode};
+   SET status = 'cst04'
+     , update_date = SYSDATE
+ WHERE chit_code = #{chitCode}
+   AND com_id= #{comId}
 </update>
 
-<update id="결제버튼 클릭시 거래처 미수 금액 업데이트">
-UPDATE vender
-   SET credit_bal_price = credit_bal_price + #{금액}
- WHERE vdr_code = (
-     SELECT vdr_code
-       FROM orders
-      WHERE article_code = #{article_code}
- );
+
+<update id="modifyVarBal" parameterType="map">
+    UPDATE vender
+       SET credit_bal_price = credit_bal_price + #{totPrice}
+     WHERE com_id= #{comId}
+       AND vdr_code = (
+           SELECT vdr_code
+             FROM orders
+            WHERE ord_code = #{articleCode}
+     		)
 </update>
  
- 
+<select id="getTtypeByChitCode" resultType="String">
+  SELECT type 
+    FROM chit 
+   WHERE chit_code = #{chitCode}
+     AND com_id= #{comId}
+</select>
+
+
+<!-- 전체 조회 -->
+<select id="selectAutoChitRules" parameterType="string" resultType="ChitVO">
+  SELECT
+    rule_id,
+    chitType,
+    indType,
+    acct_code,
+    com_id
+  FROM auto_chit_rule
+  WHERE com_id = #{comId}
+  ORDER BY chitType, indType
+</select>
+
+<!-- MERGE: 동일 거래유형+차/대변+회사ID 기준 -->
+<insert id="mergeAutoChitRule" parameterType="ChitVO">
+  MERGE INTO auto_chit_rule ar
+  USING (
+    SELECT #{chitType} AS chitType,
+           #{indType} AS indType,
+           #{comId} AS com_id
+    FROM dual
+  ) src
+  ON (
+    ar.chitType = src.chitType
+    AND ar.indType = src.indType
+    AND ar.com_id = src.com_id
+  )
+  WHEN MATCHED THEN
+    UPDATE SET
+      acct_code = #{acctCode}
+  WHEN NOT MATCHED THEN
+    INSERT (rule_id, chitType, indType, acct_code, com_id)
+    VALUES (auto_chit_rule_seq.NEXTVAL, #{chitType}, #{indType}, #{acctCode}, #{comId})
+</insert>
+
 </mapper>

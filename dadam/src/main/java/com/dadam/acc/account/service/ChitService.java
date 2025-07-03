@@ -10,4 +10,10 @@ public interface ChitService {
 	public List<Map<String, String>> chitTypeFindByCode(String keyword);
 	
 	public void saveAll(ChitVO chit);
+	
+	public void modifyChitPay(String chitCode, String articleCode, int totPrice);
+
+	public List<ChitVO> getAutoChitRules(String comId);
+
+	public void saveAutoChitRules(List<ChitVO> rules);
 }

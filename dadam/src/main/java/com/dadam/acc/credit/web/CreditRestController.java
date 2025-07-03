@@ -13,7 +13,7 @@ import com.dadam.acc.credit.service.CreditService;
 import com.dadam.acc.credit.service.CreditVO;
 
 @RestController
-@RequestMapping("/erp/credit")
+@RequestMapping("/erp/accounting")
 public class CreditRestController {
 	
 	@Autowired
