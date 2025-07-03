@@ -10,7 +10,7 @@ public class VenderVO {
 	private String bizNo;//
 	private String ceoName;//
 	private String addr;//
-	private String addDetail;
+	private String addrDetail;
 	private String email;
 	private String tel;
 	private String bank;

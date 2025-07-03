@@ -55,6 +55,7 @@ public class ShipreqServiceImpl implements ShipreqService {
 			
 
 		req.getHead().setComId(comId); //comId를 설정 해줌  
+		
 		System.out.println("comId"+req.getHead().getComId());
 		
 		shipreqMapper.insertShipreqHead(req.getHead()); //헤더먼저등록
@@ -65,7 +66,8 @@ public class ShipreqServiceImpl implements ShipreqService {
 		System.out.println(req.getDtl());
 		for(int i=0;i<req.getDtl().size(); i++ ) {
 		  req.getDtl().get(i).setShipReqCode(shipreqCode); //shipreqCode로 지정
-		  System.out.println("ㅇㅇㅇㅇㅇ"); 
+		  System.out.println("ㅇㅇㅇㅇㅇ");
+		  req.getDtl().get(i).setComId(comId);
 		  shipreqMapper.insertShipreqDtl(req.getDtl().get(i)); //디테일 for문 돌리면서 등록 
 		}
 		return 0;

@@ -36,8 +36,7 @@
 	</select>
 
 	<!-- 주문건당 상세내역 보기 -->
-	<select id="findOrdListByOrdNo" parameterType="String"
-		resultType="com.dadam.sales.order.service.OrdDtlVO">
+	<select id="findOrdListByOrdNo" parameterType="String" resultType="com.dadam.sales.order.service.OrdDtlVO">
 		SELECT od.ord_dtl_code,
 		od.item_code,
 		i.name,
@@ -88,8 +87,7 @@
 		#{totPrice},
 		'quoCode')
 	</insert>
-	<insert id="odtlInsert"
-		parameterType="com.dadam.sales.order.service.OrdDtlVO">
+	<insert id="odtlInsert" parameterType="com.dadam.sales.order.service.OrdDtlVO">
 		INSERT INTO ordersdetail (
 		ORD_DTL_CODE,
 		ITEM_CODE,
@@ -99,8 +97,7 @@
 		DISC_PRICE,
 		TOT_PRICE,
 		COM_ID,
-		ORD_CODE
-		)
+		ORD_CODE)
 		VALUES (
 		getNextOrdDtlCode(),
 		#{itemCode},
@@ -115,10 +112,9 @@
 	</insert>
 	<update id="updVdrcreditBalPrice">
 		update vender
-		set
-		credit_bal_price=#{creditBalPrice}-#{totPrice}
-		where vdr_code=
-		#{vdrCode}
+		set credit_bal_price=#{creditBalPrice}-#{totPrice}
+		where vdr_code=#{vdrCode}
+		AND com_id=#{comId}
 	</update>
 	<update id="callUpdateCreditBal" statementType="CALLABLE">
 		{ CALL
@@ -128,28 +124,26 @@
 		mode=IN, jdbcType=NUMERIC}
 		) }
 	</update>
-	<delete id="deleteOrders" parameterType="String">
+	<delete id="deleteOrders">
 		delete from orders
-		where
-		ord_code=#{ordCode}
+		where ord_code=#{ordCode}
+		and   com_id=#{comId}
 	</delete>
 	<delete id="deleteOrdersDtl" parameterType="String">
 		delete from orders
 		where ord_code=#{ordCode}
 	</delete>
-	<update id="updOrder"
-		parameterType="com.dadam.sales.order.service.OrdersVO">
+	<update id="updOrder" parameterType="com.dadam.sales.order.service.OrdersVO">
 		UPDATE ORDERS
 		SET vdr_code = #{vdrCode},
-		req_dlv_date =
-		#{reqDlvDate},
+		req_dlv_date =#{reqDlvDate},
 		pay_method = #{payMethod},
 		update_id = #{updateId},
 		update_date = sysdate
 		WHERE ord_code = #{ordCode}
+		AND com_id=#{comId}
 	</update>
-	<update id="updOrdDtl"
-		parameterType="com.dadam.sales.order.service.OrdDtlVO">
+	<update id="updOrdDtl" parameterType="com.dadam.sales.order.service.OrdDtlVO">
 		UPDATE ORDERSDETAIL
 		SET item_code = #{itemCode},
 		quantity=#{quantity},
@@ -157,19 +151,21 @@
 		vat_price=#{vatPrice},
 		tot_price=#{totPrice},
 		disc_price=#{discPrice},
-		com_id=#{comId}
-		WHERE
-		ord_dtl_code = #{ordDtlCode}
+		com_id=#{comId} 
+		WHERE ord_dtl_code = #{ordDtlCode}
+		AND com_id=#{comId}
 	</update>
-	<delete id="deleteOrdDtl" parameterType="String">
+	<delete id="deleteOrdDtl" >
 		DELETE FROM ORDERSDETAIL
 		WHERE ord_dtl_code = #{ordDtlCode}
+		AND com_id=#{comId}
 	</delete>
 	<update id="updateCreditBal">
 		UPDATE vender
 		SET credit_bal_price = credit_bal_price
 		- #{totPrice}
 		WHERE vdr_code = #{vdrCode}
+		AND com_id=#{comId}
 	</update>
 	<select id="callUpdateOrderTotals" parameterType="String" statementType="CALLABLE">
 	    <![CDATA[

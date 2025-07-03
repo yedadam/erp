@@ -25,7 +25,7 @@ public class VenderServiceImpl implements VenderService {
         if (principal instanceof LoginUserAuthority) {
         	LoginUserAuthority user = (LoginUserAuthority) principal;
             comId = user.getComId();
-        
+            empId=user.getUserId(); 
             user.getUserId(); 
             System.out.println("회사명: " + comId);
         }
@@ -37,6 +37,28 @@ public class VenderServiceImpl implements VenderService {
 	public List<VenderVO> venderFindAll(String type,String value) {
 		List<VenderVO> result=mapper.venderFindAll(comId,type,value); 
 		return result;
+	}
+
+	@Override
+	public int insertVender(VenderVO vender) {
+	  vender.setEmpId(empId); //사용자 empId 부여 
+	  vender.setComId(comId);
+	  int result=mapper.insertVender(vender); //vender insert 
+		return result;
+	}
+
+	@Override
+	public int updateVender(VenderVO vender) {
+	    vender.setEmpId(empId); //사용자 empId 부여 
+		vender.setComId(comId);  
+		int result=mapper.updateVender(vender); 
+		return result;
+	}
+
+	@Override
+	public int deleteVender(String vdrCode) {
+	    mapper.deleteVender(comId, vdrCode);  //회사에서 부여한 comId를 넣음 
+		return 0;
 	}
 
 }
