@@ -52,8 +52,8 @@ public class ChitServiceImpl implements ChitService{
 	}
 
 	@Override
-	public List<Map<String, String>> chitTypeFindByCode(String keyword) {
-		return chitMapper.chitTypeFindByCode(keyword, comId);
+	public List<Map<String, String>> chtTypeFindByCode(String keyword) {
+		return chitMapper.chtTypeFindByCode(keyword, comId);
 	}
 	
 	

@@ -4,8 +4,6 @@
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
 <style>
 .row-selected {
 	background-color: #e6f2ff !important;
@@ -33,26 +31,27 @@
 	background-color: #d4edda !important; /* 연한 초록색 */
 }
 
-#autoRuleModal{
+#autoRuleModal {
   position: fixed;
-  top: 150px; /* ← 여기 Y 값 직접 지정 */
-  left: 80%;
-  transform: translateX(-50%); /* 수평 중앙 정렬만 */
-  z-index: 9999;
-  width: 700px;
+  top: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
   max-width: 90vw;
-  background: white;
-  border: 1px solid #ccc;
+  background-color: white;
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  display: none;
 }
 
 #autoRuleGrid {
-  width: auto;
-  min-width: 400px;
-  height: 300px;
-  white-space: nowrap;
+  width: 100%;
+  height: 300px;         /* ✅ 고정 height */
+  min-height: 300px;
+  max-height: 300px;     /* ✅ 늘어나지 않게 제한 */
+  overflow: auto;
 }
 
 dialog {
@@ -74,6 +73,10 @@ dialog {
 	display: flex;
 	align-items: center;
 	margin-bottom: 6px;
+}
+
+.ui-autocomplete {
+  z-index: 99999 !important;
 }
 </style>
 </head>
@@ -114,17 +117,20 @@ dialog {
 	</dialog>
 	
 
-	<div id="autoRuleModal" class="modal" style="display: none;">
-		<div class="modal-content"
-			style="width: 600px; background: white; padding: 20px;">
-			<h4>자동분개 설정</h4>
-			<div id="autoRuleGrid" style="height: 300px;"></div>
-			<div style="text-align: right; margin-top: 10px;">
-				<button onclick="saveAutoRules()">저장</button>
-				<button onclick="hideAutoRuleModal()">닫기</button>
-			</div>
-		</div>
-	</div>
+<div id="autoRuleModal">
+  <h4 class="mb-3">자동분개 설정</h4>
+<div class="d-flex justify-content-end mb-2">
+  <button class="btn btn-outline-primary btn-sm" onclick="addAutoRuleRow()">행추가</button>
+</div>
+
+  <!-- 고정 크기 영역 -->
+  <div id="autoRuleGrid"></div>
+
+  <div class="d-flex justify-content-end gap-2 mt-3">
+    <button class="btn btn-primary btn-sm" onclick="saveAutoRules()">저장</button>
+    <button class="btn btn-secondary btn-sm" onclick="hideAutoRuleModal()">닫기</button>
+  </div>
+</div>
 
 </body>
 <script>
@@ -172,8 +178,12 @@ function createChitAutoCompleteEditor({ urlBuilder, deps = [], onSelectClear = [
        if (displayNameField) props.grid.setValue(props.rowKey, displayNameField, ui.item.displayName);
        // 선택 시 초기화할 컬럼들 비움
        onSelectClear.forEach(col => props.grid.setValue(props.rowKey, col, ''));
-     }
+     },
+     appendTo: 'body'
    }).focus(() => $(el).autocomplete("search", ""));
+
+   // 셀 클릭 시 바로 input에 포커스
+   setTimeout(() => el.focus(), 0);
 
    this.el = el;
  }
@@ -195,8 +205,12 @@ const indTypeEditor = createChitAutoCompleteEditor({
  urlBuilder: ({ keyword }) => `/erp/accounting/indTypeFindByCode?keyword=${keyword}`,
  displayField: 'INAME', saveField: 'ITYPE', displayNameField: 'INAME'
 });
+const chtTypeEditor = createChitAutoCompleteEditor({
+	 urlBuilder: ({ keyword }) => `/erp/accounting/chtTypeFindByCode?keyword=${keyword}`,
+	 displayField: 'TNAME', saveField: 'TTYPE', displayNameField: 'TNAME'
+});
 
-/** ------------------------- Grid 구성 ------------------------- */
+/** ------------------------- Grid 구성 -------------------------  */
 const chitGrid = new tui.Grid({
  el: document.getElementById('chitGrid'),
  scrollX: false,
@@ -609,53 +623,183 @@ chitList();
 
  
  
- 
+    initAutoRuleGrid() 
 
 
-    function openAutoRuleModal() {
-      document.getElementById("autoRuleModal").style.display = "block";
+function openAutoRuleModal() {
+  const modal = document.getElementById("autoRuleModal");
+  modal.style.display = "block"; // 먼저 모달 보여주고
 
-      fetch("/erp/accounting/ruleList") // 자동분개 설정 목록 조회 
-        .then(res => res.json())
-        .then(data => {
-          if (!autoRuleGrid) {
-            initAutoRuleGrid(data);
-          } else {
-            autoRuleGrid.resetData(data);
+  setTimeout(() => {
+    if (autoRuleGrid) autoRuleGrid.refreshLayout(); // 렌더링 오류 방지
+
+    $.ajax({
+      url: `/erp/accounting/ruleList`,
+      method: 'GET',
+      data: { comId },
+      dataType: 'json',
+      success: function (data) {
+        autoRuleGrid.resetData(data || []);
+      },
+      error: function () {
+        alert("서버 오류로 자동분개 데이터를 불러오지 못했습니다.");
+        autoRuleGrid.resetData([]);
+      }
+    });
+  }, 100); // 약간의 딜레이로 display 반영 기다림
+}
+
+    function initAutoRuleGrid() {
+    	  autoRuleGrid = new tui.Grid({
+    	    el: document.getElementById('autoRuleGrid'),
+    	    bodyHeight: 300,
+    	    scrollX: false,
+    	    scrollY: true,
+    	    editingEvent: 'click',
+    	    rowHeaders: ['rowNum'],
+    	    columns: [
+    	      { header: '거래유형', name: 'chitType', editor: { type: chtTypeEditor }, formatter: ({ row }) => row.TNAME || row.tname || row.chitType  },
+    	      { header: '차/대', name: 'indType', editor: { type: indTypeEditor }, formatter: ({ row }) => row.INAME || row.iname || row.indType },
+    	      { header: '계정코드', name: 'acctCode', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.ANAME || row.aname || '' },
+    	      { header: '비고', name: 'note', editor: 'text' },
+    	      { name: 'ANAME', hidden: true },
+    	      { name: 'INAME', hidden: true },
+    	      { name: 'TNAME', hidden: true },
+    	      {
+    	        header: '행추가/삭제',
+    	        name: 'actions',
+    	        formatter: () => `
+    	      <button class="add-rule">＋</button>
+    	      <button class="delete-rule">🗑</button>
+    	    `
+    	      }
+    	    ],
+    	    data: []
+    	  });
+    	}
+
+    function addAutoRuleRow() {
+      autoRuleGrid.appendRow({
+        chitType: '',
+        indType: '',
+        acctCode: '',
+        note: ''
+      }, { focus: true });
+    }
+
+    function addDetailRow(parentRowKey) {
+      const parentRow = autoRuleGrid.getRow(parentRowKey);
+      if (!parentRow || !parentRow.chitType) {
+        alert("거래유형을 먼저 입력하세요.");
+        return;
+      }
+      autoRuleGrid.appendRow({
+        chitType: '',
+        indType: '',
+        acctCode: '',
+        note: '',
+        _attributes: { parentRowKey }
+      }, { parentRowKey, position: 'after' });
+    }
+
+    function getAutoRulePayload() {
+      const rows = autoRuleGrid.getData();
+      const rules = [];
+      rows.forEach((row, idx) => {
+        if (row.chitType && !row._attributes?.parentRowKey) {
+          const details = [];
+          rows.forEach(child => {
+            if (child._attributes?.parentRowKey === idx) {
+              details.push({
+                indType: child.indType,
+                acctCode: child.acctCode,
+                note: child.note
+              });
+            }
+          });
+          if (row.indType && row.acctCode) {
+            details.unshift({
+              indType: row.indType,
+              acctCode: row.acctCode,
+              note: row.note
+            });
           }
-        });
-    }
-
-    function hideAutoRuleModal() {
-      document.getElementById("autoRuleModal").style.display = "none";
-    }
-
-    function initAutoRuleGrid(data) {
-      autoRuleGrid = new tui.Grid({
-        el: document.getElementById('autoRuleGrid'),
-        columns: [
-          { header: '거래유형', name: 'ttype', editor: 'text' },
-          { header: '차변 계정', name: 'debitAcct', editor: 'text' },
-          { header: '대변 계정', name: 'creditAcct', editor: 'text' },
-          { header: '비고', name: 'note', editor: 'text' }
-        ],
-        data: data,
-        rowHeaders: ['rowNum'],
-        editingEvent: 'click'
+          rules.push({
+            chitType: row.chitType,
+            details
+          });
+        }
       });
+      return rules;
     }
 
     function saveAutoRules() {
-      const rules = autoRuleGrid.getData();
-      fetch("/erp/accounting/ruleSave", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(rules)
-      }).then(() => {
-        alert("자동분개 저장 완료!");
-        hideAutoRuleModal();
+    	  const rules = getAutoRulePayload();
+    	  for (const rule of rules) {
+    	    if (!rule.chitType || rule.details.length === 0) {
+    	      alert("거래유형과 분개라인을 모두 입력하세요.");
+    	      return;
+    	    }
+    	    for (const detail of rule.details) {
+    	      if (!detail.indType || !detail.acctCode) {
+    	        alert("차/대변, 계정코드를 모두 입력하세요.");
+    	        return;
+    	      }
+    	      detail.comId = comId; // ✅ comId 직접 세팅
+    	    }
+    	  }
+
+    	  fetch("/erp/accounting/ruleSave", {
+    	    method: "POST",
+    	    headers: { "Content-Type": "application/json" },
+    	    body: JSON.stringify(rules.flatMap(rule => rule.details.map(detail => ({
+    	      ...detail,
+    	      chitType: rule.chitType  // ✅ 부모 정보도 같이 넣어줘야 함
+    	    }))))
+    	  }).then(() => {
+    	    alert("자동분개 저장 완료!");
+    	    hideAutoRuleModal();
+    	  });
+    	}
+
+    // 룰(부모+하위 전체) 삭제
+    function deleteRuleRow(parentRowKey) {
+      const rows = autoRuleGrid.getData();
+      // 부모행과 그 자식행들 rowKey 수집
+      const toDelete = [parentRowKey];
+      rows.forEach((row, idx) => {
+        if (row._attributes?.parentRowKey === parentRowKey) {
+          toDelete.push(idx);
+        }
       });
+      // 역순으로 삭제(인덱스 꼬임 방지)
+      toDelete.sort((a, b) => b - a).forEach(idx => autoRuleGrid.removeRow(idx));
     }
 
+    // 분개라인(자식행)만 삭제
+    function deleteDetailRow(rowKey) {
+      autoRuleGrid.removeRow(rowKey);
+    }
+
+    autoRuleGrid.on('click', ev => {
+    	  const { rowKey, columnName } = ev;
+    	  const target = ev.nativeEvent.target;
+
+    	  if (columnName !== 'actions') return;
+
+    	  if (target.textContent.includes('＋')) {
+    	    addDetailRow(rowKey); // 부모 아래 규칙 추가
+    	  }
+
+    	  if (target.textContent.includes('🗑')) {
+    	    const row = autoRuleGrid.getRow(rowKey);
+    	    if (row._attributes?.parentRowKey !== undefined) {
+    	      deleteDetailRow(rowKey); // 자식 삭제
+    	    } else {
+    	      deleteRuleRow(rowKey); // 부모 및 자식 삭제
+    	    }
+    	  }
+    	});
+    
 </script>
 </html>

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,9 +38,9 @@ public class ChitRestController {
 		return chitService.indTypeFindByCode(keyword);
 	}
 	
-	@GetMapping("/chitTypeFindByCode")
-	public List<Map<String, String>> chitTypeFindByCode(@RequestParam("keyword") String keyword){
-		return chitService.chitTypeFindByCode(keyword);
+	@GetMapping("/chtTypeFindByCode")
+	public List<Map<String, String>> chtTypeFindByCode(@RequestParam("keyword") String keyword){
+		return chitService.chtTypeFindByCode(keyword);
 	}
 	
 	@PostMapping("/chitSaveAll")
@@ -78,12 +79,14 @@ public class ChitRestController {
     public List<ChitVO> getAutoChitRules(@RequestParam String comId) {
         return chitService.getAutoChitRules(comId);
     }
-/*
+
     // 2. 자동분개 규칙 저장
-    @PostMapping("/entry-rule/saveAll")
+    @PostMapping("/ruleSave")
     public ResponseEntity<String> saveAutoChitRules(@RequestBody List<ChitVO> rules) {
+    	System.out.println("저장되는 규칙" + rules);
         chitService.saveAutoChitRules(rules);
         return ResponseEntity.ok("saved");
     }
-*/	
+	
+   
 }

@@ -79,6 +79,16 @@
 		OR sub_name LIKE '%' || #{keyword} || '%')
 		ORDER BY sub_code
 	</select>
+	
+	<select id="chtTypeFindByCode" resultType="map">
+		SELECT SUBSTR(sub_code, -2) AS tType, sub_name AS tName
+		FROM subcodes
+		WHERE com_id = #{comId}
+		AND main_code = 'cht'
+		AND (sub_code LIKE '%' || #{keyword} || '%'
+		OR sub_name LIKE '%' || #{keyword} || '%')
+		ORDER BY sub_code
+	</select>
 
 
 <select id="getStatusByChitCode" resultType="String">
@@ -168,35 +178,42 @@ UPDATE chit
 <select id="selectAutoChitRules" parameterType="string" resultType="ChitVO">
   SELECT
     rule_id,
-    chitType,
-    indType,
+    chit_type,
+    ind_type,
     acct_code,
-    com_id
+    com_id,
+    created_date, 
+    update_date
   FROM auto_chit_rule
   WHERE com_id = #{comId}
-  ORDER BY chitType, indType
+  ORDER BY chit_type, ind_type
 </select>
 
 <!-- MERGE: 동일 거래유형+차/대변+회사ID 기준 -->
 <insert id="mergeAutoChitRule" parameterType="ChitVO">
-  MERGE INTO auto_chit_rule ar
-  USING (
-    SELECT #{chitType} AS chitType,
-           #{indType} AS indType,
-           #{comId} AS com_id
-    FROM dual
-  ) src
-  ON (
-    ar.chitType = src.chitType
-    AND ar.indType = src.indType
-    AND ar.com_id = src.com_id
-  )
-  WHEN MATCHED THEN
-    UPDATE SET
-      acct_code = #{acctCode}
-  WHEN NOT MATCHED THEN
-    INSERT (rule_id, chitType, indType, acct_code, com_id)
-    VALUES (auto_chit_rule_seq.NEXTVAL, #{chitType}, #{indType}, #{acctCode}, #{comId})
+    <selectKey resultType="string" keyProperty="ruleId" order="BEFORE">
+        SELECT 'rule' ||
+               LPAD(NVL(MAX(TO_NUMBER(SUBSTR(rule_id, 5))), 0) + 1, 2, '0') AS ruleId
+        FROM auto_chit_rule
+        WHERE com_id = #{comId}
+    </selectKey>
+    MERGE INTO auto_chit_rule ar
+    USING (
+        SELECT #{chitType} AS chit_type,
+               #{indType} AS ind_type,
+               #{comId} AS com_id
+        FROM dual
+    ) src
+    ON (
+        ar.chit_type = src.chit_type
+        AND ar.ind_type = src.ind_type
+        AND ar.com_id = src.com_id
+    )
+    WHEN MATCHED THEN
+        UPDATE SET acct_code = #{acctCode}
+    WHEN NOT MATCHED THEN
+        INSERT (rule_id, chit_type, ind_type, acct_code, com_id)
+        VALUES (#{ruleId}, #{chitType}, #{indType}, #{acctCode}, #{comId})
 </insert>
 
 </mapper>
