@@ -34,6 +34,7 @@ public class PurchaseVO {
 	@JsonFormat(pattern = "yyyy/MM/dd")
 	private Date purOrdUdtDate;
 	private String status;
+	private String statusName;
 	private String vatYn;
 	private int totSupPrice;
 	private int totVatPrice;
@@ -41,6 +42,7 @@ public class PurchaseVO {
 	private int pquantity;
 	private int notStock;
 	private int currQty;
+	private int reqQty;
 	
 	
 	// 발주서상세

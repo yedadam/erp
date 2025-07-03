@@ -5,22 +5,21 @@
 <!-- 주문입고를 위한 발주서 조회 -->
 	<select id="inboundPurchaseFindAll" resultType="PurchaseVO" parameterType="PurchaseVO">
 	SELECT 
-				pod.pur_ord_code,
-		        pod.pur_ord_dtl_code,
-		        pod.item_code,
-                i.name item_name,
-                i.price,
-		        pod.quantity,
-		        pod.status,
-		        pod.reccv_date,
-		        po.exp_dlv_date,
-		        getEmpName(po.emp_id) emp_id,
-		        getvdrName(po.vdr_code) vdr_code
-		FROM purchaseOrderDetail pod join purchaseOrder po
-		                               on(pod.pur_ord_code=po.pur_ord_code AND pod.com_id = po.com_id)
-                                     join item i
-                                       on(i.item_code = pod.item_code AND i.com_id = pod.com_id)
-		WHERE pod.com_id = #{comId} and pod.status not in('pds-03')
+        pod.pur_ord_code,
+        pod.pur_ord_dtl_code,
+        pod.item_code,
+        getitemname(pod.item_code) item_name,
+        getItemPrice(pod.item_code) price,
+        pod.quantity,
+        pod.status,
+        subcode(pod.status) status_name,
+        pod.reccv_date,
+        po.exp_dlv_date,
+        getEmpName(po.emp_id) emp_id,
+        getvdrName(po.vdr_code) vdr_code
+	FROM purchaseOrderDetail pod join purchaseOrder po
+	                               on(pod.pur_ord_code=po.pur_ord_code AND pod.com_id = po.com_id)
+	WHERE pod.com_id = #{comId} and pod.status not in('pds-03')
 	</select>
 	
 	<select id="warehouseList" resultType="InboundVO" parameterType="String">

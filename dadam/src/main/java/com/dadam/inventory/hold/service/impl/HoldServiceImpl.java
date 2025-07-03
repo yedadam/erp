@@ -39,7 +39,7 @@ public class HoldServiceImpl implements HoldService{
 		List<HoldVO> list = holdMapper.selectHoldLotList(vo);
 		return list;
 	}
-	// 홀드리스트 등록
+	// 홀드리스트 등록 등록처리하기위해서 누적량을 조회해서 가져와야함.
 	@Override
 	public int insertHoldList(List<HoldVO> list) {
 		for(HoldVO vo : list) {
