@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,10 +33,17 @@ public class InventoryHoldRestController {
 		return holdservice.selectShipRequestModal(vo);
 	}
 	
-	// 로트 리스트
+	// lot 리스트
 	@GetMapping("/holdlotList")
 	public List<HoldVO> selectHoldLotList(HoldVO vo){
 		return holdservice.selectHoldLotList(vo);
+	}
+	
+	// hold등록
+	@PostMapping("/inserthold")
+	public String insertHoldList(@RequestBody List<HoldVO> list) {
+		holdservice.insertHoldList(list);
+		return null;
 	}
 	
 }

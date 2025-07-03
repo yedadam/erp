@@ -279,7 +279,7 @@ function selectGrid(){
 	$('#insertBtn').prop('disabled', false);
 	$('#shipRequestModalBtn').remove();
 	$('#transferModalBtn').remove();
-	$('#saveBtn').off('click', saveBtninsert);
+	//$('#saveBtn').off('click', saveBtninsert);
 	
 };// 조회버튼 끝
 
@@ -305,6 +305,7 @@ function insertGrid(){
 	        },
 	        { header: '필요수량',name:'quantity',align:'center'},
 	        { header: '분류',name:'typeName',align:'center'},
+	        { header: '상태',name:'statusName',align:'center'},
 	        { header: '의뢰등록일',name:'createdDate',align:'center'},
 	        { header: '출고예정일',name:'date',align:'center'},
 	        { header: '출고위치',name:'location',align:'center'},
@@ -382,7 +383,8 @@ function insertGrid(){
 						, date: item.shipExpDate
 						, vdrCode: item.vdrCode
 						, location: item.vdrName
-						, status: item.status
+						, status: 'hs03'
+						, statusName: '출고보류'
 						, type: 'ht02'
 						, typeName: '출하의뢰'
 			}
@@ -434,7 +436,7 @@ function insertGrid(){
 	    ],
 	});
 	
-	// 전역으로 함수등록
+	//전역으로 함수등록
 	const lotList = new Map();
 	let subsgrid = [];
 	let rowKey;
@@ -471,27 +473,28 @@ function insertGrid(){
 			// 배열 초기화 
 			subLot.resetData([]);
 		}else{
-			subLot.resetData(rowGrid);	
+			subLot.resetData(rowGrid);
 		}
 	});
 	
 	// lot 선택이벤트
 	$('#lotBtn').on('click',()=>{
 		// 변수선언
-		let stkLot = stklot.getData();
 		let sum = 0;
 		let check = stklot.getCheckedRows();
 		let checkData;
-		//let lotList = [];
 		let lotData = [];
 		let holdList = holdGrid.getData();
 		let rowData = holdGrid.getRow(rowKey);
 		code = rowData.code;
+		// 재고전부 입력, 재고전체 입력
+		let origin = false;
 		// 입력한값의 전체를 합산
-		stkLot.forEach((item)=>{
+		check.forEach((item)=>{
 			sum += Number(item.qty)
 		})
-		for(let item of stkLot){
+		
+		for(let item of check){
 			if(item.qty == ""){
 				Swal.fire({
 					  icon: "error",
@@ -508,6 +511,8 @@ function insertGrid(){
 				return;
 			}
 		}
+		
+		
 		// 발주서 수량과 비교
 		if(sum > rowData.quantity){
 			Swal.fire({
@@ -516,21 +521,33 @@ function insertGrid(){
 				  text: "수량을 확인해주세요!"
 				});
 			return;
+		}else if(sum < rowData.quantity){
+			holdGrid.setValue(rowKey, 'status', 'hs03')
+			holdGrid.setValue(rowKey, 'statusName', '출고보류')
+		}else{
+			holdGrid.setValue(rowKey, 'status', 'hs01')
+			holdGrid.setValue(rowKey, 'statusName', '홀드중')
 		}
-		
+		//그려진 그리드의 값을 변경
+		//mainGrid.setValue(mainRowKey,'purReqCode',get);
+		//}
 		checkData = check.map((item)=> ({
 					lot: item.lot,
+					itemCode: item.itemCode,
 					itemName: item.itemName,
 					quantity: item.quantity,
+					price: item.price,
 					qty: item.qty,
 					locCode: item.locCode
 		}));
 		
-		// lotList는 map타입 
+		// lotList에 map타입으로 키를 코드값으로 value값은 객체를 넣음 
 		lotList.set(rowData.code, checkData);
+		// subLot그리드에 키값으로 lot값을 호출해서 그림.
 		subLot.resetData(lotList.get(rowData.code))
 		$('#lotModal').modal('hide');
 	})
+	
 	// 재고이동
 /* 	transfer = new tui.Grid({
 	    el: document.getElementById('transferGrid'),
@@ -550,35 +567,51 @@ function insertGrid(){
 	}) */
 	
 	
-	// 저장 버튼
-	$('#saveBtn').on('click', saveBtninsert);
+	// 저장 버튼 등록
+	$('#saveBtn').on('click',()=>{
+			let param = [];
+			let lotparam = [];
+			for(let item of holdGrid.getData()){
+				// 벨리데이션 체크용
+				lotparam = lotList.get(item.code);
+				if(lotparam == undefined){
+					Swal.fire({
+						  icon: "error",
+						  title: "lot가 지정되지않음!",
+						  text: "등록하지않을 홀드는 제거해주세요"
+						});
+					return;
+				}
+				let saveData={
+								  itemCode: item.itemCode		// 품목코드
+								, quantity: item.quantity		// 발주서수량
+								, type: item.type				// 재고이동, 출하의뢰 , 다른이유
+								, status: item.status			// 재고부족, 홀드중, 처리완료
+								, note : item.note				// 비고
+								, code : item.code				// 참조 테이블 코드
+								, comId : comId
+								, lotList : lotList.get(item.code)
+				}
+				param.push(saveData)
+			}
+			// 등록
+			$.ajax({
+				url:"/erp/inventory/inserthold",
+				method:"POST",
+				contentType: "application/json",
+				data: JSON.stringify(param),
+				success:()=>{
+					Swal.fire({
+						  icon: "success",
+						  title: "홀드 완료!",
+						  text: "홀드가 완료되었습니다."
+						});
+				}
+			}) 
+			
+		});// 등록함수 끝
 	
 } // 등록버튼 끝
-// 등록
-function saveBtninsert(){
-		let param = [];
-		holdGrid.getData().forEach((item,idx)=>{
-		let lotparam = lotList.get(item.code);
-			let saveData={
-							  itemCode: item.itemCode		// 품목코드
-							, quantity: item.quantity		// 발주서수량
-							, type: item.type				// 재고이동, 출하의뢰 , 다른이유
-							, status: item.status			// 재고부족, 홀드중, 처리완료
-							, note : item.note				// 비고
-							, code : item.code				// 참조 테이블 코드
-			}
-			param.push(saveData)
-		})
-		// 등록
-		/* $.ajax({
-			url:"/erp/inventory/insertHoldList",
-			method:"POST",
-			data:{comId},
-			success:function(result){
-				console.log(result);
-			} 
-		})*/
-	}
 </script>
 </body>
 </html>

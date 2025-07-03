@@ -14,5 +14,5 @@ public interface HoldService {
 	// lot 모달 조회
 	public List<HoldVO> selectHoldLotList(HoldVO vo);
 	// 홀드등록
-	public int insertHoldList(HoldVO vo);
+	public int insertHoldList(List<HoldVO> list);
 }

@@ -313,7 +313,6 @@ function warehouseList(){
 				 	$.ajax({
 						url:"/erp/inventory/purchaseRegister",
 						method:"POST",
-						dataType:"json",
 						contentType: 'application/json',
 						data: JSON.stringify(param),
 						success:()=>{
