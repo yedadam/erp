@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.hr.emp.mapper.DeptMapper">
+    <!-- [부서 전체 조회] 부서 테이블 전체 조회 -->
     <select id="findAllDepartments" resultType="com.dadam.hr.emp.service.DeptVO">
         SELECT 
-            dept_code AS deptCode,
-            dept_name AS deptName,
-            parent_dept_code AS parentDeptCode,
-            emp_id AS empId,
-            created_date AS createdDate,
-            com_id AS comId,
-            acct_yn AS acctYn,
-            remark
-        FROM departments
-        ORDER BY dept_code
+            d.dept_code AS deptCode,
+            d.dept_name AS deptName,
+            d.parent_dept_code AS parentDeptCode,
+            d.emp_id AS empId,
+            d.created_date AS createdDate,
+            d.com_id AS comId,
+            d.acct_yn AS acctYn,
+            d.remark,
+            (
+                SELECT COUNT(*)
+                FROM employees e
+                WHERE e.dept_code = d.dept_code
+            ) AS empCount
+        FROM departments d
+        ORDER BY d.dept_code
     </select>
 
+    <!-- [부서 등록] 부서 신규 등록 -->
     <insert id="insertDepartment" parameterType="com.dadam.hr.emp.service.DeptVO">
         INSERT INTO departments (
             dept_code, dept_name, parent_dept_code, emp_id, created_date, com_id, acct_yn, remark
@@ -23,6 +30,7 @@
         )
     </insert>
 
+    <!-- [부서 수정] 부서 정보 수정 -->
     <update id="updateDepartment" parameterType="com.dadam.hr.emp.service.DeptVO">
         UPDATE departments
         SET dept_name = #{deptName},
@@ -34,10 +42,12 @@
         WHERE dept_code = #{deptCode}
     </update>
 
+    <!-- [부서 삭제] 부서 정보 삭제 -->
     <delete id="deleteDepartment" parameterType="string">
         DELETE FROM departments WHERE dept_code = #{deptCode}
     </delete>
 
+    <!-- [부서 상세 조회] 부서 상세정보 조회 -->
     <select id="findDepartmentByCode" parameterType="string" resultType="com.dadam.hr.emp.service.DeptVO">
         SELECT 
             dept_code AS deptCode,

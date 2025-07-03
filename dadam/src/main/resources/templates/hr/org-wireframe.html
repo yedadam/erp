@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>조직도 와이어프레임</title>
+  <style>
+    body { font-family: 'Pretendard', Arial, sans-serif; background: #f4f6fa; margin: 0; }
+    .org-wrap { display: flex; height: 90vh; margin: 40px auto; max-width: 1200px; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    .org-tree { flex: 1.2; padding: 32px 24px 32px 32px; border-right: 1px solid #eee; overflow-y: auto; }
+    .org-detail { flex: 1; padding: 32px; }
+    .org-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; }
+    ul.tree { list-style: none; padding-left: 20px; }
+    ul.tree > li { margin-bottom: 16px; }
+    .dept-node { cursor: pointer; font-weight: 600; font-size: 1.1rem; }
+    .dept-node.selected { color: #2563eb; }
+    .emp-list { margin-top: 24px; }
+    .emp-card { display: flex; align-items: center; background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: background 0.2s; }
+    .emp-card:hover { background: #e0e7ef; }
+    .emp-photo { width: 40px; height: 40px; border-radius: 50%; background: #ddd; margin-right: 16px; object-fit: cover; }
+    .emp-info { flex: 1; }
+    .emp-name { font-weight: 600; }
+    .emp-pos { color: #888; font-size: 0.95em; margin-left: 8px; }
+    .emp-duty { color: #2563eb; font-size: 0.95em; margin-left: 8px; }
+    .emp-contact { color: #666; font-size: 0.95em; margin-left: 8px; }
+    .emp-detail-box { background: #f8f9fa; border-radius: 12px; padding: 24px; min-height: 200px; }
+    .emp-detail-photo { width: 60px; height: 60px; border-radius: 50%; background: #ddd; object-fit: cover; margin-bottom: 12px; }
+    .emp-detail-name { font-size: 1.2rem; font-weight: 700; }
+    .emp-detail-pos { color: #2563eb; font-weight: 600; }
+    .emp-detail-contact { color: #666; margin-top: 8px; }
+    .emp-detail-duty { margin-top: 8px; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="org-wrap">
+    <!-- 조직 트리 -->
+    <div class="org-tree">
+      <div class="org-title">조직도</div>
+      <ul class="tree" id="orgTree"></ul>
+    </div>
+    <!-- 상세정보 -->
+    <div class="org-detail">
+      <div class="org-title">상세정보</div>
+      <div id="orgDetail" class="emp-detail-box" style="text-align:center; color:#888;">
+        부서나 직원을 클릭하세요.
+      </div>
+    </div>
+  </div>
+  <script>
+    // 샘플 데이터 (실제 구현 시 API로 대체)
+    const orgData = [
+      {
+        deptCode: 'd1001', deptName: '경영지원부', manager: {
+          name: '홍길동', position: '부장', phone: '010-1234-5678', photo: '', duty: '총괄', email: 'hong@company.com'
+        },
+        employees: [
+          { name: '이영희', position: '대리', phone: '010-4444-5555', photo: '', duty: '인사/급여', email: 'lee@company.com' }
+        ],
+        children: [
+          {
+            deptCode: 'd1002', deptName: '인사팀', manager: {
+              name: '김철수', position: '과장', phone: '010-2222-3333', photo: '', duty: '팀장', email: 'kim@company.com'
+            },
+            employees: [
+              { name: '최지훈', position: '사원', phone: '010-8888-9999', photo: '', duty: '채용', email: 'choi@company.com' }
+            ],
+            children: []
+          }
+        ]
+      },
+      {
+        deptCode: 'd1003', deptName: '영업부', manager: {
+          name: '박민수', position: '부장', phone: '010-7777-8888', photo: '', duty: '영업총괄', email: 'park@company.com'
+        },
+        employees: [
+          { name: '정다은', position: '대리', phone: '010-5555-6666', photo: '', duty: '영업지원', email: 'jung@company.com' }
+        ],
+        children: []
+      }
+    ];
+
+    // 트리 렌더링
+    function renderTree(data, parentUl) {
+      data.forEach(dept => {
+        const li = document.createElement('li');
+        const span = document.createElement('span');
+        span.className = 'dept-node';
+        span.textContent = dept.deptName + (dept.manager ? ` (${dept.manager.position}: ${dept.manager.name})` : '');
+        span.onclick = () => showDeptDetail(dept, span);
+        li.appendChild(span);
+
+        // 하위 부서
+        if (dept.children && dept.children.length > 0) {
+          const ul = document.createElement('ul');
+          ul.className = 'tree';
+          renderTree(dept.children, ul);
+          li.appendChild(ul);
+        }
+        parentUl.appendChild(li);
+      });
+    }
+
+    // 부서 클릭 시 상세정보
+    function showDeptDetail(dept, span) {
+      document.querySelectorAll('.dept-node').forEach(s => s.classList.remove('selected'));
+      span.classList.add('selected');
+      let html = '';
+      if (dept.manager) {
+        html += `<img src="${dept.manager.photo || 'https://via.placeholder.com/60'}" class="emp-detail-photo"><br>`;
+        html += `<div class="emp-detail-name">${dept.manager.name}</div>`;
+        html += `<div class="emp-detail-pos">${dept.manager.position}</div>`;
+        html += `<div class="emp-detail-contact">${dept.manager.phone} | ${dept.manager.email}</div>`;
+        html += `<div class="emp-detail-duty">담당업무: ${dept.manager.duty}</div>`;
+      } else {
+        html += `<div style="color:#aaa;">부서장 정보 없음</div>`;
+      }
+      // 직원 리스트
+      if (dept.employees && dept.employees.length > 0) {
+        html += `<div class="emp-list"><hr><b>소속 직원</b>`;
+        dept.employees.forEach(emp => {
+          html += `
+            <div class="emp-card" onclick="showEmpDetail(event, ${JSON.stringify(emp).replace(/"/g, '&quot;')})">
+              <img src="${emp.photo || 'https://via.placeholder.com/40'}" class="emp-photo">
+              <div class="emp-info">
+                <span class="emp-name">${emp.name}</span>
+                <span class="emp-pos">${emp.position}</span>
+                <span class="emp-duty">${emp.duty}</span>
+                <span class="emp-contact">${emp.phone}</span>
+              </div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      } else {
+        html += `<div style="color:#bbb; margin-top:16px;">소속 직원 없음</div>`;
+      }
+      document.getElementById('orgDetail').innerHTML = html;
+    }
+
+    // 직원 클릭 시 상세정보
+    window.showEmpDetail = function(event, emp) {
+      event.stopPropagation();
+      let html = `
+        <img src="${emp.photo || 'https://via.placeholder.com/60'}" class="emp-detail-photo"><br>
+        <div class="emp-detail-name">${emp.name}</div>
+        <div class="emp-detail-pos">${emp.position}</div>
+        <div class="emp-detail-contact">${emp.phone} | ${emp.email}</div>
+        <div class="emp-detail-duty">담당업무: ${emp.duty}</div>
+        <div style="margin-top:16px;"><button onclick="history.back()" style="padding:8px 16px; border-radius:8px; border:none; background:#2563eb; color:#fff;">돌아가기</button></div>
+      `;
+      document.getElementById('orgDetail').innerHTML = html;
+    }
+
+    // 최초 트리 렌더링
+    renderTree(orgData, document.getElementById('orgTree'));
+  </script>
+</body>
+</html> 

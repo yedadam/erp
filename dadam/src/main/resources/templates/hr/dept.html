@@ -1,4 +1,4 @@
-12<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{common/layouts/default_layout}"
@@ -114,7 +114,7 @@
                         </form>
                         <!-- 목록 헤더/새로고침 -->
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-semibold"><i class="bi bi-list-ul"></i> 부서 목록</span>
+                            <span class="fw-semibold"><i class="bi bi-list-ul"></i> 부서 목록 <span id="deptCount"></span></span>
                             <button class="btn btn-outline-secondary btn-sm" id="btnRefresh"><i class="bi bi-arrow-clockwise"></i> 새로고침</button>
                         </div>
                         <!-- Toast UI Grid 표시용 div 추가 -->
@@ -176,6 +176,8 @@
                 </div>
                 <div class="modal-body">
                     <div id="orgChart"></div>
+                    <!-- 상세정보 표시용 div 추가 -->
+                    <div id="orgDetailContent" style="margin-top:20px; font-size:1rem;"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
@@ -183,6 +185,19 @@
             </div>
         </div>
     </div>
+    
+    <!-- 조직도 오버레이 -->
+    <div id="orgChartOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:2000; overflow:auto;">
+      <div style="background:#fff; margin:40px auto; max-width:1200px; min-height:600px; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,0.15); padding:32px; position:relative;">
+        <button id="closeOrgChart" style="position:absolute; top:24px; right:24px; font-size:2rem; background:none; border:none;">&times;</button>
+        <iframe src="/erp/hr/org-tree" style="width:100%;height:700px;border:none;border-radius:16px;"></iframe>
+        <!-- 상세정보 표시용 div 추가 -->
+        <div id="orgDetailContent" style="margin-top:20px; font-size:1rem;"></div>
+      </div>
+    </div>
+    
+    <!-- 조직도 div가 없으면 추가 -->
+    <div id="orgChart" style="display:none;"></div>
     
     <!-- JavaScript Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -202,25 +217,32 @@
 
         // DB에서 부서 목록 불러오기
         function fetchDepartments() {
-            fetch('/erp/hr/api/dept/list')
+            fetch('/erp/hr/dept')
                 .then(response => response.json())
                 .then(data => {
-                    departmentData = data.map((d, idx) => ({
-                        id: idx + 1,
-                        deptCode: d.deptCode,
-                        deptName: d.deptName,
-                        parentDept: d.parentDeptCode || '',
-                        parentDeptName: d.parentDeptCode ? getParentDeptName(d.parentDeptCode, data) : '-',
-                        status: d.useYn || 'Y',
-                        statusText: (d.useYn === 'N' ? '미사용' : '사용'),
-                        employeeCount: d.empCount || 0,
-                        createdDate: d.createdDate ? d.createdDate.substr(0, 10) : '',
-                        description: d.remark || ''
-                    }));
-                    initializeGrid();
-                    updateDeptCount();
+                    try {
+                        console.log('받은 데이터:', data);
+                        departmentData = data.map((d, idx) => ({
+                            id: idx + 1,
+                            deptCode: d.deptCode,
+                            deptName: d.deptName,
+                            parentDept: d.parentDeptCode || '',
+                            parentDeptName: d.parentDeptCode ? getParentDeptName(d.parentDeptCode, data) : '-',
+                            status: d.useYn || 'Y',
+                            statusText: (d.useYn === 'N' ? '미사용' : '사용'),
+                            employeeCount: d.empCount || 0,
+                            createdDate: d.createdDate ? d.createdDate.substr(0, 10) : '',
+                            description: d.remark || ''
+                        }));
+                        initializeGrid();
+                        updateDeptCount();
+                    } catch (err) {
+                        console.error('데이터 처리 중 오류:', err);
+                        Swal.fire('오류', '부서 목록 데이터 처리 중 오류가 발생했습니다.', 'error');
+                    }
                 })
                 .catch(err => {
+                    console.error('fetch 실패:', err);
                     Swal.fire('오류', '부서 목록 조회에 실패했습니다.', 'error');
                 });
         }
@@ -273,9 +295,15 @@
             });
         }
         
-        // 이하 함수들은 기존과 동일하게 유지(샘플데이터 관련 부분은 departmentData로 대체)
-        // ... (loadDepartmentDetail, addNewDepartment, showEmptyState, hideEmptyState, saveDepartment, addDepartmentToGrid, updateDepartmentInGrid, deleteDepartment, cancelEdit, searchDepartments, refreshDepartments, updateDeptCount, showOrgChart, exportToExcel 등)
-        // 단, sampleData 대신 departmentData 사용
+        // 부서 상세정보를 오른쪽 폼에 표시하는 함수 추가
+        function loadDepartmentDetail(rowData) {
+            document.getElementById('deptName').value = rowData.deptName || '';
+            document.getElementById('parentDept').value = rowData.parentDept || '';
+            document.getElementById('useYn').value = rowData.status || 'Y';
+            document.getElementById('remark').value = rowData.description || '';
+            currentDeptId = rowData.deptCode;
+            isEditMode = true;
+        }
 
         // 예시: 부서 개수 업데이트
         function updateDeptCount(count = null) {
@@ -322,6 +350,147 @@
         }
 
         function showEmptyState() {}
+
+        // 저장(등록/수정) 버튼 이벤트
+        document.getElementById('btnSave').onclick = function() {
+            const dept = {
+                deptCode: currentDeptId,
+                deptName: document.getElementById('deptName').value,
+                parentDeptCode: document.getElementById('parentDept').value,
+                useYn: document.getElementById('useYn').value,
+                remark: document.getElementById('remark').value
+            };
+            const isUpdate = !!currentDeptId;
+            const url = isUpdate ? '/erp/hr/deptUpdate' : '/erp/hr/deptInsert';
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dept)
+            })
+            .then(res => res.json())
+            .then(data => {
+                Swal.fire('성공', isUpdate ? '수정되었습니다.' : '등록되었습니다.', 'success');
+                fetchDepartments();
+                cancelEdit();
+            })
+            .catch(err => Swal.fire('오류', (isUpdate ? '수정' : '등록') + ' 실패', 'error'));
+        };
+
+        // 삭제 버튼 이벤트
+        document.getElementById('btnDelete').onclick = function() {
+            if (!currentDeptId) {
+                Swal.fire('오류', '삭제할 부서를 선택하세요.', 'error');
+                return;
+            }
+            Swal.fire({
+                title: '정말 삭제하시겠습니까?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '삭제',
+                cancelButtonText: '취소'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/erp/hr/deptDelete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ deptCode: currentDeptId })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        Swal.fire('성공', '삭제되었습니다.', 'success');
+                        fetchDepartments();
+                        cancelEdit();
+                    })
+                    .catch(err => Swal.fire('오류', '삭제 실패', 'error'));
+                }
+            });
+        };
+
+        // 취소 버튼 이벤트
+        document.getElementById('btnCancel').onclick = function() {
+            document.getElementById('deptForm').reset();
+            currentDeptId = null;
+            isEditMode = false;
+        };
+
+        // 조직도 버튼, 오버레이, 닫기 버튼 display 및 데이터 로딩 보장
+        const orgChartBtn = document.querySelector('.btn-outline-secondary.me-2');
+        const orgChartOverlay = document.getElementById('orgChartOverlay');
+        const closeOrgChart = document.getElementById('closeOrgChart');
+        if(orgChartBtn && orgChartOverlay && closeOrgChart) {
+          orgChartBtn.addEventListener('click', () => {
+            orgChartOverlay.style.display = 'block';
+            const orgTreeDiv = document.getElementById('orgTree');
+            if (orgTreeDiv) orgTreeDiv.style.display = 'block';
+            const orgDetailDiv = document.getElementById('orgDetailContent');
+            if (orgDetailDiv) orgDetailDiv.style.display = 'block';
+            loadOrgChartFromDB(); // 조직도 오버레이 열릴 때 DB에서 데이터 불러오기
+          });
+          closeOrgChart.addEventListener('click', () => { 
+            orgChartOverlay.style.display = 'none';
+            const orgTreeDiv = document.getElementById('orgTree');
+            if (orgTreeDiv) orgTreeDiv.style.display = 'none';
+            const orgDetailDiv = document.getElementById('orgDetailContent');
+            if (orgDetailDiv) orgDetailDiv.style.display = 'none';
+          });
+        }
+
+        // DB에서 부서 데이터 받아와 트리로 변환 후 렌더링
+        function loadOrgChartFromDB() {
+          fetch('/erp/hr/dept')
+            .then(response => response.json())
+            .then(data => {
+              const treeData = buildDeptTree(data);
+              const orgTreeDiv = document.getElementById('orgTree');
+              if (orgTreeDiv) {
+                orgTreeDiv.style.display = 'block'; // 반드시 표시
+                orgTreeDiv.innerHTML = '';
+                orgTreeDiv.appendChild(renderOrgTree(treeData, null));
+              }
+              const orgDetailDiv = document.getElementById('orgDetailContent');
+              if (orgDetailDiv) orgDetailDiv.style.display = 'block';
+            });
+        }
+
+        // flat 리스트를 트리 구조로 변환
+        function buildDeptTree(list) {
+          const map = {};
+          const roots = [];
+          list.forEach(item => {
+            map[item.deptCode] = {...item, children: []};
+          });
+          list.forEach(item => {
+            if (item.parentDeptCode && map[item.parentDeptCode]) {
+              map[item.parentDeptCode].children.push(map[item.deptCode]);
+            } else {
+              roots.push(map[item.deptCode]);
+            }
+          });
+          return roots;
+        }
+
+        // 트리 렌더링 함수 (팀 스타일 유지)
+        function renderOrgTree(data, parent) {
+          const ul = document.createElement('ul');
+          ul.style.listStyle = 'none';
+          ul.style.paddingLeft = '24px';
+          data.forEach(node => {
+            const li = document.createElement('li');
+            li.style.marginBottom = '12px';
+            li.innerHTML = `<span style="cursor:pointer; font-weight:600;">${node.deptName}</span> <span style="color:#888;">(${node.empId ? node.empId : '부서장 미지정'}, ${node.empCount || 0}명)</span>`;
+            li.querySelector('span').onclick = () => {
+              const detailDiv = document.getElementById('orgDetailContent');
+              if (detailDiv) {
+                detailDiv.innerHTML = `<b>부서명:</b> ${node.deptName}<br><b>부서장:</b> ${node.empId || '미지정'}<br><b>인원수:</b> ${node.empCount || 0}명`;
+              }
+            };
+            if(node.children && node.children.length > 0) {
+              li.appendChild(renderOrgTree(node.children, li));
+            }
+            ul.appendChild(li);
+          });
+          return ul;
+        }
     </script>
 </body>
 </html>
