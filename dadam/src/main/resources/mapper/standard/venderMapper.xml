@@ -30,6 +30,75 @@ AND com_id = #{comId}
          AND vdr_name LIKE '%'||#{value}||'%'
   </when>
 </choose>
+order by vdr_code desc
 </select>
+<insert id="insertVender" parameterType="com.dadam.standard.vender.service.VenderVO">
+	<selectKey resultType="string" keyProperty="vdrCode" order="BEFORE">
+		SELECT 'vdr-' || TO_CHAR(NVL(MAX(TO_NUMBER(SUBSTR(vdr_code, 5))), 100) + 1)
+ 		FROM vender
+		</selectKey>
+	INSERT INTO vender (
+    VDR_CODE,
+    TYPE,
+    VDR_NAME,
+    BIZ_NO,
+    CEO_NAME,
+    ADDR,
+    ADDR_DETAIL,
+    EMAIL,
+    TEL,
+    BANK,
+    ACCT_NO,
+    CREDIT_PERIOD,
+    CREDIT_PRICE,
+    CREDIT_BAL_PRICE,
+    DISCOUNT,
+    COM_ID,
+    EMP_ID
+) VALUES (
+    #{vdrCode},
+    #{type},
+    #{vdrName},
+    #{bizNo},
+    #{ceoName},
+    #{addr},
+    #{addrDetail},
+    #{email},
+    #{tel},
+    #{bank},
+    #{acctNo},
+    #{creditPeriod},
+    #{creditPrice},
+    #{creditBalPrice},
+    #{discount},
+    #{comId},
+    #{empId}
+)
+</insert>
+<update id="updateVender" parameterType="com.dadam.standard.vender.service.VenderVO">
+  UPDATE vender
+  SET
+    TYPE = #{type},
+    VDR_NAME = #{vdrName},
+    BIZ_NO = #{bizNo},
+    CEO_NAME = #{ceoName},
+    ADDR = #{addr},
+    ADDR_DETAIL = #{addrDetail},
+    EMAIL = #{email},
+    TEL = #{tel},
+    BANK = #{bank},
+    ACCT_NO = #{acctNo},
+    CREDIT_PERIOD = #{creditPeriod},
+    CREDIT_PRICE = #{creditPrice},
+    CREDIT_BAL_PRICE = #{creditBalPrice},
+    DISCOUNT = #{discount}
+  WHERE VDR_CODE = #{vdrCode}
+    AND COM_ID = #{comId}
+</update>
+<delete id="deleteVender">
+DELETE FROM vender 
+WHERE com_id= #{comId}
+and vdr_code= #{vdrCode}
+</delete>
 
 </mapper>
