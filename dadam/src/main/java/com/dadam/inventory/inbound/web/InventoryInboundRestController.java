@@ -37,7 +37,6 @@ public class InventoryInboundRestController {
 	// 창고 리스트
 	@GetMapping("/warehouseList")
 	public List<InboundVO> warehouseList(@RequestParam String comId) {
-		 System.out.println("넘어온 comId = " + comId);
 		return inboundservice.warehouseList(comId);
 	}
 }

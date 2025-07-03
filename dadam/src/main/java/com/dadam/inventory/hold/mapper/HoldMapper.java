@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.dadam.inventory.hold.service.HoldVO;
+import com.dadam.inventory.hold.service.LotVO;
 import com.dadam.inventory.outbound.service.OutboundVO;
 
 @Mapper
@@ -17,7 +18,7 @@ public interface HoldMapper {
 	// lot 모달 조회
 	public List<HoldVO> selectHoldLotList(HoldVO vo);
 	// 홀드등록
-	public int insertHoldList(HoldVO vo);
+	public int insertHoldList(HoldVO list);
 	// 홀드Lot등록
-	public int insertHoldLotList(HoldVO vo);
+	public int insertHoldLotList(LotVO list);
 }

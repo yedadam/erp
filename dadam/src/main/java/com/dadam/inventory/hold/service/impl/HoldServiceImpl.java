@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dadam.inventory.hold.mapper.HoldMapper;
 import com.dadam.inventory.hold.service.HoldService;
 import com.dadam.inventory.hold.service.HoldVO;
+import com.dadam.inventory.hold.service.LotVO;
 import com.dadam.inventory.outbound.service.OutboundVO;
 
 @Transactional
@@ -40,8 +41,16 @@ public class HoldServiceImpl implements HoldService{
 	}
 	// 홀드리스트 등록
 	@Override
-	public int insertHoldList(HoldVO vo) {
-		// TODO Auto-generated method stub
+	public int insertHoldList(List<HoldVO> list) {
+		for(HoldVO vo : list) {
+			holdMapper.insertHoldList(vo);
+			List<LotVO> lotList = vo.getLotList();
+			for(LotVO lot : lotList) {
+				lot.setHoldCode(vo.getHoldCode());
+				lot.setComId(vo.getComId());
+				holdMapper.insertHoldLotList(lot);
+			}
+		}
 		return 0;
 	}
 }
