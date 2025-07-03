@@ -39,7 +39,7 @@
             	 AND getEmpName(EMP_ID) LIKE '%'||#{value}||'%'
             </when>
             <when test="type.equals('chitTile')">
-            	 AND chit_tile LIKE '%'||#{value}||'%'
+            	 AND CHIT_TITLE LIKE '%'||#{value}||'%'
             </when>
             <when test="type.equals('articleCode')">
             	 AND article_code LIKE '%'||#{value}||'%'

@@ -85,8 +85,8 @@ public class SubscirbeServiceImple implements SubscribeService{
 	    info.setEmpName(comName);
 	    //erpSubs에 등록이 되었다면 employees 테이블에도 추가
 	    if(result > 0) {
-	    //사원 등록시키기
-	    subsMapper.firstAdd(info);
+	    	//사원 등록시키기
+	    	subsMapper.firstAdd(info);
 	    }
 		return result;
 	}

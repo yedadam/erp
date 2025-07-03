@@ -16,4 +16,8 @@ public class ErpUserVO {
 	private String busTel;
 	private Date createdDate;
 	private String authority;
+	private String master;
+	private Date subsExpiration;
+	private String optionCode;
+	private String deptCode;
 }

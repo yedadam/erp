@@ -1,8 +1,8 @@
 package com.dadam.security.service;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -25,8 +25,7 @@ public class LoginMainAuthority implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
     	List<GrantedAuthority> auth = new ArrayList<>();
-    	//권한부여시 작동
-		//auth.add(new SimpleGrantedAuthority(userVO.getEntMemberCode()));
+    	auth.add(new SimpleGrantedAuthority(userVO.getMaster()));
 		return auth;
     }
 
@@ -46,6 +45,27 @@ public class LoginMainAuthority implements UserDetails {
     
     public String getMainId() {
     	return userVO.getComId(); // userVO의 아이디 반환
+    }
+    public String getEmpName() {
+        return ""; // userVO의 아이디 반환
+    }
+    public String getUserId() {
+    	return "";
+    }
+    public String getComId(){
+    	return "";
+    }
+    public String getDeptCode() {
+    	return "de1001";
+    }
+    public String getOptionCode() {
+    	return userVO.getOptionCode();
+    }
+    public String getMaster() {
+    	return userVO.getMaster();
+    }
+    public Date getSubsExpiration() {
+    	return userVO.getSubsExpiration();
     }
 
     @Override

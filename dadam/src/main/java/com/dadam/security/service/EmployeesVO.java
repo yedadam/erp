@@ -22,4 +22,7 @@ public class EmployeesVO {
 	private String note;
 	private String sal;
 	private Date subsExpiration;
+	private String optionCode;
+	private String authCode;
+	private String master;
 }
