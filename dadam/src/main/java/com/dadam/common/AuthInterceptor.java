@@ -21,7 +21,7 @@ public class AuthInterceptor implements HandlerInterceptor{
    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 	   
 	   String optionCode = "com-101";
-	   Date subsExipriation = null;
+	   Date subsExipriation = Date.valueOf(LocalDate.now().plusDays(1));
        //로그인 객체값 연결
        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
        //로그인 객체 가져오기
@@ -45,21 +45,19 @@ public class AuthInterceptor implements HandlerInterceptor{
 			 response.sendRedirect("/error/403.html");
 	         return false;
 		 }
-		
-       
-       if (uri.startsWith("/erp/sales") && optionCode =="oc-102") {
+       if (uri.startsWith("/erp/sales") && optionCode.equals("oc-101")) {
            response.sendRedirect("/error/403.html");
            return false;
        }
-       if (uri.startsWith("/erp/accounting") && optionCode =="oc-102") {
+       if (uri.startsWith("/erp/inventory") && optionCode.equals("oc-101")) {
+    	   response.sendRedirect("/error/403.html");
+    	   return false;
+       }
+       if (uri.startsWith("/erp/accounting") && optionCode.equals("oc-102")) {
     	   response.sendRedirect("/error/403.html");
            return false;
        }
-       if (uri.startsWith("/erp/hr") && optionCode =="oc-101") {
-    	   response.sendRedirect("/error/403.html");
-           return false;
-       }
-       if (uri.startsWith("/erp/inventory") && optionCode=="oc-101") {
+       if (uri.startsWith("/erp/hr") && optionCode.equals("oc-102")) {
     	   response.sendRedirect("/error/403.html");
            return false;
        }

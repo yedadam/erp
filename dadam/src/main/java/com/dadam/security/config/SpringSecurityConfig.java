@@ -98,7 +98,8 @@ public class SpringSecurityConfig {
         	.securityMatcher("/erp/**") 
             .authorizeHttpRequests(auth -> auth
                 // 정적 리소스와 로그인 페이지는 모든 사용자에게 허용
-                .requestMatchers("/css/**", 
+                .requestMatchers("/erp/**",
+                		         "/css/**", 
                 				 "/js/**", 
                         		 "/images/**").permitAll()
                 .requestMatchers("/erp").hasAnyAuthority("master","ac-101","ac-102","ac-103","ac-104","ac-105")
@@ -111,7 +112,7 @@ public class SpringSecurityConfig {
                 .anyRequest().authenticated()
             )
             
-            .formLogin(form -> form
+            .formLogin(form -> form 
                 // 커스텀 로그인 페이지
                 .loginPage("/erp/login")
                 .permitAll()
