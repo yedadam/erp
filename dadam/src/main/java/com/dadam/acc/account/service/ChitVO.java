@@ -70,4 +70,11 @@ public class ChitVO {
     
 	private String empName;
 	private String type;
+	
+	
+	// 자동분개 설정용 필드
+	private Long ruleId;
+	private String indType;      // 차/대변
+	private String chitType;      // 거래유형
+	
 }

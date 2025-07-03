@@ -23,7 +23,7 @@ public class CreditVO {
 	private int creditBalPrice;	// 여신 잔액
 	private String status;		// 상태
 	
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date createdDate;	// 등록일자
 	
 	// 여신관리 상세
@@ -34,5 +34,4 @@ public class CreditVO {
 	private String type;		// 상태
 	private String phyEmpId;	// 작성자
 	private String chitCode;	// 전표코드(수금번호)
-	
 }

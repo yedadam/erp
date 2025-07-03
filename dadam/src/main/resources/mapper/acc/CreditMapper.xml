@@ -19,15 +19,16 @@
     	 , get_credit_status(credit_bal_price) status
     	 , (SELECT MAX(c.update_date)
          	  FROM chit c
-             WHERE c.vdr_code = v.vdr_code
-               AND c.status = 'sta03') AS createdDate
+         	  JOIN orders o ON ord_code = article_code
+             WHERE o.vdr_code = v.vdr_code
+               AND c.status = 'cst03') AS createdDate
 	  FROM vender v
 	 ORDER BY v.vdr_code
 	</select>
 	
 	<!-- 거래처별 여신 상세 목록 -->
 	<select id="creditFindCode" resultType="com.dadam.acc.credit.service.CreditVO">
-	SELECT c.article_code <!-- 항목코드 : 각 주문 번호의 pk -->
+	SELECT c.article_code 
 		 , v.credit_price
 		 , c.tot_price
 		 , v.credit_bal_price
@@ -36,12 +37,13 @@
 		 , c.type
 		 , getEmpName(v.emp_id) as emp_id 
 		 , c.created_date
-		 , getEmpName(c.phy_emp_id) as phy_emp_id <!-- 처리자 -->
+		 , getEmpName(c.phy_emp_id) as phy_emp_id 
 		 , c.chit_code
 	  FROM chit c
-	  JOIN vender v ON c.vdr_code = v.vdr_code
-	 WHERE c.vdr_code = #{vdrCode}
-	   AND c.status = 'sta03'
+	  JOIN orders o ON ord_code = article_code
+	  JOIN vender v ON o.vdr_code = v.vdr_code
+	 WHERE o.vdr_code = #{vdrCode}
+	   AND c.status = 'cst03'
 	</select>
 
 </mapper>

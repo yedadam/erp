@@ -33,4 +33,10 @@ public class AccountFormController {
 		return "acc/create";
 	}
 	
+
+    @GetMapping("/autoRule")
+    public String openForm() {
+        return "acc/autoRuleForm :: fragment";  // templates/acc/autoRuleForm.html
+    }
+	
 }
