@@ -63,14 +63,15 @@ public class ChitRestController {
 	
 	@PostMapping("/modifyChitPay")
 	@ResponseBody
-	public Map<String, Object> confirmPayments(@RequestBody List<Map<String, Object>> payload) {
+	public Map<String, Object> confirmPayments(@RequestBody List<Map<String, Object>> payload, String comId) {
 	    System.out.println(payload);
 		for (Map<String, Object> row : payload) {
 	        String chitCode = (String) row.get("chitCode");
-	        String articleCode = (String) row.get("articleCode");
+	        String articleCode = (String) row.get("articleCode");	
 	        int totPrice = Integer.parseInt(row.get("totPrice").toString());
+	        comId = (String) row.get("comId"); 
 
-	        chitService.modifyChitPay(chitCode, articleCode, totPrice);
+	        chitService.modifyChitPay(chitCode, articleCode, comId, totPrice);
 	    }
 	    return Map.of("result", "success", "message", payload.size() + "건 결제 완료");
 	}

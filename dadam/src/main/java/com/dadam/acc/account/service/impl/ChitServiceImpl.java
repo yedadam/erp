@@ -102,7 +102,7 @@ public class ChitServiceImpl implements ChitService{
 	}
 	@Override
 	@Transactional
-	public void modifyChitPay(String chitCode, String articleCode, int totPrice) {
+	public void modifyChitPay(String chitCode, String articleCode, String comId, int totPrice) {
         // 1. 전표 상태 변경
         chitMapper.modifySta(chitCode, comId);
 

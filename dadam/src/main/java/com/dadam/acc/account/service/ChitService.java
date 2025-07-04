@@ -11,7 +11,7 @@ public interface ChitService {
 	
 	public void saveAll(ChitVO chit);
 	
-	public void modifyChitPay(String chitCode, String articleCode, int totPrice);
+	public void modifyChitPay(String chitCode, String articleCode,String comId, int totPrice);
 
 	public List<ChitVO> getAutoChitRules(String comId);
 

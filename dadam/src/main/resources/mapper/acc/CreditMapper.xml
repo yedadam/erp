@@ -21,7 +21,7 @@
          	  FROM chit c
          	  JOIN orders o ON ord_code = article_code
              WHERE o.vdr_code = v.vdr_code
-               AND c.status = 'cst03') AS createdDate
+               AND c.status = 'cst04') AS createdDate
 	  FROM vender v
 	 ORDER BY v.vdr_code
 	</select>
@@ -35,15 +35,15 @@
 		 , v.bank
 		 , v.acct_no
 		 , c.type
-		 , getEmpName(v.emp_id) as emp_id 
+		 , getEmpName(v.emp_id, #{comId}) as emp_id 
 		 , c.created_date
-		 , getEmpName(c.phy_emp_id) as phy_emp_id 
+		 , getEmpName(c.phy_emp_id, #{comId}) as phy_emp_id 
 		 , c.chit_code
 	  FROM chit c
 	  JOIN orders o ON ord_code = article_code
 	  JOIN vender v ON o.vdr_code = v.vdr_code
 	 WHERE o.vdr_code = #{vdrCode}
-	   AND c.status = 'cst03'
+	   AND c.status = 'cst04'
 	</select>
 
 </mapper>

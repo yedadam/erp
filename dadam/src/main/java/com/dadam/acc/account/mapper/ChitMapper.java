@@ -23,7 +23,6 @@ public interface ChitMapper {
 
 	//전표 결제
 	public void modifySta(String chitCode,String comId);
-	public void modifyVarBal(ChitVO chit,String comId);
 	public void modifyVarBal(String articleCode, int totPrice,String comId);
 	
 	public String getTtypeByChitCode(@Param("chitCode") String chitCode, @Param("comId") String comId);
