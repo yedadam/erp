@@ -34,9 +34,8 @@
 			</choose>
 		order by ship_req_code desc
 	</select>
-	<select id="findShipreqDtlList" parameterType="String"
-		resultType="com.dadam.sales.shipreq.service.ShipReqDtlVO">
-		SELECT
+	<select id="findShipreqDtlList"  resultType="com.dadam.sales.shipreq.service.ShipReqDtlVO">
+SELECT
 		sd.ship_req_dtl_code,
 		s.VDR_CODE,
 		getvdrname(s.vdr_code) VDR_NAME,
@@ -53,12 +52,9 @@
 		sd.quantity/10)*(1-v.discount/100) totPrice,
 		sd.STATUS,
 		s.COM_ID
-		FROM
-		shiprequest s JOIN shiprequestdetail sd
-		ON
-		sd.ship_req_code=s.ship_req_code
-		JOIN vender v ON s.vdr_code=v.vdr_code
-		WHERE s.ship_req_code=#{shipReqCode}
+		FROM shiprequest s JOIN shiprequestdetail sd ON (sd.ship_req_code=s.ship_req_code and sd.com_id=s.com_id) 
+		JOIN vender v ON (s.vdr_code=v.vdr_code and s.com_id=v.com_id)
+        WHERE s.ship_req_code=#{shipReqCode} AND s.com_id=#{comId}
 		order by sd.ship_req_dtl_code
 	</select>
 	<insert id="insertShipreqHead" parameterType="com.dadam.sales.shipreq.service.ShipReqVO">
@@ -117,37 +113,43 @@
 		    #{dliveDate}
 		  )
 </insert>
-	<update id="updateStatusByordNo" parameterType="String" >
+	<update id="updateStatusByordNo">
 	UPDATE orders
 	SET status='ost02'
 	WHERE ord_code=#{ordCode}
+	AND com_id=#{comId}
 	</update>	
 	<!-- 납기일자 변경하기 -->	
 	<update id="updateShiPExpDate" parameterType="com.dadam.sales.shipreq.service.ShipReqVO">
 	UPDATE shiprequest
 	SET ship_exp_date= #{shipExpDate} 
 	WHERE ship_req_code= #{shipReqCode} 
+	AND com_id=#{comId}
 	</update>
 	<!-- 주문상태 값 바꾸기  -->
-	<update id="updateOrdStatus" parameterType="String">
+	<update id="updateOrdStatus">
 	update orders 
 	SET status='ost01'
 	WHERE ord_code=#{ordCode}
+	AND com_id=#{comId}
 	</update> 
 	<!-- 출하헤더 삭제시 출하디테일삭제 -->
-	<delete id="deleteShipreqDtl" parameterType="String">
+	<delete id="deleteShipreqDtl">
 	delete shiprequestdetail
 	where ship_req_code=#{shipReqCode}
+	AND com_id=#{comId}
 	</delete>
 	<!-- 출하헤더삭제 -->
-	<delete id="deleteShipreqHead" parameterType="String">
+	<delete id="deleteShipreqHead">
 	delete shiprequest
 	where ship_req_code=#{shipReqCode}
+	AND com_id=#{comId}
 	</delete>
 	<!-- 출하 디테일 단건삭제 -->	
-	<delete id="deleteShipReqDtlBydtlno" parameterType="String">
+	<delete id="deleteShipReqDtlBydtlno">
 	delete shiprequestdetail
 	where ship_req_code=#{shipReqDtlCode}
+	AND com_id=#{comId}
 	</delete>
 
 </mapper>

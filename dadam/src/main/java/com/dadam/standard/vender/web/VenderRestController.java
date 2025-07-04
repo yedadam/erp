@@ -22,5 +22,8 @@ public class VenderRestController {
 	public List<VenderVO> venderAll(@RequestParam (defaultValue = "",required = false) String type,@RequestParam(defaultValue = "",required = false) String value) {
 		return venderservice.venderFindAll(type,value);
 	}
-	
+	@GetMapping("/venderAllList")
+	public List<VenderVO> venderAllList(@RequestParam (defaultValue = "",required = false) String type,@RequestParam(defaultValue = "",required = false) String value) {
+		return venderservice.venderFindAllList(type,value);
+	}
 }

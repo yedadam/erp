@@ -44,7 +44,7 @@ public class ShipreqServiceImpl implements ShipreqService {
 
 	@Override
 	public List<ShipReqDtlVO> findShipreqDtlList(String shipReqCode) {
-		List<ShipReqDtlVO> result=shipreqMapper.findShipreqDtlList(shipReqCode); 
+		List<ShipReqDtlVO> result=shipreqMapper.findShipreqDtlList(shipReqCode,comId); 
 		return result;
 	}
 
@@ -52,21 +52,18 @@ public class ShipreqServiceImpl implements ShipreqService {
 	public int insertShipreqReg(ShipReqFrontVO req) {
 		String shipreqCode=req.getHead().getShipReqCode();
 		String ordCode=req.getHead().getOrdCode(); 
-			
 
 		req.getHead().setComId(comId); //comId를 설정 해줌  
 		
 		System.out.println("comId"+req.getHead().getComId());
 		
 		shipreqMapper.insertShipreqHead(req.getHead()); //헤더먼저등록
-		shipreqMapper.updateStatusByordNo(ordCode); 	// 출고대기 ost02로 변경 
-		
-		
+		shipreqMapper.updateStatusByordNo(ordCode,comId); 	// 출고대기 ost02로 변경 
+	
 		System.out.println(shipreqCode);
 		System.out.println(req.getDtl());
 		for(int i=0;i<req.getDtl().size(); i++ ) {
-		  req.getDtl().get(i).setShipReqCode(shipreqCode); //shipreqCode로 지정
-		  System.out.println("ㅇㅇㅇㅇㅇ");
+		  req.getDtl().get(i).setShipReqCode(shipreqCode); //shipreqCode로 지정		
 		  req.getDtl().get(i).setComId(comId);
 		  shipreqMapper.insertShipreqDtl(req.getDtl().get(i)); //디테일 for문 돌리면서 등록 
 		}
@@ -74,24 +71,28 @@ public class ShipreqServiceImpl implements ShipreqService {
 	}
 	@Override
 	public int updateShiPExpDate(ShipReqVO head) {
+		head.setComId(comId);
 		shipreqMapper.updateShiPExpDate(head); 
 		return 0;
 	}
 
 	@Override
 	public int deleteShipReq(ShipReqFrontVO req) {
-		shipreqMapper.updateOrdStatus(req.getHead().getOrdCode()); 
+		req.getHead().setComId(comId); //comId 부여 
+		shipreqMapper.updateOrdStatus(req.getHead().getOrdCode(),req.getHead().getComId()); 
 		System.out.println("updateOrdStatus완료");
-		shipreqMapper.deleteShipreqDtl(req.getHead().getShipReqCode());
+		shipreqMapper.deleteShipreqDtl(req.getHead().getShipReqCode(),comId);
 		System.out.println("deleteShipreqDtl완료");
-		shipreqMapper.deleteShipreqHead(req.getHead().getShipReqCode());
+		shipreqMapper.deleteShipreqHead(req.getHead().getShipReqCode(),comId);
 		return 0;
 	}
 	//dtl번호받아서 삭제하기 
 	@Override
-	public int deleteShipReqDtlBydtlno(ShipReqFrontVO req) {	
+	public int deleteShipReqDtlBydtlno(ShipReqFrontVO req) {
+		req.getHead().setComId(comId);
 		for(int i=0; i<req.getDtl().size();i++) {
-			shipreqMapper.deleteShipReqDtlBydtlno(req.getDtl().get(i).getShipReqDtlCode()); 
+		   req.getDtl().get(i).setComId(comId);
+		   shipreqMapper.deleteShipReqDtlBydtlno(req.getDtl().get(i).getShipReqDtlCode(),comId); 
 		}
 		return 0;
 	}

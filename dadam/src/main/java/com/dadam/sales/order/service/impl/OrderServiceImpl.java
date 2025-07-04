@@ -50,8 +50,7 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public int orderInsert(OrdReqVO ord) {
-		// 헤더 등록
-		
+
 		ord.getOrd().setComId(comId);
 		orderMapper.orderInsert(ord.getOrd());
 		

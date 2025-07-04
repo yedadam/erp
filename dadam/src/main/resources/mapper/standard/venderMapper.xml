@@ -18,7 +18,8 @@ SELECT
 		credit_price,
 		credit_bal_price,
 		discount,
-		com_id
+		com_id,
+		emp_id
 FROM vender
 WHERE type='vt01'
 AND com_id = #{comId}
@@ -32,6 +33,38 @@ AND com_id = #{comId}
 </choose>
 order by vdr_code desc
 </select>
+<select id="venderFindAllList" resultType="com.dadam.standard.vender.service.VenderVO">
+SELECT 
+        vdr_code,
+		type,
+		vdr_name,
+		biz_no,
+		ceo_name,
+		addr,
+		addr_detail,
+		email,
+		tel,
+		bank,
+		acct_no,
+		credit_period,
+		credit_price,
+		credit_bal_price,
+		discount,
+		com_id,
+		emp_id
+FROM vender
+WHERE com_id = #{comId}
+<choose>
+  <when test="type.equals('vdrCode')">
+         AND vdr_code LIKE '%'||#{value}||'%'
+  </when>
+  <when test="type.equals('vdrName')">
+         AND vdr_name LIKE '%'||#{value}||'%'
+  </when>
+</choose>
+order by vdr_code desc
+</select>
+
 <insert id="insertVender" parameterType="com.dadam.standard.vender.service.VenderVO">
 	<selectKey resultType="string" keyProperty="vdrCode" order="BEFORE">
 		SELECT 'vdr-' || TO_CHAR(NVL(MAX(TO_NUMBER(SUBSTR(vdr_code, 5))), 100) + 1)
@@ -100,5 +133,10 @@ DELETE FROM vender
 WHERE com_id= #{comId}
 and vdr_code= #{vdrCode}
 </delete>
+<select id="findVenderMaxno">
+SELECT 'vdr-' || TO_CHAR(NVL(MAX(TO_NUMBER(SUBSTR(vdr_code, 5))), 100) + 1)
+FROM vender
+where com_id=#{comId}
+</select>
 
 </mapper>

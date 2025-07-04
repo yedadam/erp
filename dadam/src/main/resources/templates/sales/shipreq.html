@@ -249,12 +249,15 @@
 			</div>
 		</div>
 	</div>
-	<script>
+	<script th:inline="javascript">
 	//세션
 	// let empId = 'emp-101';
 	// let empName = '예담'; 
 	let maxShipReqNO; 
-	
+	var mainStatus = /*[[${mainStatus}]]*/ [];
+	var dtlStatus = /*[[${dtlStatus}]]*/ [];   
+
+
 	//필수값 가져오기
 	function getName(name){
 		const header = document.createElement('span');
@@ -345,18 +348,18 @@
                 {header:'수량', name: 'quantity', align: 'center',customHeader:getName('수량'),
                 	formatter: function(quantity){return quantity.value+'개'; }, },
                 {header:'개당가격', name: 'price', align: 'right',
-					formatter: function(price){	return priceFormat(price.value)+'원';},		
+									formatter: function(price){	return priceFormat(price.value)+'원';},		
                 },
                 {header:'공급가액', name: 'supPrice', align: 'right', 
-					formatter: function(price){return priceFormat(price.value)+'원';},},
+									formatter: function(price){return priceFormat(price.value)+'원';},},
                 {header:'부가세', name: 'vatPrice', align: 'right', 
                 	formatter: function(price){return priceFormat(price.value)+'원';},},
                 {header:'할인금액', name: 'discPrice', align: 'right', 
                 	formatter: function(discPrice){  return discPrice.value+'원'; },},
-				{header:'합계금액', name: 'totPrice', align: 'right', 
+								{header:'합계금액', name: 'totPrice', align: 'right', 
                 	formatter: function(totPrice){ return priceFormat(totPrice.value)+'원';},},	
-                {header:'상태', name: 'status', align: 'center',},
-				{header:'회사ID', name: 'comId', align: 'center'},	
+                {header:'상태', name: 'status', align: 'center'},
+								{header:'회사ID', name: 'comId', align: 'center'},	
             ]
         });
         
@@ -372,9 +375,9 @@
             scrollY: false,
             // 필드값 구성
             columns: [
-                {header:'주문코드', name: 'ordCode', align: 'center'},
-				{header:'거래처코드', name: 'vdrCode', align: 'center'},
-				{header:'거래처명', name: 'vdrName', align: 'center'},
+            {header:'주문코드', name: 'ordCode', align: 'center'},
+						{header:'거래처코드', name: 'vdrCode', align: 'center'},
+						{header:'거래처명', name: 'vdrName', align: 'center'},
         		{header:'등록일자', name: 'createdDate', align: 'center'},
         		{header:'상태', name: 'status', align: 'center'},
                 {header:'총공급세',	name: 'totSupPrice',	align:'right',
@@ -837,6 +840,7 @@
 	    	 //조회버튼클릭시
 	    	 if(pageStatus=='search'){
 	    		 shipReqModify();
+					 mainList();
 	    	 }
 	     })
 	     //조회버튼
@@ -921,6 +925,11 @@
 			return status;
 		} 
 	}
+
+	function detailStatus(){
+		console.log('dtlStatus',dtlStatus); 
+	}
+
 	
 </script>
 </body>

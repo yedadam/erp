@@ -172,21 +172,17 @@
 
     <!-- 그리드 -->
     <div id="mainGrid"></div>
-
-
-    <!-- 상세 정보 테이블 -->
-
     <div class="text-end">
       <div class="btn-group-custom">
-        <button class="btn btn-primary me-2" id="rowAddBtn">
+        <!-- <button class="btn btn-primary me-2" id="rowAddBtn">
           행추가
-        </button>
+        </button> -->
         <!-- <button class="btn btn-danger me-2" id="rowDelBtn">
           행삭제
         </button> -->
       </div>
     </div>
-    <div id="detailGrid"></div>
+  
   </div>
 
   <!--주소 모달-->
@@ -218,6 +214,7 @@
   
   <script th:inline="javascript">
     var type = /*[[${type}]]*/ []; 
+    var venderMaxno = [[${venderMaxno}]]; 
     let maxShipReqNO;
     let frontcomId; //회사id
     const addrModal = bootstrap.Modal.getInstance(document.getElementById('addrModal')); //주소모달 객체선언 
@@ -260,10 +257,11 @@
       },
       // 필드값 구성
       columns: [
-        {header: '거래처코드',name: 'vdrCode',align: 'center',width: 120,editor: 'text',customHeader: getName('거래처코드')},
+        {header: 'No.',name: 'vdrCode',align: 'center',width: 80,customHeader: getName('No.')},
         {header: '거래처명',name: 'vdrName',align: 'center', resizable: true ,editor: 'text',customHeader: getName('거래처명')},
-        {header: '구분',name: 'type',align: 'center' ,formatter: 'listItemText',editor: {type: 'select',options: {listItems: type}
-      }, customHeader: getName('구분')},
+        {header: '구분',name: 'type',align: 'center' ,formatter: 'listItemText',editor: 
+          {type: 'select',options: {listItems: type}},
+           customHeader: getName('구분')},
         {header: '대표자명',name: 'ceoName',editor: 'text',align: 'center'},
         {header: '연락처',name: 'tel',align: 'center',editor: 'text'},
         {header: '할인율',name: 'discount',align: 'center',formatter(discount) {
@@ -291,38 +289,39 @@
       ],
     });
     // 상세그리드
-   let detailGrid = new tui.Grid({
-      // toastui 아이디 가져오기
-      el: document.getElementById('detailGrid'),
-      scrollX: false,
-      scrollY: false,
-      // checkbox 부여
-      rowHeaders: ['checkbox'],
-      // 필드값 구성
-      columns: [{header: '주소',name: 'addr',align: 'left',editor: 'text',width: 250,resizable: true},
-                {header: '상세주소',name: 'addrDetail',align: 'left',editor: 'text',width: 150,resizable: true},
-                {header: '사업자등록번호',name: 'bizNo',align: 'center',editor: 'text', width: 180,resizable: true},
-                {header: '이메일',name: 'email',align: 'center',editor: 'text',width: 220,resizable: true},
-                {header: '은행',name: 'bank',align: 'center',editor: 'text',width: 120},
-                {header: '계좌번호',name: 'acctNo',align: 'center',editor: 'text',width: 170,resizable: true},
-                {header: '여신기간',name: 'creditPeriod',align: 'center',editor: 'text',width: 80},
-                {header: '여신금액',name: 'creditPrice',align: 'right',editor: 'text',width: 130,resizable: true,
-                  formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
-                {header: '여신잔량', name: 'creditBalPrice',align: 'right',editor: 'text',width: 130,resizable: true,
-                  formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
-      ]
-    });
+  //  let detailGrid = new tui.Grid({
+  //     // toastui 아이디 가져오기
+  //     el: document.getElementById('detailGrid'),
+  //     scrollX: false,
+  //     scrollY: false,
+  //     // checkbox 부여
+  //     rowHeaders: ['checkbox'],
+  //     // 필드값 구성
+  //     columns: [{header: '주소',name: 'addr',align: 'left',editor: 'text',width: 250,resizable: true},
+  //               {header: '상세주소',name: 'addrDetail',align: 'left',editor: 'text',width: 150,resizable: true},
+  //               {header: '사업자등록번호',name: 'bizNo',align: 'center',editor: 'text', width: 180,resizable: true},
+  //               {header: '이메일',name: 'email',align: 'center',editor: 'text',width: 220,resizable: true},
+  //               {header: '은행',name: 'bank',align: 'center',editor: 'text',width: 120},
+  //               {header: '계좌번호',name: 'acctNo',align: 'center',editor: 'text',width: 170,resizable: true},
+  //               {header: '여신기간',name: 'creditPeriod',align: 'center',editor: 'text',width: 80},
+  //               {header: '여신금액',name: 'creditPrice',align: 'right',editor: 'text',width: 130,resizable: true,
+  //                 formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+  //               {header: '여신잔량', name: 'creditBalPrice',align: 'right',editor: 'text',width: 130,resizable: true,
+  //                 formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
+  //     ]
+  //   });
     //그리드 숨기기
-    mainGrid.hideColumn('comId');
-    mainGrid.hideColumn('addrDetail');
-    mainGrid.hideColumn('addr');
-    mainGrid.hideColumn('bizNo');
-    mainGrid.hideColumn('email');
-    mainGrid.hideColumn('bank');
-    mainGrid.hideColumn('acctNo');
-    mainGrid.hideColumn('creditPeriod');
-    mainGrid.hideColumn('creditPrice');
-    mainGrid.hideColumn('creditBalPrice');
+     mainGrid.hideColumn('comId');
+     mainGrid.hideColumn('empId'); 
+    // mainGrid.hideColumn('addrDetail');
+    // mainGrid.hideColumn('addr');
+    // mainGrid.hideColumn('bizNo');
+    // mainGrid.hideColumn('email');
+    // mainGrid.hideColumn('bank');
+    // mainGrid.hideColumn('acctNo');
+    // mainGrid.hideColumn('creditPeriod');
+    // mainGrid.hideColumn('creditPrice');
+    // mainGrid.hideColumn('creditBalPrice');
     // 메인 리스트 불러오기
     function mainList() {
       pageStatus = 'search'
@@ -333,7 +332,7 @@
       //추가버튼 활성화
       newBtn.prop('disabled', false);
       $.ajax({
-        url: "/erp/standard/venderAll",
+        url: "/erp/standard/venderAllList",
         method: "GET",
         success: function (result) {
           console.log('mainList불러오기',result)
@@ -373,50 +372,50 @@
       let data = mainGrid.getData();
       //그리드 초기화ㅣ
       mainGrid.resetData([{
+        vdrCode:venderMaxno,
         empId: empId,
         empName: empName
       }])
       console.log('키번호', mainGrid.getData()[0].rowKey);
   
       detailGrid.resetData([{}]);
-      detailGrid.appendRow([{}]); 
+     
     });
     //메인그리드 클릭 RowKey
     let mainRowKey = null;
     //메인그리드 클릭창
     mainGrid.on('click', ev => {
+      console.log('mainGrid',mainGrid.getData());
 
+      if(ev.columnName=="addr"&&ev.targetType=="cell"){
+          new daum.Postcode({
+              oncomplete: function (data) {
+                const row = mainGrid.getRow(0);
+                if (row) {
+                  mainGrid.setValue(0, "addr", data.address);
+                } else {
+                  console.warn("0번 row 없음. 주소 설정 실패");
+                }
+              }
+            }).open();
+     } 
       const checkedRows = mainGrid.getCheckedRowKeys();
       if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
         mainGrid.uncheckAll(); // 전체 해제
         mainGrid.check(ev.rowKey); // 현재 행만 체크
       } 
 
-      // console.log('shipReqCode',mainGrid.getCheckedRows()[0].shipReqCode);
-      console.log('ev.targetType:', ev.targetType);
-      console.log('ev.columnName:', ev.columnName);
-      console.log('ev.rowKey:', ev.rowKey);
     
       if (!ev.targetType || ev.targetType !== 'cell') {
         // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
         return;
       }
-      // if (ev.targetType == 'cell' && ev.columnName == 'shipReqCode' && ev.rowKey == 0) {
-      //   requestModal(); 
-      // }
       mainRowKey = ev.rowKey;
-
-     
     })
    
     detailGrid.on('afterChange',ev=>{
-      
-     
-   
 
     })
-
-
     //모달 그리드 클릭시 발동
     
     //상세그리드 행추가
@@ -471,17 +470,24 @@
     //디테일그리드 클릭시 발동
     detailGrid.on('click', ev => {
       detailRowKey = ev.rowKey;
-      console.log(ev.rowKey);
-      console.log(ev.columnName); 
-      console.log(ev.targetType);
-
      if(pageStatus=="add"&&ev.columnName=="addr"&&ev.targetType=="cell"){
-         $('#addrModal').modal('show');
-         
-     } 
+    //      $('#addrModal').modal('show');       
+   // 주소 검색 버튼 클릭 시 카카오 주소 API
+    new daum.Postcode({
+        oncomplete: function (data) {
+          const row = detailGrid.getRow(0);
+          if (row) {
 
+            detailGrid.setValue(0, "addr", data.address);
+          } else {
+            console.warn("0번 row 없음. 주소 설정 실패");
+          }
+         }
+       }).open();
+     } 
       //아이템리스트 가져오기 
       console.log(detailGrid.getCheckedRows());
+    
     })
    
     //등록함수
@@ -505,10 +511,8 @@
       if (!mainResult) {
         Swal.fire('실패', '메인 그리드에 입력란들을 기입하세요', 'error');
         return;
-      } else if (detailResult) {
-        Swal.fire('실패', '상세 그리드에 입력란들을 기입하세요', 'error');
-        return;
       }
+    
 
       //등록데이터 정리
       let mainData = mainGrid.getModifiedRows(); // [{},{},{}]
@@ -541,11 +545,8 @@
     let front;
     $('#saveBtn').on('click', ev => {
 
-     
-
-
       //추가버튼 클릭시
-      if (pageStatus == 'add') {
+      if (pageStatus == 'add') {         
           //front 정의 
            front = { vdrCode:mainGrid.getData()[0].vdrCode, //거래처코드
                     vdrName:mainGrid.getData()[0].vdrName, //거래처이름
@@ -556,15 +557,15 @@
                     empId:mainGrid.getData()[0].empId,      //담당자
                     comId:frontcomId,     //회사ID
 
-                    addr: detailGrid.getData()[0].addr, //주소 
-                    addrDetail:detailGrid.getData()[0].addrDetail, //상세주소  
-                    bizNo: detailGrid.getData()[0].bizNo, //사업자번호 
-                    bank: detailGrid.getData()[0].bank,   //은행
-                    email: detailGrid.getData()[0].email, //이메일 
-                    acctNo:detailGrid.getData()[0].acctNo, //계좌번호  
-                    creditPeriod:Number(detailGrid.getData()[0].creditPeriod),//여신기간
-                    creditPrice:Number(detailGrid.getData()[0].creditPrice), //여신금액 
-                    creditBalPrice:Number(detailGrid.getData()[0].creditBalPrice)  //여신잔량 
+                    addr: mainGrid.getData()[0].addr, //주소 
+                    addrDetail:mainGrid.getData()[0].addrDetail, //상세주소  
+                    bizNo: mainGrid.getData()[0].bizNo, //사업자번호 
+                    bank: mainGrid.getData()[0].bank,   //은행
+                    email: mainGrid.getData()[0].email, //이메일 
+                    acctNo:mainGrid.getData()[0].acctNo, //계좌번호  
+                    creditPeriod:Number(mainGrid.getData()[0].creditPeriod),//여신기간
+                    creditPrice:Number(mainGrid.getData()[0].creditPrice), //여신금액 
+                    creditBalPrice:Number(mainGrid.getData()[0].creditBalPrice)  //여신잔량 
                   };
         //등록함수발동
         venderAdd(); //등록처리됨 
@@ -582,21 +583,17 @@
                     empId:mainChk.empId,      //담당자
                     comId:frontcomId,     //회사ID
 
-                    addr: detailGrid.getData()[0].addr, //주소 
-                    addrDetail:detailGrid.getData()[0].addrDetail, //상세주소  
-                    bizNo: detailGrid.getData()[0].bizNo, //사업자번호 
-                    bank: detailGrid.getData()[0].bank,   //은행
-                    email: detailGrid.getData()[0].email, //이메일 
-                    acctNo:detailGrid.getData()[0].acctNo, //계좌번호  
-                    creditPeriod:Number(detailGrid.getData()[0].creditPeriod),//여신기간
-                    creditPrice:Number(detailGrid.getData()[0].creditPrice), //여신금액 
-                    creditBalPrice:Number(detailGrid.getData()[0].creditBalPrice)  //여신잔량 
+                    addr: mainChk.addr, //주소 
+                    addrDetail:mainChk.addrDetail, //상세주소  
+                    bizNo: mainChk.bizNo, //사업자번호 
+                    bank: mainChk.bank,   //은행
+                    email: mainChk.email, //이메일 
+                    acctNo:mainChk.acctNo, //계좌번호  
+                    creditPeriod:Number(mainChk.creditPeriod),//여신기간
+                    creditPrice:Number(mainChk.creditPrice), //여신금액 
+                    creditBalPrice:Number(mainChk.creditBalPrice)  //여신잔량 
                   }; 
-
-
-                
         venderModify(); //거래처가 수정됨 
-
       }
     })
     //조회버튼
@@ -605,54 +602,44 @@
     })
     //상세조회
     mainGrid.on('check', ev => {
-
-
       console.log('detailGrid.getData()',detailGrid.getData()); 
 
-       if(detailGrid.getData().length==0){
-        console.log('행이없음');
-         detailGrid.resetData([]); 
-            // detailGrid.appendRow({addr:mainGrid.getData()[ev.rowKey].addr,
-            //                       bizNo:mainGrid.getData()[ev.rowKey].bizNo,
-            //                       email:mainGrid.getData()[ev.rowKey].email,
-            //                       bank:mainGrid.getData()[ev.rowKey].bank,
-            //                       acctNo:mainGrid.getData()[ev.rowKey].acctNo,
-            //                       creditPeriod:mainGrid.getData()[ev.rowKey].creditPeriod,
-            //                       creditPrice:mainGrid.getData()[ev.rowKey].creditPrice,
-            //                       creditBalPrice:mainGrid.getData()[ev.rowKey].creditBalPrice
-            //                    }); 
-       }else if(detailGrid.getData()!=null){ //행이 이미 있는경우 
-        console.log('행이 이미있음',detailGrid.getData()[0].rowKey);
-        detailGrid.resetData([]); 
-       }  
-
-      if (!ev.rowKey) {
-        return;
-      }
-      if (pageStatus == 'search') {
-        //체크된행 파악
-        let mainRowIndex = mainGrid.getCheckedRowKeys()[0];
-        console.log('mainRowIndex',mainRowIndex)
-        detailGrid.appendRow({addr:mainGrid.getData()[ev.rowKey].addr,
-                              addrDetail:mainGrid.getData()[ev.rowKey].addrDetail,
-                              bizNo:mainGrid.getData()[ev.rowKey].bizNo,
-                              email:mainGrid.getData()[ev.rowKey].email,
-                              bank:mainGrid.getData()[ev.rowKey].bank,
-                              acctNo:mainGrid.getData()[ev.rowKey].acctNo,
-                              creditPeriod:mainGrid.getData()[ev.rowKey].creditPeriod,
-                              creditPrice:mainGrid.getData()[ev.rowKey].creditPrice,
-                              creditBalPrice:mainGrid.getData()[ev.rowKey].creditBalPrice
-                               }); }
-        console.log('addr=>',mainGrid.getData()[ev.rowKey].addr);
-      }
+    //   if(pageStatus=='search'){
+    //    if(detailGrid.getData().length==0){
+    //     console.log('행이없음');
+    //      detailGrid.resetData([]); 
+      
+    //    }else if(detailGrid.getData()!=null){ //행이 이미 있는경우 
+    //     console.log('행이 이미있음',detailGrid.getData()[0].rowKey);
+    //     detailGrid.resetData([]); 
+    //    }  
+    // }
+    //   if (!ev.rowKey) {
+    //     return;
+    //   }
+    //   if (pageStatus == 'search') {
+    //     //체크된행 파악
+    //     let mainRowIndex = mainGrid.getCheckedRowKeys()[0];
+    //     console.log('mainRowIndex',mainRowIndex)
+    //     detailGrid.appendRow({addr:mainGrid.getData()[ev.rowKey].addr,
+    //                           addrDetail:mainGrid.getData()[ev.rowKey].addrDetail,
+    //                           bizNo:mainGrid.getData()[ev.rowKey].bizNo,
+    //                           email:mainGrid.getData()[ev.rowKey].email,
+    //                           bank:mainGrid.getData()[ev.rowKey].bank,
+    //                           acctNo:mainGrid.getData()[ev.rowKey].acctNo,
+    //                           creditPeriod:mainGrid.getData()[ev.rowKey].creditPeriod,
+    //                           creditPrice:mainGrid.getData()[ev.rowKey].creditPrice,
+    //                           creditBalPrice:mainGrid.getData()[ev.rowKey].creditBalPrice
+    //                            });}
+    //     console.log('addr=>',mainGrid.getData()[ev.rowKey].addr);
+    //   }
+    }
     )
     //수정 함수
      async function venderModify(){
-    	 let checkedRows = detailGrid.getModifiedRows();
+    //	 let checkedRows = detailGrid.getModifiedRows();
     	 let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
        let mainRowData = mainGrid.getRow(mainRowIndex);
-
-       
 
     	 if( mainGrid.getCheckedRowKeys().length<1){
     		 Swal.fire('실패','메인그리드에 해당하는 값을 체크해주세요','error');
@@ -705,35 +692,31 @@
           // 원하는 input 태그에 넣어주기 (예: 주소 입력칸)
           document.getElementById('addrInput').value = fullAddr;
 
-          detailGrid.setValue(0,"addr", document.getElementById('addrInput').value);
-
-          // 모달 닫기
-         
-        //  addrModal.hide();
+       //   detailGrid.setValue(0,"addr", document.getElementById('addrInput').value);
         },
         width: '100%',
         height: '100%'
       }).embed(document.getElementById('daumPostcode'));
   }
   // 모달이 완전히 열린 뒤에 embed 실행
-document.getElementById('addrModal').addEventListener('shown.bs.modal', function () {
-  new daum.Postcode({
-    oncomplete: function (data) {
-    //  document.getElementById('addrInput').value = data.address;
-      const row = detailGrid.getRow(0);
-      if (row) {
-        detailGrid.setValue(0, "addr", data.address);
-      } else {
-        console.warn("0번 row 없음. 주소 설정 실패");
-      }
-      // 모달 닫기
-      const modal = bootstrap.Modal.getInstance(document.getElementById('addrModal'));
-      modal.hide();
-    },
-    width: '100%',
-    height: '100%'
-  }).embed(document.getElementById('daumPostcode'));
-});
+// document.getElementById('addrModal').addEventListener('shown.bs.modal', function () {
+//   new daum.Postcode({
+//     oncomplete: function (data) {
+//     //  document.getElementById('addrInput').value = data.address;
+//       const row = detailGrid.getRow(0);
+//       if (row) {
+//         detailGrid.setValue(0, "addr", data.address);
+//       } else {
+//         console.warn("0번 row 없음. 주소 설정 실패");
+//       }
+//       // 모달 닫기
+//       const modal = bootstrap.Modal.getInstance(document.getElementById('addrModal'));
+//       modal.hide();
+//     },
+//     width: '100%',
+//     height: '100%'
+//   }).embed(document.getElementById('daumPostcode'));
+// });
 
 
   </script>

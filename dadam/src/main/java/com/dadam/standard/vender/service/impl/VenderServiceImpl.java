@@ -61,4 +61,16 @@ public class VenderServiceImpl implements VenderService {
 		return 0;
 	}
 
+	@Override
+	public String findVenderMaxno() {
+		String result=mapper.findVenderMaxno(comId); 
+		return result;
+	}
+
+	@Override
+	public List<VenderVO> venderFindAllList(String type, String value) {
+		List<VenderVO> result=mapper.venderFindAllList(comId,type,value); 
+		return result;
+	}
+
 }
