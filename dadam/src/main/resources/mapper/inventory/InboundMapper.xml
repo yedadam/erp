@@ -15,7 +15,7 @@
         subcode(pod.status) status_name,
         pod.reccv_date,
         po.exp_dlv_date,
-        getEmpName(po.emp_id) emp_id,
+        getEmpName(po.emp_id, #{comId}) emp_id,
         getvdrName(po.vdr_code) vdr_code
 	FROM purchaseOrderDetail pod join purchaseOrder po
 	                               on(pod.pur_ord_code=po.pur_ord_code AND pod.com_id = po.com_id)
