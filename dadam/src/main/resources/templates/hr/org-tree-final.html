@@ -146,15 +146,18 @@
       document.querySelector('.org-tree').style.transform = `scale(${zoomLevel})`;
     }
     window.onload = function() {
-      fetch('/api/org')
-        .then(res => res.json())
-        .then(data => {
+      $.ajax({
+        url: '/api/org',
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
           orgData = data;
           render();
-        })
-        .catch(() => {
+        },
+        error: function(xhr, status, err) {
           document.getElementById('orgTree').innerHTML = '<div style="color:#bbb; text-align:center; margin-top:40px;">조직도 데이터를 불러올 수 없습니다.</div>';
-        });
+        }
+      });
     };
 
     function getStatusIcon(status) {

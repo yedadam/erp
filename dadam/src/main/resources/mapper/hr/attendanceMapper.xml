@@ -23,7 +23,7 @@
     </update>
 
     <!-- [오늘 근태 조회] 당일 근태 정보 조회 -->
-    <select id="selectTodayAttendance" parameterType="map" resultType="com.dadam.hr.attendance.service.AttendanceVO">
+    <select id="selectTodayAttendance" parameterType="map" resultType="AttendanceVO">
         SELECT * FROM attendance
         WHERE emp_id = #{empId}
           AND work_date = #{workDate}
@@ -40,7 +40,7 @@
     </select>
 
     <!-- [근태 목록 조회] 기간별 근태 리스트 조회 -->
-    <select id="findAttendanceList" parameterType="map" resultType="com.dadam.hr.attendance.service.AttendanceVO">
+    <select id="selectAttendanceList" parameterType="map" resultType="AttendanceVO">
         SELECT * FROM attendance
         WHERE com_id = #{comId}
           AND emp_id = #{empId}

@@ -217,9 +217,11 @@
 
         // DB에서 부서 목록 불러오기
         function fetchDepartments() {
-            fetch('/erp/hr/dept')
-                .then(response => response.json())
-                .then(data => {
+            $.ajax({
+                url: '/erp/hr/dept',
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
                     try {
                         console.log('받은 데이터:', data);
                         departmentData = data.map((d, idx) => ({
@@ -240,11 +242,12 @@
                         console.error('데이터 처리 중 오류:', err);
                         Swal.fire('오류', '부서 목록 데이터 처리 중 오류가 발생했습니다.', 'error');
                     }
-                })
-                .catch(err => {
+                },
+                error: function(xhr, status, err) {
                     console.error('fetch 실패:', err);
                     Swal.fire('오류', '부서 목록 조회에 실패했습니다.', 'error');
-                });
+                }
+            });
         }
 
         // 상위부서명 찾기
