@@ -15,5 +15,7 @@ public interface ChitService {
 
 	public List<ChitVO> getAutoChitRules(String comId);
 
-	public void saveAutoChitRules(List<ChitVO> rules);
+	public void saveAllRules(List<ChitVO> rules);
+	
+	public List<Map<String, Object>> getAutoRules(String chitType, String comId);
 }

@@ -32,26 +32,26 @@
 }
 
 #autoRuleModal {
-  position: fixed;
-  top: 150px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 800px;
-  max-width: 90vw;
-  background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  display: none;
+	position: fixed;
+	top: 150px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 800px;
+	max-width: 90vw;
+	background-color: white;
+	border-radius: 8px;
+	padding: 20px;
+	box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+	z-index: 1000;
+	display: none;
 }
 
 #autoRuleGrid {
-  width: 100%;
-  height: 300px;         /* ✅ 고정 height */
-  min-height: 300px;
-  max-height: 300px;     /* ✅ 늘어나지 않게 제한 */
-  overflow: auto;
+	width: 100%;
+	height: 300px; /* ✅ 고정 height */
+	min-height: 300px;
+	max-height: 300px; /* ✅ 늘어나지 않게 제한 */
+	overflow: auto;
 }
 
 dialog {
@@ -76,7 +76,7 @@ dialog {
 }
 
 .ui-autocomplete {
-  z-index: 99999 !important;
+	z-index: 99999 !important;
 }
 </style>
 </head>
@@ -115,22 +115,24 @@ dialog {
 
 
 	</dialog>
-	
 
-<div id="autoRuleModal">
-  <h4 class="mb-3">자동분개 설정</h4>
-<div class="d-flex justify-content-end mb-2">
-  <button class="btn btn-outline-primary btn-sm" onclick="addAutoRuleRow()">행추가</button>
-</div>
 
-  <!-- 고정 크기 영역 -->
-  <div id="autoRuleGrid"></div>
+	<div id="autoRuleModal">
+		<h4 class="mb-3">자동분개 설정</h4>
+		<div class="d-flex justify-content-end mb-2">
+			<button class="btn btn-outline-primary btn-sm"
+				onclick="addAutoRuleRow()">행추가</button>
+		</div>
 
-  <div class="d-flex justify-content-end gap-2 mt-3">
-    <button class="btn btn-primary btn-sm" onclick="saveAutoRules()">저장</button>
-    <button class="btn btn-secondary btn-sm" onclick="hideAutoRuleModal()">닫기</button>
-  </div>
-</div>
+		<!-- 고정 크기 영역 -->
+		<div id="autoRuleGrid"></div>
+
+		<div class="d-flex justify-content-end gap-2 mt-3">
+			<button class="btn btn-primary btn-sm" onclick="saveAutoRules()">저장</button>
+			<button class="btn btn-secondary btn-sm"
+				onclick="hideAutoRuleModal()">닫기</button>
+		</div>
+	</div>
 
 </body>
 <script>
@@ -201,14 +203,17 @@ const acctTypeEditor = createChitAutoCompleteEditor({
  urlBuilder: ({ keyword }) => `/erp/accounting/acctCodeFind?keyword=${keyword}`,
  displayField: 'ANAME', saveField: 'ACCTCODE', displayNameField: 'ANAME'
 });
+
 const indTypeEditor = createChitAutoCompleteEditor({
  urlBuilder: ({ keyword }) => `/erp/accounting/indTypeFindByCode?keyword=${keyword}`,
  displayField: 'INAME', saveField: 'ITYPE', displayNameField: 'INAME'
 });
+
 const chtTypeEditor = createChitAutoCompleteEditor({
-	 urlBuilder: ({ keyword }) => `/erp/accounting/chtTypeFindByCode?keyword=${keyword}`,
-	 displayField: 'TNAME', saveField: 'TTYPE', displayNameField: 'TNAME'
+ urlBuilder: ({ keyword }) => `/erp/accounting/chtTypeFindByCode?keyword=${keyword}`,
+ displayField: 'TNAME', saveField: 'TTYPE', displayNameField: 'TNAME'
 });
+
 
 /** ------------------------- Grid 구성 -------------------------  */
 const chitGrid = new tui.Grid({
@@ -237,22 +242,23 @@ const chitGrid = new tui.Grid({
    { header: '계정과목', name: 'acctCode', align: 'center', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.ANAME || row.aname },
    { header: '전표구분', name: 'iType', align: 'center', editor: { type: indTypeEditor }, formatter: ({ row }) => row.INAME || row.iname },
    { header: '금액', name: 'iPrice', align: 'center', editor 	: { type: 'text', options: { inputType: 'number' } } },
-   { name: 'ANAME', hidden: true },
-   { name: 'INAME', hidden: true },
+   { name: 'ANAME' },
+   { name: 'INAME' },
    { header: '담당부서', name: 'deptCode', hidden: true },
    { header: '결제자', name: 'phyEmpId', hidden: true },
    { header: '승인자', name: 'apprEmpId', hidden: true },
    { header: '비고', name: 'note', hidden: true },
    {
-	   header: '추가/삭제', name: 'origin', align: 'center',
+	   header: '분개', name: 'origin', align: 'center',
 	   formatter: ({ row }) => {
 	     const isChild = row._attributes?.tree?.parent !== undefined;
 	     const isNewRow = row.origin === true;
 	    const isStatus = row._attributes?.tree?.status == '등록' || '결제';
 	     if (isChild || isNewRow) {
-	       return '<button class="btn btn-sm btn-danger del-btn">삭제</button>';
+	       return `<button class="btn btn-sm btn-primary add-btn">추가</button>
+	               <button class="btn btn-sm btn-danger del-btn">삭제</button>`;
 	     }
-	     return '<button class="btn btn-sm btn-primary add-btn">분개</button>';
+	     return '<button class="btn btn-sm btn-primary auto-btn">분개</button>';
 	   }
 	 }
  ]
@@ -285,8 +291,8 @@ function convertToGridTree(data) {
       createdDate: first?.createdDate ?? '', 	
       vdrCode: first?.vdrCode ?? '',
       articleCode: first?.articleCode ?? '',
-      supply_price: first?.supplyPrice ?? '',
-      vat_price: first?.vatPrice ?? '',  	  
+      supplyPrice: first?.supplyPrice ?? '',
+      vatPrice: first?.vatPrice ?? '',  	  
       totPrice: first?.totPrice ?? '',
       taxCode: first?.taxCode ?? '',
       status: first?.status ?? '',
@@ -499,13 +505,14 @@ chitGrid.on('click', (ev) => {
 
   if (columnName !== 'origin') return;
 
-  const parentRow = chitGrid.getRow(rowKey);
-  if (!parentRow) return;
-
-  const isChild = parentRow._attributes?.tree?.parent !== undefined;
-  if (isChild) return alert("분개행에는 분개를 추가할 수 없습니다.");
-
   if (button.classList.contains('add-btn')) {
+	  
+	  const parentRow = chitGrid.getRow(rowKey);
+	  if (!parentRow) return;
+
+	  const isChild = parentRow._attributes?.tree?.parent !== undefined;
+	  if (isChild) return alert("분개행에는 분개를 추가할 수 없습니다.");
+	  
     const newRow = {
       chitCode: parentRow.chitCode,
       acctCode: '',
@@ -528,6 +535,63 @@ chitGrid.on('click', (ev) => {
   if (button.classList.contains('del-btn')) {
     chitGrid.removeRow(rowKey);
   }
+  
+  if (button.classList.contains('auto-btn')) {
+	  const parentRow = chitGrid.getRow(rowKey);
+	  if (!parentRow || !parentRow.tType) {
+	    return alert("거래유형이 없습니다.");
+	  }
+
+	  const chitType = parentRow.tType;
+	  console.log("📦 공급가액:", parentRow.supplyPrice);
+	  
+	  function getAutoPriceByVatYn(parentRow, rule) {
+		  const vatYn = rule.vatYn?.toLowerCase() || rule.VAT_YN?.toLowerCase();
+		  const priceMap = {
+		    v: parseFloat(parentRow?.vatPrice) || 0,
+		    s: parseFloat(parentRow?.supplyPrice) || 0,
+		    t: parseFloat(parentRow?.totPrice) || 0
+		  };
+			console.log(priceMap[vatYn])
+			console.log("rule 객체 전체:", rule);
+		  return (priceMap[vatYn] ?? parseFloat(parentRow?.supplyPrice)) || 0;
+		}
+
+	  fetch(`/erp/accounting/ruleByChitType?chitType=${chitType}&comId=${comId}`)
+	    .then(res => res.json())
+	    .then(rules => {
+	      console.log("rules 응답", rules);
+	      if (!Array.isArray(rules) || rules.length === 0) {
+	        return alert("해당 거래유형에 대한 자동분개 규칙이 없습니다.");
+	      }
+
+	      rules.forEach(rule => {
+	        const iPrice = getAutoPriceByVatYn(parentRow, rule);
+
+	        chitGrid.appendRow({
+	          chitCode: parentRow.chitCode,
+	          acctCode: rule.acctCode,
+	          iType: rule.itpType,
+	          iPrice: iPrice,
+	          aname: rule.ANAME,
+	          iname: rule.INAME,
+	          origin: true,
+	          _attributes: {}
+	        }, {
+	          parentRowKey: rowKey,
+	          position: 'last'
+	        });
+	      });
+
+	      chitGrid.expand(rowKey);
+	    })
+	    .catch(err => {
+	      console.error("자동분개 규칙 조회 실패", err);
+	      alert("자동분개 규칙 조회 중 오류 발생");
+	    });
+	}
+
+
 });
 
 chitGrid.on('afterChange', ev => {
@@ -623,7 +687,7 @@ chitList();
 
  
  
-    initAutoRuleGrid() 
+  initAutoRuleGrid() 
 
 
 function openAutoRuleModal() {
@@ -649,6 +713,7 @@ function openAutoRuleModal() {
   }, 100); // 약간의 딜레이로 display 반영 기다림
 }
 
+  
     function initAutoRuleGrid() {
     	  autoRuleGrid = new tui.Grid({
     	    el: document.getElementById('autoRuleGrid'),
@@ -658,9 +723,9 @@ function openAutoRuleModal() {
     	    editingEvent: 'click',
     	    rowHeaders: ['rowNum'],
     	    columns: [
-    	      { header: '거래유형', name: 'chitType', editor: { type: chtTypeEditor }, formatter: ({ row }) => row.TNAME || row.tname || row.chitType  },
-    	      { header: '차/대', name: 'indType', editor: { type: indTypeEditor }, formatter: ({ row }) => row.INAME || row.iname || row.indType },
-    	      { header: '계정코드', name: 'acctCode', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.ANAME || row.aname || '' },
+    	      { header: '거래유형', name: 'chitType', editor: { type: chtTypeEditor }, formatter: ({ row }) => row.TNAME ||row.chitType },
+    	      { header: '차/대', name: 'itpType', editor: { type: indTypeEditor }, formatter: ({ row }) => row.INAME || row.itpType },
+    	      { header: '계정코드', name: 'acctCode', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.ANAME || row.acctCode},
     	      { header: '비고', name: 'note', editor: 'text' },
     	      { name: 'ANAME', hidden: true },
     	      { name: 'INAME', hidden: true },
@@ -668,25 +733,75 @@ function openAutoRuleModal() {
     	      {
     	        header: '행추가/삭제',
     	        name: 'actions',
-    	        formatter: () => `
-    	      <button class="add-rule">＋</button>
-    	      <button class="delete-rule">🗑</button>
-    	    `
+    	        formatter: () => `<button class="delete-rule">🗑</button>`
     	      }
     	    ],
     	    data: []
     	  });
     	}
+    autoRuleGrid.on('click', (ev) => {
+    	  const { rowKey, columnName } = ev;
+    	  const target = ev.nativeEvent.target;
 
+    	  if (target.classList.contains('delete-rule')) {
+    	    autoRuleGrid.removeRow(rowKey);
+    	  }
+    	});
+    
     function addAutoRuleRow() {
       autoRuleGrid.appendRow({
         chitType: '',
-        indType: '',
+        itpType: '',	
         acctCode: '',
         note: ''
       }, { focus: true });
     }
 
+
+    function getAutoRulePayload() {
+    	  const rows = autoRuleGrid.getData();
+    	  return rows
+    	    .filter(row => row.chitType && row.itpType && row.acctCode) // 필수값만
+    	    .map(row => ({
+    	      chitType: row.chitType,
+    	      itpType: row.itpType,
+    	      acctCode: row.acctCode,
+    	      note: row.note
+    	    }));
+    	}
+
+    function saveAutoRules() {
+    	  const rules = getAutoRulePayload();
+
+    	  if (rules.length === 0) {
+    	    alert("입력된 자동분개 규칙이 없습니다.");
+    	    return;
+    	  }
+
+    	  const hasEmpty = rules.some(rule => !rule.chitType || !rule.itpType || !rule.acctCode);
+    	  if (hasEmpty) {
+    	    alert("거래유형, 차/대, 계정코드를 모두 입력하세요.");
+    	    return;
+    	  }
+
+    	  fetch("/erp/accounting/ruleSave", {
+    	    method: "POST",
+    	    headers: { "Content-Type": "application/json" },
+    	    body: JSON.stringify(rules)
+    	  }).then(() => {
+    	    alert("자동분개 저장 완료");
+    	    hideAutoRuleModal();
+    	  });
+    	}
+
+
+    function hideAutoRuleModal() {
+    	  document.getElementById('autoRuleModal').style.display = 'none';
+    	}
+// 분개 오토 버튼
+    const vatAcctCodeList = ['210101', '부가세계정코드예시']; // 실제 DB 계정코드로
+    
+/*
     function addDetailRow(parentRowKey) {
       const parentRow = autoRuleGrid.getRow(parentRowKey);
       if (!parentRow || !parentRow.chitType) {
@@ -701,68 +816,8 @@ function openAutoRuleModal() {
         _attributes: { parentRowKey }
       }, { parentRowKey, position: 'after' });
     }
-
-    function getAutoRulePayload() {
-      const rows = autoRuleGrid.getData();
-      const rules = [];
-      rows.forEach((row, idx) => {
-        if (row.chitType && !row._attributes?.parentRowKey) {
-          const details = [];
-          rows.forEach(child => {
-            if (child._attributes?.parentRowKey === idx) {
-              details.push({
-                indType: child.indType,
-                acctCode: child.acctCode,
-                note: child.note
-              });
-            }
-          });
-          if (row.indType && row.acctCode) {
-            details.unshift({
-              indType: row.indType,
-              acctCode: row.acctCode,
-              note: row.note
-            });
-          }
-          rules.push({
-            chitType: row.chitType,
-            details
-          });
-        }
-      });
-      return rules;
-    }
-
-    function saveAutoRules() {
-    	  const rules = getAutoRulePayload();
-    	  for (const rule of rules) {
-    	    if (!rule.chitType || rule.details.length === 0) {
-    	      alert("거래유형과 분개라인을 모두 입력하세요.");
-    	      return;
-    	    }
-    	    for (const detail of rule.details) {
-    	      if (!detail.indType || !detail.acctCode) {
-    	        alert("차/대변, 계정코드를 모두 입력하세요.");
-    	        return;
-    	      }
-    	      detail.comId = comId; // ✅ comId 직접 세팅
-    	    }
-    	  }
-
-    	  fetch("/erp/accounting/ruleSave", {
-    	    method: "POST",
-    	    headers: { "Content-Type": "application/json" },
-    	    body: JSON.stringify(rules.flatMap(rule => rule.details.map(detail => ({
-    	      ...detail,
-    	      chitType: rule.chitType  // ✅ 부모 정보도 같이 넣어줘야 함
-    	    }))))
-    	  }).then(() => {
-    	    alert("자동분개 저장 완료!");
-    	    hideAutoRuleModal();
-    	  });
-    	}
-
-    // 룰(부모+하위 전체) 삭제
+    
+        // 룰(부모+하위 전체) 삭제
     function deleteRuleRow(parentRowKey) {
       const rows = autoRuleGrid.getData();
       // 부모행과 그 자식행들 rowKey 수집
@@ -791,7 +846,7 @@ function openAutoRuleModal() {
     	    addDetailRow(rowKey); // 부모 아래 규칙 추가
     	  }
 
-    	  if (target.textContent.includes('🗑')) {
+    	  if (target.textContent.includes('-')) {
     	    const row = autoRuleGrid.getRow(rowKey);
     	    if (row._attributes?.parentRowKey !== undefined) {
     	      deleteDetailRow(rowKey); // 자식 삭제
@@ -800,6 +855,6 @@ function openAutoRuleModal() {
     	    }
     	  }
     	});
-    
+*/
 </script>
 </html>
