@@ -2,11 +2,15 @@ package com.dadam.hr.emp.service.impl;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.dadam.hr.emp.mapper.EmpMapper;
 import com.dadam.hr.emp.service.EmpService;
 import com.dadam.hr.emp.service.EmpVO;
+import com.dadam.security.service.LoginUserAuthority;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +24,21 @@ public class EmpServiceImpl implements EmpService {
 
     /** 사원 Mapper */
     private final EmpMapper empMapper;
+    
+    //comName 가져오기
+    String comId = "com-101";
+    public void initAuthInfo() {
+        //로그인 객체값 연결
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //로그인 객체 가져오기
+        Object principal = auth.getPrincipal();
+
+        if (principal instanceof LoginUserAuthority) {
+        	LoginUserAuthority user = (LoginUserAuthority) principal;
+            comId = user.getComId();
+            System.out.println("회사명: " + comId);
+        }
+    }
 
     /**
      * 사원 목록 조회
@@ -30,10 +49,12 @@ public class EmpServiceImpl implements EmpService {
      */
     @Override
     public List<EmpVO> findEmpList(String keyword, String status, String dept) {
+    	initAuthInfo();
         java.util.Map<String, Object> param = new java.util.HashMap<>();
         param.put("keyword", keyword);
         param.put("status", status);
         param.put("dept", dept);
+        param.put("comId", comId);
         return empMapper.findEmpList(param);
     }
 
@@ -44,7 +65,8 @@ public class EmpServiceImpl implements EmpService {
      */
     @Override
     public EmpVO findEmpDetail(String empId) {
-        return empMapper.findEmpDetail(empId);
+    	initAuthInfo();
+        return empMapper.findEmpDetail(empId,comId);
     }
 
     /**

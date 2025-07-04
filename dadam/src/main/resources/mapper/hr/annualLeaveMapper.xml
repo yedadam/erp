@@ -3,7 +3,7 @@
 <mapper namespace="com.dadam.hr.attendance.mapper.AnnualLeaveMapper">
 
     <!-- [연차신청 등록] 연차 신청 등록 -->
-    <insert id="insertAnnualLeave" parameterType="com.dadam.hr.attendance.service.AnnualLeaveVO">
+    <insert id="insertAnnualLeave" parameterType="map">
         INSERT INTO annualLeave (
             leave_code, com_id, emp_id, leave_type, start_date, end_date, days, status, reason, approve_id, approve_date, note, created_at
         ) VALUES (
@@ -12,7 +12,7 @@
     </insert>
 
     <!-- [연차상태/승인 처리] 연차 상태/승인 처리 -->
-    <update id="updateAnnualLeaveStatus" parameterType="com.dadam.hr.attendance.service.AnnualLeaveVO">
+    <update id="updateAnnualLeaveStatus" parameterType="map">
         UPDATE annualLeave
         SET status = #{status},
             approve_id = #{approveId},
@@ -23,16 +23,14 @@
     </update>
 
     <!-- [연차 단건 조회] 연차 단건 조회 -->
-    <select id="selectAnnualLeave" resultType="com.dadam.hr.attendance.service.AnnualLeaveVO">
+    <select id="selectAnnualLeave" parameterType="map" resultType="com.dadam.hr.attendance.service.AnnualLeaveVO">
         SELECT * FROM annualLeave
         WHERE leave_code = #{leaveCode}
-          <if test="comId != null">
-            AND com_id = #{comId}
-          </if>
+          AND com_id = #{comId}
     </select>
 
     <!-- [연차 목록 조회] 연차 리스트 조회 -->
-    <select id="findAnnualLeaveList" resultType="com.dadam.hr.attendance.service.AnnualLeaveVO">
+    <select id="findAnnualLeaveList" parameterType="map" resultType="com.dadam.hr.attendance.service.AnnualLeaveVO">
         SELECT * FROM annualLeave
         WHERE com_id = #{comId}
           <if test="empId != null and empId != ''">
@@ -42,7 +40,7 @@
     </select>
 
     <!-- [잔여 연차 계산] 승인된 연차만 차감 -->
-    <select id="getRemainAnnualLeave" resultType="double">
+    <select id="getRemainAnnualLeave" parameterType="map" resultType="double">
         SELECT NVL((
             (SELECT annual_leave_total FROM employees WHERE emp_id = #{empId} AND com_id = #{comId})
             - NVL((SELECT SUM(days) FROM annualLeave WHERE emp_id = #{empId} AND com_id = #{comId} AND status = '승인'), 0)

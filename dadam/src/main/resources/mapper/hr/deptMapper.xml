@@ -40,15 +40,16 @@
             acct_yn = #{acctYn},
             remark = #{remark}
         WHERE dept_code = #{deptCode}
+        AND com_id = #{comId}
     </update>
 
     <!-- [부서 삭제] 부서 정보 삭제 -->
-    <delete id="deleteDepartment" parameterType="string">
-        DELETE FROM departments WHERE dept_code = #{deptCode}
+    <delete id="deleteDepartment" parameterType="map">
+        DELETE FROM departments WHERE dept_code = #{deptCode} AND com_id = #{comId}
     </delete>
 
     <!-- [부서 상세 조회] 부서 상세정보 조회 -->
-    <select id="findDepartmentByCode" parameterType="string" resultType="com.dadam.hr.emp.service.DeptVO">
+    <select id="findDepartmentByCode" parameterType="map" resultType="com.dadam.hr.emp.service.DeptVO">
         SELECT 
             dept_code AS deptCode,
             dept_name AS deptName,
@@ -60,5 +61,6 @@
             remark
         FROM departments
         WHERE dept_code = #{deptCode}
+        AND com_id = #{comId}
     </select>
 </mapper> 

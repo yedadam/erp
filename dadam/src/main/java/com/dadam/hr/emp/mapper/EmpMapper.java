@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.dadam.hr.emp.service.EmpVO;
 
@@ -25,7 +26,7 @@ public interface EmpMapper {
      * @param empId - 사원번호
      * @return 사원 정보
      */
-    public EmpVO findEmpDetail(String empId);
+    public EmpVO findEmpDetail(@Param("empId") String empId,@Param("comId") String comId);
 
     /**
      * 사원 등록
