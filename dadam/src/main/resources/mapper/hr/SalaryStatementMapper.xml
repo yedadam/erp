@@ -2,15 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.hr.salary.mapper.SalaryStatementMapper">
     <!-- 급여명세서 전체 목록 조회 -->
-    <select id="selectSalaryStatementList" resultType="com.dadam.hr.salary.vo.SalaryStatementVO">
+    <select id="selectSalaryStatementList" resultType="com.dadam.hr.salary.service.SalaryStatementVO">
         SELECT * FROM salaryStatement
     </select>
     <!-- 단일 급여명세서 조회 -->
-    <select id="selectSalaryStatementById" parameterType="long" resultType="com.dadam.hr.salary.vo.SalaryStatementVO">
+    <select id="selectSalaryStatementById" parameterType="long" resultType="com.dadam.hr.salary.service.SalaryStatementVO">
         SELECT * FROM salaryStatement WHERE id = #{id} AND com_id = #{comId}
     </select>
     <!-- 급여명세서 등록 -->
-    <insert id="insertSalaryStatement" parameterType="com.dadam.hr.salary.vo.SalaryStatementVO">
+    <insert id="insertSalaryStatement" parameterType="com.dadam.hr.salary.service.SalaryStatementVO">
         INSERT INTO salaryStatement (
             emp_id, pay_month, base_salary, salary1, salary2, salary3, salary4, salary5, salary6, salary7, salary8, salary9, salary10, allowance_total, deduction_total, attendance, net_pay, created_date, updated_date
         ) VALUES (
@@ -18,7 +18,7 @@
         )
     </insert>
     <!-- 급여명세서 수정 -->
-    <update id="updateSalaryStatement" parameterType="com.dadam.hr.salary.vo.SalaryStatementVO">
+    <update id="updateSalaryStatement" parameterType="com.dadam.hr.salary.service.SalaryStatementVO">
         UPDATE salaryStatement
         SET base_salary = #{baseSalary}, salary1 = #{salary1}, salary2 = #{salary2}, salary3 = #{salary3}, salary4 = #{salary4}, salary5 = #{salary5}, salary6 = #{salary6}, salary7 = #{salary7}, salary8 = #{salary8}, salary9 = #{salary9}, salary10 = #{salary10}, allowance_total = #{allowanceTotal}, deduction_total = #{deductionTotal}, attendance = #{attendance}, net_pay = #{netPay}, updated_date = NOW()
         WHERE id = #{id} AND com_id = #{comId}
