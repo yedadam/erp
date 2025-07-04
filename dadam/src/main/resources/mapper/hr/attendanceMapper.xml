@@ -3,7 +3,7 @@
 <mapper namespace="com.dadam.hr.attendance.mapper.AttendanceMapper">
 
     <!-- [출근 등록] 출근 정보 등록 -->
-    <insert id="insertCheckIn" parameterType="com.dadam.hr.attendance.service.AttendanceVO">
+    <insert id="insertCheckIn" parameterType="map">
         INSERT INTO attendance (
             attendance_code, com_id, emp_id, work_date, standard_start_time, actual_start_time, check_ip, status, created_at
         ) VALUES (
@@ -12,10 +12,10 @@
     </insert>
 
     <!-- [퇴근 처리] 퇴근 정보 업데이트 -->
-    <update id="updateCheckOut" parameterType="com.dadam.hr.attendance.service.AttendanceVO">
+    <update id="updateCheckOut" parameterType="map">
         UPDATE attendance
         SET actual_end_time = #{actualEndTime},
-            standard_end_time = #{standardEndTime},ㅊ
+            standard_end_time = #{standardEndTime},
             overtime_hrs = #{overtimeHrs},
             updated_at = #{updatedAt}
         WHERE attendance_code = #{attendanceCode}
@@ -23,7 +23,7 @@
     </update>
 
     <!-- [오늘 근태 조회] 당일 근태 정보 조회 -->
-    <select id="selectTodayAttendance" resultType="com.dadam.hr.attendance.service.AttendanceVO">
+    <select id="selectTodayAttendance" parameterType="map" resultType="com.dadam.hr.attendance.service.AttendanceVO">
         SELECT * FROM attendance
         WHERE emp_id = #{empId}
           AND work_date = #{workDate}
@@ -31,7 +31,7 @@
     </select>
 
     <!-- [출근기록 존재여부] 출근기록 중복 체크 -->
-    <select id="existsCheckIn" resultType="boolean">
+    <select id="existsCheckIn" parameterType="map" resultType="boolean">
         SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
         FROM attendance
         WHERE emp_id = #{empId}
@@ -40,7 +40,7 @@
     </select>
 
     <!-- [근태 목록 조회] 기간별 근태 리스트 조회 -->
-    <select id="findAttendanceList" resultType="com.dadam.hr.attendance.service.AttendanceVO">
+    <select id="findAttendanceList" parameterType="map" resultType="com.dadam.hr.attendance.service.AttendanceVO">
         SELECT * FROM attendance
         WHERE com_id = #{comId}
           AND emp_id = #{empId}

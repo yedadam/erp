@@ -20,7 +20,7 @@
             e.dept_code,
             getDeptName(e.dept_code) AS dept_name,
             e.pwd,
-            getEmpName(e.emp_id) AS emp_name,
+            getEmpName(emp_id,#{comId}) AS emp_name,
             e.email,
             e.tel,
             e.addr,
@@ -44,7 +44,7 @@
         <where>
             <if test="keyword != null and keyword != ''">
                 (e.emp_id LIKE '%' || #{keyword} || '%'
-                OR getEmpName(e.emp_id) LIKE '%' || #{keyword} || '%'
+                OR getEmpName(e.emp_id,#{comId}) LIKE '%' || #{keyword} || '%'
                 OR getDeptName(e.dept_code) LIKE '%' || #{keyword} || '%')
             </if>
             <if test="status != null and status != ''">
@@ -56,17 +56,24 @@
         </where>
         ORDER BY e.emp_id
     </select>
+    
+    
+    
+   
 
 	<!-- [사원 상세 조회] 사원 상세정보 조회 -->
-	<select id="getEmpDetail" parameterType="string"
-		resultType="com.dadam.hr.emp.service.EmpVO">
-		SELECT e.emp_id, e.com_id, e.dept_code, getDeptName(e.dept_code) AS dept_name, e.pwd, getEmpName(e.emp_id) AS emp_name,
+	<select id="getEmpDetail" parameterType="map" resultType="com.dadam.hr.emp.service.EmpVO">
+		SELECT e.emp_id, e.com_id, e.dept_code, getDeptName(e.dept_code) AS dept_name, e.pwd, getEmpName(e.emp_id,#{comId}) AS emp_name,
 		e.email, e.tel, e.addr, e.addr_detail AS addrDetail, e.hire_date, e.position, e.resign_date,
 		e.emp_status, e.work_type, e.resign_reason,
 		e.sal, e.bank, e.acct_no, e.birth_date, e.profile_img_path, e.note
 		FROM employees e
 		WHERE e.emp_id = #{empId}
+		AND e.com_id = #{comId}
 	</select>
+	
+	
+	
 
 	<!-- [사원 등록] 사원 신규 등록 -->
 	<insert id="insertEmp"
@@ -111,11 +118,12 @@
 		profile_img_path = #{profileImgPath},
 		note = #{note}
 		WHERE emp_id = #{empId}
+		AND com_id = #{comId}
 	</update>
 
 	<!-- [사원 삭제] 사원 정보 삭제 -->
-	<delete id="deleteEmp" parameterType="string">
-		DELETE FROM employees WHERE emp_id = #{empId}
+	<delete id="deleteEmp" parameterType="map">
+		DELETE FROM employees WHERE emp_id = #{empId} AND com_id = #{comId}
 	</delete>
 
 	<!-- [최대 사번 조회] 사번 최대값 조회 -->
@@ -124,7 +132,7 @@
 	</select>
 
 	<!-- [사원 상세 조회(조인)] 사원 상세정보(부서조인) 조회 -->
-	<select id="findEmpDetail" parameterType="string" resultType="com.dadam.hr.emp.service.EmpVO">
+	<select id="findEmpDetail" parameterType="map" resultType="com.dadam.hr.emp.service.EmpVO">
 		SELECT
 			e.emp_id, e.com_id, e.dept_code, d.dept_name, e.pwd, e.emp_name,
 			e.email, e.tel, e.addr, e.hire_date, e.position, e.resign_date,
@@ -133,6 +141,7 @@
 		FROM employees e
 		LEFT JOIN departments d ON e.dept_code = d.dept_code
 		WHERE e.emp_id = #{empId}
+}		AND e.com_id = #{comId}
 	</select>
 
 </mapper>

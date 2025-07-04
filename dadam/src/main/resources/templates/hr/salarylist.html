@@ -1,0 +1,42 @@
+<!--
+    급여명세서 목록/관리 화면
+    - Toast UI Grid, Sweetalert, Bootstrap 적용 예시
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>급여명세서 관리</title>
+    <link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <script src="https://uicdn.toast.com/grid/latest/tui-grid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<div class="container mt-4">
+    <h2>급여명세서 관리</h2>
+    <div id="grid" style="margin-top:20px;"></div>
+    <button class="btn btn-primary mt-3" onclick="addSalary()">급여명세서 등록</button>
+</div>
+<script>
+    // Toast UI Grid 예시
+    const grid = new tui.Grid({
+        el: document.getElementById('grid'),
+        columns: [
+            { header: 'ID', name: 'id' },
+            { header: '사원ID', name: 'empId' },
+            { header: '지급년월', name: 'payMonth' },
+            { header: '기본급', name: 'baseSalary' },
+            { header: '실지급액', name: 'netPay' }
+        ],
+        data: [], // Ajax로 데이터 로드 필요
+        rowHeaders: ['rowNum'],
+        pageOptions: { useClient: true, perPage: 10 }
+    });
+    // Sweetalert 예시
+    function addSalary() {
+        Swal.fire('등록 기능은 구현 필요!');
+    }
+</script>
+</body>
+</html> 
