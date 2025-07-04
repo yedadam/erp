@@ -21,8 +21,8 @@
     getSubCode(c.status) AS status,
     getSubCode(c.type) AS tType,
     getDeptName(c.dept_code) AS deptCode,
-    getEmpName(c.phy_emp_id,#{comId}) AS phyEmpId,
-    getEmpName(c.appr_emp_id,#{comId}) AS apprEmpId,
+    getEmpName(c.phy_emp_id, #{comId}) AS phyEmpId,
+    getEmpName(c.appr_emp_id, #{comId}) AS apprEmpId,
     c.note AS note,
     '' AS acctCode,
     '' AS iType,
@@ -129,7 +129,7 @@
 	<update id="update" parameterType="ChitVO">
 		UPDATE chit
 		SET 
-		  phy_emp_id = {empId}
+		  phy_emp_id = #{empId}
 		, status = 'cst02'
 		, note = #{note}
 		, update_date = SYSDATE
@@ -246,12 +246,12 @@ WHEN NOT MATCHED THEN
 
 <select id="selectAutoRules" resultType="map">
   SELECT chit_type, itp_type, acct_code, vat_yn,
-  (SELECT name FROM account a WHERE a.acct_code = r.acct_code) AS ANAME,
-  (SELECT sub_name FROM subcodes s WHERE s.sub_code = r.itp_type) AS INAME
+  (SELECT name FROM account a WHERE a.acct_code = r.acct_code) AS aname,
+  (SELECT sub_name FROM subcodes s WHERE s.sub_code = r.itp_type) AS iname
   FROM auto_chit_rule r
   WHERE chit_type = (SELECT sub_code FROM subcodes WHERE sub_name = #{chitType} AND main_code = 'cht') 
     AND com_id = #{comId}
-  ORDER BY itp_type
+  ORDER BY itp_type ASC, acct_code DESC
 </select>
 
 

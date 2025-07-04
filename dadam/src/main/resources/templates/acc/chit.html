@@ -239,8 +239,8 @@ const chitGrid = new tui.Grid({
      						    : value === '결제완료' ? '<span class="grid-acction">결제완료</span>' 
      						    : value === '변려' ? '<button class="btn grid-action reject-btn">반려</button>' 
      						    :''},			    
-   { header: '계정과목', name: 'acctCode', align: 'center', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.ANAME || row.aname },
-   { header: '전표구분', name: 'iType', align: 'center', editor: { type: indTypeEditor }, formatter: ({ row }) => row.INAME || row.iname },
+   { header: '계정과목', name: 'acctCode', align: 'center', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.aname || row.ANAME },
+   { header: '전표구분', name: 'iType', align: 'center', editor: { type: indTypeEditor }, formatter: ({ row }) =>  row.iname || row.INAME },
    { header: '금액', name: 'iPrice', align: 'center', editor 	: { type: 'text', options: { inputType: 'number' } } },
    { name: 'ANAME' },
    { name: 'INAME' },
@@ -463,6 +463,7 @@ $('#patBtn').on('click', function () {
 	  $.ajax({
 	    url: "/erp/accounting/modifyChitPay",
 	    method: "POST",
+	    data: {comId},
 	    contentType: "application/json",
 	    data: JSON.stringify(payload),
 	    success(res) {
@@ -569,14 +570,15 @@ chitGrid.on('click', (ev) => {
 	        const iPrice = getAutoPriceByVatYn(parentRow, rule);
 
 	        chitGrid.appendRow({
-	          chitCode: parentRow.chitCode,
-	          acctCode: rule.acctCode,
-	          iType: rule.itpType,
-	          iPrice: iPrice,
-	          aname: rule.ANAME,
-	          iname: rule.INAME,
-	          origin: true,
-	          _attributes: {}
+	        	  chitCode: parentRow.chitCode,
+	        	  acctCode: rule.ACCT_CODE,    // 대소문자 정확히!
+	        	  iType: rule.ITP_TYPE,        // ✅ 반드시 editor에서 기대하는 값
+	        	  iPrice: iPrice,
+	        	  aname: rule.ANAME,           // formatter용 (계정명)
+	        	  iname: rule.INAME,           // formatter용 (차/대변명)
+	        	  vatYn: rule.VAT_YN,          // 부가세 구분값 (있다면)
+	        	  origin: true,
+	        	  _attributes: {}
 	        }, {
 	          parentRowKey: rowKey,
 	          position: 'last'
