@@ -66,8 +66,8 @@ public class SpringSecurityConfig {
                 // 세션 무효화
                 .invalidateHttpSession(true)
                 // 쿠키 삭제
-                .deleteCookies("MAINSESSIONID")
-            )
+                .deleteCookies("JSESSIONID")
+            ) 
             
              
             .csrf(csrf -> csrf.disable()) // API나 개발 환경에서만 사용
@@ -76,6 +76,7 @@ public class SpringSecurityConfig {
             .headers(headers -> headers
                 .frameOptions().sameOrigin()
             )
+            
             
             // 예외 처리 (선택사항)
             .exceptionHandling(exceptions -> exceptions
@@ -98,7 +99,7 @@ public class SpringSecurityConfig {
         	.securityMatcher("/erp/**") 
             .authorizeHttpRequests(auth -> auth
                 // 정적 리소스와 로그인 페이지는 모든 사용자에게 허용
-                .requestMatchers("/erp/**",
+                .requestMatchers(//"/erp/**",
                 		         "/css/**", 
                 				 "/js/**", 
                         		 "/images/**").permitAll()
@@ -131,7 +132,7 @@ public class SpringSecurityConfig {
                 // 세션 무효화
                 .invalidateHttpSession(true)
                 // 쿠키 삭제
-                .deleteCookies("ERPSESSIONID")
+                .deleteCookies("JSESSIONID")
             )
             //back 프론트 cors  
             // CSRF 보호 (필요에 따라 비활성화)

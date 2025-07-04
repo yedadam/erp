@@ -3,12 +3,13 @@ package com.dadam.security.longin.web;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.dadam.security.service.EmployeesVO;
-
-import jakarta.servlet.http.HttpSession;
+import com.dadam.security.service.ErpUserVO;
+import com.dadam.security.service.MainUserServiceImpl;
 /* 
  * @author 신현욱
  * @since 2025.06.18
@@ -20,7 +21,7 @@ import jakarta.servlet.http.HttpSession;
 public class LoginControl {
 	
 	@Autowired
-	
+	MainUserServiceImpl service;
 	
 	@GetMapping("/main/login")
 	public String mainLoginPage() {
@@ -29,6 +30,18 @@ public class LoginControl {
    @GetMapping("/erp/login")
      public String userLoginPage() {
 	   return "account/login";
+   }
+   
+   @GetMapping("/main/loginCheck/{userId}")
+   @ResponseBody
+   public int userCount(@PathVariable("userId") String userID ) {
+	   return service.idCheck(userID);
+   }
+   
+   @PostMapping("/main/addUser")
+   @ResponseBody
+   public int addUser(@RequestBody ErpUserVO vo) {
+	   return service.insertId(vo);
    }
    
 	

@@ -38,4 +38,33 @@
         					   WHERE com_id = e.com_id)
      </select>
      
+     <select id="checkId" resultType="int">
+       SELECT COUNT(*)
+       FROM erpUser
+       WHERE com_id = #{comId}
+     </select>
+      
+      
+      <insert id="insertId">
+      	 INSERT INTO erpUser(com_id,
+                        password,
+                        com_name,
+                        name,
+                        tel,
+                        email,
+                        address,
+                        bus_tel,
+                        created_date,
+                        authority)
+    	VALUES(#{comId},
+              #{password},
+              #{comName},
+              #{name},
+              #{tel},
+              #{email},
+              #{address},
+              #{busTel},
+              sysdate,
+              'au02')
+      </insert>
   </mapper>

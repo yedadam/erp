@@ -26,6 +26,7 @@ public class LoginMainAuthority implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
     	List<GrantedAuthority> auth = new ArrayList<>();
     	auth.add(new SimpleGrantedAuthority(userVO.getMaster()));
+    	auth.add(new SimpleGrantedAuthority(userVO.getAuthority()));
 		return auth;
     }
 
@@ -66,6 +67,9 @@ public class LoginMainAuthority implements UserDetails {
     }
     public Date getSubsExpiration() {
     	return userVO.getSubsExpiration();
+    }
+    public String getAuthority() {
+    	return userVO.getAuthority();
     }
 
     @Override

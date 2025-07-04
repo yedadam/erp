@@ -69,6 +69,9 @@ public class LoginUserAuthority implements UserDetails {
     public Date getSubsExpiration() {
     	return userVO.getSubsExpiration();
     }
+    public String getAuthority() {
+    	return "";
+    }
     //계정 만료
     @Override
     public boolean isAccountNonExpired() {
@@ -91,6 +94,7 @@ public class LoginUserAuthority implements UserDetails {
     public boolean isEnabled() {
         return true; // 계정이 활성화되어 있다고 가정
     }
+   
   
     
 }
