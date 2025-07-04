@@ -11,18 +11,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dadam.inventory.hold.service.HoldService;
 import com.dadam.inventory.hold.service.HoldVO;
+import com.dadam.inventory.hold.service.LotVO;
 import com.dadam.inventory.outbound.service.OutboundVO;
 
 
 @RestController // json형식으로 반환
-@RequestMapping("/erp/inventory")
+@RequestMapping("/erp/inventory")// 앞에주소
 public class InventoryHoldRestController {
 
 	@Autowired
 	HoldService holdservice;
 	
 	// 홀드 리스트
-	@GetMapping("/holdList")
+	@GetMapping("/holdList") // 각 뒤의주소
 	public List<HoldVO> selectHoldList(HoldVO vo) {
 		return holdservice.selectHoldList(vo);
 	}
@@ -45,5 +46,8 @@ public class InventoryHoldRestController {
 		holdservice.insertHoldList(list);
 		return null;
 	}
-	
+	@GetMapping("/holdDetailList")
+	public List<LotVO> selectHoldDetailList(LotVO vo){
+		return holdservice.selectHoldDetailList(vo);
+	}
 }

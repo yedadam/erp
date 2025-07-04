@@ -34,7 +34,7 @@
                 sr.vdr_code,
 			 	sr.ship_exp_date,
 			 	sr.emp_id,
-                getempName(sr.emp_id) empName,
+                getempName(sr.emp_id, #{comId}) empName,
                 sr.created_date,
                 sd.dlive_date
 		FROM shipRequestDetail sd left join shiprequest sr

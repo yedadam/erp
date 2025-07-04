@@ -84,4 +84,11 @@ public class HoldServiceImpl implements HoldService{
 		
 		return 0;
 	}
+	
+	// hold상세 조회
+	@Override
+	public List<LotVO> selectHoldDetailList(LotVO vo) {
+		return holdMapper.selectHoldDetailList(vo);
+		
+	}
 }

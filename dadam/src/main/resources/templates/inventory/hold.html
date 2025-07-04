@@ -192,9 +192,6 @@
 		</div>
 	</div>
 	<script th:inline="javascript">
-// const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1008'}]];
-// const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '김지현'}]];
-// const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
 //필수값 가져오기
 let holdGrid;
 // 초기 조회
@@ -304,16 +301,16 @@ function selectGrid(){
 	
 	holdGrid.on('click', (ev)=>{
 		let { rowKey, columnName } = ev;
-		
-		
-		/* $.ajax({
-			url:"/erp/inventory/holdList",
+		let click = holdGrid.getRow(rowKey);
+		let param = {holdCode: click.holdCode,comId}
+		$.ajax({
+			url:"/erp/inventory/holdDetailList",
 			method:"GET"
-			,data: {comId}
+			,data: {param}
 		   ,success:function(result) {
-			   holdGrid.resetData(result);
-		   } // ajax호출 끝
-		}) */
+			   subLot.resetData(result);
+		   } 
+		}) // ajax호출 끝
 	});
 	
 };// 조회버튼 끝
