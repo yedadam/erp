@@ -21,8 +21,8 @@
     getSubCode(c.status) AS status,
     getSubCode(c.type) AS tType,
     getDeptName(c.dept_code) AS deptCode,
-    getEmpName(c.phy_emp_id) AS phyEmpId,
-    getEmpName(c.appr_emp_id) AS apprEmpId,
+    getEmpName(c.phy_emp_id,#{comId}) AS phyEmpId,
+    getEmpName(c.appr_emp_id,#{comId}) AS apprEmpId,
     c.note AS note,
     '' AS acctCode,
     '' AS iType,
@@ -178,42 +178,81 @@ UPDATE chit
 <select id="selectAutoChitRules" parameterType="string" resultType="ChitVO">
   SELECT
     rule_id,
-    chit_type,
-    ind_type,
-    acct_code,
+    (SELECT sub_name FROM subcodes WHERE sub_code = r.chit_type) chitType,
+    (SELECT sub_name FROM subcodes WHERE sub_code = r.itp_type) itpType,
+    (SELECT name FROM account a WHERE a.acct_code = r.acct_code) acctCode,
     com_id,
-    created_date, 
+    created_date,
     update_date
-  FROM auto_chit_rule
+  FROM auto_chit_rule r
   WHERE com_id = #{comId}
-  ORDER BY chit_type, ind_type
+  ORDER BY chit_type, itp_type
 </select>
 
-<!-- MERGE: 동일 거래유형+차/대변+회사ID 기준 -->
 <insert id="mergeAutoChitRule" parameterType="ChitVO">
-    <selectKey resultType="string" keyProperty="ruleId" order="BEFORE">
-        SELECT 'rule' ||
-               LPAD(NVL(MAX(TO_NUMBER(SUBSTR(rule_id, 5))), 0) + 1, 2, '0') AS ruleId
-        FROM auto_chit_rule
-        WHERE com_id = #{comId}
-    </selectKey>
-    MERGE INTO auto_chit_rule ar
-    USING (
-        SELECT #{chitType} AS chit_type,
-               #{indType} AS ind_type,
-               #{comId} AS com_id
-        FROM dual
-    ) src
-    ON (
-        ar.chit_type = src.chit_type
-        AND ar.ind_type = src.ind_type
-        AND ar.com_id = src.com_id
+MERGE INTO auto_chit_rule r
+USING (
+    SELECT
+        #{chitType} AS chit_type,
+        #{itpType} AS itp_type,
+        #{acctCode} AS acct_code,
+        #{comId} AS com_id
+    FROM dual
+) src
+ON (
+    r.chit_type = src.chit_type
+    AND r.itp_type = src.itp_type
+    AND r.acct_code = src.acct_code
+    AND r.com_id = src.com_id
+)
+WHEN MATCHED THEN
+    UPDATE SET
+        acct_code = src.acct_code -- 필요시 다른 필드도 수정 가능
+WHEN NOT MATCHED THEN
+    INSERT (rule_id, chit_type, itp_type, acct_code, com_id)
+    VALUES (
+        (SELECT 'rule' || LPAD(NVL(MAX(TO_NUMBER(SUBSTR(rule_id, 5))), 0) + 1, 2, '0') 
+         FROM auto_chit_rule WHERE com_id = #{comId}),
+        src.chit_type,
+        src.itp_type,
+        src.acct_code,
+        src.com_id
     )
-    WHEN MATCHED THEN
-        UPDATE SET acct_code = #{acctCode}
-    WHEN NOT MATCHED THEN
-        INSERT (rule_id, chit_type, ind_type, acct_code, com_id)
-        VALUES (#{ruleId}, #{chitType}, #{indType}, #{acctCode}, #{comId})
+
 </insert>
+
+<delete id="deleteAutoRule">
+  DELETE FROM auto_chit_rule
+  WHERE rule_id = #{ruleId}
+</delete>
+
+
+<select id="getNextRuleId" resultType="string">
+  SELECT 'rule' || LPAD(NVL(MAX(TO_NUMBER(SUBSTR(rule_id, 5))), 0) + 1, 2, '0') 
+  FROM auto_chit_rule WHERE com_id = #{comId}
+</select>
+
+<select id="findTypeCodeByName" resultType="string">
+  SELECT sub_code FROM subcodes WHERE sub_name = #{name} and main_code = 'cht'
+</select>
+
+<select id="findIndTypeCodeByName" resultType="string">
+  SELECT sub_code FROM subcodes WHERE sub_name = #{name} and main_code = 'ind'
+</select>
+
+<select id="findAcctCodeByName" resultType="string">
+  SELECT ACCT_CODE FROM account WHERE name = #{name}
+</select>
+
+<select id="selectAutoRules" resultType="map">
+  SELECT chit_type, itp_type, acct_code, vat_yn,
+  (SELECT name FROM account a WHERE a.acct_code = r.acct_code) AS ANAME,
+  (SELECT sub_name FROM subcodes s WHERE s.sub_code = r.itp_type) AS INAME
+  FROM auto_chit_rule r
+  WHERE chit_type = (SELECT sub_code FROM subcodes WHERE sub_name = #{chitType} AND main_code = 'cht') 
+    AND com_id = #{comId}
+  ORDER BY itp_type
+</select>
+
 
 </mapper>

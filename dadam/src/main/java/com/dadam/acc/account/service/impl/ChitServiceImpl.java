@@ -33,8 +33,6 @@ public class ChitServiceImpl implements ChitService{
         }
     }
 
-	
-	
 	@Autowired ChitMapper chitMapper;
     	
 	@Override
@@ -120,11 +118,42 @@ public class ChitServiceImpl implements ChitService{
         return chitMapper.selectAutoChitRules(comId);
 	}
 	
+	@Override
+	public void saveAllRules(List<ChitVO> rules) {
+	    initAuthInfo(); // comId 설정 (현재 로그인 사용자 기준)
+
+	    for (ChitVO rule : rules) {
+	        // 삭제 요청인 경우 ruleId 기준 삭제
+	        if ("delete".equals(rule.getStatus())) {
+	            if (rule.getRuleId() != null) {
+	                chitMapper.deleteRule(rule.getRuleId());
+	            }
+	            continue; // 삭제는 여기서 끝
+	        }
+
+	        // 생성 또는 수정 처리 (MERGE)
+	        rule.setComId(comId);
+
+	        String chitType = chitMapper.findTypeCodeByName(rule.getChitType());
+	        String itpType = chitMapper.findIndTypeCodeByName(rule.getItpType());
+	        String acctCode = chitMapper.findAcctCodeByName(rule.getAcctCode());
+
+	        if (chitType == null) throw new IllegalArgumentException("거래유형 코드 없음");
+	        if (itpType == null) throw new IllegalArgumentException("차/대변 코드 없음");
+	        if (acctCode == null) throw new IllegalArgumentException("계정과목 코드 없음");
+
+	        rule.setChitType(chitType);
+	        rule.setItpType(itpType);
+	        rule.setAcctCode(acctCode);
+
+	        chitMapper.mergeAutoChitRule(rule);
+	    }
+	}
+
+
     @Override
-    public void saveAutoChitRules(List<ChitVO> rules) {
-        for (ChitVO vo : rules) {
-            chitMapper.mergeAutoChitRule(vo);
-        }
+    public List<Map<String, Object>> getAutoRules(String chitType, String comId) {
+        return chitMapper.selectAutoRules(chitType, comId);
     }
-	
+
 }	

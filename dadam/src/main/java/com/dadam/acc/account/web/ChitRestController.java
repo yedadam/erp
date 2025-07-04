@@ -43,6 +43,7 @@ public class ChitRestController {
 		return chitService.chtTypeFindByCode(keyword);
 	}
 	
+	
 	@PostMapping("/chitSaveAll")
 	@ResponseBody
 	public Map<String, Object> saveAccounts(@RequestBody ChitVO chit) {
@@ -82,11 +83,33 @@ public class ChitRestController {
 
     // 2. 자동분개 규칙 저장
     @PostMapping("/ruleSave")
-    public ResponseEntity<String> saveAutoChitRules(@RequestBody List<ChitVO> rules) {
-    	System.out.println("저장되는 규칙" + rules);
-        chitService.saveAutoChitRules(rules);
-        return ResponseEntity.ok("saved");
+    @ResponseBody
+    public Map<String, Object> saveAutoRules(@RequestBody List<ChitVO> rules) {
+        Map<String, Object> result = new HashMap<>();
+        System.out.println("저장되는 규칙 " +result);
+        try {
+            chitService.saveAllRules(rules);
+            result.put("result", "success");
+            result.put("message", "자동분개 규칙이 저장되었습니다.");
+        } catch (IllegalArgumentException e) {
+            result.put("result", "fail");
+            result.put("message", "오류: " + e.getMessage());
+        }
+
+        return result;
     }
-	
+    
+
+    /**
+     * 자동분개 규칙 조회
+     * @param chitType 거래유형코드 (예: "cht01")
+     * @param comId 회사 ID (예: "com-101")
+     * @return 규칙 목록 (차/대변 + 계정과목 코드)ruleByChitType
+     */
+    @GetMapping("/ruleByChitType")
+    public ResponseEntity<List<Map<String, Object>>> getAutoRules( @RequestParam String chitType, @RequestParam String comId) {
+        List<Map<String, Object>> rules = chitService.getAutoRules(chitType, comId);
+        return ResponseEntity.ok(rules);
+    }
    
 }

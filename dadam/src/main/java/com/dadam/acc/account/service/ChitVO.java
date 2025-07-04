@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
@@ -43,9 +44,11 @@ public class ChitVO {
     private String chitDtId;
     private String empId;
     
-   
+    @JsonProperty("createdRows")
     private List<ChitVO> createdRows;
+    @JsonProperty("updatedRows")
     private List<ChitVO> updatedRows;
+    @JsonProperty("deletedRows")
     private List<ChitVO> deletedRows;
     
     
@@ -83,7 +86,10 @@ public class ChitVO {
 	
 	// 자동분개 설정용 필드
 	private String ruleId;
-	private String indType;      // 차/대변
+	private String itpType;      // 차/대변
 	private String chitType;      // 거래유형
+    @JsonProperty("vatYn")
+	private String vatYn;
 	
+
 }
