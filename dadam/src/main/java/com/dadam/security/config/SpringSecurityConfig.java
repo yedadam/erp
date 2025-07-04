@@ -1,10 +1,14 @@
 package com.dadam.security.config;
 
+import java.util.Collection;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -62,8 +66,8 @@ public class SpringSecurityConfig {
                 // 세션 무효화
                 .invalidateHttpSession(true)
                 // 쿠키 삭제
-                .deleteCookies("MAINSESSIONID")
-            )
+                .deleteCookies("JSESSIONID")
+            ) 
             
              
             .csrf(csrf -> csrf.disable()) // API나 개발 환경에서만 사용
@@ -72,6 +76,7 @@ public class SpringSecurityConfig {
             .headers(headers -> headers
                 .frameOptions().sameOrigin()
             )
+            
             
             // 예외 처리 (선택사항)
             .exceptionHandling(exceptions -> exceptions
@@ -94,13 +99,21 @@ public class SpringSecurityConfig {
         	.securityMatcher("/erp/**") 
             .authorizeHttpRequests(auth -> auth
                 // 정적 리소스와 로그인 페이지는 모든 사용자에게 허용
-                .requestMatchers("/**","/**/**").permitAll()
-                
+                .requestMatchers(//"/erp/**",
+                		         "/css/**", 
+                				 "/js/**", 
+                        		 "/images/**").permitAll()
+                .requestMatchers("/erp").hasAnyAuthority("master","ac-101","ac-102","ac-103","ac-104","ac-105")
+                .requestMatchers("/erp/standard/**").hasAnyAuthority("master","ac-101")
+                .requestMatchers("/erp/hr/**").hasAnyAuthority("master","ac-101","ac-102")
+                .requestMatchers("/erp/sales/**").hasAnyAuthority("master","ac-101","ac-103")
+                .requestMatchers("/erp/accounting/**").hasAnyAuthority("master","ac-101","ac-104")
+                .requestMatchers("/erp/inventory/**").hasAnyAuthority("master","ac-101","ac-105")
                 // 나머지 모든 요청은 인증 필요
                 .anyRequest().authenticated()
             )
             
-            .formLogin(form -> form
+            .formLogin(form -> form 
                 // 커스텀 로그인 페이지
                 .loginPage("/erp/login")
                 .permitAll()
@@ -119,7 +132,7 @@ public class SpringSecurityConfig {
                 // 세션 무효화
                 .invalidateHttpSession(true)
                 // 쿠키 삭제
-                .deleteCookies("ERPSESSIONID")
+                .deleteCookies("JSESSIONID")
             )
             //back 프론트 cors  
             // CSRF 보호 (필요에 따라 비활성화)
@@ -133,7 +146,10 @@ public class SpringSecurityConfig {
             // 예외 처리 (선택사항)
             .exceptionHandling(exceptions -> exceptions
                 .accessDeniedPage("/error/403")
-            );
+            )
+            .exceptionHandling(exceptions -> exceptions
+                    .accessDeniedPage("/error/403")
+             );;
            
         	
         return http.build();

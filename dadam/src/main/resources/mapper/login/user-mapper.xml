@@ -5,26 +5,66 @@
   
   <mapper namespace="com.dadam.security.mapper.UserMapper">
     <select id="loginForMain" resultType="ErpUserVO">
-     SELECT com_id,
+       SELECT DISTINCT u.com_id,
             password,
             name,
-            authority
-     FROM erpUser
-     WHERE com_id=#{userId}   
+            authority,
+            (SELECT max(subs_expiration)
+             FROM erpSubs
+             WHERE com_id = #{comId}) subs_expiration,
+             option_code
+	     FROM erpUser u LEFT JOIN erpSUbs s1 ON (u.com_id= s1.com_id)
+	     WHERE u.com_id = #{comId}   
      </select>
      <select id="loginForErp" resultType="EmployeesVO">
-     SELECT      emp_id,
+     SELECT e.emp_id,
             e.com_id,
             pwd,
             emp_name,
             subs_expiration,
-            e.dept_code
+            option_code,
+            master,
+            e.dept_code,
+            CASE   WHEN master IS NOT NULL
+    		THEN 'master' ELSE auth_code
+    		END auth_code 
      FROM employees e JOIN erpSubs s1 ON (e.com_id = s1.com_id)
-     WHERE emp_id=#{username}
+                    LEFT  JOIN departments a ON (e.dept_code = a.dept_code)
+     
+     WHERE e.emp_id=#{username}
      AND e.com_id=#{comId}
      AND s1.subs_expiration = (SELECT MAX(subs_expiration)
         						FROM erpSubs
         					   WHERE com_id = e.com_id)
      </select>
      
+     <select id="checkId" resultType="int">
+       SELECT COUNT(*)
+       FROM erpUser
+       WHERE com_id = #{comId}
+     </select>
+      
+      
+      <insert id="insertId">
+      	 INSERT INTO erpUser(com_id,
+                        password,
+                        com_name,
+                        name,
+                        tel,
+                        email,
+                        address,
+                        bus_tel,
+                        created_date,
+                        authority)
+    	VALUES(#{comId},
+              #{password},
+              #{comName},
+              #{name},
+              #{tel},
+              #{email},
+              #{address},
+              #{busTel},
+              sysdate,
+              'au02')
+      </insert>
   </mapper>

@@ -46,9 +46,9 @@ public class UserService implements UserDetailsService{
        ErpUserVO mainUserVO = null;
        //먼저 main url로 시작하면 발동
        if (uri.startsWith("/main")) {
-       	System.out.println("이름"+username);
        	// main 로그인용
-       	mainUserVO = userMapper.loginForMain(username); 
+       	mainUserVO = userMapper.loginForMain(username);
+       	mainUserVO.setMaster("master");
        //먼저 erp url로 시작하면 발동
        } else if (uri.startsWith("/erp")) {
     	   //userName값 자르기

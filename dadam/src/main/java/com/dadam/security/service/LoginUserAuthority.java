@@ -22,11 +22,12 @@ public class LoginUserAuthority implements UserDetails {
     public LoginUserAuthority(EmployeesVO userVO) {
         this.userVO = userVO;
     }
-
+    
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
     	List<GrantedAuthority> auth = new ArrayList<>();
-		auth.add(new SimpleGrantedAuthority(userVO.getEmpName()));
+		auth.add(new SimpleGrantedAuthority(userVO.getOptionCode()));
+		auth.add(new SimpleGrantedAuthority(userVO.getAuthCode()));
 		return auth;
     }
 
@@ -59,6 +60,18 @@ public class LoginUserAuthority implements UserDetails {
     public String getDeptCode() {
     	return userVO.getDeptCode();
     }
+    public String getOptionCode() {
+    	return userVO.getOptionCode();
+    }
+    public String getMaster() {
+    	return userVO.getMaster();
+    }
+    public Date getSubsExpiration() {
+    	return userVO.getSubsExpiration();
+    }
+    public String getAuthority() {
+    	return "";
+    }
     //계정 만료
     @Override
     public boolean isAccountNonExpired() {
@@ -81,6 +94,7 @@ public class LoginUserAuthority implements UserDetails {
     public boolean isEnabled() {
         return true; // 계정이 활성화되어 있다고 가정
     }
+   
   
     
 }

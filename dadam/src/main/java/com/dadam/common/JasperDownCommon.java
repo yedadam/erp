@@ -21,7 +21,7 @@ import net.sf.jasperreports.engine.util.JRLoader;
 @Component
 public class JasperDownCommon extends AbstractView{
 	@Autowired
-	DataSource datasource; 
+	DataSource datasource;   
 	@Override
 	protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Connection conn = datasource.getConnection();

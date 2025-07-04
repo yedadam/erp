@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.dadam.acc.account.service.ChitVO;
 import com.dadam.common.service.GridData;
+import com.dadam.security.service.LoginMainAuthority;
 import com.dadam.security.service.LoginUserAuthority;
 import com.dadam.standard.item.mapper.ChitStandardMapper;
 import com.dadam.standard.item.service.ChitStandardService;
@@ -28,6 +29,11 @@ public class ChitStandardServiceImpl implements ChitStandardService{
 
         if (principal instanceof LoginUserAuthority) {
         	LoginUserAuthority user = (LoginUserAuthority) principal;
+            comId = user.getComId();
+            deptCode = user.getDeptCode();
+        }
+        if (principal instanceof LoginMainAuthority) {
+        	LoginMainAuthority user = (LoginMainAuthority) principal;
             comId = user.getComId();
             deptCode = user.getDeptCode();
         }

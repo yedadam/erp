@@ -1,81 +1,145 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Dimension by HTML5 UP</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link th:href="@{/css/main.css}" rel="stylesheet" />
+<title>Dimension by HTML5 UP</title>
+<meta charset="utf-8" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, user-scalable=no" />
+<link th:href="@{/css/main.css}" rel="stylesheet" />
 </head>
 <body class="is-preload">
 
-    <!-- Wrapper -->
-    <div id="wrapper">
+	<!-- Wrapper -->
+	<div id="wrapper">
 
-        <!-- Header -->
-        <header id="header">
-            <div class="logo">
-                <span class="icon fa-gem"></span>
-            </div>
-            <div class="content">
-                <div class="inner">
-                    <h1>Dimension</h1>
-                    <div th:if="${param.error}">
-                        <h3 style="color: red;">아이디 또는 비밀번호가 일치하지 않습니다.</h3>
-                    </div>
-                </div>
-            </div>
-            <nav>
-                <ul>
-                    <li id="login1"><a href="#contact">로그인</a></li>
-                    <li><a href="#">돌아가기</a></li>
-                </ul>
-            </nav>
-        </header>
+		<!-- Header -->
+		<header id="header">
+			<div class="logo">
+				<span class="icon fa-gem"></span>
+			</div>
+			<div class="content">
+				<div class="inner">
+					<h1>Dimension</h1>
+					<div th:if="${param.error}">
+						<h3 style="color: red;">아이디 또는 비밀번호가 일치하지 않습니다.</h3>
+					</div>
+				</div>
+			</div>
+			<nav>
+				<ul>
+					<li id="login1"><a href="#contact">로그인</a></li>
+					<li><a href="#newMember">회원가입</a></li>
+				</ul>
+			</nav>
+		</header>
 
-        <!-- Main -->
-        <div id="main">
-            <!-- Contact -->
-            <article id="contact">
-                <h2 class="major">Login</h2>
-                <form method="post" th:action="@{/main/login}" id="loginForm">
-                    <div class="fields">
-                        <div class="field">
-                            <label for="uersername">아이디</label>
-                            <!-- 만약 securityConfig 컬럼값을 바꿧다면 id와 name값 모두 바꿔야한다. -->
-                            <input type="text" name="userId" id="userId" autocomplete="username" required autofocus />
-                        </div>
-                        <div class="field">
-                            <label for="password">비밀번호</label>
-                            <input type="password" name="pwd" id="pwd" autocomplete="current-password" onkeypress="enterLogin(event)" required />
-                        </div>
-                    </div>
-                    <ul class="actions">
-                        <li><input type="submit" value="Login" class="primary" /></li>
-                    </ul>
-                </form>
-            </article>
-        </div>
+		<!-- Main -->
+		<div id="main">
+			<!-- Contact -->
+			<article id="contact">
+				<h2 class="major">Login</h2>
+				<form method="post" th:action="@{/main/login}" id="loginForm">
+					<div class="fields">
+						<div class="field">
+							<label for="uersername">아이디</label>
+							<!-- 만약 securityConfig 컬럼값을 바꿧다면 id와 name값 모두 바꿔야한다. -->
+							<input type="text" name="userId" id="userId"
+								autocomplete="username" required autofocus />
+						</div>
+						<div class="field">
+							<label for="password">비밀번호</label> <input type="password"
+								name="pwd" id="pwd" autocomplete="current-password"
+								onkeypress="enterLogin(event)" required />
+						</div>
+					</div>
+					<ul class="actions">
+						<li><input type="submit" value="Login" class="primary" /></li>
+					</ul>
+				</form>
+			</article>
+			<!-- 회원가입 -->
+			<article id="newMember">
+				<h2 class="major">회원가입</h2>
+				<form method="post" th:action="@{/main/addNewMember}" id="newForm">
+					<div class="fields">
+						<div class="field half">
+							<label for="addUserId">아이디</label> <input type="text"
+								name="userId" id="addUserId" required />
+							<p hidden id="idSameCheck"></p>
+						</div>
+						<div class="field half">
+							<label for="addPwd">비밀번호</label> <input type="password"
+								name="pwd" id="addPwd" required />
+						</div>
+						<div class="field half">
+							<label for="pwdCheck">비밀번호 확인</label> <input type="password"
+								name="pwdCheck" id="pwdCheck" required />
+							<p hidden id="pwdSameCheck"></p>
+						</div>
 
-        <!-- Footer -->
-        <footer id="footer">
-            <p class="copyright">
-                &copy; Untitled. Design: <a href="#">erp</a>.
-            </p>
-        </footer>
+						<div class="field half">
+							<label for="userName">이름</label> <input type="text"
+								name="userName" id="userName" required />
+						</div>
+						<div class="field half">
+							<label for="phone">전화번호</label> <input type="text" name="phone"
+								id="phone" placeholder="010-1234-5678" required />
+						</div>
+						<div class="field half">
+							<label for="email">이메일</label> <input type="email" name="email"
+								id="email" placeholder="example@domain.com" required />
+						</div>
+						<div class="field half">
+							<label for="address">주소</label> <input type="text" name="address"
+								id="address" required />
+						</div>
+						<div class="field half">
+							<label for="comName">회사이름</label> <input type="text"
+								name="comName" id="comName" required />
+						</div>
+						<div class="field half">
+							<label for="bizNo1">사업자등록번호</label>
+							<div style="display: flex; gap: 5px;">
+								<input type="text" id="bizNo1" maxlength="3" required
+									oninput="moveNext(this, 'bizNo2')" style="flex: 1;" /> <span>-</span>
+								<input type="text" id="bizNo2" maxlength="2" required
+									oninput="moveNext(this, 'bizNo3')" style="flex: 1;" /> <span>-</span>
+								<input type="text" id="bizNo3" maxlength="5" required
+									oninput="updateFullBizNo()" style="flex: 2;" />
+							</div>
+							<input type="hidden" id="bizNo" />
+							<!-- 서버로 전송될 실제 input -->
+							<p hidden id="accSameCheck"></p>
+						</div>
+					</div>
+					<ul class="actions">
+						<li><input type="button" value="회원가입" class="primary"
+							id="addBtn" /></li>
+					</ul>
+				</form>
+			</article>
+		</div>
 
-    </div>
+		<!-- Footer -->
+		<footer id="footer">
+			<p class="copyright">
+				&copy; Untitled. Design: <a href="#">erp</a>.
+			</p>
+		</footer>
 
-    <!-- BG -->
-    <div id="bg"></div>
+	</div>
 
-    <!-- Scripts -->
-    <script th:src="@{/js/jquery.min.js}"></script>
-    <script th:src="@{/js/browser.min.js}"></script>
-    <script th:src="@{/js/breakpoints.min.js}"></script>
-    <script th:src="@{/js/util.js}"></script>
-    <script th:src="@{/js/main.js}"></script>
+	<!-- BG -->
+	<div id="bg"></div>
 
-    <script type="text/javascript">
+	<!-- Scripts -->
+	<script th:src="@{/js/jquery.min.js}"></script>
+	<script th:src="@{/js/browser.min.js}"></script>
+	<script th:src="@{/js/breakpoints.min.js}"></script>
+	<script th:src="@{/js/util.js}"></script>
+	<script th:src="@{/js/main.js}"></script>
+
+	<script type="text/javascript">
         $(document).ready(function() {
             // Q 키 입력 시 이동
             $(document).on("keyup", function(event) {
@@ -94,6 +158,194 @@
      	 		form.submit();
      	   }
         }
+      
+      
+      
+      
+      
+       async function code_check(){
+        	    let bisNo = $('#bizNo').val();
+        	    let check = false;
+        		var data = {
+        			"b_no": [bisNo]	
+        		};
+           		await $.ajax({
+           				url: "https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=lEasnKvE0jY2SKjD7fjEBTFtsOZB03oeKA4Bv0hilh9Du6qEb0pBnhFxE5FrphuZibMW4ukw8VnyHUNd9M3ACQ%3D%3D",
+           		        type: "POST",
+           		        data: JSON.stringify(data), // json 을 string으로 변환하여 전송
+           		        dataType: "JSON",
+           		        traditional: true,
+           		        contentType: "application/json; charset:UTF-8",
+           		        accept: "application/json",
+           		        success: function(result) {
+           		            if(result.match_cnt == "1") {
+                            	//성공
+	           		            $('#accSameCheck').text('사용 가능한 사업자번호입니다');
+	             				$('#accSameCheck').show();
+	             				check= false;
+	             				
+           		            } else {
+                            	//실패
+           		             	$('#accSameCheck').text('존재하지 않는 사업자번호입니다.');
+	             				$('#accSameCheck').show();
+	             				check = true;
+           		            }
+           		        },
+           		        error: function(result) {
+           		            console.log(result.responseText); //responseText의 에러메세지 확인
+           		        }
+           		    });
+           		return check;
+        }
+      //아이디 체크
+        async function idCheck(){
+    	    let check = false;
+        	let userId = $('#addUserId').val();
+        	if(userId!= ''){
+         await $.ajax({
+        		url : `/main/loginCheck/${userId}`,
+        		type: "GET",
+        		success: function(result){
+        			if(result>0){
+        				$('#idSameCheck').text('이미 있는 아이디입니다.');
+        				$('#idSameCheck').show();
+        				check=true;
+        			}else{
+        				$('#idSameCheck').text('가입이 가능한 아이디입니다.');
+        				$('#idSameCheck').show();
+        				check= false;
+        			}
+        		}
+        		})
+        	}
+        	return check;
+        }
+        
+        //비밀번호
+        function pwdCheckFunc() {
+        	let pwd = $('#addPwd').val();
+        	let pwdCheck = $('#pwdCheck').val();
+        	let check = true
+        	if(pwd!=pwdCheck){
+        		$('#pwdSameCheck').text('비밀번호가 일치하지 않습니다..');
+				$('#pwdSameCheck').show();
+        		check= true;
+        	}else{
+        		$('#pwdSameCheck').text('비밀번호가 일치합니다.');
+				$('#pwdSameCheck').show();
+        		check= false;
+        	}
+        	return check;
+        }
+        
+        function resetVal(){
+        	$('#addUserId').val('');
+         	$('#addPwd').val('');
+         	$('#pwdCheck').val('');
+         	$('#phone').val('');
+         	$('#email').val('');
+         	$('#address').val('');
+         	$('#bizNo1').val('');
+         	$('#bizNo2').val('');
+         	$('#bizNo3').val('');
+         	$('#userName').val('');
+         	$('#comName').val('');
+         	$('#bizNo').val('');
+        } 
+        $('#addBtn').on('click', async ev => {
+        	let userId = $('#addUserId').val();
+        	let pwd = $('#addPwd').val();
+        	let pwdCheck = $('#pwdCheck').val();
+        	let phone = $('#phone').val();
+        	let email = $('#email').val();
+        	let address = $('#address').val();
+        	let bizNo1 =  $('#bizNo1').val();
+        	let bizNo2 =  $('#bizNo2').val();
+        	let bizNo3 =  $('#bizNo3').val();
+        	let userName = $('#userName').val();
+        	let comName = $('#comName').val();
+        	let bizNo = $('#bizNo').val();
+        	if(userId=='' || pwd=='' || pwdCheck=='' || phone=='' || email=='' || address=='' || bizNo=='' || bizNo2=='' || bizNo3==''){
+        	   alert('해당하는 기입란을 기입해주세요');
+        	   return;  
+        	}
+        	
+        	if(pwdCheckFunc()){
+        		alert('비밀번호가 일치하지 않습니다.')
+        		return;
+        	}
+        	let idCheckResult = await idCheck();
+        	if(idCheckResult){
+        		alert('이미 있는 아이디입니다.')
+        		return;
+        	}
+        	let bizResult = await code_check();
+        	console.log(bizResult)
+        	if(bizResult){
+        		alert('존재하지 않는 사업자 번호입니다.')
+        		return;
+        	}
+        	
+        	let info = {
+        			comId : userId,
+        			password : pwd,
+        			comName : comName,
+        			name : userName,
+        			tel : phone,
+        			email : email,
+        			address:address,
+        			busTel : bizNo
+        	}
+        	 await $.ajax({
+	    		 url:'/main/addUser',
+	    		 method:'POST',
+	    		 contentType: "application/json",
+	    		 data:JSON.stringify(info),
+	    		 success : result => {
+	    			     resetVal()
+	                     Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success')
+	                     
+	             },
+	             error: function(xhr, status, error) {
+	            	 	Swal.fire('실패','수정이 실패하였습니다..','error')
+	                    console.log("실패:", xhr.status, error);
+	                }
+	    	 })
+        	
+        })
+        
+        $('#addUserId').on('keyup', ev => {
+        	idCheck();
+        })
+        $('#pwdCheck').on('keyup', ev => {
+        	pwdCheckFunc();
+        });
+        $('#bizNo1').on('keyup', ev => {
+        	code_check();
+        });
+        $('#bizNo2').on('keyup', ev => {
+        	code_check();
+        });
+        $('#bizNo3').on('keyup', ev => {
+        	code_check();
+        });
+        
+        function moveNext(current, nextId) {
+		    if (current.value.length === current.maxLength) {
+		        document.getElementById(nextId).focus();
+		    }
+		    updateFullBizNo();
+		}
+
+		function updateFullBizNo() {
+		    const part1 = document.getElementById('bizNo1').value;
+		    const part2 = document.getElementById('bizNo2').value;
+		    const part3 = document.getElementById('bizNo3').value;
+		
+		    const full = `${part1}${part2}${part3}`;
+		    document.getElementById('bizNo').value = full;
+		}
+        
     </script>
 </body>
 </html>

@@ -15,21 +15,29 @@
 		<!-- Main Menu (Center aligned) -->
 		<div class="mx-auto d-flex">
 			<ul class="navbar-nav flex-row align-items-center">
-				<li class="nav-item mx-2">
-					<a class="nav-link text-dark fw-bold" href="/erp/standard">기준정보</a>
-				</li>
-				<li class="nav-item mx-2">
-					<a class="nav-link text-dark fw-bold" href="/erp/sales">영업</a>
-				</li>
-				<li class="nav-item mx-2">
-					<a class="nav-link text-dark fw-bold" href="/erp/inventory">재고</a>
-				</li>
-				<li class="nav-item mx-2">
-					<a class="nav-link text-dark fw-bold" href="/erp/hr">인사</a>
-				</li>
-				<li class="nav-item mx-2">
-					<a class="nav-link text-dark fw-bold" href="/erp/accounting">회계</a>
-				</li>
+					<li class="nav-item mx-2">
+						<a class="nav-link text-dark fw-bold" href="/erp/standard">기준정보</a>
+					</li>
+				<div th:if="${#authentication.principal.optionCode=='oc-102' or #authentication.principal.optionCode=='oc-103'}">
+					<li class="nav-item mx-2">
+						<a class="nav-link text-dark fw-bold" href="/erp/sales">영업</a>
+					</li>
+				</div>
+				<div th:if="${#authentication.principal.optionCode=='oc-102' or #authentication.principal.optionCode=='oc-103'}">
+					<li class="nav-item mx-2">
+						<a class="nav-link text-dark fw-bold" href="/erp/inventory">재고</a>
+					</li>
+				</div>
+				<div th:if="${#authentication.principal.optionCode=='oc-101' or #authentication.principal.optionCode=='oc-103'}">
+					<li class="nav-item mx-2">
+						<a class="nav-link text-dark fw-bold" href="/erp/hr">인사</a>
+					</li>
+				</div>
+				<div th:if="${#authentication.principal.optionCode=='oc-101' or #authentication.principal.optionCode=='oc-103'}">
+					<li class="nav-item mx-2">
+						<a class="nav-link text-dark fw-bold" href="/erp/accounting">회계</a>
+					</li>
+				</div>
 			</ul>
 		</div>
 
@@ -102,7 +110,7 @@
 					<a class="dropdown-item" href="#" onclick="document.getElementById('logout-form').submit();">
 						<i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Logout
 					</a>
-					<form id="logout-form" action="/logoutForm" method="post" style="display: none;">
+					<form id="logout-form" action="/erp/logout" method="post" style="display: none;">
 						 <input type="hidden" name="_csrf" value="YOUR_CSRF_TOKEN_HERE" />
 					</form>
 				</div>
