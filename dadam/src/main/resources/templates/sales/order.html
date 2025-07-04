@@ -343,7 +343,7 @@
 			    inputSelector: '#orderInput',                              //인풋에 겁색값
 			    selectSelector: $('#orderSelect  option:selected').val(),  //selected 결과값
 			    listSelector: '#autoOrderList',                            //자동완성 되는값 
-			    ajaxUrl: '/erp/sales/orderList'                     //ajaxurl
+			    ajaxUrl: '/erp/sales/orderList'                     
 		 });
 	});
 	$('#orderInput').on('keyup',ev => {
@@ -644,6 +644,7 @@
 		//행추가할 데이터 생성
 		let addRow = {}
 		orderGrid.prependRow(addRow);
+		ordDtlGrid.appendRow(addRow); 
 		const rowCount = orderGrid.getRowCount(); // 전체 행 수
 		const newRow = orderGrid.getRow(rowCount - 1); // 마지막 행 데이터
 		// console.log("추가된 행의 rowKey:", newRow.rowKey);
@@ -977,9 +978,9 @@
 		 orderGrid.export('xlsx',topOptions); 
 	})
 
-	const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1001'}]];
-	const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '정은애'	}]];
-	const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'	}]];
-	console.log(userID, userName, userComId);
+	// const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1001'}]];
+	// const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '정은애'	}]];
+	// const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'	}]];
+//	console.log(userID, userName, userComId);
 </script>
 </html>

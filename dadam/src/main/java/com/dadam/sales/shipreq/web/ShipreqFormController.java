@@ -14,9 +14,12 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/erp/sales")
 public class ShipreqFormController {
 	
+	final CodeService codeService;
 	
 	@GetMapping("/shipreq")
-	public String shipreq() {
+	public String shipreq(Model model) {
+		model.addAttribute("mainStatus",codeService.getCodeMap("srq")); 
+		model.addAttribute("dtlStatus", codeService.getCodeMap("srd")); 
 		return "sales/shipreq";
 	}
 }
