@@ -21,4 +21,10 @@ public interface HoldMapper {
 	public int insertHoldList(HoldVO list);
 	// 홀드Lot등록
 	public int insertHoldLotList(LotVO list);
+	// 홀드 등록할때 상태 값 변경
+	public int updateHoldShipRequestDetail(HoldVO list);
+	// 홀드 등록(stock테이블 예약수량 업데이트)
+	public int updateHoldStock(LotVO list);
+	// 홀드 등록(현재 예약 재고 조회)
+	public int selectHoldStockHoldQty(LotVO list);
 }
