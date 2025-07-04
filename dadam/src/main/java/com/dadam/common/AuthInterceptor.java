@@ -22,6 +22,7 @@ public class AuthInterceptor implements HandlerInterceptor{
 	   
 	   String optionCode = "com-101";
 	   Date subsExipriation = Date.valueOf(LocalDate.now().plusDays(1));
+	   String authCode = "auth";
        //로그인 객체값 연결
        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
        //로그인 객체 가져오기
@@ -31,6 +32,7 @@ public class AuthInterceptor implements HandlerInterceptor{
        	LoginUserAuthority user = (LoginUserAuthority) principal;
        	optionCode = user.getOptionCode();
         subsExipriation = user.getSubsExpiration();
+        authCode = user.getAuthCode();
        }
        if(principal instanceof LoginMainAuthority) {
     	 LoginMainAuthority user = (LoginMainAuthority) principal;
@@ -39,8 +41,8 @@ public class AuthInterceptor implements HandlerInterceptor{
 	   
 	   // 권한 체크 로직
        String uri = request.getRequestURI();
-       
-		
+       System.out.println("오스");
+       	System.out.println(authCode);
 		 if(subsExipriation.toLocalDate().isBefore(LocalDate.now())) {
 			 response.sendRedirect("/error/403.html");
 	         return false;

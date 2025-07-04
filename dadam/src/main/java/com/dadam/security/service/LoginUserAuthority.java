@@ -69,6 +69,9 @@ public class LoginUserAuthority implements UserDetails {
     public Date getSubsExpiration() {
     	return userVO.getSubsExpiration();
     }
+    public String getAuthCode() {
+    	return userVO.getAuthCode();
+    }
     public String getAuthority() {
     	return "";
     }
