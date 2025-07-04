@@ -15,8 +15,9 @@
 		        note,
 		        created_date
 		FROM hold
-		WHERE com_id = #{comId}
+		WHERE com_id = #{comId} AND status NOT IN('hs02')
 	</select>
+	
 	<!-- 출하의뢰상세모달 조회 -->
 	<select id="selectShipRequestModal" resultType="OutboundVO" parameterType="HoldVO">
 		SELECT 
@@ -42,6 +43,7 @@
                                         on(sd.item_code = it.item_code AND sd.com_id = it.com_id)
         WHERE sd.com_id = #{comId} AND sd.status in('srd04','srd01','srd05')
 	</select>
+	
 	<!-- LOT모달 조회 -->
 	<select id="selectHoldLotList" resultType="HoldVO">
 		SELECT
@@ -91,8 +93,31 @@
 	<!-- 홀드등록할때 상태값 변경 -->
 	<update id="updateHoldShipRequestDetail" parameterType="HoldVO">
 		UPDATE shiprequestdetail
-		SET status = #{status}
-		WHERE com_id = #{comId} AND ship_req_dtl_code = #{shipReqDtlCode};
+		SET status = #{shipstatus}
+		WHERE com_id = #{comId} AND ship_req_dtl_code = #{shipReqDtlCode}
 	</update>
+	
+	<!-- 현재 입력된값 가져오기 -->
+	<select id="selectHoldStockHoldQty" parameterType="LotVO" resultType="int">
+	SELECT hold_qty
+	FROM stock
+	WHERE lot = #{lot} AND com_id = #{comId}
+	</select>
+	
+	<!-- 현재 홀드되어있는 수량 추가 증감시켜서 들어가야함.-->
+	<update id="updateHoldStock" parameterType="LotVO">
+	UPDATE stock
+	SET hold_qty = #{holdQty}
+	WHERE lot = #{lot} AND com_id = #{comId}
+	</update>
+	
+	<!-- 조회페이지에서 lot봉 -->
+	<select id="selectHoldDetailList" resultType="LotVO" parameterType="LotVO">
+		SELECT    HOLD_DTL_CODE
+				, LOT
+				, QUANTITY
+		FROM holdDetail
+		WHERE hold_code = #{holdCode} AND com_id = #{comId}
+	</select>
 	
 </mapper>

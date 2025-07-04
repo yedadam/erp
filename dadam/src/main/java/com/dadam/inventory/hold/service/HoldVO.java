@@ -19,11 +19,13 @@ public class HoldVO {
 	private String itemCode;   // 품목코드
 	private String itemName;   // 품목이름
 	private int quantity;   // 수량
+	private int holdQty;   // 예약수량
 	private int price;   // 단가
 	private String type;   // 홀드구분
 	private String typeName;
 	private String status; 
-	private String statusName; 
+	private String shipstatus; // 발주서상태
+	private String statusName;
 	private String note;   // 메모
 	private String locCode;   // 위치코드
 	private String empId;  // 담당자 
@@ -34,5 +36,7 @@ public class HoldVO {
 	private Date createdDate;  // 등록일자
 	private String holdDtlCode;
 	private String code;
+	private String shipReqDtlCode;
+	
 	
 }

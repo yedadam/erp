@@ -252,7 +252,7 @@ function selectGrid(){
 	    rowHeaders: ['checkbox'],
 	    //페이지네이션
 	    pageOptions: {
-	        perPage: 10,
+	        perPage: 5,
 	        useClient: true,
 	    },
 	    //필드값 구성
@@ -271,15 +271,50 @@ function selectGrid(){
 	        /* { header: '출고예정일',name:'shipExpDate',align:'center'}, */
 	    ],
 	});
+	
 	// 조회 이벤트
 	// 추가버튼 생성 삭제버튼 홀드해제버튼으로 변경
 	/* $('#deleteBtn').html('<i class="fas fa-trash"></i> 홀드해제');
 	$('#btnGroup').prepend('<button class="btn btn-secondary me-2" id="insertBtn"><i class="fas fa-pen"></i> 추가</button>'); */
 	$('#selectBtn').prop('disabled', true);
 	$('#insertBtn').prop('disabled', false);
+	
+	// 이벤트 삭제
+	$('#deleteBtn').off('click');
+	$('#saveBtn').off('click');	
 	$('#shipRequestModalBtn').remove();
 	$('#transferModalBtn').remove();
-	//$('#saveBtn').off('click', saveBtninsert);
+	
+	// LOT선택된 후 그리드
+	subLot = new tui.Grid({
+	    el: document.getElementById('subGrid'),
+	    rowHeaders: ['rowNum'],
+	    //페이지네이션
+	    pageOptions: {
+	        perPage: 5,
+	        useClient: true,
+	    },
+	    //필드값 구성
+	    columns:[
+	        { header: '홀드상세코드',name:'holdDtlCode',align:'center'},
+	        { header: 'lot',name:'lot',align:'center'},
+	        { header: '예약재고',name:'quantity',align:'center'}
+	    ],
+	});
+	
+	holdGrid.on('click', (ev)=>{
+		let { rowKey, columnName } = ev;
+		
+		
+		/* $.ajax({
+			url:"/erp/inventory/holdList",
+			method:"GET"
+			,data: {comId}
+		   ,success:function(result) {
+			   holdGrid.resetData(result);
+		   } // ajax호출 끝
+		}) */
+	});
 	
 };// 조회버튼 끝
 
@@ -393,7 +428,7 @@ function insertGrid(){
 		holdGrid.resetData(shipData);
 	});
 	
-	// LOT
+	// LOT선택 모달 그리드
 	stklot = new tui.Grid({
 	    el: document.getElementById('lotGrid'),
 	    rowHeaders: ['checkbox'],
@@ -406,12 +441,15 @@ function insertGrid(){
 	    columns:[
 	        { header: 'lot',name:'lot',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
-	        { header: '재고수량',name:'quantity',align:'center'},
+	        { header: '현재고',name:'quantity',align:'center'},
+	        { header: '예약재고',name:'holdQty',align:'center'},
+	        { header: '가용재고',name:'currQty',align:'center'},
 	        { header: '수량',name:'qty',align:'center', editor: 'text'},
 	        { header: '위치',name:'locCode',align:'center'}
 	    ],
 	});
 	
+	// LOT선택된 후 그리드
 	subLot = new tui.Grid({
 	    el: document.getElementById('subGrid'),
 	    rowHeaders: ['rowNum'],
@@ -426,14 +464,8 @@ function insertGrid(){
 	        { header: '위치',name:'locCode',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
 	        { header: 'lot재고',name:'quantity',align:'center'},
-	        { header: '입력수량',name:'qty',align:'center'},
-	        { header: '변경수량',name:'reqqty',align:'center'
-	        	, formatter:(row)=>{
-	        		let val = row.row.quantity - row.row.qty;
-	        		return val
-	        	}
-	        	}
-	        
+	        { header: '입력재고',name:'qty',align:'center'},
+	        { header: '예약재고',name:'reqqty',align:'center'}
 	    ],
 	});
 	
@@ -457,6 +489,11 @@ function insertGrid(){
 				method:"GET"
 				,data: {comId, itemCode}
 			   ,success:function(result) {
+				   result.forEach((item)=>{
+					  let val = Number(item.quantity || 0);
+					  let val2 = Number(item.holdQty || 0);
+				   	item.currQty = val - val2;
+				   })
 					stklot.resetData(result);
 			    	$('#lotModal').modal('show');
 			   } 
@@ -494,8 +531,11 @@ function insertGrid(){
 		check.forEach((item)=>{
 			sum += Number(item.qty)
 		})
-		
+		// check된 행 검사.
 		for(let item of check){
+			item.qty = Number(item.qty);
+			item.quantity = Number(item.quantity);
+			item.currQty = Number(item.currQty);
 			if(item.qty == ""){
 				Swal.fire({
 					  icon: "error",
@@ -506,13 +546,20 @@ function insertGrid(){
 			}else if(item.quantity < item.qty){
 				Swal.fire({
 					  icon: "error",
-					  title: "수량이 많음!",
+					  title: "현재고 수량보다 많음!",
+					  text: "재고수량을 확인해주세요!"
+					});
+				return;
+			}
+			if(item.currQty < item.qty){
+				Swal.fire({
+					  icon: "error",
+					  title: "가용재고 수량보다 많음!",
 					  text: "재고수량을 확인해주세요!"
 					});
 				return;
 			}
 		}
-		
 		
 		// 발주서 수량과 비교
 		if(sum > rowData.quantity){
@@ -534,7 +581,7 @@ function insertGrid(){
 					lot: item.lot,
 					itemCode: item.itemCode,
 					itemName: item.itemName,
-					quantity: item.quantity,
+					quantity: item.qty,
 					price: item.price,
 					qty: item.qty,
 					locCode: item.locCode
@@ -546,6 +593,16 @@ function insertGrid(){
 		subLot.resetData(lotList.get(rowData.code))
 		$('#lotModal').modal('hide');
 	})
+	
+	// 행삭제 이벤트
+	$('#deleteBtn').on('click',()=>{
+		let check = holdGrid.getCheckedRows();
+		check.forEach((item)=>{
+		holdGrid.removeRow(item.rowKey);
+		lotList.delete(item.code);
+		})
+		subLot.resetData([]); 
+	});
 	
 	// 재고이동
 /* 	transfer = new tui.Grid({
@@ -568,6 +625,8 @@ function insertGrid(){
 	
 	// 저장 버튼 등록
 	$('#saveBtn').on('click',()=>{
+		let ch = holdGrid.getData();
+		if(ch.length > 0){
 			let param = [];
 			let lotparam = [];
 			for(let item of holdGrid.getData()){
@@ -594,7 +653,7 @@ function insertGrid(){
 				param.push(saveData)
 			}
 			// 등록
-			$.ajax({
+		$.ajax({
 				url:"/erp/inventory/inserthold",
 				method:"POST",
 				contentType: "application/json",
@@ -605,9 +664,16 @@ function insertGrid(){
 						  title: "홀드 완료!",
 						  text: "홀드가 완료되었습니다."
 						});
+					changeView('조회');
 				}
-			}) 
-			
+			})
+		}else{
+			Swal.fire({
+				  icon: "error",
+				  title: "저장하려는 데이터가 없습니다",
+				  text: "출하의뢰, 재고이동버튼으로 선택해주세요"
+				});
+		}
 		});// 등록함수 끝
 	
 } // 등록버튼 끝
