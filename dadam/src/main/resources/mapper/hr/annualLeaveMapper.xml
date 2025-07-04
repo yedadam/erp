@@ -23,14 +23,14 @@
     </update>
 
     <!-- [연차 단건 조회] 연차 단건 조회 -->
-    <select id="selectAnnualLeave" parameterType="map" resultType="com.dadam.hr.attendance.service.AnnualLeaveVO">
+    <select id="selectAnnualLeave" parameterType="map" resultType="AnnualLeaveVO">
         SELECT * FROM annualLeave
         WHERE leave_code = #{leaveCode}
           AND com_id = #{comId}
     </select>
 
     <!-- [연차 목록 조회] 연차 리스트 조회 -->
-    <select id="findAnnualLeaveList" parameterType="map" resultType="com.dadam.hr.attendance.service.AnnualLeaveVO">
+    <select id="selectAnnualLeaveList" parameterType="map" resultType="AnnualLeaveVO">
         SELECT * FROM annualLeave
         WHERE com_id = #{comId}
           <if test="empId != null and empId != ''">
