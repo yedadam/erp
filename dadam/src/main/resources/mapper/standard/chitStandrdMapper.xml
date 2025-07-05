@@ -6,7 +6,7 @@
 	   		 CHIT_TITLE,
 			 DEPT_CODE,
 			 PHY_EMP_ID,
-			 getEmpName(PHY_EMP_ID) emp_name,
+			 getEmpName(PHY_EMP_ID,#{comId}) emp_name,
 			 APPR_EMP_ID,
 		     STATUS,
 			 NOTE,

@@ -16,7 +16,7 @@
        TOT_SUP_PRICE,
        TOT_VAT_PRICE,
        TOT_AMT_SUM,
-       getEmpName(EMP_ID) empName,
+       getEmpName(EMP_ID,#{comId}) empName,
        getVdrName(VDR_CODE) vdrName,
        subCode(status) status
    FROM purchaseOrder
@@ -26,7 +26,7 @@
                 AND PUR_ORD_CODE LIKE '%'||#{value}||'%'
             </when>
             <when test="type.equals('empName')">
-            	 AND getEmpName(EMP_ID) LIKE '%'||#{value}||'%'
+            	 AND getEmpName(EMP_ID,#{comId}) LIKE '%'||#{value}||'%'
             </when>
             <when test="type.equals('vdrName')">
             	 AND getVdrName(VDR_CODE) LIKE '%'||#{value}||'%'
@@ -58,7 +58,7 @@
     SELECT PUR_REQ_CODE,
        	CREATED_DATE,
        	PUR_IN_DATE,
-        getEmpName(EMP_ID) empId,
+        getEmpName(EMP_ID,#{comId}) empId,
        	subCode(status) status,
        	NOTE,
        	COM_ID
@@ -73,7 +73,7 @@
             	 AND note LIKE '%'||#{value}||'%'
             </when>
             <when test="type.equals('empName')">
-            	 AND getEmpName(EMP_ID) LIKE '%'||#{value}||'%'
+            	 AND getEmpName(EMP_ID,#{comId}) LIKE '%'||#{value}||'%'
             </when>
    </choose>
  </select>

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.dadam.security.service.LoginUserAuthority;
 
 @Controller
-@RequestMapping("/erp/standard")
+@RequestMapping("/erp")
 public class ChitStandardFormComtroller {
 	
 	String comId = "com-101";
@@ -28,8 +28,26 @@ public class ChitStandardFormComtroller {
         }
     }
 	
-	@GetMapping("/chit")
-	public String chitListForm(Model model) {
+	@GetMapping("/sales/chit")
+	public String salesChitListForm(Model model) {
+		initAuthInfo();
+		model.addAttribute("deptId",deptCode);
+		return "/standard/chit";
+	}
+	@GetMapping("/accounting/chitList")
+	public String accountionChitListForm(Model model) {
+		initAuthInfo();
+		model.addAttribute("deptId",deptCode);
+		return "/standard/chit";
+	}
+	@GetMapping("/hr/chit")
+	public String hrChitListForm(Model model) {
+		initAuthInfo();
+		model.addAttribute("deptId",deptCode);
+		return "/standard/chit";
+	}
+	@GetMapping("/inventory/chit")
+	public String inventoryChitListForm(Model model) {
 		initAuthInfo();
 		model.addAttribute("deptId",deptCode);
 		return "/standard/chit";
