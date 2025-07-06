@@ -13,38 +13,63 @@ import com.dadam.common.JasperDownCommon;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * @author 신현욱
+ * @since 2025.06.24
+ * @desc 구독 관리자 화면 처리랑 보고서 출력 담당하는 컨트롤러임
+ * @history
+ *   - 2025.06.24  신현욱 : 최초 작성. 계약서 html 미리보기 기능 넣음
+ *   - 2025.06.25 신현욱 : Jasper 보고서 출력 기능 추가함
+ */
 @Controller
 @RequestMapping("/main")
 public class SubsManagerFormController {
-	
-	@GetMapping("/subManager")
-	public String subManagerForm() {
-		
-		return "/subscribe/manager";
-	}
-	
-	@GetMapping("/preview")
-	public String constPreview(@RequestParam String constImage) {
-	    return "contracts/" + constImage.replace(".html", "");
-	}
-	
-	@Autowired
-	private JasperDownCommon jasperDownCommon;
-	//등록
-	@RequestMapping("/report")
-	public ModelAndView report2(@RequestParam String subsCode , HttpServletResponse response) throws Exception
-	{
-		ModelAndView mv = new ModelAndView();
-		//뷰객체
-		mv.setView(jasperDownCommon);
-		//fileName
-		mv.addObject("filename", "/report/taxinvoice.jasper");
-		//파라미터 담을 저장소
-		HashMap<String, Object> map = new HashMap<>();
-		//파라미터값
-		map.put("p_subsCode", subsCode); 
-		//파라미터값 전달
-		mv.addObject("param", map);
-		return mv;
-	}
+
+    /**
+     * @desc 구독 관리자 페이지로 이동
+     * @return String : 뷰 이름 (/subscribe/manager)
+     */
+    @GetMapping("/subManager")
+    public String subManagerForm() {
+        return "/subscribe/manager";
+    }
+
+    /**
+     * @desc 계약서 html 미리보기 기능
+     * @param constImage : 계약서 파일명 (예: contract1.html)
+     * @return String : contracts 폴더 안에 html 뷰 이름 리턴
+     * @implNote ".html" 확장자 제거해서 thymeleaf 뷰로 인식하게 처리함
+     */
+    @GetMapping("/preview")
+    public String constPreview(@RequestParam String constImage) {
+        return "contracts/" + constImage.replace(".html", "");
+    }
+
+    @Autowired
+    private JasperDownCommon jasperDownCommon;
+
+    /**
+     * @desc Jasper보고서 다운로드 처리
+     * @param subsCode : 구독 코드
+     * @param response : HttpServletResponse
+     * @return ModelAndView : jasperDownCommon 뷰로 파일 내려줌
+     * @throws Exception 예외 발생 시 던짐
+     */
+    @RequestMapping("/report")
+    public ModelAndView report2(@RequestParam String subsCode , HttpServletResponse response) throws Exception {
+        ModelAndView mv = new ModelAndView();
+
+        // jasper 커스텀뷰 세팅
+        mv.setView(jasperDownCommon);
+
+        // 보고서 템플릿경로 지정
+        mv.addObject("filename", "/report/taxinvoice.jasper");
+
+        // 보고서 파라미터 넣기
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("p_subsCode", subsCode);
+        mv.addObject("param", map);
+
+        return mv;
+    }
 }

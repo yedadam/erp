@@ -14,7 +14,13 @@ import com.dadam.acc.account.service.ChitVO;
 import com.dadam.common.service.GridData;
 import com.dadam.standard.item.service.ChitStandardService;
 import com.dadam.standard.item.service.MoneyVO;
-
+/**
+ * @author 신현욱
+ * @since 2025.06.30
+ * @desc 전표 및 금액 관련 REST API 컨트롤러
+ * @history
+ *   - 2025.07.03 신현욱: 최초 작성 (각 페이지 전표 생성 구성)
+ */
 @RestController
 @RequestMapping("/erp")
 public class ChitStandardRestController {

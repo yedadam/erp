@@ -309,32 +309,6 @@ $('.pay-btn').on('click', async function () {
       alert('전자서명을 해주세요.');
       return;
     }
-      //v2 버전 <- 빌링키 발급 실패....
-     /* PortOne.requestIssueBillingKeyAndPay({
-    	  storeId: "store-4846b449-e5f5-4361-8b62-aed9767b5d57", // 고객사 storeId로 변경해주세요.
-    	  channelKey: "channel-key-7521ed20-411c-4880-8791-7424b2d9dd55", // 콘솔에서 발급된 채널키 입력
-    	  paymentId: "inicis_" + Date.now(), 
-    	  payMethod: "EASY_PAY",
-    	  billingKeyAndPayMethod: "PHONE",
-    	  customerKey: "user_123456", // 고객 구분용 키 (내 서비스에서 고객을 구분하는 ID)
-    	  orderName: "나이키 와플 트레이너 2 SD",
-    	  totalAmount: 1000,
-    	  currency: "KRW",
-    	  customer: {
-    	    fullName: "포트원",
-    	    phoneNumber: "010-0000-1234",
-    	    email: "test@portone.io",
-    	  },
-    	  success: function(response) {
-    	    console.log("빌링키 발급 성공", response);
-    	    console.log('e')
-    	    // response.billingKey 에 빌링키가 들어있음
-    	  },
-    	  fail: function(error) {
-    	    console.error("빌링키 발급 실패", error);
-    	    console.log('qwe')
-    	  }
-    	});  */
      // 결제 넣으곳
     IMP.init('imp77256221'); // 고객사
     IMP.request_pay({
@@ -361,7 +335,7 @@ $('.pay-btn').on('click', async function () {
         //빌링키
         let custo
         // canvas와 버튼을 <img>로 교체
-        let signatureImgTag = `<img src="/signatures/${fileName}.png" alt="서명 이미지" style="width: 200px; height: auto;">`;
+        let signatureImgTag = `<img src="/signatures/${fileName}.png" style="width: 200px; height: auto;">`;
         htmlContent = htmlContent
           .replace(/<canvas[^>]*>[\s\S]*?<\/canvas>/, signatureImgTag)
           .replace(/<button[^>]*class="clear-signature-btn"[^>]*>[\s\S]*?<\/button>/, '');

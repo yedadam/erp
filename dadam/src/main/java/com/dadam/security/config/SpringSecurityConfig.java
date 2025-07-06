@@ -12,7 +12,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
+/**
+ * @author 신현욱
+ * @since 2025.06.25
+ * @desc 스프링 시큐리티 설정 클래스 (필터체인 2개 구성)
+ * @history
+ *   - 2025.06.25 신현욱 : 로그인 및 권한은 일단 다 열기
+ *   - 2025.07.02 신현욱 : 권한 처리 및 에러페이지 redirect 추가
+ */
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityConfig {
@@ -70,7 +77,7 @@ public class SpringSecurityConfig {
             ) 
             
              
-            .csrf(csrf -> csrf.disable()) // API나 개발 환경에서만 사용
+            .csrf(csrf -> csrf.disable()) 
             
             // iframe 보안 설정
             .headers(headers -> headers
@@ -78,7 +85,7 @@ public class SpringSecurityConfig {
             )
             
             
-            // 예외 처리 (선택사항)
+            // 예외 처리
             .exceptionHandling(exceptions -> exceptions
                 .accessDeniedPage("/error/403")
             );
@@ -136,7 +143,7 @@ public class SpringSecurityConfig {
             )
             //back 프론트 cors  
             // CSRF 보호 (필요에 따라 비활성화)
-            .csrf(csrf -> csrf.disable()) // API나 개발 환경에서만 사용
+            .csrf(csrf -> csrf.disable()) 
             
             // iframe 보안 설정
             .headers(headers -> headers

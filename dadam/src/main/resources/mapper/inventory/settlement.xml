@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.inventory.settlement.mapper.SettlementMapper">
+  <select id="settleEmployeesList">
+    SELECT  e.emp_id,
+            emp_name,        
+            d.dept_code,
+            dept_name,
+            getSubCode(position) position
+     FROM employees e JOIN departments d  ON (e.dept_code = d.dept_code)
+     WHERE d.dept_code = 'de1004'
+     AND d.com_id = #{comId}
+  </select>
+   
+   <select id="autoSettlementList">
+   		WITH latest_settlement AS (
+		  SELECT item_code, after_quantity, after_price, set_code
+		  FROM (
+		    SELECT item_code, after_quantity, after_price, set_code,
+		           ROW_NUMBER() OVER (PARTITION BY item_code ORDER BY set_code DESC) AS rn
+		    FROM settlementdetail
+		  )
+		  WHERE rn = 1
+		)
+		
+		SELECT i.item_code,
+		       i.name,
+		       NVL(ls.after_quantity, 0) AS pre_quantity,
+		       NVL(ls.after_quantity, 0) * i.price AS pre_price,
+		       NVL(SUM(p.quantity), 0) AS pur_quantity,
+		       NVL(SUM(od.quantity), 0) AS del_quantity,
+		       NVL(SUM(j.ajd_qty), 0) AS adj_quantity,
+		       NVL(ls.after_quantity, 0)
+		         + NVL(SUM(p.quantity), 0)
+		         - NVL(SUM(od.quantity), 0)
+		         - NVL(SUM(j.ajd_qty), 0) AS after_quantity,
+		       (NVL(ls.after_quantity, 0)
+		         + NVL(SUM(p.quantity), 0)
+		         - NVL(SUM(od.quantity), 0)
+		         - NVL(SUM(j.ajd_qty), 0)) * i.price AS after_price
+		FROM item i 
+		LEFT JOIN purchase p ON i.item_code = p.item_code
+		                     AND TO_CHAR(p.created_date, 'YYYY-MM') = TO_CHAR(SYSDATE, 'YYYY-MM')
+		LEFT JOIN outboundDetail od ON i.item_code = od.item_code
+		LEFT JOIN outbound o ON o.out_code = od.out_code
+		                     AND TO_CHAR(o.created_date, 'YYYY-MM') = TO_CHAR(SYSDATE, 'YYYY-MM')
+		LEFT JOIN adjust j ON i.item_code = j.item_code
+		                   AND TO_CHAR(j.created_date, 'YYYY-MM') = TO_CHAR(SYSDATE, 'YYYY-MM')
+		LEFT JOIN settlementdetail sd ON i.item_code = sd.item_code
+		LEFT JOIN latest_settlement ls ON i.item_code = ls.item_code
+		LEFT JOIN settlement s ON s.set_code = sd.set_code
+		                      AND s.set_code = ls.set_code
+		WHERE i.com_id = #{comId}
+		GROUP BY i.item_code, ls.after_quantity, i.price,i.name
+		ORDER BY i.item_code
+   </select>
+   
+   <insert id="settlementMainAdd">
+     <selectKey resultType="string" keyProperty="setCode" order="BEFORE">
+			SELECT 'set-' || (NVL(MAX(TO_NUMBER(SUBSTR(set_code,5))),100)+1) set_code
+			FROM settlement
+		</selectKey>
+     INSERT INTO settlement (set_code,
+                                dept_code,
+                                emp_id,
+                                created_date,
+                                status,
+                                com_id)
+                                
+        VALUES (#{setCode},'de1004',#{empId},sysdate,'st001',#{comId})
+   </insert>
+   <insert id="settlementDtlAdd">
+      <selectKey resultType="string" keyProperty="setDtlCode" order="BEFORE">
+			SELECT 'sdt-' || (NVL(MAX(TO_NUMBER(SUBSTR(SET_DTL_CODE,5))),100)+1)
+			FROM settlementDetail
+		</selectKey>
+      INSERT INTO settlementDetail (SET_DTL_CODE,
+                                        ITEM_CODE,
+                                        PRE_QUANTITY,
+                                        PRE_PRICE,
+                                        PUR_QUANTITY,
+                                        DEL_QUANTITY,
+                                        ADJ_QUANTITY,
+                                        AFTER_QUANTITY,
+                                        AFTER_PRICE,
+                                        SET_CODE,
+                                        COM_ID)
+        VALUES (#{setDtlCode},#{itemCode},#{preQuantity},#{prePrice},#{purQuantity},#{delQuantity},#{adjQuantity},#{afterQuantity},#{afterPrice},#{setCode},#{comId})
+   </insert>
+   <insert id="eleAdd">
+    <selectKey resultType="string" keyProperty="elecCode" order="BEFORE">
+			SELECT 'ele-' || (NVL(MAX(TO_NUMBER(SUBSTR(elec_code,5))),100)+1)
+			FROM electronic
+		</selectKey>
+     INSERT INTO electronic(elec_code,
+                        	doc_type,
+                        	pk_code,
+                        	file_image,
+                        	created_date,
+                        	approve_status,
+                        	req_id,
+                        	app_id,
+                        	com_id,
+                        	proceed_num,
+                        	dept_code)
+	VALUES (#{elecCode},'dc1004',#{pkCode},#{fileImage},sysdate,#{approveStatus},#{reqId},#{appId},#{comId},#{proceedNum},'de1004')
+   </insert>
+   
+   <select id="settleList">
+     SELECT set_code,
+       getEmpName(s.emp_id,#{comId}) emp_name,
+       s.created_date,
+       s.status,
+       file_image
+	FROM settlement s JOIN electronic e ON (s.set_code = e.pk_code)
+	WHERE s.com_id =#{comId}
+	<choose>
+            <when test="type.equals('setCode')">
+                AND set_code LIKE '%'||#{value}||'%'
+            </when>
+            <when test="type.equals('empName')">
+            	 AND getEmpName(EMP_ID,#{comId}) LIKE '%'||#{value}||'%'
+            </when>
+   </choose>
+	GROUP BY set_code,
+       s.emp_id,  
+       s.created_date,
+       s.status,
+       file_image
+   </select>
+   
+   <select id="mineEle">
+      SELECT ELEC_CODE,
+        DOC_TYPE,
+        PK_CODE,
+        FILE_IMAGE,
+        CREATED_DATE,
+        APPROVE_STATUS,
+        RESECT_REASON,
+        REQ_ID,
+        APP_ID,
+        COM_ID,
+        DEPT_CODE,
+        getEmpName(REQ_ID,#{comId}) emp_name,
+        PROCEED_NUM
+	FROM electronic
+	WHERE APP_ID = #{appId}
+	AND APPROVE_STATUS='ap02'
+	AND com_id = #{comId}
+   </select>
+   
+   <!-- 상태변경 프로시저  -->
+    <update id="prcEletronicUpdate" parameterType="SettlementVO">
+      { CALL prc_eletronic_update( #{elecCode, mode=IN, jdbcType=VARCHAR},
+      								#{pkCode, mode=IN, jdbcType=VARCHAR},
+      								#{appId, mode=IN, jdbcType=VARCHAR},
+      								#{comId, mode=IN, jdbcType=VARCHAR},
+      								#{approveStatus, mode=IN, jdbcType=VARCHAR}
+      )}
+    </update>
+</mapper>
