@@ -38,33 +38,36 @@ public class OrderServiceImpl implements OrderService {
 	// 전체조회
 	@Override
 	public List<OrdersVO> findOrderList(String type,String value) {
+		initAuthInfo(); 
 		List<OrdersVO> result = orderMapper.findOrderList(type,value,comId);
 		return result;
 	}
 
 	@Override
 	public List<OrdDtlVO> findOrdListByOrdNo(String ordCode) {
+		initAuthInfo(); 
 		List<OrdDtlVO> result = orderMapper.findOrdListByOrdNo(ordCode);
 		return result;
 	}
 
 	@Override
 	public int orderInsert(OrdReqVO ord) {
-
+		initAuthInfo(); 
 		ord.getOrd().setComId(comId);
+	
 		orderMapper.orderInsert(ord.getOrd());
 		
 		String vdrCode = ord.getOrd().getVdrCode(); // vdrCode 거래처코드
 		Long totPrice = ord.getOrd().getTotPrice(); // totPrice
-		// 외상매입금일경우 여신차감
-		
-			orderMapper.updateCreditBal(totPrice, vdrCode,comId);
+		// 외상매입금일경우 여신차감-> 모든 지불방식인 경우에 여신잔량 깎는걸로 변경 
+		orderMapper.updateCreditBal(totPrice, vdrCode,comId);
 
 		return 0;
 	}
 
 	@Override
 	public int removeOrders(String ordCode) {
+		initAuthInfo(); 
 		orderMapper.callUpdateCreditBalanceIfOpm(ordCode); //주문삭제후 해당 거래처의 여신잔량을 주문금액 만큼 + 처리하게함
 		orderMapper.deleteOrders(ordCode,comId); // 주문삭제
 		return 0;
@@ -72,6 +75,7 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public int updOrder(OrdersVO ord) {
+		initAuthInfo();
 		ord.setComId(comId);
 		orderMapper.updOrder(ord); // 주문수정하기
 		return 0;
@@ -79,6 +83,7 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public int updOrdDtl(OrdDtlVO dtl) {
+		initAuthInfo();
 		String ordCode=dtl.getOrdCode(); // ord-101 프론트에서 ordCode 받아와야 함 
 		System.out.println("ordCode 잘 받아오는지 확인하기 !!!!"+ordCode);
 		dtl.setComId(comId);
@@ -89,13 +94,25 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public int deleteOrdDtl(String ordDtlCode) {
+		initAuthInfo();
 		orderMapper.deleteOrdDtl(ordDtlCode,comId);	
 		return 0;
 	}		
 	@Override
 	public int ordDtlInsert(OrdReqVO req) {
+		initAuthInfo();
+		//새로추가된 주문행 
 		for (int i = 0; i < req.getDtl().getCreatedRows().size(); i++) {
+			req.getDtl().getCreatedRows().get(i).setComId(comId); //comId 확인하기 
 			orderMapper.odtlInsert(req.getDtl().getCreatedRows().get(i));
+		}
+		String ordCode=req.getOrd().getOrdCode(); //주문코드헤더에서 방아옴 
+		System.out.println("주문번호"+ordCode);
+		//주문등록할때 updated된 행도 주문등록해줘야함 
+		for (int i = 0; i < req.getDtl().getUpdatedRows().size(); i++) {
+			req.getDtl().getUpdatedRows().get(i).setComId(comId); //comId 확인하기 
+			req.getDtl().getUpdatedRows().get(i).setOrdCode(ordCode); //주문번호 부여해주기
+			orderMapper.odtlInsert(req.getDtl().getUpdatedRows().get(i));
 		}
 		return 0;
 	}
