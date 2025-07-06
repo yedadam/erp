@@ -1,43 +1,65 @@
 package com.dadam.hr.salary.service;
 
-import java.util.Date;
+import lombok.Data;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * 급여명세서 VO
- * - 급여1~10, 기본급, 수당, 공제, 근태, 실지급액 등 포함
- * - 회사별 커스터마이징을 위해 확장성 고려
+ * - 근태 기반 급여 계산을 위한 개선된 구조
  */
+@Data
 public class SalaryStatementVO {
     /** 명세서 ID */
     private Long id;
+    /** 회사ID */
+    private String comId;
     /** 사원 ID */
-    private Long empId;
+    private String empId;
     /** 지급년월 */
     private String payMonth;
     /** 기본급 */
-    private int baseSalary;
-    /** 급여1~10 (회사별 매핑) */
-    private int salary1;
-    private int salary2;
-    private int salary3;
-    private int salary4;
-    private int salary5;
-    private int salary6;
-    private int salary7;
-    private int salary8;
-    private int salary9;
-    private int salary10;
+    private BigDecimal baseSalary;
+    /** 근무일수 */
+    private Integer workDays;
+    /** 실제근무일수 */
+    private Integer actualWorkDays;
+    /** 정상출근일수 */
+    private Integer normalDays;
+    /** 지각일수 */
+    private Integer lateDays;
+    /** 조퇴일수 */
+    private Integer earlyLeaveDays;
+    /** 결근일수 */
+    private Integer absentDays;
+    /** 연장근무시간 */
+    private BigDecimal overtimeHours;
+    /** 연장근무수당 */
+    private BigDecimal overtimePay;
+    /** 지각공제 */
+    private BigDecimal lateDeduction;
+    /** 조퇴공제 */
+    private BigDecimal earlyLeaveDeduction;
+    /** 결근공제 */
+    private BigDecimal absentDeduction;
+    /** 연차수당 */
+    private BigDecimal annualLeavePay;
     /** 수당 총액 */
-    private int allowanceTotal;
+    private BigDecimal allowanceTotal;
     /** 공제 총액 */
-    private int deductionTotal;
-    /** 근태(지각, 결근 등) */
-    private int attendance;
-    /** 실지급액 */
-    private int netPay;
+    private BigDecimal deductionTotal;
+    /** 실수령액 */
+    private BigDecimal netPay;
     /** 생성일 */
-    private Date createdDate;
+    private LocalDateTime createdDate;
     /** 수정일 */
-    private Date updatedDate;
-    // getter/setter 생략 (lombok 사용시 @Data 등 적용)
+    private LocalDateTime updatedDate;
+    
+    // 조회용 필드
+    /** 사원명 */
+    private String empName;
+    /** 부서명 */
+    private String deptName;
+    /** 직급명 */
+    private String positionName;
 } 

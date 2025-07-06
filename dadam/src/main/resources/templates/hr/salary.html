@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/default_layout}">
+<head>
+    <title>급여명세서</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background: #f6f8fa; }
+        .salary-box-wrap {
+            width: 100vw; min-height: 80vh; display: flex; justify-content: center; align-items: center;
+        }
+        .salary-box {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px #e0e7ef33;
+            border: 1.5px solid #e5e7eb;
+            max-width: 480px;
+            width: 100%;
+            padding: 36px 32px 28px 32px;
+            font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+        }
+        .salary-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 10px;
+            border-bottom: 1.5px solid #2563eb;
+            padding-bottom: 8px;
+            letter-spacing: 0.01em;
+        }
+        .salary-emp-info {
+            text-align: center;
+            font-size: 1.07rem;
+            color: #222;
+            margin-bottom: 18px;
+        }
+        .salary-emp-info span { margin: 0 6px; }
+        .salary-table {
+            width: 100%;
+            margin-bottom: 10px;
+            border-collapse: collapse;
+            background: #f8fafc;
+        }
+        .salary-table th, .salary-table td {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 1.04rem;
+        }
+        .salary-table th {
+            background: #e8f0fe;
+            color: #2563eb;
+            font-weight: 700;
+            border-bottom: 2px solid #2563eb;
+        }
+        .salary-table tr:not(:last-child) td {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .salary-table td.negative { color: #ef4444; }
+        .salary-table td.positive { color: #22c55e; }
+        .salary-table td.total {
+            color: #2563eb;
+            font-size: 1.15rem;
+            font-weight: 800;
+            background: #f1f5f9;
+            border-top: 2px solid #2563eb;
+        }
+        .salary-table .divider-row td {
+            border-bottom: 2px solid #2563eb;
+            padding: 0;
+            height: 0.5rem;
+            background: transparent;
+        }
+        .salary-btns {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .salary-footer {
+            font-size: 0.95rem;
+            color: #64748b;
+            text-align: left;
+            margin-top: 10px;
+        }
+        @media (max-width: 600px) {
+            .salary-box { padding: 12px 2px; }
+            .salary-title { font-size: 1.05rem; }
+            .salary-emp-info { font-size: 0.97rem; }
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="Content">
+        <div class="salary-box-wrap">
+            <div class="salary-box">
+                <div class="salary-title" id="salaryTitle">2025년 07월 급여명세서</div>
+                <div class="salary-emp-info">
+                    <span><b>홍길동</b></span>
+                    <span>사번: 20230001</span>
+                    <span>인사팀/대리</span>
+                </div>
+                <table class="salary-table" id="salaryTable">
+                    <thead>
+                        <tr><th>항목</th><th>금액</th></tr>
+                    </thead>
+                    <tbody>
+                        <!-- 급여명세서 데이터 렌더링 -->
+                    </tbody>
+                </table>
+                <div class="salary-btns">
+                    <select id="salaryMonth" class="form-select form-select-sm" style="width: 120px; display:inline-block;"></select>
+                    <button class="btn btn-primary btn-sm" id="btnSalarySearch">조회</button>
+                    <button class="btn btn-outline-secondary btn-sm" id="btnSalaryPdf">PDF 다운로드</button>
+                </div>
+                <div class="salary-footer">
+                    ※ 급여명세서는 회사 정책에 따라 다를 수 있습니다.<br>
+                    문의: 인사팀 02-1234-5678, hr@company.com
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+// 더미 데이터
+const salaryData = {
+    '2025-07': [
+        { label: '기본급', value: 2000000 },
+        { label: '직책수당', value: 200000 },
+        { label: '식대수당', value: 100000 },
+        { label: '4대보험', value: -150000 },
+        { label: '소득세', value: -30000 },
+        { divider: true },
+        { label: '실수령액', value: 2120000, total: true }
+    ],
+    '2025-06': [
+        { label: '기본급', value: 2000000 },
+        { label: '직책수당', value: 200000 },
+        { label: '식대수당', value: 100000 },
+        { label: '4대보험', value: -150000 },
+        { label: '소득세', value: -32000 },
+        { divider: true },
+        { label: '실수령액', value: 2118000, total: true }
+    ]
+};
+function renderSalaryTable(month) {
+    const data = salaryData[month] || [];
+    const tbody = document.querySelector('#salaryTable tbody');
+    tbody.innerHTML = '';
+    data.forEach(item => {
+        if (item.divider) {
+            const tr = document.createElement('tr');
+            tr.className = 'divider-row';
+            const td1 = document.createElement('td');
+            const td2 = document.createElement('td');
+            tr.appendChild(td1); tr.appendChild(td2);
+            tbody.appendChild(tr);
+            return;
+        }
+        const tr = document.createElement('tr');
+        const th = document.createElement('td');
+        th.textContent = item.label;
+        const td = document.createElement('td');
+        td.textContent = item.value.toLocaleString() + '원';
+        if (item.total) td.className = 'total';
+        else if (item.value < 0) td.className = 'negative';
+        else if (item.value > 0) td.className = 'positive';
+        tr.appendChild(th);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+    });
+}
+function renderMonthOptions() {
+    const select = document.getElementById('salaryMonth');
+    select.innerHTML = '';
+    Object.keys(salaryData).sort().reverse().forEach(month => {
+        const option = document.createElement('option');
+        option.value = month;
+        option.textContent = month.replace('-', '년 ') + '월';
+        select.appendChild(option);
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    renderMonthOptions();
+    renderSalaryTable(document.getElementById('salaryMonth').value);
+    document.getElementById('btnSalarySearch').onclick = function() {
+        renderSalaryTable(document.getElementById('salaryMonth').value);
+        document.getElementById('salaryTitle').textContent = document.getElementById('salaryMonth').selectedOptions[0].text + ' 급여명세서';
+    };
+    document.getElementById('salaryMonth').onchange = function() {
+        renderSalaryTable(this.value);
+        document.getElementById('salaryTitle').textContent = this.selectedOptions[0].text + ' 급여명세서';
+    };
+    document.getElementById('btnSalaryPdf').onclick = function() {
+        alert('PDF 다운로드 기능은 추후 구현됩니다.');
+    };
+});
+</script>
+</body>
+</html> 

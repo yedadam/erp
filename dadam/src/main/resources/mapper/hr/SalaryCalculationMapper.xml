@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.hr.salary.mapper.SalaryCalculationMapper">
+
+    <!--
+        급여 계산 Mapper(XML)
+        - getBaseSalary: 사원 기본급 조회
+        - getWorkDays: 근무일수 계산
+        - getLateEarlyDeduction: 지각/조퇴 공제 계산
+        - getAnnualLeavePay: 연차수당 계산
+        - getOvertimePay: 연장근무수당 계산
+        - insertSalaryPayment: 급여 지급 등록
+        - updateSalaryPayment: 급여 지급 수정
+        - getSalaryPayment: 급여 지급 상세 조회
+        - getSalaryPaymentList: 급여 지급 목록 조회
+        - getSalaryStatistics: 급여 통계 조회
+        - getSalaryPaymentHistory: 급여 지급 이력 조회
+    -->
+
+    <!-- [사원 기본급 조회] 사원의 기본급 조회 -->
+    <select id="getBaseSalary" parameterType="map" resultType="double">
+        SELECT NVL(sal, 0) AS base_salary
+        FROM employees
+        WHERE emp_id = #{empId}
+          AND com_id = #{comId}
+    </select>
+
+    <!-- [근무일수 계산] 출근일수, 지각일수, 조퇴일수, 결근일수 계산 -->
+    <select id="getWorkDays" parameterType="map" resultType="map">
+        SELECT 
+            COUNT(*) AS total_days,
+            COUNT(CASE WHEN actual_start_time IS NOT NULL THEN 1 END) AS work_days,
+            COUNT(CASE WHEN status = 'LATE' THEN 1 END) AS late_days,
+            COUNT(CASE WHEN status = 'EARLY' THEN 1 END) AS early_leave_days,
+            COUNT(CASE WHEN status = 'ABSENT' THEN 1 END) AS absent_days,
+            COUNT(CASE WHEN actual_start_time IS NULL AND status != 'ABSENT' THEN 1 END) AS not_worked_days
+        FROM attendance
+        WHERE emp_id = #{empId}
+          AND com_id = #{comId}
+          AND work_date LIKE #{payMonth} || '%'
+    </select>
+
+    <!-- [지각/조퇴 공제 계산] 지각/조퇴에 따른 공제 계산 -->
+    <select id="getLateEarlyDeduction" parameterType="map" resultType="map">
+        SELECT 
+            COUNT(CASE WHEN status = 'LATE' THEN 1 END) AS late_count,
+            COUNT(CASE WHEN status = 'EARLY' THEN 1 END) AS early_count,
+            SUM(CASE WHEN status = 'LATE' THEN 1 ELSE 0 END) * 10000 AS late_deduction,
+            SUM(CASE WHEN status = 'EARLY' THEN 1 ELSE 0 END) * 10000 AS early_deduction
+        FROM attendance
+        WHERE emp_id = #{empId}
+          AND com_id = #{comId}
+          AND work_date LIKE #{payMonth} || '%'
+    </select>
+
+    <!-- [연차수당 계산] 연차 사용에 따른 수당 계산 -->
+    <select id="getAnnualLeavePay" parameterType="map" resultType="double">
+        SELECT 
+            NVL(SUM(used_days) * 50000, 0) AS annual_leave_pay
+        FROM annual_leave
+        WHERE emp_id = #{empId}
+          AND com_id = #{comId}
+          AND leave_date LIKE #{payMonth} || '%'
+          AND status = 'APPROVED'
+    </select>
+
+    <!-- [연장근무수당 계산] 연장근무 시간에 따른 수당 계산 -->
+    <select id="getOvertimePay" parameterType="map" resultType="double">
+        SELECT 
+            NVL(SUM(overtime_hrs) * 15000, 0) AS overtime_pay
+        FROM attendance
+        WHERE emp_id = #{empId}
+          AND com_id = #{comId}
+          AND work_date LIKE #{payMonth} || '%'
+          AND overtime_hrs > 0
+    </select>
+
+    <!-- [급여 지급 등록] 급여 지급 정보 등록 -->
+    <insert id="insertSalaryPayment" parameterType="map">
+        <selectKey resultType="long" keyProperty="paymentId" order="BEFORE">
+            SELECT NVL(MAX(payment_id), 1000) + 1 FROM salary_payment
+        </selectKey>
+        INSERT INTO salary_payment (
+            payment_id, com_id, statement_id, emp_id, pay_month, pay_date, pay_amount,
+            pay_method, bank_name, account_number, pay_status, created_at, updated_at
+        ) VALUES (
+            #{paymentId}, #{comId}, #{statementId}, #{empId}, #{payMonth}, #{payDate}, #{payAmount},
+            #{payMethod}, #{bankName}, #{accountNumber}, #{payStatus}, SYSDATE, SYSDATE
+        )
+    </insert>
+
+    <!-- [급여 지급 수정] 급여 지급 정보 수정 -->
+    <update id="updateSalaryPayment" parameterType="map">
+        UPDATE salary_payment
+        SET pay_status = #{payStatus},
+            approver_id = #{approverId},
+            approved_at = SYSDATE,
+            reject_reason = #{rejectReason},
+            updated_at = SYSDATE
+        WHERE payment_id = #{paymentId}
+          AND com_id = #{comId}
+    </update>
+
+    <!-- [급여 지급 상세 조회] 급여 지급 상세 정보 조회 -->
+    <select id="getSalaryPayment" parameterType="map" resultType="map">
+        SELECT 
+            sp.*,
+            getEmpName(sp.emp_id, #{comId}) AS emp_name,
+            getDeptName(e.dept_code) AS dept_name,
+            getEmpName(sp.approver_id, #{comId}) AS approver_name
+        FROM salary_payment sp
+        LEFT JOIN employees e ON sp.emp_id = e.emp_id AND sp.com_id = e.com_id
+        WHERE sp.payment_id = #{paymentId}
+          AND sp.com_id = #{comId}
+    </select>
+
+    <!-- [급여 지급 목록 조회] 급여 지급 목록 조회 -->
+    <select id="getSalaryPaymentList" parameterType="map" resultType="map">
+        SELECT 
+            sp.*,
+            getEmpName(sp.emp_id, #{comId}) AS emp_name,
+            getDeptName(e.dept_code) AS dept_name,
+            getEmpName(sp.approver_id, #{comId}) AS approver_name
+        FROM salary_payment sp
+        LEFT JOIN employees e ON sp.emp_id = e.emp_id AND sp.com_id = e.com_id
+        <where>
+            sp.com_id = #{comId}
+            <if test="empId != null and empId != ''">
+                AND sp.emp_id = #{empId}
+            </if>
+            <if test="payMonth != null and payMonth != ''">
+                AND sp.pay_month = #{payMonth}
+            </if>
+            <if test="payStatus != null and payStatus != ''">
+                AND sp.pay_status = #{payStatus}
+            </if>
+        </where>
+        ORDER BY sp.pay_month DESC, sp.emp_id
+    </select>
+
+    <!-- [급여 통계 조회] 급여 지급 통계 조회 -->
+    <select id="getSalaryStatistics" parameterType="map" resultType="map">
+        SELECT 
+            COUNT(*) AS total_payments,
+            COUNT(CASE WHEN pay_status = 'PAID' THEN 1 END) AS paid_count,
+            COUNT(CASE WHEN pay_status = 'PENDING' THEN 1 END) AS pending_count,
+            COUNT(CASE WHEN pay_status = 'REJECTED' THEN 1 END) AS rejected_count,
+            SUM(CASE WHEN pay_status = 'PAID' THEN pay_amount ELSE 0 END) AS total_paid_amount,
+            AVG(CASE WHEN pay_status = 'PAID' THEN pay_amount END) AS avg_paid_amount
+        FROM salary_payment sp
+        LEFT JOIN employees e ON sp.emp_id = e.emp_id AND sp.com_id = e.com_id
+        WHERE sp.com_id = #{comId}
+          AND sp.pay_month = #{payMonth}
+        <if test="deptCode != null and deptCode != ''">
+            AND e.dept_code = #{deptCode}
+        </if>
+    </select>
+
+    <!-- [급여 지급 이력 조회] 급여 지급 이력 조회 -->
+    <select id="getSalaryPaymentHistory" parameterType="map" resultType="map">
+        SELECT 
+            sp.*,
+            getEmpName(sp.emp_id, #{comId}) AS emp_name,
+            getDeptName(e.dept_code) AS dept_name,
+            getEmpName(sp.approver_id, #{comId}) AS approver_name
+        FROM salary_payment sp
+        LEFT JOIN employees e ON sp.emp_id = e.emp_id AND sp.com_id = e.com_id
+        WHERE sp.com_id = #{comId}
+          AND sp.pay_month BETWEEN #{fromMonth} AND #{toMonth}
+        <if test="empId != null and empId != ''">
+            AND sp.emp_id = #{empId}
+        </if>
+        ORDER BY sp.pay_month DESC, sp.emp_id
+    </select>
+
+</mapper> 

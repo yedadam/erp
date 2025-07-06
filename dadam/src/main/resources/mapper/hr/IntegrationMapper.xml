@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.hr.integration.mapper.IntegrationMapper">
+
+    <!-- 사원 수 조회 -->
+    <select id="getEmployeeCount" parameterType="string" resultType="int">
+        SELECT COUNT(*) 
+        FROM employee 
+        WHERE comId = #{comId}
+    </select>
+    
+    <!-- 활성 사원 수 조회 -->
+    <select id="getActiveEmployeeCount" parameterType="string" resultType="int">
+        SELECT COUNT(*) 
+        FROM employee 
+        WHERE comId = #{comId} 
+        AND status = 'ACTIVE'
+    </select>
+    
+    <!-- 근태 데이터 수 조회 -->
+    <select id="getAttendanceCount" parameterType="string" resultType="int">
+        SELECT COUNT(*) 
+        FROM attendance 
+        WHERE comId = #{comId}
+    </select>
+    
+    <!-- 오늘 근태 데이터 수 조회 -->
+    <select id="getTodayAttendanceCount" parameterType="string" resultType="int">
+        SELECT COUNT(*) 
+        FROM attendance 
+        WHERE comId = #{comId} 
+        AND DATE(workDate) = CURDATE()
+    </select>
+    
+    <!-- 급여 데이터 수 조회 -->
+    <select id="getSalaryCount" parameterType="string" resultType="int">
+        SELECT COUNT(*) 
+        FROM salary_payment 
+        WHERE comId = #{comId}
+    </select>
+    
+    <!-- 이번 달 급여 데이터 수 조회 -->
+    <select id="getThisMonthSalaryCount" parameterType="string" resultType="int">
+        SELECT COUNT(*) 
+        FROM salary_payment 
+        WHERE comId = #{comId} 
+        AND DATE_FORMAT(payMonth, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
+    </select>
+    
+    <!-- 사원 정보 조회 -->
+    <select id="getEmployeeInfo" parameterType="map" resultType="map">
+        SELECT 
+            empId,
+            empName,
+            deptCode,
+            position,
+            authority,
+            status,
+            hireDate,
+            phone,
+            email
+        FROM employee 
+        WHERE empId = #{empId} 
+        AND comId = #{comId}
+    </select>
+    
+    <!-- 부서 정보 조회 -->
+    <select id="getDepartmentInfo" parameterType="map" resultType="map">
+        SELECT 
+            deptCode,
+            deptName,
+            parentDeptCode,
+            deptLevel,
+            status
+        FROM department 
+        WHERE deptCode = #{deptCode} 
+        AND comId = #{comId}
+    </select>
+    
+    <!-- 월별 근태 데이터 조회 -->
+    <select id="getAttendanceByMonth" parameterType="map" resultType="map">
+        SELECT 
+            workDate,
+            workInTime,
+            workOutTime,
+            workStatus,
+            overtimeHour,
+            lateMinute,
+            earlyLeaveMinute,
+            note
+        FROM attendance 
+        WHERE empId = #{empId} 
+        AND comId = #{comId}
+        AND DATE_FORMAT(workDate, '%Y-%m') = #{month}
+        ORDER BY workDate
+    </select>
+    
+    <!-- 월별 급여 데이터 조회 -->
+    <select id="getSalaryByMonth" parameterType="map" resultType="map">
+        SELECT 
+            payId,
+            empId,
+            payMonth,
+            baseSalary,
+            totalSalary,
+            netSalary,
+            payStatus,
+            payDate,
+            note
+        FROM salary_payment 
+        WHERE empId = #{empId} 
+        AND comId = #{comId}
+        AND payMonth = #{payMonth}
+    </select>
+    
+    <!-- 급여 상세 내역 조회 -->
+    <select id="getSalaryDetails" parameterType="map" resultType="map">
+        SELECT 
+            itemCode,
+            itemName,
+            amount,
+            itemType
+        FROM salary_detail 
+        WHERE payId = (
+            SELECT payId 
+            FROM salary_payment 
+            WHERE empId = #{empId} 
+            AND comId = #{comId}
+            AND payMonth = #{payMonth}
+        )
+    </select>
+    
+    <!-- 전체 현황 조회 -->
+    <select id="getOverallStatus" parameterType="string" resultType="map">
+        SELECT 
+            (SELECT COUNT(*) FROM employee WHERE comId = #{comId}) as totalEmployees,
+            (SELECT COUNT(*) FROM employee WHERE comId = #{comId} AND status = 'ACTIVE') as activeEmployees,
+            (SELECT COUNT(*) FROM attendance WHERE comId = #{comId} AND DATE(workDate) = CURDATE()) as todayAttendance,
+            (SELECT COUNT(*) FROM salary_payment WHERE comId = #{comId} AND DATE_FORMAT(payMonth, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')) as thisMonthSalary
+    </select>
+    
+    <!-- 부서별 현황 조회 -->
+    <select id="getDepartmentStatus" parameterType="string" resultType="map">
+        SELECT 
+            d.deptCode,
+            d.deptName,
+            COUNT(e.empId) as employeeCount,
+            COUNT(CASE WHEN e.status = 'ACTIVE' THEN 1 END) as activeEmployeeCount
+        FROM department d
+        LEFT JOIN employee e ON d.deptCode = e.deptCode AND d.comId = e.comId
+        WHERE d.comId = #{comId}
+        GROUP BY d.deptCode, d.deptName
+        ORDER BY d.deptCode
+    </select>
+    
+    <!-- 최근 활동 조회 -->
+    <select id="getRecentActivities" parameterType="string" resultType="map">
+        SELECT 
+            'ATTENDANCE' as activityType,
+            empId,
+            workDate as activityDate,
+            '출근' as activityDesc
+        FROM attendance 
+        WHERE comId = #{comId} 
+        AND DATE(workDate) = CURDATE()
+        UNION ALL
+        SELECT 
+            'SALARY' as activityType,
+            empId,
+            payDate as activityDate,
+            '급여 지급' as activityDesc
+        FROM salary_payment 
+        WHERE comId = #{comId} 
+        AND DATE(payDate) = CURDATE()
+        ORDER BY activityDate DESC
+        LIMIT 10
+    </select>
+    
+    <!-- 급여 현황 조회 -->
+    <select id="getSalaryStatus" parameterType="string" resultType="map">
+        SELECT 
+            COUNT(*) as totalPayments,
+            SUM(totalSalary) as totalAmount,
+            AVG(totalSalary) as avgSalary,
+            COUNT(CASE WHEN payStatus = 'PAID' THEN 1 END) as paidCount,
+            COUNT(CASE WHEN payStatus = 'PENDING' THEN 1 END) as pendingCount
+        FROM salary_payment 
+        WHERE comId = #{comId}
+        AND DATE_FORMAT(payMonth, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
+    </select>
+    
+    <!-- 현재 출근자 수 조회 -->
+    <select id="getCurrentWorkers" parameterType="string" resultType="int">
+        SELECT COUNT(DISTINCT empId) 
+        FROM attendance 
+        WHERE comId = #{comId} 
+        AND DATE(workDate) = CURDATE()
+        AND workInTime IS NOT NULL
+        AND workOutTime IS NULL
+    </select>
+    
+    <!-- 오늘 출근률 조회 -->
+    <select id="getTodayAttendanceRate" parameterType="string" resultType="double">
+        SELECT 
+            CASE 
+                WHEN totalEmployees > 0 
+                THEN (attendedEmployees * 100.0 / totalEmployees)
+                ELSE 0 
+            END as attendanceRate
+        FROM (
+            SELECT 
+                (SELECT COUNT(*) FROM employee WHERE comId = #{comId} AND status = 'ACTIVE') as totalEmployees,
+                (SELECT COUNT(DISTINCT empId) FROM attendance WHERE comId = #{comId} AND DATE(workDate) = CURDATE()) as attendedEmployees
+        ) t
+    </select>
+    
+    <!-- 부서별 출근 현황 조회 -->
+    <select id="getDepartmentAttendance" parameterType="string" resultType="map">
+        SELECT 
+            d.deptCode,
+            d.deptName,
+            COUNT(e.empId) as totalEmployees,
+            COUNT(DISTINCT a.empId) as attendedEmployees,
+            CASE 
+                WHEN COUNT(e.empId) > 0 
+                THEN (COUNT(DISTINCT a.empId) * 100.0 / COUNT(e.empId))
+                ELSE 0 
+            END as attendanceRate
+        FROM department d
+        LEFT JOIN employee e ON d.deptCode = e.deptCode AND d.comId = e.comId AND e.status = 'ACTIVE'
+        LEFT JOIN attendance a ON e.empId = a.empId AND a.comId = #{comId} AND DATE(a.workDate) = CURDATE()
+        WHERE d.comId = #{comId}
+        GROUP BY d.deptCode, d.deptName
+        ORDER BY d.deptCode
+    </select>
+    
+    <!-- 부서별 통계 조회 -->
+    <select id="getDepartmentStatistics" parameterType="map" resultType="map">
+        SELECT 
+            d.deptCode,
+            d.deptName,
+            COUNT(e.empId) as employeeCount,
+            AVG(s.totalSalary) as avgSalary,
+            SUM(CASE WHEN a.workStatus = 'LATE' THEN 1 ELSE 0 END) as lateCount,
+            SUM(CASE WHEN a.workStatus = 'EARLY_LEAVE' THEN 1 ELSE 0 END) as earlyLeaveCount,
+            SUM(a.overtimeHour) as totalOvertimeHours
+        FROM department d
+        LEFT JOIN employee e ON d.deptCode = e.deptCode AND d.comId = e.comId
+        LEFT JOIN salary_payment s ON e.empId = s.empId AND s.comId = #{comId} AND s.payMonth = #{month}
+        LEFT JOIN attendance a ON e.empId = a.empId AND a.comId = #{comId} AND DATE_FORMAT(a.workDate, '%Y-%m') = #{month}
+        WHERE d.comId = #{comId}
+        GROUP BY d.deptCode, d.deptName
+        ORDER BY d.deptCode
+    </select>
+    
+    <!-- 시스템 통계 조회 -->
+    <select id="getSystemStatistics" parameterType="map" resultType="map">
+        SELECT 
+            COUNT(DISTINCT e.empId) as totalEmployees,
+            COUNT(DISTINCT a.empId) as attendedEmployees,
+            COUNT(DISTINCT s.empId) as paidEmployees,
+            AVG(s.totalSalary) as avgSalary,
+            SUM(s.totalSalary) as totalSalary,
+            SUM(a.overtimeHour) as totalOvertimeHours,
+            COUNT(CASE WHEN a.workStatus = 'LATE' THEN 1 END) as totalLateCount,
+            COUNT(CASE WHEN a.workStatus = 'EARLY_LEAVE' THEN 1 END) as totalEarlyLeaveCount
+        FROM employee e
+        LEFT JOIN attendance a ON e.empId = a.empId AND a.comId = #{comId} AND DATE_FORMAT(a.workDate, '%Y-%m') = #{month}
+        LEFT JOIN salary_payment s ON e.empId = s.empId AND s.comId = #{comId} AND s.payMonth = #{month}
+        WHERE e.comId = #{comId}
+    </select>
+    
+    <!-- 데이터 백업 -->
+    <select id="backupData" parameterType="map" resultType="string">
+        SELECT '백업 완료' as result
+        <!-- 실제 백업 로직은 별도 구현 필요 -->
+    </select>
+    
+    <!-- 데이터 복원 -->
+    <select id="restoreData" parameterType="map" resultType="string">
+        SELECT '복원 완료' as result
+        <!-- 실제 복원 로직은 별도 구현 필요 -->
+    </select>
+    
+    <!-- 시스템 로그 조회 -->
+    <select id="getSystemLogs" parameterType="map" resultType="map">
+        SELECT 
+            logId,
+            logType,
+            logMessage,
+            logDate,
+            empId,
+            ipAddress
+        FROM system_log 
+        WHERE comId = #{comId}
+        <if test="fromDate != null and fromDate != ''">
+            AND DATE(logDate) >= #{fromDate}
+        </if>
+        <if test="toDate != null and toDate != ''">
+            AND DATE(logDate) &lt;= #{toDate}
+        </if>
+        <if test="logType != null and logType != ''">
+            AND logType = #{logType}
+        </if>
+        ORDER BY logDate DESC
+        LIMIT 100
+    </select>
+
+</mapper> 

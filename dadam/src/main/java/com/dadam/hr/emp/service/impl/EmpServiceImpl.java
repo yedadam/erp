@@ -134,4 +134,61 @@ public class EmpServiceImpl implements EmpService {
     public String getMaxEmpId() {
         return empMapper.getMaxEmpId();
     }
+
+    /**
+     * 연차 정보 조회
+     * @param empId - 사원번호
+     * @return 연차 정보
+     */
+    @Override
+    public EmpVO getAnnualLeaveInfo(String empId) {
+        initAuthInfo();
+        log.info("연차 정보 조회: {} (회사: {})", empId, comId);
+        return empMapper.getAnnualLeaveInfo(empId, comId);
+    }
+
+    /**
+     * 연차 정보 업데이트
+     * @param empId - 사원번호
+     * @param totalLeave - 연차 총일수
+     * @param usedLeave - 연차 사용일수
+     * @return 업데이트 결과
+     */
+    @Override
+    public int updateAnnualLeaveInfo(String empId, int totalLeave, int usedLeave) {
+        initAuthInfo();
+        log.info("연차 정보 업데이트: {} (총일수: {}, 사용일수: {})", empId, totalLeave, usedLeave);
+        
+        int result = empMapper.updateAnnualLeaveInfo(empId, comId, totalLeave, usedLeave);
+        
+        if (result > 0) {
+            log.info("✅ 연차 정보 업데이트 성공: {} (총일수: {}, 사용일수: {})", empId, totalLeave, usedLeave);
+        } else {
+            log.error("❌ 연차 정보 업데이트 실패: {} (총일수: {}, 사용일수: {})", empId, totalLeave, usedLeave);
+        }
+        
+        return result;
+    }
+
+    /**
+     * 연차 사용 처리
+     * @param empId - 사원번호
+     * @param usedDays - 사용일수
+     * @return 처리 결과
+     */
+    @Override
+    public int useAnnualLeave(String empId, int usedDays) {
+        initAuthInfo();
+        log.info("연차 사용 처리: {} (사용일수: {})", empId, usedDays);
+        
+        int result = empMapper.useAnnualLeave(empId, comId, usedDays);
+        
+        if (result > 0) {
+            log.info("✅ 연차 사용 처리 성공: {} (사용일수: {})", empId, usedDays);
+        } else {
+            log.error("❌ 연차 사용 처리 실패: {} (사용일수: {}) - 잔여 연차 부족 또는 권한 없음", empId, usedDays);
+        }
+        
+        return result;
+    }
 } 

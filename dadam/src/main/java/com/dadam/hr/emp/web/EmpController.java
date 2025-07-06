@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,9 +22,13 @@ import com.dadam.hr.emp.service.DeptService;
 import com.dadam.hr.emp.service.EmpService;
 import com.dadam.hr.emp.service.EmpVO;
 import com.dadam.common.service.CodeService;
+import com.dadam.security.service.LoginUserAuthority;
+import com.dadam.security.service.LoginMainAuthority;
 
 /**
  * 사원 관리 컨트롤러
+ * - 권한별 기능 제어: 사원 등록/수정/삭제는 관리자만 가능
+ * - 부서별 데이터 접근: 본인 부서 데이터만 조회 가능 (일반 사용자)
  */
 // - 사원 전체조회, 상세조회, 등록, 수정, 삭제, 사번생성 등
 // - /erp/hr/emp-all, /erp/hr/empList 등 매핑
@@ -41,21 +47,63 @@ public class EmpController {
     private CodeService codeService;
 
     /**
+     * 현재 사용자의 권한 정보를 가져오는 메서드
+     * @return 권한 정보 (comId, deptCode, authority)
+     */
+    private java.util.Map<String, String> getCurrentUserInfo() {
+        java.util.Map<String, String> userInfo = new java.util.HashMap<>();
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = auth.getPrincipal();
+
+        if (principal instanceof LoginUserAuthority) {
+            LoginUserAuthority user = (LoginUserAuthority) principal;
+            userInfo.put("comId", user.getComId());
+            userInfo.put("deptCode", user.getDeptCode());
+            userInfo.put("authority", user.getOptionCode());
+            userInfo.put("empId", user.getUserId());
+        } else if (principal instanceof LoginMainAuthority) {
+            LoginMainAuthority user = (LoginMainAuthority) principal;
+            userInfo.put("comId", user.getComId());
+            userInfo.put("deptCode", user.getDeptCode());
+            userInfo.put("authority", user.getAuthority());
+            userInfo.put("empId", "");
+        }
+        
+        return userInfo;
+    }
+
+    /**
+     * 관리자 권한 확인
+     * @return 관리자 여부
+     */
+    private boolean isAdmin() {
+        java.util.Map<String, String> userInfo = getCurrentUserInfo();
+        String authority = userInfo.get("authority");
+        return "admin".equals(authority) || "master".equals(authority);
+    }
+
+    /**
      * 사원 목록 페이지 이동
      * @param model - 뷰 모델
      * @return 사원 목록 뷰
      */
     @GetMapping("/emp")
     public String empPage(Model model) {
+        java.util.Map<String, String> userInfo = getCurrentUserInfo();
+        
         model.addAttribute("departments", deptService.findAllDepartments());
         model.addAttribute("positions", codeService.getCodeMap("pos"));
         model.addAttribute("workTypes", codeService.getCodeMap("emp"));
         model.addAttribute("empStatuses", codeService.getCodeMap("stt"));
+        model.addAttribute("isAdmin", isAdmin());
+        model.addAttribute("userDeptCode", userInfo.get("deptCode"));
+        
         return "hr/emplist";
     }
 
     /**
-     * 사원 목록 조회
+     * 사원 목록 조회 (권한별 필터링)
      * @param keyword - 검색어
      * @param status - 재직상태
      * @param dept - 부서코드
@@ -66,22 +114,36 @@ public class EmpController {
     public List<EmpVO> empList(@RequestParam(required = false) String keyword,
                                @RequestParam(required = false) String status,
                                @RequestParam(required = false) String dept) {
+        java.util.Map<String, String> userInfo = getCurrentUserInfo();
+        
+        // 관리자가 아닌 경우 본인 부서만 조회 가능
+        if (!isAdmin()) {
+            dept = userInfo.get("deptCode");
+        }
+        
         return empService.findEmpList(keyword, status, dept);
     }
 
     /**
-     * 사원 상세 조회
+     * 사원 상세 조회 (권한 확인)
      * @param empId - 사원번호
      * @return 사원 정보
      */
     @GetMapping("/empDetail")
     @ResponseBody
     public EmpVO empDetail(@RequestParam String empId) {
+        java.util.Map<String, String> userInfo = getCurrentUserInfo();
+        
+        // 관리자가 아닌 경우 본인 정보만 조회 가능
+        if (!isAdmin() && !empId.equals(userInfo.get("empId"))) {
+            return null; // 권한 없음
+        }
+        
         return empService.findEmpDetail(empId);
     }
 
     /**
-     * 사원 등록
+     * 사원 등록 (관리자만 가능)
      * @param empVO - 사원 정보
      * @param profileImg - 프로필 이미지
      * @return 등록 결과
@@ -89,20 +151,28 @@ public class EmpController {
     @PostMapping("/insertEmp")
     @ResponseBody
     public String insertEmp(@ModelAttribute EmpVO empVO, @RequestParam(value = "profileImg", required = false) MultipartFile profileImg) {
-        empVO.setComId("COM-101");
+        // 관리자 권한 확인
+        if (!isAdmin()) {
+            return "unauthorized";
+        }
+        
+        java.util.Map<String, String> userInfo = getCurrentUserInfo();
+        empVO.setComId(userInfo.get("comId"));
         empVO.setPwd("init");
+        
         if (profileImg != null && !profileImg.isEmpty()) {
             empVO.setProfileImgPath(saveProfileImage(profileImg));
         }
         if (empVO.getEmpId() == null || empVO.getEmpId().isEmpty()) {
             empVO.setEmpId(generateNextEmpId());
         }
+        
         int result = empService.insertEmp(empVO);
         return result > 0 ? "ok" : "fail";
     }
 
     /**
-     * 사원 수정
+     * 사원 수정 (관리자 또는 본인만 가능)
      * @param empVO - 사원 정보
      * @param profileImg - 프로필 이미지
      * @return 수정 결과
@@ -110,24 +180,131 @@ public class EmpController {
     @PostMapping("/updateEmp")
     @ResponseBody
     public String updateEmp(@ModelAttribute EmpVO empVO, @RequestParam(value = "profileImg", required = false) MultipartFile profileImg) {
+        java.util.Map<String, String> userInfo = getCurrentUserInfo();
+        
+        // 관리자가 아니고 본인이 아닌 경우 수정 불가
+        if (!isAdmin() && !empVO.getEmpId().equals(userInfo.get("empId"))) {
+            return "unauthorized";
+        }
+        
         if (profileImg != null && !profileImg.isEmpty()) {
             empVO.setProfileImgPath(saveProfileImage(profileImg));
         }
+        
         int result = empService.updateEmp(empVO);
         return result > 0 ? "ok" : "fail";
     }
 
     /**
-     * 사원 삭제
+     * 사원 삭제 (관리자만 가능)
      * @param param - 사원번호
      * @return 삭제 결과
      */
     @PostMapping("/deleteEmp")
     @ResponseBody
     public String deleteEmp(@RequestBody java.util.Map<String, String> param) {
+        // 관리자 권한 확인
+        if (!isAdmin()) {
+            return "unauthorized";
+        }
+        
         String empId = param.get("empId");
         if (empId == null || empId.isEmpty()) return "fail";
+        
         int result = empService.deleteEmp(empId);
+        return result > 0 ? "ok" : "fail";
+    }
+
+    /**
+     * 비밀번호 변경 (본인만 가능)
+     * @param param - 비밀번호 정보
+     * @return 변경 결과
+     */
+    @PostMapping("/changePassword")
+    @ResponseBody
+    public String changePassword(@RequestBody java.util.Map<String, String> param) {
+        java.util.Map<String, String> userInfo = getCurrentUserInfo();
+        String empId = param.get("empId");
+        String newPassword = param.get("newPassword");
+        
+        // 본인만 비밀번호 변경 가능
+        if (!empId.equals(userInfo.get("empId"))) {
+            return "unauthorized";
+        }
+        
+        EmpVO empVO = new EmpVO();
+        empVO.setEmpId(empId);
+        empVO.setPwd(newPassword);
+        
+        int result = empService.updateEmp(empVO);
+        return result > 0 ? "ok" : "fail";
+    }
+
+    /**
+     * 연차 정보 조회 (본인 또는 관리자만)
+     * @param empId - 사원번호
+     * @return 연차 정보
+     */
+    @GetMapping("/annualLeaveInfo")
+    @ResponseBody
+    public EmpVO getAnnualLeaveInfo(@RequestParam String empId) {
+        java.util.Map<String, String> userInfo = getCurrentUserInfo();
+        
+        // 관리자가 아니고 본인이 아닌 경우 조회 불가
+        if (!isAdmin() && !empId.equals(userInfo.get("empId"))) {
+            return null; // 권한 없음
+        }
+        
+        return empService.getAnnualLeaveInfo(empId);
+    }
+
+    /**
+     * 연차 정보 업데이트 (관리자만)
+     * @param param - 연차 정보
+     * @return 업데이트 결과
+     */
+    @PostMapping("/updateAnnualLeave")
+    @ResponseBody
+    public String updateAnnualLeave(@RequestBody java.util.Map<String, Object> param) {
+        // 관리자 권한 확인
+        if (!isAdmin()) {
+            return "unauthorized";
+        }
+        
+        String empId = (String) param.get("empId");
+        Integer totalLeave = (Integer) param.get("totalLeave");
+        Integer usedLeave = (Integer) param.get("usedLeave");
+        
+        if (empId == null || totalLeave == null || usedLeave == null) {
+            return "fail";
+        }
+        
+        int result = empService.updateAnnualLeaveInfo(empId, totalLeave, usedLeave);
+        return result > 0 ? "ok" : "fail";
+    }
+
+    /**
+     * 연차 사용 처리 (본인 또는 관리자만)
+     * @param param - 연차 사용 정보
+     * @return 처리 결과
+     */
+    @PostMapping("/useAnnualLeave")
+    @ResponseBody
+    public String useAnnualLeave(@RequestBody java.util.Map<String, Object> param) {
+        java.util.Map<String, String> userInfo = getCurrentUserInfo();
+        String empId = (String) param.get("empId");
+        Integer usedDays = (Integer) param.get("usedDays");
+        
+        // 관리자가 아니고 본인이 아닌 경우 사용 불가
+        if (!isAdmin() && !empId.equals(userInfo.get("empId"))) {
+            return "unauthorized";
+        }
+        
+        if (empId == null || usedDays == null) {
+            return "fail";
+        }
+        
+        int result = empService.useAnnualLeave(empId, usedDays);
         return result > 0 ? "ok" : "fail";
     }
 
@@ -142,12 +319,16 @@ public class EmpController {
     }
 
     /**
-     * 전체 사원 목록 페이지 이동
+     * 전체 사원 목록 페이지 이동 (관리자만)
      * @param model - 뷰 모델
      * @return 전체 사원 목록 뷰
      */
     @GetMapping("/emp-all")
     public String empAllPage(Model model) {
+        if (!isAdmin()) {
+            return "redirect:/erp/hr/emp"; // 권한 없으면 기본 페이지로
+        }
+        
         model.addAttribute("empStatuses", codeService.getCodeMap("stt"));
         return "hr/emp-all";
     }

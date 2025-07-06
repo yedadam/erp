@@ -43,4 +43,28 @@ public interface EmpService {
      * @return 사번
      */
     String getMaxEmpId();
+    
+    /**
+     * 연차 정보 조회
+     * @param empId - 사원번호
+     * @return 연차 정보
+     */
+    EmpVO getAnnualLeaveInfo(String empId);
+    
+    /**
+     * 연차 정보 업데이트
+     * @param empId - 사원번호
+     * @param totalLeave - 연차 총일수
+     * @param usedLeave - 연차 사용일수
+     * @return 업데이트 결과
+     */
+    int updateAnnualLeaveInfo(String empId, int totalLeave, int usedLeave);
+    
+    /**
+     * 연차 사용 처리
+     * @param empId - 사원번호
+     * @param usedDays - 사용일수
+     * @return 처리 결과
+     */
+    int useAnnualLeave(String empId, int usedDays);
 } 

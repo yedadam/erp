@@ -48,6 +48,17 @@ public class AttendanceCorrectionServiceImpl implements AttendanceCorrectionServ
         correctionMapper.updateCorrectionStatus(vo);
     }
 
+    @Override
+    public void approveCorrection(String corrCode, String status, String approverId, String note) throws Exception {
+        AttendanceCorrectionVO vo = correctionMapper.selectCorrection(corrCode, null);
+        vo.setStatus(status);
+        vo.setApproverId(approverId);
+        vo.setNote(note);
+        vo.setApproveDate(LocalDate.now());
+        vo.setUpdatedAt(LocalDateTime.now());
+        correctionMapper.updateCorrectionStatus(vo);
+    }
+
     /**
      * 정정 목록 조회
      * @param comId - 회사ID
@@ -57,5 +68,15 @@ public class AttendanceCorrectionServiceImpl implements AttendanceCorrectionServ
     @Override
     public List<AttendanceCorrectionVO> getCorrectionList(String comId, String empId) {
         return correctionMapper.findCorrectionList(comId, empId);
+    }
+
+    @Override
+    public List<AttendanceCorrectionVO> getCorrectionList(String comId, String empId, String status) {
+        return correctionMapper.findCorrectionListWithStatus(comId, empId, status);
+    }
+
+    @Override
+    public AttendanceCorrectionVO getCorrectionDetail(String corrCode) {
+        return correctionMapper.selectCorrection(corrCode, null);
     }
 } 

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.hr.salary.mapper.SalaryItemMapper">
+
+    <!-- 전체 급여항목 목록 조회 -->
+    <select id="selectSalaryItemList" resultType="com.dadam.hr.salary.service.SalaryItemVO">
+        SELECT * FROM salaryitem
+        WHERE com_id = #{comId}
+        ORDER BY sort_order, allow_code
+    </select>
+
+    <!-- 단일 급여항목 조회 -->
+    <select id="selectSalaryItem" resultType="com.dadam.hr.salary.service.SalaryItemVO">
+        SELECT * FROM salaryitem
+        WHERE com_id = #{comId}
+          AND allow_code = #{allowCode}
+    </select>
+
+    <!-- 급여항목 등록 -->
+    <insert id="insertSalaryItem" parameterType="com.dadam.hr.salary.service.SalaryItemVO">
+        <selectKey resultType="long" keyProperty="id" order="BEFORE">
+            SELECT NVL(MAX(id), 1000) + 1 FROM salaryitem
+        </selectKey>
+        INSERT INTO salaryitem (
+            id, com_id, allow_code, allow_name, type, calc_type, default_amount, tax_free_yn, acct_yn, sort_order, created_date, updated_date
+        ) VALUES (
+            #{id}, #{comId}, #{allowCode}, #{allowName}, #{type}, #{calcType}, #{defaultAmount}, #{taxFreeYn}, #{acctYn}, #{sortOrder}, SYSDATE, SYSDATE
+        )
+    </insert>
+
+    <!-- 급여항목 수정 -->
+    <update id="updateSalaryItem" parameterType="com.dadam.hr.salary.service.SalaryItemVO">
+        UPDATE salaryitem
+        SET allow_name = #{allowName},
+            type = #{type},
+            calc_type = #{calcType},
+            default_amount = #{defaultAmount},
+            tax_free_yn = #{taxFreeYn},
+            acct_yn = #{acctYn},
+            sort_order = #{sortOrder},
+            updated_date = SYSDATE
+        WHERE com_id = #{comId}
+          AND allow_code = #{allowCode}
+    </update>
+
+    <!-- 급여항목 삭제 -->
+    <delete id="deleteSalaryItem">
+        DELETE FROM salaryitem
+        WHERE com_id = #{comId}
+          AND allow_code = #{allowCode}
+    </delete>
+
+</mapper> 

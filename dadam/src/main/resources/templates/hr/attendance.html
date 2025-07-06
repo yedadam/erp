@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/default_layout}"
+      layout:fragment="Content">
+
+<head>
+    <meta charset="UTF-8">
+    <title>근태관리</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 60%, #e0e7ff 100%);
+        }
+        .erp-main {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding: 32px 32px 24px 32px;
+            min-height: 100vh;
+        }
+        .greeting-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px 32px 14px 32px;
+            margin-bottom: 0px;
+            box-shadow: none;
+        }
+        .greeting-bar .greeting {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .greeting-bar .date-time {
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 400;
+            text-align: center;
+            flex: 1;
+        }
+        .profile-avatar {
+            width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #2563eb;
+        }
+        .attendance-header {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: none;
+            padding: 32px 32px 24px 32px;
+            display: flex;
+            gap: 24px;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .summary-cards {
+            display: flex;
+            gap: 24px;
+            flex: 1;
+        }
+        .summary-card {
+            flex: 1;
+            background: #f8fafc;
+            border-radius: 14px;
+            box-shadow: none;
+            padding: 24px 0 18px 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 160px;
+            position: relative;
+        }
+        .summary-card .icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        .summary-card .label {
+            font-size: 1rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        .summary-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .summary-card.status .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 4px 16px;
+            border-radius: 8px;
+            background: #fef9c3;
+            color: #b45309;
+            display: inline-block;
+        }
+        .attendance-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        .fab-btn {
+            min-width: 120px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 24px;
+            box-shadow: none;
+            padding: 12px 0;
+            margin-bottom: 8px;
+            border: none;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .fab-btn.checkin {
+            background: linear-gradient(90deg, #34d399 60%, #2563eb 100%);
+            color: #fff;
+        }
+        .fab-btn.checkin:hover {
+            background: linear-gradient(90deg, #2563eb 60%, #34d399 100%);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .fab-btn.checkout {
+            background: linear-gradient(90deg, #f87171 60%, #fbbf24 100%);
+            color: #fff;
+        }
+        .fab-btn.checkout:hover {
+            background: linear-gradient(90deg, #fbbf24 60%, #f87171 100%);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .attendance-content {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: none;
+            padding: 32px 32px 24px 32px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .d-flex.align-items-center.gap-2.flex-wrap.mb-3 {
+            margin-bottom: 18px !important;
+        }
+        .tui-grid-row:hover {
+            background: #e0e7ff !important;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-normal { background: #dcfce7; color: #166534; }
+        .status-late { background: #fef9c3; color: #b45309; }
+        .status-early { background: #fef3c7; color: #92400e; }
+        .status-absent { background: #fee2e2; color: #991b1b; }
+        .tui-grid-cell-content[title] { cursor: pointer; }
+        #attendanceGrid { width: 100% !important; min-width: 1000px; }
+        .tui-grid-row.selected-row td,
+        .tui-grid-row.selected-row .tui-grid-cell {
+            background: #e0e7ff !important;
+        }
+        .tui-grid-cell.tui-grid-cell-current {
+            box-shadow: none !important;
+            border-color: #2563eb !important;
+            background: #e0e7ff !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="erp-main">
+            <!-- 상단 인사/날짜/시간/프로필 -->
+            <div class="greeting-bar">
+                <div class="greeting">
+                    <i class="fa-solid fa-hand-wave"></i> <span id="greetingMsg">신현욱님, 오늘도 좋은 하루 보내세요!</span>
+                </div>
+                <div class="date-time">
+                    <span id="todayDate"></span> | <span id="currentTime"></span>
+                </div>
+                <img src="/static/img/user-default.png" class="profile-avatar" id="profileAvatar">
+            </div>
+            <!-- 요약 카드 -->
+            <div class="attendance-header">
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <div class="icon"><i class="fa-solid fa-arrow-right-to-city" style="color:#34d399;"></i></div>
+                        <div class="label">오늘 출근</div>
+                        <div class="value" id="todayCheckIn">--:--</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="icon"><i class="fa-solid fa-arrow-right-from-city" style="color:#f87171;"></i></div>
+                        <div class="label">오늘 퇴근</div>
+                        <div class="value" id="todayCheckOut">--:--</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="icon"><i class="fa-solid fa-clock" style="color:#2563eb;"></i></div>
+                        <div class="label">근무시간</div>
+                        <div class="value" id="todayWorkHours">--:--</div>
+                    </div>
+                    <div class="summary-card status">
+                        <div class="icon"><i class="fa-solid fa-circle-exclamation" style="color:#fbbf24;"></i></div>
+                        <div class="label">상태</div>
+                        <div class="value" id="todayStatus">미출근</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="icon"><i class="fa-solid fa-calendar-check" style="color:#2563eb;"></i></div>
+                        <div class="label">잔여 연차</div>
+                        <div class="value" id="annualLeaveRemain">-- 일</div>
+                    </div>
+                </div>
+                <div class="attendance-actions">
+                    <button class="fab-btn checkin" id="btnCheckIn"><i class="fa-solid fa-right-to-bracket"></i> 출근</button>
+                    <button class="fab-btn checkout" id="btnCheckOut"><i class="fa-solid fa-right-from-bracket"></i> 퇴근</button>
+                </div>
+            </div>
+            <!-- 탭 메뉴 -->
+            <ul class="nav nav-tabs mb-0" id="attendanceTabs" style="margin-bottom:0;">
+                <li class="nav-item">
+                    <a class="nav-link active" id="tab-attendance" data-bs-toggle="tab" href="#attendanceTab">근태 내역</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="tab-leave" data-bs-toggle="tab" href="#leaveTab">연차/휴가 내역</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="attendanceTab">
+                    <!-- 기존 근태 조회/그리드 -->
+                    <div class="attendance-content">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-3" style="margin-bottom: 24px;">
+                            <label class="form-label mb-0">조회기간:</label>
+                            <input type="date" id="fromDate" class="form-control" style="width: 130px; height:38px;">
+                            <span>~</span>
+                            <input type="date" id="toDate" class="form-control" style="width: 130px; height:38px;">
+                            <button class="btn btn-primary" id="btnSearch" style="height:38px;">조회</button>
+                            <button class="btn btn-outline-primary" id="btnToday" style="height:38px;">오늘</button>
+                            <button class="btn btn-outline-primary" id="btnThisWeek" style="height:38px;">이번주</button>
+                            <button class="btn btn-outline-primary" id="btnThisMonth" style="height:38px;">이번달</button>
+                        </div>
+                        <div class="loading" id="loading">
+                            <i class="fas fa-spinner fa-spin"></i> 데이터를 불러오는 중...
+                        </div>
+                        <div id="attendanceGrid"></div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="leaveTab">
+                    <div class="attendance-content">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <label class="form-label mb-0">조회기간:</label>
+                                <input type="date" id="leaveFromDate" class="form-control" style="width: 130px; height:38px;">
+                                <span>~</span>
+                                <input type="date" id="leaveToDate" class="form-control" style="width: 130px; height:38px;">
+                                <button class="btn btn-primary" id="btnLeaveSearch" style="height:38px;">조회</button>
+                            </div>
+                            <button class="btn btn-success" id="btnApplyLeave"><i class="fa-solid fa-plus"></i> 연차 신청</button>
+                        </div>
+                        <div class="loading" id="leaveLoading" style="display:none;">
+                            <i class="fas fa-spinner fa-spin"></i> 데이터를 불러오는 중...
+                        </div>
+                        <div id="leaveGrid"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- 연차 신청 모달 -->
+            <div class="modal fade" id="leaveModal" tabindex="-1">
+              <div class="modal-dialog">
+                <form id="leaveForm">
+                  <div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title">연차 신청</h5></div>
+                    <div class="modal-body">
+                      <label>휴가 종류</label>
+                      <select class="form-control" name="leaveType">
+                        <option value="연차">연차</option>
+                        <option value="반차">반차</option>
+                        <option value="병가">병가</option>
+                      </select>
+                      <label>시작일</label>
+                      <input type="date" class="form-control" name="startDate" required>
+                      <label>종료일</label>
+                      <input type="date" class="form-control" name="endDate" required>
+                      <label>사유</label>
+                      <input type="text" class="form-control" name="reason">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-primary">신청</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <!-- 연차/휴가 상세/수정/취소 모달 추가 -->
+            <div class="modal fade" id="leaveDetailModal" tabindex="-1">
+              <div class="modal-dialog">
+                <form id="leaveDetailForm">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">연차/휴가 신청 상세</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="mb-2">
+                        <label class="form-label">신청일</label>
+                        <input type="text" class="form-control" name="requestDate" readonly>
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label">휴가일</label>
+                        <input type="date" class="form-control" name="leaveDate">
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label">종류</label>
+                        <select class="form-control" name="leaveType">
+                          <option value="연차">연차</option>
+                          <option value="반차">반차</option>
+                          <option value="병가">병가</option>
+                        </select>
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label">일수</label>
+                        <input type="text" class="form-control" name="days" readonly>
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label">사유</label>
+                        <textarea class="form-control" name="reason" rows="2"></textarea>
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label">상태</label>
+                        <span id="leaveDetailStatus" class="badge"></span>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" id="btnLeaveUpdate">수정</button>
+                      <button type="button" class="btn btn-danger" id="btnLeaveCancel">취소</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://uicdn.toast.com/grid/latest/tui-grid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // 전역 변수
+        let attendanceGrid;
+        let currentUser = {
+            empId: '',
+            comId: 'COM-101',
+            deptCode: ''
+        };
+        let leaveGridInitialized = false;
+        let leaveGrid = null;
+        let selectedLeaveRowKey = null;
+
+        // 날짜/시간/인사 메시지
+        function updateDateTime() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
+            document.getElementById('todayDate').textContent = dateStr;
+            const timeStr = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('currentTime').textContent = timeStr;
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        // 현재 사용자 정보 가져오기
+        function getCurrentUser() {
+            // 실제로는 세션에서 가져와야 함
+            // 임시로 하드코딩
+            currentUser.empId = 'EMP001';
+            currentUser.comId = 'COM-101';
+            currentUser.deptCode = 'DEPT001';
+        }
+
+        // Toast UI Grid 초기화
+        function initGrid() {
+            attendanceGrid = new tui.Grid({
+                el: document.getElementById('attendanceGrid'),
+                scrollX: true,
+                scrollY: true,
+                theme: 'clean',
+                bodyHeight: 400,
+                columns: [
+                    { header: '날짜', name: 'workDate', align: 'center', width: 130 },
+                    { header: '요일', name: 'dayOfWeek', align: 'center', width: 80 },
+                    { header: '출근', name: 'actualStartTime', align: 'center', width: 120, formatter: function(value) { if (value.value) { const date = new Date(value.value); return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }); } return ''; } },
+                    { header: '퇴근', name: 'actualEndTime', align: 'center', width: 120, formatter: function(value) { if (value.value) { const date = new Date(value.value); return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }); } return ''; } },
+                    { header: '근무', name: 'workHours', align: 'center', width: 110 },
+                    { header: '초과', name: 'overtimeHours', align: 'center', width: 110 },
+                    { header: '상태', name: 'status', align: 'center', width: 110, formatter: function(value) { const status = value.value; let className = ''; let text = ''; let emoji = ''; switch(status) { case 'NORMAL': className = 'status-normal'; text = '정상'; emoji = '🟢'; break; case 'LATE': className = 'status-late'; text = '지각'; emoji = '🟡'; break; case 'EARLY': className = 'status-early'; text = '조퇴'; emoji = '🟠'; break; case 'ABSENT': className = 'status-absent'; text = '결근'; emoji = '🔴'; break; default: className = ''; text = status || ''; emoji = ''; } return `<span class="status-badge ${className}">${emoji} ${text}</span>`; } },
+                    { header: '비고', name: 'note', align: 'left', width: 150, formatter: function(value) { const v = value.value || ''; if (v.length > 12) { return `<span title="${v}">${v.slice(0, 12)}...<span>`; } return v; } }
+                ]
+            });
+        }
+
+        // 오늘 날짜로 초기화
+        function initDateRange() {
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            
+            document.getElementById('fromDate').value = todayStr;
+            document.getElementById('toDate').value = todayStr;
+        }
+
+        // 근태 데이터 로드
+        function loadAttendanceData() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            
+            if (!fromDate || !toDate) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '날짜 선택',
+                    text: '조회할 날짜를 선택해주세요.'
+                });
+                return;
+            }
+
+            document.getElementById('loading').classList.add('show');
+            
+            // 테스트 데이터 사용 (실제 구현 시에는 실제 API 호출)
+            $.ajax({
+                url: '/erp/hr/testAttendanceData',
+                method: 'GET',
+                data: {
+                    comId: currentUser.comId,
+                    empId: currentUser.empId
+                },
+                success: function(data) {
+                    document.getElementById('loading').classList.remove('show');
+                    
+                    // 데이터 포맷팅
+                    const formattedData = data.map(item => ({
+                        ...item,
+                        workHours: calculateWorkHours(item.actualStartTime, item.actualEndTime),
+                        overtimeHours: calculateOvertimeHours(item.actualStartTime, item.actualEndTime),
+                        dayOfWeek: getDayOfWeek(item.workDate)
+                    }));
+                    
+                    attendanceGrid.resetData(formattedData);
+                    
+                    // 오늘 데이터가 있으면 상단 카드 업데이트
+                    updateTodayCard(formattedData);
+                },
+                error: function(xhr) {
+                    document.getElementById('loading').classList.remove('show');
+                    Swal.fire({
+                        icon: 'error',
+                        title: '조회 실패',
+                        text: '근태 데이터를 불러오는데 실패했습니다.'
+                    });
+                }
+            });
+        }
+
+        // 근무시간 계산
+        function calculateWorkHours(startTime, endTime) {
+            if (!startTime || !endTime) return '--:--';
+            
+            const start = new Date(startTime);
+            const end = new Date(endTime);
+            const diffMs = end - start;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            
+            return `${diffHours.toString().padStart(2, '0')}:${diffMinutes.toString().padStart(2, '0')}`;
+        }
+
+        // 초과시간 계산 (8시간 기준)
+        function calculateOvertimeHours(startTime, endTime) {
+            if (!startTime || !endTime) return '--:--';
+            
+            const start = new Date(startTime);
+            const end = new Date(endTime);
+            const diffMs = end - start;
+            const totalHours = diffMs / (1000 * 60 * 60);
+            
+            if (totalHours <= 8) return '00:00';
+            
+            const overtimeMs = (totalHours - 8) * 60 * 60 * 1000;
+            const overtimeHours = Math.floor(overtimeMs / (1000 * 60 * 60));
+            const overtimeMinutes = Math.floor((overtimeMs % (1000 * 60 * 60)) / (1000 * 60));
+            
+            return `${overtimeHours.toString().padStart(2, '0')}:${overtimeMinutes.toString().padStart(2, '0')}`;
+        }
+
+        // 요일 계산
+        function getDayOfWeek(dateStr) {
+            const date = new Date(dateStr);
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            return days[date.getDay()];
+        }
+
+        // 오늘 카드 업데이트
+        function updateTodayCard(data) {
+            const today = new Date().toISOString().split('T')[0];
+            const todayData = data.find(item => item.workDate === today);
+            
+            if (todayData) {
+                if (todayData.actualStartTime) {
+                    const startTime = new Date(todayData.actualStartTime);
+                    document.getElementById('todayCheckIn').textContent = 
+                        startTime.toLocaleTimeString('ko-KR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                }
+                
+                if (todayData.actualEndTime) {
+                    const endTime = new Date(todayData.actualEndTime);
+                    document.getElementById('todayCheckOut').textContent = 
+                        endTime.toLocaleTimeString('ko-KR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                }
+                
+                document.getElementById('todayWorkHours').textContent = 
+                    calculateWorkHours(todayData.actualStartTime, todayData.actualEndTime);
+                
+                // 상태 업데이트
+                const statusElement = document.getElementById('todayStatus');
+                const status = todayData.status || 'NORMAL';
+                let statusText = '';
+                let className = '';
+                
+                switch(status) {
+                    case 'NORMAL':
+                        statusText = '정상';
+                        className = 'status-normal';
+                        break;
+                    case 'LATE':
+                        statusText = '지각';
+                        className = 'status-late';
+                        break;
+                    case 'EARLY':
+                        statusText = '조퇴';
+                        className = 'status-early';
+                        break;
+                    case 'ABSENT':
+                        statusText = '결근';
+                        className = 'status-absent';
+                        break;
+                    default:
+                        statusText = '정상';
+                        className = 'status-normal';
+                }
+                
+                statusElement.textContent = statusText;
+                statusElement.className = `status-badge ${className}`;
+            }
+        }
+
+        // 출근 처리
+        function checkIn() {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            
+            $.ajax({
+                url: '/erp/hr/attendanceCheckIn',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    comId: currentUser.comId,
+                    empId: currentUser.empId,
+                    workDate: today,
+                    actualStartTime: now.toISOString()
+                }),
+                success: function(response) {
+                    if (response === 'ok') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '출근 기록',
+                            text: '오늘 출근이 정상적으로 기록되었습니다.',
+                            confirmButtonText: '확인'
+                        });
+                        loadAttendanceData(); // 데이터 새로고침
+                    } else if (response === 'duplicate') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '중복 출근',
+                            text: '오늘 이미 출근 기록이 있습니다.',
+                            confirmButtonText: '확인'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '출근 실패',
+                            text: '출근 기록 중 오류가 발생했습니다.',
+                            confirmButtonText: '확인'
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '출근 실패',
+                        text: '출근 기록 중 오류가 발생했습니다.',
+                        confirmButtonText: '확인'
+                    });
+                }
+            });
+        }
+
+        // 퇴근 처리
+        function checkOut() {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            
+            $.ajax({
+                url: '/erp/hr/attendanceCheckOut',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    comId: currentUser.comId,
+                    empId: currentUser.empId,
+                    workDate: today,
+                    actualEndTime: now.toISOString()
+                }),
+                success: function(response) {
+                    if (response === 'ok') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '퇴근 기록',
+                            text: '오늘 퇴근이 정상적으로 기록되었습니다.',
+                            confirmButtonText: '확인'
+                        });
+                        loadAttendanceData(); // 데이터 새로고침
+                    } else if (response === 'duplicate') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '중복 퇴근',
+                            text: '오늘 이미 퇴근 기록이 있습니다.',
+                            confirmButtonText: '확인'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '퇴근 실패',
+                            text: '퇴근 기록 중 오류가 발생했습니다.',
+                            confirmButtonText: '확인'
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '퇴근 실패',
+                        text: '퇴근 기록 중 오류가 발생했습니다.',
+                        confirmButtonText: '확인'
+                    });
+                }
+            });
+        }
+
+        // 연차/휴가 내역 그리드 및 신청 기능 추가
+        function initLeaveGrid() {
+            if (leaveGrid && typeof leaveGrid.destroy === 'function') {
+                leaveGrid.destroy();
+            }
+            leaveGrid = new tui.Grid({
+                el: document.getElementById('leaveGrid'),
+                scrollX: true,
+                scrollY: true,
+                theme: 'clean',
+                bodyHeight: 300,
+                columns: [
+                    { header: '신청일', name: 'requestDate', align: 'center', width: 110 },
+                    { header: '휴가일', name: 'leaveDate', align: 'center', width: 110 },
+                    { header: '종류', name: 'leaveType', align: 'center', width: 80 },
+                    { header: '일수', name: 'days', align: 'center', width: 60 },
+                    { header: '상태', name: 'status', align: 'center', width: 90 },
+                    { header: '비고', name: 'note', align: 'left', width: 150 }
+                ],
+                data: []
+            });
+            selectedLeaveRowKey = null;
+            // 클릭: 행만 강조
+            leaveGrid.on('click', ev => {
+                if (ev.rowKey != null) {
+                    selectedLeaveRowKey = ev.rowKey;
+                    highlightSelectedLeaveRow();
+                }
+            });
+            // 더블클릭: 상세/수정/취소 모달 오픈
+            leaveGrid.on('dblclick', ev => {
+                if (ev.rowKey != null) {
+                    const row = leaveGrid.getRow(ev.rowKey);
+                    openLeaveDetailModal(row);
+                }
+            });
+        }
+        function loadLeaveData() {
+            const dummyData = [
+                {
+                    requestDate: '2025-07-01',
+                    leaveDate: '2025-07-10',
+                    leaveType: '연차',
+                    days: 1,
+                    status: 'PENDING',
+                    reason: '여름휴가'
+                },
+                {
+                    requestDate: '2025-06-15',
+                    leaveDate: '2025-06-20',
+                    leaveType: '반차',
+                    days: 0.5,
+                    status: 'APPROVED',
+                    reason: '병원'
+                }
+            ];
+            if (leaveGrid) {
+                leaveGrid.resetData(dummyData);
+            }
+        }
+        function applyLeave(e) {
+            e.preventDefault();
+            const form = document.getElementById('leaveForm');
+            const formData = $(form).serializeArray();
+            const data = {};
+            formData.forEach(item => data[item.name] = item.value);
+            data.comId = currentUser.comId;
+            data.empId = currentUser.empId;
+            $.ajax({
+                url: '/erp/hr/applyAnnualLeave',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(resp) {
+                    if (resp === 'ok') {
+                        Swal.fire({ icon: 'success', title: '신청 완료', text: '연차/휴가가 신청되었습니다.' });
+                        $('#leaveModal').modal('hide');
+                        loadLeaveData();
+                    } else {
+                        Swal.fire({ icon: 'error', title: '신청 실패', text: '신청 처리 중 오류가 발생했습니다.' });
+                    }
+                },
+                error: function() {
+                    Swal.fire({ icon: 'error', title: '신청 실패', text: '신청 처리 중 오류가 발생했습니다.' });
+                }
+            });
+        }
+
+        // 이벤트 바인딩
+        $(document).ready(function() {
+            // 초기화
+            getCurrentUser();
+            initGrid();
+            initDateRange();
+            
+            // 버튼 이벤트
+            $('#btnCheckIn').on('click', checkIn);
+            $('#btnCheckOut').on('click', checkOut);
+            $('#btnSearch').on('click', loadAttendanceData);
+            
+            // 날짜 버튼 이벤트
+            $('#btnToday').on('click', function() {
+                const today = new Date().toISOString().split('T')[0];
+                $('#fromDate').val(today);
+                $('#toDate').val(today);
+                loadAttendanceData();
+            });
+            
+            $('#btnThisWeek').on('click', function() {
+                const today = new Date();
+                const startOfWeek = new Date(today);
+                startOfWeek.setDate(today.getDate() - today.getDay());
+                
+                $('#fromDate').val(startOfWeek.toISOString().split('T')[0]);
+                $('#toDate').val(today.toISOString().split('T')[0]);
+                loadAttendanceData();
+            });
+            
+            $('#btnThisMonth').on('click', function() {
+                const today = new Date();
+                const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                
+                $('#fromDate').val(startOfMonth.toISOString().split('T')[0]);
+                $('#toDate').val(today.toISOString().split('T')[0]);
+                loadAttendanceData();
+            });
+            
+            // 날짜 변경 시 자동 조회
+            $('#fromDate, #toDate').on('change', function() {
+                if ($('#fromDate').val() && $('#toDate').val()) {
+                    loadAttendanceData();
+                }
+            });
+            
+            // 페이지 로드 시 오늘 데이터 조회
+            loadAttendanceData();
+
+            // 연차/휴가 그리드 및 신청 기능 초기화
+            initLeaveGrid();
+            // 연차/휴가 탭 진입 시 데이터 로드
+            $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                if (e.target.id === 'tab-leave') {
+                    if (!leaveGridInitialized) {
+                        initLeaveGrid();
+                    }
+                    loadLeaveData();
+                    if (leaveGrid && typeof leaveGrid.refreshLayout === 'function') {
+                        leaveGrid.refreshLayout();
+                    }
+                }
+            });
+            // 연차 신청 버튼
+            $('#btnApplyLeave').on('click', function() {
+                $('#leaveModal').modal('show');
+            });
+            // 연차 신청 폼 제출
+            $('#leaveForm').on('submit', applyLeave);
+            // 연차 조회 버튼
+            $('#btnLeaveSearch').on('click', loadLeaveData);
+            // 연차 기간 기본값(올해)
+            const today = new Date();
+            const yearStart = new Date(today.getFullYear(), 0, 1);
+            $('#leaveFromDate').val(yearStart.toISOString().split('T')[0]);
+            $('#leaveToDate').val(today.toISOString().split('T')[0]);
+
+            // 연차/휴가 내역 그리드 행 클릭 시 상세/수정/취소 모달 오픈
+            if (leaveGrid) {
+                leaveGrid.on('click', ev => {
+                    if (ev.rowKey != null) {
+                        selectedLeaveRowKey = ev.rowKey;
+                        highlightSelectedLeaveRow();
+                        const row = leaveGrid.getRow(ev.rowKey);
+                        openLeaveDetailModal(row);
+                    }
+                });
+            }
+        });
+
+        // 연차/휴가 내역 그리드 행 클릭 시 상세/수정/취소 모달 오픈
+        function openLeaveDetailModal(row) {
+            // 데이터 바인딩
+            const form = document.getElementById('leaveDetailForm');
+            form.requestDate.value = row.requestDate || '';
+            form.leaveDate.value = row.leaveDate || '';
+            form.leaveType.value = row.leaveType || '';
+            form.days.value = row.days || '';
+            form.reason.value = row.reason || '';
+            // 상태 뱃지
+            const statusEl = document.getElementById('leaveDetailStatus');
+            let badgeClass = 'bg-secondary';
+            let statusText = row.status || '';
+            if (row.status === 'APPROVED') { badgeClass = 'bg-success'; statusText = '승인'; }
+            else if (row.status === 'PENDING') { badgeClass = 'bg-warning text-dark'; statusText = '대기'; }
+            else if (row.status === 'REJECTED') { badgeClass = 'bg-danger'; statusText = '반려'; }
+            statusEl.className = 'badge ' + badgeClass;
+            statusEl.textContent = statusText;
+            // 상태에 따라 입력/버튼 제어
+            const editable = row.status === 'PENDING';
+            form.leaveDate.disabled = !editable;
+            form.leaveType.disabled = !editable;
+            form.reason.disabled = !editable;
+            document.getElementById('btnLeaveUpdate').disabled = !editable;
+            document.getElementById('btnLeaveCancel').disabled = !editable;
+            // 모달 오픈
+            const modal = new bootstrap.Modal(document.getElementById('leaveDetailModal'));
+            modal.show();
+        }
+        // 수정/취소 버튼 이벤트(실제 연동은 추후 구현)
+        document.getElementById('btnLeaveUpdate').onclick = function() {
+            // TODO: 입력값 검증 및 서버 연동
+            alert('수정 기능은 추후 구현됩니다.');
+        };
+        document.getElementById('btnLeaveCancel').onclick = function() {
+            if (confirm('정말로 이 연차/휴가 신청을 취소하시겠습니까?')) {
+                // TODO: 서버 연동
+                alert('취소 기능은 추후 구현됩니다.');
+            }
+        };
+
+        // 선택된 행 강조 기능
+        function highlightSelectedLeaveRow() {
+            if (!leaveGrid) return;
+            leaveGrid.removeRowClassName('selected-row');
+            if (selectedLeaveRowKey !== null) {
+                leaveGrid.addRowClassName(selectedLeaveRowKey, 'selected-row');
+                leaveGrid.refreshLayout();
+            }
+        }
+    </script>
+</body>
+</html> 

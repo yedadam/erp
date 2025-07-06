@@ -62,4 +62,32 @@ public interface EmpMapper {
      * @param totalLeave - 연차 총일수
      */
     void updateAnnualLeaveTotal(String empId, String comId, int totalLeave);
+    
+    /**
+     * 연차 정보 조회
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @return 연차 정보
+     */
+    EmpVO getAnnualLeaveInfo(@Param("empId") String empId, @Param("comId") String comId);
+    
+    /**
+     * 연차 정보 업데이트
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @param totalLeave - 연차 총일수
+     * @param usedLeave - 연차 사용일수
+     * @return 업데이트 결과
+     */
+    int updateAnnualLeaveInfo(@Param("empId") String empId, @Param("comId") String comId, 
+                             @Param("totalLeave") int totalLeave, @Param("usedLeave") int usedLeave);
+    
+    /**
+     * 연차 사용 처리
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @param usedDays - 사용일수
+     * @return 처리 결과
+     */
+    int useAnnualLeave(@Param("empId") String empId, @Param("comId") String comId, @Param("usedDays") int usedDays);
 }
