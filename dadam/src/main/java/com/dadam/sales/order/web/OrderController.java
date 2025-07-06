@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jfree.util.Log;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +24,10 @@ import com.dadam.sales.order.service.OrdDtlVO;
 import com.dadam.sales.order.service.OrdReqVO;
 import com.dadam.sales.order.service.OrderService;
 import com.dadam.sales.order.service.OrdersVO;
+import com.dadam.standard.item.service.ItemService;
+import com.dadam.standard.item.service.ItemVO;
+import com.dadam.standard.vender.service.VenderService;
+import com.dadam.standard.vender.service.VenderVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -33,12 +38,31 @@ public class OrderController {
 	
 	final OrderService orderService;
 	final CodeService codeService; 
+	final VenderService venderService;
+	final ItemService itemService;
+	
+
+	
+	@GetMapping("/venderAll")
+	@ResponseBody
+	public List<VenderVO> venderAll(@RequestParam (defaultValue = "",required = false) String type,@RequestParam(defaultValue = "",required = false) String value) {
+		return venderService.venderFindAll(type,value);
+	}
+	
+	@GetMapping("/itemAll")
+	@ResponseBody
+	public List<ItemVO> itemAll(@RequestParam(defaultValue = "",required = false) String type,@RequestParam(defaultValue = "",required = false) String value) {
+		return itemService.itemFindAll(type,value);
+	}
+	
+	
 	
 	@GetMapping("/order")
 	public String order(Model model) {
 		
 		model.addAttribute("payMethod",codeService.getCodeMap("opm"));
 		model.addAttribute("status",codeService.getCodeMap("ost")); 
+		model.addAttribute("itemType",codeService.getCodeList("it")); 
 
 		return "sales/order";
 	}
@@ -59,7 +83,7 @@ public class OrderController {
 	@ResponseBody
 	@PostMapping("/ord/register")
 	public String registerOrder(@RequestBody OrdReqVO req) {
-		req.getOrd().setEmpId("emp-101");
+		//req.getOrd().setEmpId("emp-101");
 		String vdrcode=req.getOrd().getVdrCode();
 		Long totPrice=req.getOrd().getTotPrice(); // 총금액 해당 거래처코드에 가서 credit_bal_price-totPrice 여신잔액  
 		orderService.orderInsert(req); //insert 처리 		{ord:{}}

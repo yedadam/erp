@@ -126,7 +126,7 @@ order by vdr_code desc
     CREDIT_BAL_PRICE = #{creditBalPrice},
     DISCOUNT = #{discount}
   WHERE VDR_CODE = #{vdrCode}
-   AND COM_ID = #{comId}
+  AND COM_ID = #{comId}
 </update>
 <delete id="deleteVender">
 DELETE FROM vender 

@@ -93,6 +93,9 @@
 	color: #fd7e14; /* 주황색 */
 	font-weight: bold;
 }
+	.row-selected {
+    	background-color: #e6f2ff !important;
+  	}
 
 </style>
 </head>
@@ -312,7 +315,7 @@
             rowHeaders: ['checkbox'],
             // 페이지네이션
             pageOptions: {
-                perPage: 10,
+                perPage: 5,
                 useClient: true,
             },
             // 필드값 구성
@@ -327,7 +330,7 @@
                 		formatter: function(price){return priceFormat(price.value)+'원';},},
                 {header: '상태', name: 'status', align: 'center',
 						formatter:function(status){return headstatus(status.value)}
-									},
+				},
 				{header: '주문번호', name: 'ordCode', align: 'center'},
 				{header: '등록일자', name: 'createdDate', align: 'center'}
             ],
@@ -358,8 +361,9 @@
                 	formatter: function(discPrice){  return discPrice.value+'원'; },},
 								{header:'합계금액', name: 'totPrice', align: 'right', 
                 	formatter: function(totPrice){ return priceFormat(totPrice.value)+'원';},},	
-                {header:'상태', name: 'status', align: 'center'},
-								{header:'회사ID', name: 'comId', align: 'center'},	
+                {header:'상태', name: 'status', align: 'center',
+					formatter:function(status){return detailStatus(status.value)} },
+				{header:'회사ID', name: 'comId', align: 'center'},	
             ]
         });
         
@@ -519,15 +523,26 @@
         });
 		//메인그리드 클릭 RowKey
 		let mainRowKey = null;
-		//메인그리드 클릭창
+		let  selectedRowKey;
+
 		mainGrid.on('click',ev => {
-			// console.log('shipReqCode',mainGrid.getCheckedRows()[0].shipReqCode);
-			 console.log('ev.targetType:', ev.targetType);
- 			 console.log('ev.columnName:', ev.columnName);
- 			 console.log('ev.rowKey:', ev.rowKey);
-			 if(pageStatus=='search'){
-			 		shipReqDtlList(mainGrid.getCheckedRows()[0].shipReqCode);
+
+			if(pageStatus=='search'){
+			 	shipReqDtlList(mainGrid.getData()[ev.rowKey].shipReqCode); //상세정보조회
 			}
+
+			//클릭하면 체크한 행색깔 바뀜 
+			mainGrid.removeRowClassName(selectedRowKey,'row-selected'); 
+			selectedRowKey=ev.rowKey; 
+			mainGrid.addRowClassName(ev.rowKey,'row-selected'); 
+
+
+			const checkedRows = mainGrid.getCheckedRowKeys();
+			if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
+				mainGrid.uncheckAll(); // 전체 해제
+				mainGrid.check(ev.rowKey); // 현재 행만 체크
+				}			
+		
 			if (!ev.targetType || ev.targetType !== 'cell') {
 			    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
 			    return;
@@ -549,11 +564,7 @@
         			requestGrid.refreshLayout();
         })
 			}
-			const checkedRows = mainGrid.getCheckedRowKeys();
-			if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
-				mainGrid.uncheckAll(); // 전체 해제
-				mainGrid.check(ev.rowKey); // 현재 행만 체크
-				}			
+		
 		})
 		//주문의뢰 모달창
 		function requestModal(){	
@@ -852,24 +863,7 @@
 			requestModal(); 
 		 })
 
-	     //상세조회
-	    mainGrid.on('check',ev => {
-	    if(!ev.rowKey){
-	    	return;
-	    }
-	    if(pageStatus=='search'){
-	    		//체크된행 파악
-	    	let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
-	    	let mainRowData = mainGrid.getRow(mainRowIndex).shipReqCode //문자열
-	    	$.ajax({
-	    		url:`/erp/sales/shipReqDetailList/${mainRowData}`,
-	    		method:'GET',
-	    		success:result => {detailGrid.resetData(result);}	
-			})
-	    }
-			console.log('mainRowData shipReqCode', mainRowData);
-	
-	     })
+	   
 	     //수정 함수
 	     async function shipReqModify(){
 	    	 let checkedRows = detailGrid.getModifiedRows();
@@ -925,10 +919,20 @@
 			return status;
 		} 
 	}
-
-	function detailStatus(){
-		console.log('dtlStatus',dtlStatus); 
+	function detailStatus(status){
+		if(status=='srd01'){
+				return `<span class="del-action">출하의뢰</span>`
+		}else if(status=='srd02') {
+			return `<span class="middle-action">부분출고</span>`; 
+		}else if(status=='srd03'){
+			return `<span class="end-action">출하완료</span>`
+		}else if(status=='srd04'){
+			return `<span class="middle-action">홀드중</span>`;
+		} else{
+			return status;
+		} 
 	}
+
 
 	
 </script>
