@@ -177,7 +177,13 @@
 	      { call update_credit_balance_if_opm(#{ordCode, mode=IN, jdbcType=VARCHAR}) }
 	    ]]>
   </select>
-	
+	<update id="callPrcCreditBalanceForModify">
+	<![CDATA[
+		{ call 	 prc_credit_balance_for_modify(#{ordCode,jdbcType=VARCHAR},
+											   #{comId,jdbcType=VARCHAR},
+											   #{total,jdbcType=NUMERIC})}
+	]]>
+	</update>	
 
 
 

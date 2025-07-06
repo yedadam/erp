@@ -105,9 +105,6 @@
 				<button id="deleteRow" class="btn btn-danger">
 					<i class="fas fa-trash"></i> 행삭제
 				</button>
-				<button id="statusCheck" class="btn btn-primary">
-					<i class="fas fa-trash"></i> 상태
-				</button>
 				</div>
 			</div>
 			</div>
@@ -856,7 +853,9 @@
 					icon: "success",
 					draggable: true
 				});
+				orderList();
 				orderGrid.uncheckAll();
+				ordDtlGrid.resetData();
 			}
 		})
 	})

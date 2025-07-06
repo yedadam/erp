@@ -87,8 +87,16 @@ public class OrderServiceImpl implements OrderService {
 		String ordCode=dtl.getOrdCode(); // ord-101 프론트에서 ordCode 받아와야 함 
 		System.out.println("ordCode 잘 받아오는지 확인하기 !!!!"+ordCode);
 		dtl.setComId(comId);
+		Long  total=0L;
+		for(int i=0;i<orderMapper.findOrdListByOrdNo(ordCode).size();i++) {
+			total+=orderMapper.findOrdListByOrdNo(ordCode).get(i).getTotPrice();
+			System.out.println(orderMapper.findOrdListByOrdNo(ordCode).get(i).getTotPrice()); //기존 디테일 가격들을 더함 => 
+		}
+		System.out.println("원래 주문한 total=>"+total); //기존 order 테이블의 총금액이됨 
+		
 		orderMapper.updOrdDtl(dtl); //단건 주문 디테일 수정함
-		orderMapper.callUpdateOrderTotals(ordCode); //단건 수정한뒤에 주문건 헤더 update  TOT_SUP_PRICE,TOT_VAT_PRICE,TOT_DISC,TOT_PRICE,TOT_QUANTITY
+		orderMapper.callUpdateOrderTotals(ordCode); //단건 수정한뒤에 주문건 헤더 update  총가격,총부가세,총할인,총수량
+		orderMapper.callPrcCreditBalanceForModify(ordCode, comId,total); //주문수정하면 거래처 여신잔량도 update됨  
 		return 0;
 	}
 
