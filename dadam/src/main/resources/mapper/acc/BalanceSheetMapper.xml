@@ -2,17 +2,80 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.acc.account.mapper.BalanceSheetMapper">
 
-<select id="balanceSheetFindAll">
-	SELECT acct_code, acct_name, acct_type
-		   SUM(CASE WHEN i.type = 'itp01' THEN price ELSE 0 END) AS debit_total, 
-           SUM(CASE WHEN i.type = 'itp02' THEN price ELSE 0 END) AS credit_total
-      FROM vw_income_statement_base
-     WHERE com_id = #{comId}
-       AND TO_CHAR)(created_date, 'YYYY' ) = #{baseYear}
-     GROUP BY acct_type, acct_name
-     ORDER BY acct_type, acct_name
-</select>
+  <!-- 재무상태표 요약 리스트 조회 -->
+  <select id="selectBalanceSheet" resultType="BalanceSheetDTO">
+ SELECT 
+  acct_type,
+  acct_type_name,
+  acct_code,
+  name,
+  SUM(debit) AS debit,
+  SUM(credit) AS credit,
+  CASE 
+    WHEN acct_type IN ('1', '5') THEN SUM(debit) - SUM(credit)
+    ELSE SUM(credit) - SUM(debit)
+  END AS balance
+FROM VW_BALANCE_SHEET_SUMMARY
+<where>
+  <if test="year != null and year != ''">
+    year = #{year}
+  </if>
+  <if test="quarter != null and quarter != ''">
+    AND quarter = #{quarter}
+  </if>
+  <if test="half != null and half != ''">
+    AND half = #{half}
+  </if>
+  <if test="ym != null and ym != ''">
+    AND ym = #{ym}
+  </if>
+  <if test="acctType != null and acctType != ''">
+    AND acct_type IN
+    <foreach item="type" collection="acctType.split(',')" open="(" separator="," close=")">
+      #{type}
+    </foreach>
+  </if>
+</where>
+GROUP BY acct_type, acct_type_name, acct_code, name
+ORDER BY acct_type, acct_code
+  </select>
 
+<!-- com_id = #{comId} -->
 
+<!-- 재무상태표 VIEW
+CREATE OR REPLACE FORCE VIEW "DADAM"."VW_BALANCE_SHEET_SUMMARY" (
+  "YEAR", "HALF", "QUARTER", "YM", "ACCT_TYPE", "ACCT_TYPE_NAME", "ACCT_CODE", "NAME", "COM_ID", "ITP_TYPE", "DEBIT", "CREDIT"
+) AS 
+SELECT
+  TO_CHAR(ch.created_date, 'YYYY') AS year,
+  CASE 
+    WHEN EXTRACT(MONTH FROM ch.created_date) BETWEEN 1 AND 6 THEN 'H1'
+    ELSE 'H2'
+  END AS half,
+  'Q' || TO_CHAR(ch.created_date, 'Q') AS quarter,
+  TO_CHAR(ch.created_date, 'YYYY-MM') AS ym,
+  
+  a.acct_type, at.type_name AS acct_type_name, a.acct_code, a.name, i.com_id, i.type AS itp_type,
+  
+  SUM(CASE WHEN i.type = 'itp01' THEN i.price ELSE 0 END) AS debit,
+  SUM(CASE WHEN i.type = 'itp02' THEN i.price ELSE 0 END) AS credit
+
+FROM indignation i
+JOIN chit ch ON i.chit_code = ch.chit_code
+JOIN account a ON i.acct_code = a.acct_code
+JOIN acct_type at ON a.acct_type = at.type_code
+
+WHERE ch.status = 'cst04'
+
+GROUP BY
+  TO_CHAR(ch.created_date, 'YYYY'),
+  CASE 
+    WHEN EXTRACT(MONTH FROM ch.created_date) BETWEEN 1 AND 6 THEN 'H1'
+    ELSE 'H2'
+  END,
+  'Q' || TO_CHAR(ch.created_date, 'Q'),
+  TO_CHAR(ch.created_date, 'YYYY-MM'),
+  a.acct_type, at.type_name, a.acct_code, a.name, i.com_id,  i.type;
+   -->
 
 </mapper>

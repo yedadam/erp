@@ -102,13 +102,13 @@ public class ChitServiceImpl implements ChitService{
 	}
 	@Override
 	@Transactional
-	public void modifyChitPay(String chitCode, String articleCode, String comId, int totPrice) {
+	public void modifyChitPay(String chitCode, String articleCode, int totPrice) {
         // 1. 전표 상태 변경
         chitMapper.modifySta(chitCode, comId);
 
         // 2. 여신잔액 변경
         String ttype = chitMapper.getTtypeByChitCode(chitCode, comId);  // 추가 필요
-        if ("cht01".equals(ttype)) { // "수금"에 해당하는 거래유형 코드
+        if ("cht03".equals(ttype)) { // "수금"에 해당하는 거래유형 코드
             chitMapper.modifyVarBal(articleCode, totPrice, comId);
         }
 	}

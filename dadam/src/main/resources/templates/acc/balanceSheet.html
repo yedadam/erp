@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
+<body>
+
+	<h2>재무상태표</h2>
+
+	<ul class="nav nav-tabs mb-3" id="acctTab">
+		<li class="nav-item">
+			<button class="nav-link active" data-type=""
+				onclick="filterBalanceTab(this)">전체</button>
+		</li>
+		<li class="nav-item">
+			<button class="nav-link" data-type="1"
+				onclick="filterBalanceTab(this)">자산</button>
+		</li>
+		<li class="nav-item">
+			<button class="nav-link" data-type="2"
+				onclick="filterBalanceTab(this)">부채</button>
+		</li>
+		<li class="nav-item">
+			<button class="nav-link" data-type="3"
+				onclick="filterBalanceTab(this)">자본</button>
+		</li>
+	</ul>
+	<div class="d-flex justify-content-end mb-2">
+  <button class="btn btn-outline-secondary" onclick="showBalanceSummary()">요약 보기</button>
+</div>
+
+	<form id="filterForm" class="row mb-4">
+		<div class="col-md-2">
+			<label>연도</label> <select id="year" class="form-select">
+				<option th:each="y : ${yearList}" th:value="${y}" th:text="${y}"
+					th:selected="${y == param.year}"></option>
+			</select>
+		</div>
+		<div class="col-md-2">
+			<label>반기</label> <select id="half" class="form-select">
+				<option value="">전체</option>
+				<option value="H1">상반기</option>
+				<option value="H2">하반기</option>
+			</select>
+		</div>
+		<div class="col-md-2">
+			<label>분기</label> <select id="quarter" class="form-select">
+				<option value="">전체</option>
+				<option value="Q1">1분기</option>
+				<option value="Q2">2분기</option>
+				<option value="Q3">3분기</option>
+				<option value="Q4">4분기</option>
+			</select>
+		</div>
+		<div class="col-md-2 align-self-end">
+			<button type="button" class="btn btn-primary"
+				onclick="loadBalanceData()">조회</button>
+		</div>
+	</form>
+
+	<!-- Toast UI Grid -->
+	<div class="col-12">
+		<div id="balanceGrid" style="height: 600px;"></div>
+	</div>
+	
+	<!-- 재무상태표 요약 모달 -->
+<div class="modal fade" id="summaryModal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="summaryModalLabel">재무상태표 요약</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+      </div>
+      <div class="modal-body" id="modalSummaryContent">
+        <!-- 계산된 내용이 여기에 삽입됨 -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+	
+
+</body>
+
+<script>
+//Toast UI Grid 초기화
+//- 재무상태표 데이터를 표 형식으로 보여주기 위한 그리드 설정
+let balGrid = new tui.Grid({
+el: document.getElementById('balanceGrid'),  // Grid를 출력할 DOM 요소
+scrollX: false,  // 가로 스크롤 비활성화
+scrollY: false,  // 세로 스크롤 비활성화
+pagination: true,
+pageOptions: {
+ useClient: true, // 클라이언트 사이드 페이지네이션 사용
+ perPage: 15      // 페이지당 15개 행 표시
+},
+columns: [
+ {
+   header: '구분',
+   name: 'acctTypeName',
+   align: 'center',
+   // 합계 행이면 굵게 표시, 아니면 일반 텍스트
+   formatter: ({ row }) => {
+     return row.isSummary
+       ? `<strong>${row.acctTypeName}</strong>`
+       : row.acctTypeName;
+   }
+ },
+ {
+   header: '계정명',
+   name: 'name',
+   align: 'left'
+ },
+ {
+   header: '금액',
+   name: 'balance',
+   align: 'right',
+   // 금액 형식 변환 및 합계 행에 스타일 적용
+   formatter: ({ row }) => {
+     const amount = Number(row.balance || 0);
+     const text = amount.toLocaleString() + '원';
+     return row.isSummary
+       ? `<strong style="color: navy;">${text}</strong>`
+       : text;
+   }
+ }
+]
+});
+
+
+//데이터 배열을 받아서 자산/부채/자본 항목별 합계를 계산하는 함수
+//- 출력은 객체 형태로 반환: { '자산': 1000000, '부채': 300000, ... }
+function calculateSummary(data) {
+const summary = {};
+data.forEach(row => {
+ const type = row.acctTypeName;
+ const amount = Number(row.balance || 0);
+
+ if (!summary[type]) {
+   summary[type] = 0;
+ }
+ summary[type] += amount;
+});
+return summary;
+}
+
+//자산, 부채, 자본의 합계를 계산하고
+//"자산 = 부채 + 자본" 등식을 만족하는지 결과를 화면에 표시하는 함수
+//- 내부에서 calculateSummary(data)를 재사용함
+//- 결과는 #balanceSummary 요소에 HTML로 출력
+// 버튼 클릭 시 실행되는 함수
+function showBalanceSummary() {
+  const gridData = balGrid.getData();  // 현재 그리드 데이터 사용
+  const summary = calculateSummary(gridData);
+
+  const asset = summary['자산'] || 0;
+  const liability = summary['부채'] || 0;
+  const capital = summary['자본'] || 0;
+  const totalRight = liability + capital;
+  const isEqual = asset === totalRight;
+
+  const content = `
+    자산: <b>${asset.toLocaleString()}원</b><br>
+    부채: ${liability.toLocaleString()}원<br>
+    자본: ${capital.toLocaleString()}원<br>
+    <hr class="my-2">
+    부채 + 자본: <b>${totalRight.toLocaleString()}원</b><br>
+    ${isEqual
+      ? '<span class="text-success"><b>정상: 자산 = 부채 + 자본</b></span>'
+      : '<span class="text-danger"><b>불일치: 자산과 부채+자본이 일치하지 않습니다</b></span>'
+    }
+  `;
+
+  $('#modalSummaryContent').html(content);
+
+  const modal = new bootstrap.Modal(document.getElementById('summaryModal'));
+  modal.show();
+}
+
+
+
+//서버에서 받은 raw 데이터를 구분별로 그룹핑하고
+//각 그룹(자산, 부채, 자본)의 마지막에 '합계' 행을 추가하여 새로운 배열을 반환
+function groupAndAddSubtotals(data) {
+  const result = [];
+  let currentGroup = null;
+  let subtotal = 0;
+
+  let liabilitySum = 0;
+  let capitalSum = 0;
+
+  data.forEach((row, idx) => {
+    if (currentGroup === null) currentGroup = row.acctTypeName;
+
+    if (row.acctTypeName !== currentGroup) {
+      result.push({
+        acctTypeName: currentGroup + ' 합계',
+        name: '',
+        balance: subtotal,
+        isSummary: true
+      });
+
+      currentGroup = row.acctTypeName;
+      subtotal = 0;
+    }
+
+    result.push(row);
+    const amount = Number(row.balance || 0);
+    subtotal += amount;
+
+    // 부채, 자본인 경우 별도 누적
+    if (row.acctTypeName === '부채') {
+      liabilitySum += amount;
+    }
+    if (row.acctTypeName === '자본') {
+      capitalSum += amount;
+    }
+
+    if (idx === data.length - 1) {
+      result.push({
+        acctTypeName: currentGroup + ' 합계',
+        name: '',
+        balance: subtotal,
+        isSummary: true
+      });
+
+      // 부채 + 자본 총합 행 추가
+      result.push({
+        acctTypeName: '부채 + 자본',
+        name: '',
+        balance: liabilitySum + capitalSum,
+        isSummary: true
+      });
+    }
+  });
+
+  return result;
+}
+
+
+
+//자산/부채/자본 탭 클릭 시 실행되는 함수
+//- 선택된 버튼에 active 클래스 적용
+//- 선택한 계정 유형(acctType)에 따라 데이터 조회 요청
+function filterBalanceTab(button) {
+const acctType = $(button).data('type') || ''; // 기본값: 전체 조회
+
+// 모든 탭 비활성화 후, 현재 선택된 탭만 활성화
+$('#acctTab .nav-link').removeClass('active');
+$(button).addClass('active');
+
+// 선택된 유형에 따라 데이터 로드
+loadBalanceData(acctType);
+}
+
+
+//서버에서 재무상태표 데이터를 조회하는 함수
+//- 연도, 반기, 분기, 월, 계정유형(acctType)에 따라 데이터 필터링
+//- 받은 데이터를 Grid에 세팅하고, 구분별 합계도 포함시킴
+function loadBalanceData(acctType = '') {
+const year = $('#year').val();
+const half = $('#half').val();
+const quarter = $('#quarter').val();
+const ym = $('#ym')?.val() || ''; // 월 필터는 선택사항
+
+$.ajax({
+ url: "/erp/accounting/balanceData",
+ method: "GET",
+ data: { year, half, quarter, ym, acctType },
+ success: function (result) {
+   const finalData = groupAndAddSubtotals(result); // 합계 행 추가
+   balGrid.resetData(finalData);                   // 그리드 데이터 갱신
+   calculateAndRenderSummary(result); 
+ }
+});
+}
+
+
+//페이지 최초 로딩 시 전체 재무상태표 데이터 조회
+$(document).ready(function () {
+loadBalanceData(); // 초기 조회 (전체 계정)
+});
+
+</script>
+</html>
