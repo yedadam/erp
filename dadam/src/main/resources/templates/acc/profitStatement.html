@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
+<body>
+
+<h2 class="fw-bold mb-3">손익계산서</h2>
+
+<!-- 조회 필터 -->
+<form class="row mb-3">
+  <div class="col-md-2">
+    <label>연도</label>
+    <select id="year" class="form-select">
+      <option th:each="y : ${yearList}" th:value="${y}" th:text="${y}" th:selected="${y == param.year}"></option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label>반기</label>
+    <select id="half" class="form-select">
+      <option value="">전체</option>
+      <option value="H1">상반기</option>
+      <option value="H2">하반기</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label>분기</label>
+    <select id="quarter" class="form-select">
+      <option value="">전체</option>
+      <option value="Q1">1분기</option>
+      <option value="Q2">2분기</option>
+      <option value="Q3">3분기</option>
+      <option value="Q4">4분기</option>
+    </select>
+  </div>
+  <div class="col-md-2 align-self-end">
+    <button type="button" class="btn btn-primary" onclick="loadProfitData()">조회</button>
+  </div>
+  <div class="col-md-2 align-self-end text-end">
+    <button type="button" class="btn btn-outline-secondary" onclick="showProfitSummary()">요약 보기</button>
+  </div>
+</form>
+
+<!-- Toast UI Grid -->
+<div id="profitGrid" style="height: 600px;"></div>
+
+<!-- 손익 요약 모달 -->
+<div class="modal fade" id="profitSummaryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">손익 요약</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="profitSummaryContent"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+
+<script>
+// 1. 손익계산서 그리드 초기화
+let profitGrid = new tui.Grid({
+  el: document.getElementById('profitGrid'),
+  scrollX: false,
+  scrollY: false,
+  pagination: true,
+  pageOptions: {
+    useClient: true,
+    perPage: 15
+  },
+  columns: [
+    {
+      header: '구분',
+      name: 'acctTypeName',
+      align: 'center',
+      formatter: ({ row }) => {
+        return row.isSummary
+          ? `<strong>${row.acctTypeName}</strong>`
+          : row.acctTypeName;
+      }
+    },
+    {
+      header: '계정명',
+      name: 'name',
+      align: 'left'
+    },
+    {
+      header: '금액',
+      name: 'balance',
+      align: 'right',
+      formatter: ({ row }) => {
+        const amount = Number(row.balance || 0);
+        const text = amount.toLocaleString() + '원';
+        return row.isSummary
+          ? `<strong style="color: navy;">${text}</strong>`
+          : text;
+      }
+    }
+  ]
+});
+
+
+// 2. 수익/비용 구분 그룹 + 합계 + 당기순이익 표시
+function groupAndAddSubtotalsForProfit(data) {
+  const result = [];
+  let currentGroup = null;
+  let subtotal = 0;
+
+  let totalRevenue = 0;
+  let totalExpense = 0;
+
+  data.forEach((row, idx) => {
+    if (currentGroup === null) currentGroup = row.acctTypeName;
+
+    if (row.acctTypeName !== currentGroup) {
+      result.push({
+        acctTypeName: currentGroup + ' 합계',
+        name: '',
+        balance: subtotal,
+        isSummary: true
+      });
+      currentGroup = row.acctTypeName;
+      subtotal = 0;
+    }
+
+    result.push(row);
+
+    const amount = Number(row.balance || 0);
+    subtotal += amount;
+
+    if (row.acctTypeName === '수익') totalRevenue += amount;
+    if (row.acctTypeName === '비용') totalExpense += amount;
+
+    if (idx === data.length - 1) {
+      result.push({
+        acctTypeName: currentGroup + ' 합계',
+        name: '',
+        balance: subtotal,
+        isSummary: true
+      });
+
+      result.push({
+        acctTypeName: '당기순이익',
+        name: '',
+        balance: totalRevenue - totalExpense,
+        isSummary: true
+      });
+    }
+  });
+
+  return result;
+}
+
+
+// 3. Ajax로 손익 데이터 조회
+function loadProfitData() {
+  const year = $('#year').val();
+  const half = $('#half').val();
+  const quarter = $('#quarter').val();
+
+  $.ajax({
+    url: "/erp/accounting/profitData", // 너가 만든 API 경로
+    method: "GET",
+    data: { year, half, quarter },
+    success: function (result) {
+      const finalData = groupAndAddSubtotalsForProfit(result);
+      profitGrid.resetData(finalData);
+    }
+  });
+}
+
+
+// 4. 요약 모달 표시 함수
+function showProfitSummary() {
+  const data = profitGrid.getData();
+  let totalRevenue = 0;
+  let totalExpense = 0;
+
+  data.forEach(row => {
+    if (row.acctTypeName === '수익') totalRevenue += Number(row.balance || 0);
+    if (row.acctTypeName === '비용') totalExpense += Number(row.balance || 0);
+  });
+
+  const netIncome = totalRevenue - totalExpense;
+
+  const html = `
+    수익 합계: <b>${totalRevenue.toLocaleString()}원</b><br>
+    비용 합계: ${totalExpense.toLocaleString()}원<br>
+    <hr>
+    <b>당기순이익: ${netIncome.toLocaleString()}원</b>
+  `;
+
+  $('#profitSummaryContent').html(html);
+  new bootstrap.Modal(document.getElementById('profitSummaryModal')).show();
+}
+
+
+// 5. 페이지 로딩 시 기본 조회
+$(document).ready(function () {
+  loadProfitData();
+});
+</script>
+
+
+</html>

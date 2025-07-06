@@ -82,7 +82,7 @@ function creditList(){
 		url: "/erp/accounting/creditFindAll",
 		method:"GET",
 		success: function(result){
-			console.log(result)
+			console.log('data', result)
 		creGrid.resetData(result);
 		}
 	});

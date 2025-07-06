@@ -16,7 +16,7 @@
     	 , v.credit_price
     	 , v.credit_bal_price
     	 , v.credit_period
-    	 , get_credit_status(credit_bal_price) status
+    	 , get_credit_status(credit_bal_price, credit_price ) status
     	 , (SELECT MAX(c.update_date)
          	  FROM chit c
          	  JOIN orders o ON ord_code = article_code
