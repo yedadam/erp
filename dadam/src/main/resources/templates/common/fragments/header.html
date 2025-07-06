@@ -57,25 +57,19 @@
 
 			<!-- Alerts -->
 			<li class="nav-item dropdown no-arrow mx-1">
-				<a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"  onclick="loadChatRooms()">
-					<i class="fas fa-bell fa-fw"></i>
-					<span class="badge badge-danger badge-counter">3+</span>
-				</a>
-				<div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="alertsDropdown">
-					<h6 class="dropdown-header">Alerts Center</h6>
-					<!-- 예시 알림 -->
-					<a class="dropdown-item d-flex align-items-center" href="#">
-						<div class="me-3">
-							<div class="icon-circle bg-primary">
-								<i class="fas fa-file-alt text-white"></i>
-							</div>
-						</div>
-						<div>
-							<div class="small text-gray-500">2025-06-16</div>
-							새로운 보고서가 준비되었습니다!
-						</div>
-					</a>
+			<a class="nav-link dropdown-toggle" href="#" id="alertsDropdown"
+				role="button" data-bs-toggle="dropdown" aria-expanded="false"
+				> <i class="fas fa-bell fa-fw"></i> <span
+				class="badge badge-danger badge-counter">3+</span>
+			</a>
+
+			<div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+				aria-labelledby="alertsDropdown">
+				<h6 class="dropdown-header">Alerts Center</h6>
+
+				<div id="alertsDropdownMenu">
 				</div>
+			</div>
 			</li>
 
 			<!-- Messages (채팅방 목록) -->
@@ -140,7 +134,42 @@
 			</li>
 		</ul>
 	</nav>
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+	<div id="toastPopup"
+	style="
+		display: none;
+		position: fixed;
+		top: 10%;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 50%;
+		height: 80%;
+		background: #fff;
+		border: 1px solid #ddd;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+		z-index: 1000;">
+			<iframe id="toastPopupFrame" style="width: 100%; height: 90%; border: none;"></iframe>
+			<div style="padding: 10px; text-align: right;">
+			<button id="approveBtn" class="btn btn-sm btn-success me-3">승인</button>
+			<button id="resetBtn" class="btn btn-sm btn-warning me-3">반려</button>
+			<button id="closeToastPopup" class="btn btn-sm btn-danger">닫기</button>
+		</div>
+	</div>
+	<!-- 서명 모달/섹션 -->
+	<div class="modal fade" id="signModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body text-center">
+					<h5>결재 서명</h5>
+					<canvas id="canvas" width="300" height="150"
+						style="border: 1px solid #ccc;"></canvas>
+					<br>
+					<button class="btn btn-sm btn-secondary" onclick="clearSignature()">초기화</button>
+					<button class="btn btn-sm btn-success" id="imageAdd">저장</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 <script th:inline="javascript">
 	let empId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'e1018'}]];
@@ -232,9 +261,145 @@
 	    $('#chatInput').focus();
 	}
 	
-	
-	   
-	   
+	$('#alertsDropdown').on('click', ev =>  {
+		  ev.preventDefault();
+		  ev.stopPropagation();
+		  $.ajax({
+		    url: '/erp/inventory/mineEle', //
+		    type: 'GET',
+		    dataType: 'json',
+		    success: function (data) {
+		      const alertHtml = data.map(alert => `
+		        <a class="dropdown-item d-flex align-items-center" id='${alert.elecCode}' data-file='${alert.fileImage}' data-pk='${alert.pkCode}'href="#">
+		          <div class="me-3">
+		            <div class="icon-circle bg-info">
+		              <i class="fas fa-bell text-white"></i>
+		            </div>
+		          </div>
+		          <div>
+		            <div class="small text-gray-500">${alert.createdDate}</div>
+		            [${alert.pkCode}] ${alert.empName} 님 결재 요청
+		          </div>
+		        </a>
+		      `).join('');
+			  console.log(alertHtml)
+		      $('#alertsDropdownMenu').html(`
+		        <h6 class="dropdown-header">알림 센터</h6>
+		        ${alertHtml || '<div class="dropdown-item text-center text-muted small">알림이 없습니다.</div>'}
+		      `);
+		    },
+		    error: function () {
+		      $('#alertsDropdownMenu').html(`
+		        <h6 class="dropdown-header">알림 센터</h6>
+		        <div class="dropdown-item text-danger small">알림을 불러오지 못했습니다.</div>
+		      `);
+		    }
+		  });
+		});
+	 const canvas = document.getElementById('canvas');
+	  const signaturePad = new SignaturePad(canvas, {
+	    penColor: 'black',
+	    backgroundColor: 'rgba(255,255,255,0)'
+	  });
+
+    //클릭했을때 터짐	   
+	$(document).on('click', '#alertsDropdownMenu .dropdown-item', function (e) {
+		  e.preventDefault();
+		  const elecCode = $(this).attr('id');
+		  const fileImage = $(this).data('file');
+		  const pkCode = $(this).data('pk');
+		  console.log(pkCode);
+
+		//팝업창 열기
+	    	const popup = $('#toastPopup');
+	    	const iframe = $('#toastPopupFrame')
+	    	iframe.attr('src', `/erp/inventory/preview?setImage=${fileImage}`);
+	    	popup.show(); // 팝업 표시
+	    	$('#overlayBackground').show();
+	    	$('#closeToastPopup').on('click',ev => {
+	    		popup.hide();
+	    		$('#overlayBackground').hide();
+	    	})
+	    	
+	    	$('#approveBtn').on('click', function () {
+	    		  $('#signModal').modal('show'); // 전자서명 입력란 표시
+	    		});
+	    	$('#imageAdd').on('click',ev => {
+	    		if (signaturePad.isEmpty()) {
+	    		      alert("서명을 입력해주세요.");
+	    		      return;
+	    		}
+	    		const base64Image = signaturePad.toDataURL();
+	    		//파일 저장
+	    		 $.ajax({
+	    			    url: '/erp/inventory/insertSign',
+	    			    type: 'POST',
+	    			    contentType: 'application/json',
+	    			    data: JSON.stringify({
+	    			      elecCode: elecCode,
+	    			      fileImage: fileImage,
+	    			      signImage: base64Image,
+	    			      appId : empId
+	    			    }),
+	    			    success: function () {
+	    			    },
+	    			    error: function (error) {
+	    			      console.log(error);
+	    			      Swal.fire("실패", "서명 삽입에 실패했습니다.", "error");
+	    			      return;
+	    			    }
+	    			  });
+	    		//db 상태값 변경
+	    		$.ajax({
+	    			url: '/erp/inventory/statusUpdate',
+	    			type:'POST',
+	    			contentType: 'application/json',
+	    			data: JSON.stringify({
+	    			      elecCode: elecCode,
+	    			      pkCode: pkCode,
+	    			      approveStatus:'ap03',
+	    			}),
+	    			success: function () {
+	    			      Swal.fire("완료", "전자서명이 완료되었습니다.", "success");
+	    			      $('#signModal').modal('hide');
+	    			      $('#toastPopup').hide();
+	    			      $('#overlayBackground').hide();
+	    			      signaturePad.clear();
+	    			    },
+	    			    error: function (error) {
+	    			      console.log(error);
+	    			      Swal.fire("실패", "서명 삽입에 실패했습니다.", "error");
+	    			    }
+	    		})
+	    		});	
+	    	$('#resetBtn').on('click',ev => {
+	    		//db 상태값 변경
+	    		$.ajax({
+	    			url: '/erp/inventory/statusUpdate',
+	    			type:'POST',
+	    			contentType: 'application/json',
+	    			data: JSON.stringify({
+	    			      elecCode: elecCode,
+	    			      pkCode: pkCode,
+	    			      approveStatus:'ap04',
+	    			}),
+	    			success: function () {
+	    			      Swal.fire("완료", "해당 결산이 반려되었습니다.", "success");
+	    			      $('#toastPopup').hide();
+	    			      $('#overlayBackground').hide();
+	    			    },
+	    			    error: function (error) {
+	    			      console.log(error);
+	    			      Swal.fire("실패", "서명 삽입에 실패했습니다.", "error");
+	    			    }
+	    		})
+	    	})
+		});
+	 // 서명 초기화
+	  function clearSignature() {
+	    signaturePad.clear();
+	  }
+	 
 	</script>
 </body>
 </html>
