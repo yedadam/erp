@@ -24,5 +24,6 @@ public interface OrderMapper {
         public int updateCreditBal(@Param("totPrice") Long totPrice,@Param("vdrCode") String vdrCode,@Param("comId")String comId); 
         public void callUpdateOrderTotals(@Param("ordCode") String ordCode); //주문상세 변경후 전체
         public void callUpdateCreditBalanceIfOpm(@Param("ordCode") String ordCode ); //주문상세 삭제하면 거래처의 여신잔량이 삭제된 금액만큼 update처리됨 
+        public void callPrcCreditBalanceForModify(@Param("ordCode")String ordCode,@Param("comId")String comId,@Param("total") Long total); //주문수정후 거래처 여신잔량 변경
         
 }
