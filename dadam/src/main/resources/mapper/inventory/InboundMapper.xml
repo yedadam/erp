@@ -2,8 +2,28 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.inventory.inbound.mapper.InboundMapper">
 
+	<select id="selectPurchaseList" resultType="InboundVO" parameterType="String">
+	SELECT
+			lot,
+			item_code,
+			getitemName(item_code) itemName,
+			pur_ord_dtl_code,
+			emp_id,
+			getempName(emp_id, #{comId}) empName,
+			created_date,
+			quantity,
+			curr_qty,
+			price,
+			status,
+			getsubcode(status) statusName,
+			note,
+			loc_code
+	FROM purchase
+	WHERE com_id = #{comId}
+	ORDER BY created_date
+	</select>
 <!-- 주문입고를 위한 발주서 조회 -->
-	<select id="inboundPurchaseFindAll" resultType="PurchaseVO" parameterType="PurchaseVO">
+	<select id="inboundPurchaseFindAll" resultType="PurchaseVO" parameterType="String">
 	SELECT 
         pod.pur_ord_code,
         pod.pur_ord_dtl_code,
@@ -16,10 +36,13 @@
         pod.reccv_date,
         po.exp_dlv_date,
         getEmpName(po.emp_id, #{comId}) emp_id,
-        getvdrName(po.vdr_code) vdr_code
+        getvdrName(po.vdr_code) vdr_code,
+        nvl((select sum(curr_qty)
+	         from purchase
+	         where pur_ord_dtl_code =  pod.pur_ord_dtl_code),0) curr_qty
 	FROM purchaseOrderDetail pod join purchaseOrder po
 	                               on(pod.pur_ord_code=po.pur_ord_code AND pod.com_id = po.com_id)
-	WHERE pod.com_id = #{comId} and pod.status not in('pds-03')
+	WHERE pod.com_id = #{comId} and pod.status not in('pds03')
 	</select>
 	
 	<select id="warehouseList" resultType="InboundVO" parameterType="String">
@@ -35,7 +58,19 @@
 			SELECT 'inlot-' || (NVL(MAX(TO_NUMBER(SUBSTR(lot,7))),100)+1) lot
 			FROM purchase
 		</selectKey>
-		INSERT INTO purchase
+		INSERT INTO purchase(
+					LOT,
+					ITEM_CODE,
+					PUR_ORD_DTL_CODE,
+					EMP_ID,
+					CREATED_DATE,
+					QUANTITY,
+					CURR_QTY,
+					PRICE,
+					STATUS,
+					NOTE,
+					COM_ID,
+					LOC_CODE)
 		VALUES (#{lot}, #{itemCode}, #{purOrdDtlCode}, #{empId}, sysdate, #{quantity}, #{currQty}, #{price}, #{status}, #{note}, #{comId}, #{locCode})
 	</insert>
 	
@@ -94,5 +129,9 @@
 	<update id="prcPurchaseOrderStatus" parameterType="PurchaseVO">
 	{ CALL prc_purchaseOrder_status( #{purOrdDtlCode, mode=IN, jdbcType=VARCHAR})}
 	</update>
-	
+	<select id="purchaseCurrQty" parameterType="PurchaseVO" resultType="int">
+		SELECT sum(curr_qty)
+		FROM purchase
+		WHERE com_id = #{comId} AND pur_ord_dtl_code = #{purOrdDtlCode}
+	</select>
 </mapper>
