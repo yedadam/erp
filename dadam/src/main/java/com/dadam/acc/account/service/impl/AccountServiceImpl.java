@@ -13,138 +13,119 @@ import com.dadam.acc.account.service.AccountService;
 import com.dadam.acc.account.service.AccountVO;
 import com.dadam.security.service.LoginUserAuthority;
 
-//service bean등록
 @Service
-public class AccountServiceImpl implements AccountService{
-	
-    //comName 가져오기
-    String comId = "com-101";
-    public void initAuthInfo() {
-        //로그인 객체값 연결
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        //로그인 객체 가져오기
-        Object principal = auth.getPrincipal();
+public class AccountServiceImpl implements AccountService {
 
+    @Autowired
+    private AccountMapper accountMapper;
+
+
+
+    private String getComIdFromAuth() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = auth.getPrincipal();
         if (principal instanceof LoginUserAuthority) {
-        	LoginUserAuthority user = (LoginUserAuthority) principal;
-            comId = user.getComId();
-            System.out.println("회사명: " + comId);
+            String comId = ((LoginUserAuthority) principal).getComId();
+            return comId;
+        }
+        return "com-101";
+    }
+
+    @Override
+    public List<AccountVO> accFindAll() {
+        String comId = getComIdFromAuth();
+        return accountMapper.accFindAll(comId);
+    }
+
+    @Override
+    public List<AccountVO> accFindByType(String acctType, String unused) {
+        String comId = getComIdFromAuth();
+        return accountMapper.accFindByType(acctType, comId);
+    }
+
+    @Override
+    public String codeFind(AccountCodeVO accountCode) {
+        return accountMapper.codeFind(accountCode);
+    }
+
+    @Override
+    public List<String> getAcctTypes() {
+        return accountMapper.selectAcctTypes();
+    }
+
+    @Override
+    public List<String> getAcctClasses(String acctCode) {
+        return accountMapper.selectAcctClasses(acctCode);
+    }
+
+    @Override
+    public List<String> getAcctSubClasses(String classCode) {
+        return accountMapper.selectAcctSubClasses(classCode);
+    }
+
+    @Override
+    public void insert(AccountVO acct) {
+        String comId = getComIdFromAuth();
+        acct.setComId(comId);
+        accountMapper.insert(acct);
+    }
+
+    @Override
+    public void saveAll(AccountVO account) {
+        String comId = getComIdFromAuth();
+
+        List<AccountVO> rows = account.getCreatedRows();
+        if (rows != null) {
+            for (AccountVO acct : rows) {
+                String typeCode = accountMapper.findTypeCodeByName(acct.getAcctType());
+                if (typeCode == null) {
+                    throw new IllegalArgumentException("대분류 '" + acct.getAcctType() + "'에 해당하는 코드가 없습니다.");
+                }
+
+                String classCode = accountMapper.findClassCodeByName(acct.getAcctClass());
+                if (classCode == null) {
+                    throw new IllegalArgumentException("중분류 '" + acct.getAcctClass() + "'에 해당하는 코드가 없습니다.");
+                }
+
+                String subclassCode = null;
+                String subclassName = acct.getAcctSubclass();
+                if (subclassName != null && !subclassName.isBlank()) {
+                    subclassCode = accountMapper.findSubclassCodeByName(subclassName);
+                    if (subclassCode == null) {
+                        throw new IllegalArgumentException("소분류 '" + subclassName + "'에 해당하는 코드가 없습니다.");
+                    }
+                }
+
+                AccountCodeVO codeVO = new AccountCodeVO();
+                codeVO.setTypeCode(typeCode);
+                codeVO.setClassCode(classCode);
+                codeVO.setSubclassCode(subclassCode);
+
+                String acctCode = accountMapper.codeFind(codeVO);
+                acct.setAcctCode(acctCode);
+
+                acct.setAcctType(typeCode);
+                acct.setAcctClass(classCode);
+                acct.setAcctSubclass(subclassCode);
+
+                acct.setComId(comId);
+
+                accountMapper.insert(acct);
+            }
+        }
+
+        if (account.getUpdatedRows() != null) {
+            for (AccountVO acct : account.getUpdatedRows()) {
+                acct.setComId(comId);
+                accountMapper.update(acct);
+            }
+        }
+
+        if (account.getDeletedRows() != null) {
+            for (AccountVO acct : account.getDeletedRows()) {
+                acct.setComId(comId);
+                accountMapper.delete(acct.getAcctCode());
+            }
         }
     }
-	
-	@Autowired AccountMapper accountMapper;
-	
-	// 리스트 IMPL
-	@Override
-	public List<AccountVO> accFindAll(String comId) {
-	    return accountMapper.accFindAll(comId);
-	}
-
-	@Override
-	public List<AccountVO> accFindByType(String acctType) {
-	    return accountMapper.accFindByType(acctType); // ✔️ 반드시 Mapper에 구현되어야 함
-	}
-
-	@Override
-	public String codeFind(AccountCodeVO accountCode) {
-		String result = accountMapper.codeFind(accountCode);
-		return result;
-	}
-
-	@Override
-	public List<String> getAcctTypes() {
-	    return accountMapper.selectAcctTypes();
-	}
-
-	@Override
-	public List<String> getAcctClasses(String acctCode) {
-	    return accountMapper.selectAcctClasses(acctCode);
-	}
-
-	@Override
-	public List<String> getAcctSubClasses(String classCode) {
-		return accountMapper.selectAcctSubClasses(classCode);
-	}
-	
-	// 인설트 IMPL
-	@Override
-	public void insert(AccountVO acct) {
-		accountMapper.insert(acct);
-	}
-	
-	// 대,중,소 분류 입력 데이터 조회(유효성검사)
-	// 대중소 분류 테이블에서 코드 요청 -> 계정과목 코드 생성
-	@Override
-    public void saveAll(AccountVO account) {
-    	 List<AccountVO> rows = account.getCreatedRows();
-    	 
-
-    	 for (AccountVO acct : rows) {
-
-             // 분류명 기반 코드 조회(대분류)
-             String typeCode = accountMapper.findTypeCodeByName(acct.getAcctType());
-             if (typeCode == null) {
-                 throw new IllegalArgumentException("대분류 '" + acct.getAcctType() + "'에 해당하는 코드가 없습니다.");
-             }
-             
-             // 중분류 코드 유효성검사 후 생성 
-             String classCode = accountMapper.findClassCodeByName(acct.getAcctClass());
-             if (classCode == null) {
-                 throw new IllegalArgumentException("중분류 '" + acct.getAcctClass() + "'에 해당하는 코드가 없습니다.");
-             }
-             
-             // 소분류 초기값 null
-             String subclassCode = null;
-             // null이면 허용 / db에 값 있으면 유효성 검사
-             String subclassName = acct.getAcctSubclass();
-
-             // 1. 소분류 값이 있으면 → 코드 조회 + 유효성 검사
-             if (subclassName != null && !subclassName.isBlank()) {
-                 subclassCode = accountMapper.findSubclassCodeByName(subclassName);
-
-                 if (subclassCode == null) {
-                     throw new IllegalArgumentException("소분류 '" + subclassName + "'에 해당하는 코드가 없습니다.");
-                 }
-             }
-
-             // 코드 세팅 및 acct_  code 생성
-             AccountCodeVO codeVO = new AccountCodeVO();
-             codeVO.setTypeCode(typeCode);
-             codeVO.setClassCode(classCode);
-             codeVO.setSubclassCode(subclassCode);
-
-             String acctCode = accountMapper.codeFind(codeVO);
-             acct.setAcctCode(acctCode);
-             
-             // 코드 필드 세팅 (원래 분류명 → 코드로 변환해서 저장)
-             acct.setAcctType(typeCode);
-             acct.setAcctClass(classCode);
-             acct.setAcctSubclass(subclassCode);
-
-             // 저장
-             accountMapper.insert(acct);
-         }
-    	 
-    	// 2. 수정
-    	 if (account.getUpdatedRows() != null) {
-    		 for (AccountVO acct : account.getUpdatedRows()) {
-    	         accountMapper.update(acct);
-    	     }
-    	 }
-
-    	 // 3. 삭제
-    	 if (account.getDeletedRows() != null) {
-    	     for (AccountVO acct : account.getDeletedRows()) {
-    	         accountMapper.delete(acct.getAcctCode());
-    	     }
-    	 }
-    	    
-    }
-
-
-
-
-
-
-
 }

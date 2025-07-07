@@ -32,13 +32,12 @@ public interface ChitMapper {
 	
 	//분개 자동 입력
 	public List<ChitVO> selectAutoChitRules(String comId);
-	public void mergeAutoChitRule(ChitVO vo);
-	public String findTypeCodeByName(String name);     // 거래유형 (ex. 매입 → cht01)
-	public String findIndTypeCodeByName(String name);  // 차/대변 (ex. 차변 → itp01)
-	public String findAcctCodeByName(String name);     // 계정과목 (ex. 현금 → 110101)
 	public void insertRule(ChitVO rule);
 	public void updateRule(ChitVO rule);
 	public void deleteRule(String ruleId);
+	public String findTypeCodeByName(String name);     // 거래유형 (ex. 매입 → cht01)
+	public String findIndTypeCodeByName(String name);  // 차/대변 (ex. 차변 → itp01)
+	public String findAcctCodeByName(String name);     // 계정과목 (ex. 현금 → 110101)
 	public String getNextRuleId(String comId);
 	
 	public List<Map<String, Object>> selectAutoRules(@Param("chitType") String chitType, @Param("comId") String comId);

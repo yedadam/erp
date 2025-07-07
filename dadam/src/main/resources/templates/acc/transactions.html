@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
+<head>
+<meta charset="UTF-8">
+<title>입출금내역 관리</title>
+  <style>
+    body.bg-light {
+      background-color: #f8f9fa;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .container-fluid {
+      margin-top: 2rem;
+      max-width: 1200px;
+    }
+
+    #tranGrid {
+      margin-top: 20px;
+      margin-left: auto;
+      margin-right: auto;
+      width: 100%;
+      min-height: 300px;
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <div class="container-fluid">
+    <!-- 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div>
+        <h2 class="fw-bold mb-1">입출금내역 관리</h2>
+        <small class="text-muted">※ 실제 입출금 데이터는 자동연동 또는 수동 등록이 가능합니다</small>
+      </div>
+    </div>
+
+    <!-- 상단 버튼 -->
+    <div class="d-flex justify-content-end flex-wrap gap-2 mb-3">
+      <button id="btn-add" class="btn btn-outline-primary btn-sm">
+        <i class="fas fa-plus"></i> 행추가
+      </button>
+      <button id="btn-save" class="btn btn-primary btn-sm">
+        <i class="fas fa-save"></i> 저장
+      </button>
+    </div>
+
+    <!-- 그리드 -->
+    <div id="tranGrid"></div>
+  </div>
+</body>
+<script>
+        const tranGrid = new tui.Grid({
+            el: document.getElementById('tranGrid'),
+            scrollX: false,
+            scrollY: true,
+            columns: [
+                { header: '코드', name: 'txnHistCode', width: 120, editor: 'text' },
+                { header: '거래일자', name: 'txnDate', width: 120, editor: 'text' },
+                { header: '구분', name: 'txnType', width: 80, editor: 'text' },
+                { header: '이름', name: 'txnName', width: 100, editor: 'text' },
+                { header: '메모', name: 'txnMemo', width: 150, editor: 'text' },
+                { header: '금액', name: 'price', width: 100, editor: 'text' },
+                { header: '잔액', name: 'balance', width: 100, editor: 'text' },
+                { header: '은행', name: 'bank', width: 100, editor: 'text' },
+                { header: '계좌번호', name: 'acctNo', width: 120, editor: 'text' },
+                { header: '확인', name: 'cfmdYn', width: 60, editor: 'text' },
+                { header: '확인일시', name: 'cfmdAt', width: 120, editor: 'text' },
+                { header: '확인자', name: 'cfmdBy', width: 80, editor: 'text' }
+            ],
+            data: [],
+            rowHeaders: ['checkbox'],
+            bodyHeight: 400
+        });
+		
+        // 입출금내역 목록 아작스
+        function fetchData() {
+        	  $.ajax({
+        	    url: '/api/account/transactions',
+        	    method: 'GET',
+        	    dataType: 'json',
+        	    success: function (data) {
+        	    	tranGrid.resetData(data);
+        	    },
+        	    error: function () {
+        	      alert("데이터를 불러오는 중 오류 발생");
+        	    }
+        	  });
+        	}
+        fetchData();
+	
+        //행추가
+        $('#btn-add').on('click', function () {
+        	tranGrid.appendRow({});
+        	});
+        
+     // 저장 버튼
+        $('#btn-save').on('click', function () {
+          const changes = tranGrid.getModifiedRows();
+
+          const payload = {
+            createdRows: changes.createdRows,
+            updatedRows: changes.updatedRows,
+            deletedRows: changes.deletedRows
+          };
+
+          $.ajax({
+            url: '/api/credit/transactions/saveAll',  // ✔️ 이 엔드포인트에 모두 처리하는 API 만들어야 함
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            success: function (res) {
+              if (res.result === 'success') {
+                alert(res.message || '저장 완료');
+                fetchData(); // ✅ 전체 새로고침
+              } else {
+                alert('저장 실패: ' + res.message);
+              }
+            },
+            error: function () {
+              alert("서버 오류: 저장 실패");
+            }
+          });
+        });
+    </script>
+
+</html>

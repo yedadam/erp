@@ -198,6 +198,8 @@ UPDATE chit
   ORDER BY chit_type, itp_type
 </select>
 
+<!-- MERGE(머지) 비활성화: 더 이상 사용하지 않음 -->
+<!--
 <insert id="mergeAutoChitRule" parameterType="ChitVO">
 MERGE INTO auto_chit_rule r
 USING (
@@ -236,19 +238,38 @@ WHEN NOT MATCHED THEN
         src.com_id,
         SYSDATE
     )
+</insert>
+-->
 
+<!-- INSERT: 자동분개 규칙 신규 등록 -->
+<insert id="insertRule" parameterType="ChitVO">
+  INSERT INTO auto_chit_rule (
+    rule_id, chit_type, itp_type, acct_code, vat_yn, com_id, created_date
+  ) VALUES (
+    #{ruleId}, #{chitType}, #{itpType}, #{acctCode}, #{vatYn}, #{comId}, SYSDATE
+  )
 </insert>
 
-<delete id="deleteAutoRule">
-  DELETE FROM auto_chit_rule
-  WHERE rule_id = #{ruleId}
-  	
+<!-- UPDATE: 자동분개 규칙 수정 -->
+<update id="updateRule" parameterType="ChitVO">
+  UPDATE auto_chit_rule
+     SET chit_type = #{chitType},
+         itp_type = #{itpType},
+         acct_code = #{acctCode},
+         vat_yn = #{vatYn},
+         update_date = SYSDATE
+   WHERE rule_id = #{ruleId}
+     AND com_id = #{comId}
+</update>
+
+<delete id="deleteRule" parameterType="string">
+  DELETE FROM auto_chit_rule WHERE rule_id = #{ruleId}
 </delete>
 
-
 <select id="getNextRuleId" resultType="string">
-  SELECT 'rule' || LPAD(NVL(MAX(TO_NUMBER(SUBSTR(rule_id, 5))), 0) + 1, 2, '0') 
-  FROM auto_chit_rule WHERE com_id = #{comId}
+  SELECT 'rule' || LPAD(NVL(MAX(TO_NUMBER(SUBSTR(rule_id, 5))), 0) + 1, 2, '0')
+  FROM auto_chit_rule
+  WHERE com_id = #{comId}
 </select>
 
 <select id="findTypeCodeByName" resultType="string">

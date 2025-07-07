@@ -50,5 +50,10 @@ public class AccountFormController {
     public String getProfitStatement() {
         return "acc/profitStatement";  
     }
+    
+    @GetMapping("/transactions")
+    public String getTransactions() {
+        return "acc/transactions";  
+    }
 	
 }

@@ -18,4 +18,7 @@ public interface ChitService {
 	public void saveAllRules(List<ChitVO> rules);
 	
 	public List<Map<String, Object>> getAutoRules(String chitType, String comId);
+
+	// 자동분개 규칙 일괄 저장 (Account 방식)
+	void saveAllRulesSeparated(List<ChitVO> createdRows, List<ChitVO> updatedRows, List<ChitVO> deletedRows);
 }
