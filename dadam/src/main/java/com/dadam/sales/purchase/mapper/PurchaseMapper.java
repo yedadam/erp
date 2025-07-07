@@ -1,6 +1,7 @@
 package com.dadam.sales.purchase.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -10,7 +11,7 @@ import com.dadam.standard.vender.service.VenderVO;
 
 public interface PurchaseMapper {
 	//발주메인 리스트 조회
-	public List<PurchaseOrderVO> findPurchaseList(@Param("comId") String comId,@Param("type") String type,@Param("value") String value);
+	public List<PurchaseOrderVO> findPurchaseList(Map<String,Object> map);
 	//발주상세조회
 	public List<PurchaseOrderDetailVO> findPurListByOrdNo(@Param("param") String param, @Param("comId") String comId);
 	//발주의뢰 코드보기

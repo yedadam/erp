@@ -1,6 +1,7 @@
 package com.dadam.standard.item.web;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,8 +29,8 @@ public class ChitStandardRestController {
 	@Autowired
 	ChitStandardService service;
 	@GetMapping("/standard/chitList")
-	public List<ChitVO> chitList(@RequestParam (defaultValue = "",required = false)String type,@RequestParam (defaultValue = "",required = false)String value){
-		List<ChitVO> result = service.chitList(type, value);
+	public List<ChitVO> chitList(@RequestParam Map<String,Object> map){
+		List<ChitVO> result = service.chitList(map);
 		return result;
 	}
 	

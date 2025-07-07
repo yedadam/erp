@@ -32,19 +32,30 @@
 	     AND type IN('cht01','cht04')   
 	   </if>
 	   <choose>
-            <when test="type.equals('chitCode')">
+            <when test="'chitCode'.equals(type)">
                 AND chit_code LIKE '%'||#{value}||'%'
             </when>
-            <when test="type.equals('empName')">
+            <when test="'empName'.equals(type)">
             	 AND getEmpName(EMP_ID) LIKE '%'||#{value}||'%'
             </when>
-            <when test="type.equals('chitTile')">
+            <when test="'chitTile'.equals(type)">
             	 AND CHIT_TITLE LIKE '%'||#{value}||'%'
             </when>
-            <when test="type.equals('articleCode')">
+            <when test="'articleCode'.equals(type)">
             	 AND article_code LIKE '%'||#{value}||'%'
             </when>
    </choose>
+   <if test="createdStartDate != null and createdStartDate != '' ">
+			AND trunc(created_date) >=TO_DATE(#{createdStartDate},'yyyy-MM-dd')
+	</if>
+	<if test="createdEndDate != null and createdEndDate !='' ">
+		  <![CDATA[
+			AND trunc(created_date) <= TO_DATE(#{expDlvEndDate},'yyyy-MM-dd')
+		    ]]>
+	</if>
+   <if test="status != null and status !=  ''">
+	    AND status=#{status}		
+	</if>
    ORDER BY chit_code DESC
  </select>
 

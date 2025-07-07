@@ -1,6 +1,7 @@
 package com.dadam.sales.purchase.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.dadam.common.service.GridData;
 import com.dadam.standard.vender.service.VenderVO;
@@ -8,7 +9,7 @@ import com.dadam.standard.vender.service.VenderVO;
 public interface PurchaseService {
 	
 	//발주메인 리스트 조회
-	public List<PurchaseOrderVO> findPurchaseList(String type, String value);
+	public List<PurchaseOrderVO> findPurchaseList(Map<String,Object> map);
 	//발주상세조회
 	public List<PurchaseOrderDetailVO> findPurListByOrdNo(String param);
 	//발주의뢰 코드보기

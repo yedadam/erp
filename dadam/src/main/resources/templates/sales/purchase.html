@@ -10,43 +10,92 @@
     <h3 class="mb-4 text-secondary fw-bold border-bottom border-secondary pb-2">구매관리</h3>
 
     <!-- 검색 및 버튼 영역 -->
-    <div class="row mb-3 align-items-center">
-      <div class="col-md-6 position-relative">
+    <div class="card mb-3 shadow-sm">
+	  <div class="card-body">
+	    <div class="row g-3 align-items-center">
+
+      <!-- 검색 조건 -->
+      <div class="col-md-3">
+        <label for="orderSelect" class="form-label">검색 조건</label>
         <div class="input-group">
-          <select class="form-select" id="purSelect" style="max-width: 30%;">
+           <select class="form-select" id="purSelect" style="max-width: 30%;">
             <option value="purOrdCode" selected>발주코드</option>
             <option value="empName">담당자</option>
             <option value="vdrName">거래처이름</option>
           </select>
-          <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="purInput" autocomplete="off">
-          <button class="btn btn-outline-secondary" type="button" id="reqSearchBtn">
-            <i class="fas fa-search"></i>
-          </button>
+          <input type="text" class="form-control" id="purInput" placeholder="검색어 입력">
         </div>
-        <ul id="purReqList"
-            class="list-group position-absolute w-100 shadow"
-            style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
-        </ul>
+        <ul id="purList"
+		            class="list-group position-absolute w-100 shadow-sm"
+		            style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+		</ul>
       </div>
-      <div class="col-md-6 text-end">
-        <div class="btn-group mb-3">
-          <button class="btn btn-secondary me-2" id="newBtn">
-            <i class="fas fa-pen"></i> 추가
-          </button>
-          <button class="btn btn-warning me-2" id="searchBtn">
-            <i class="fas fa-eye"></i> 조회
-          </button>
-          <button class="btn btn-danger me-2" id="delBtn">
-            <i class="fas fa-trash"></i> 삭제
-          </button>
-          <button class="btn btn-primary" id="saveBtn">
-            <i class="fas fa-save"></i> 저장
-          </button>
-        </div>
+		
+      <!-- 날짜 시작 -->
+      <div class="col-md-2">
+        <label for="expDlvStartDate" class="form-label">납기예정기일자</label>
+        <input type="date" id="expDlvStartDate" class="form-control">
       </div>
-    </div>
+					
+      <!-- 날짜 종료 -->
+      <div class="col-md-2">
+                <label for="expDlvEndDate" class="form-label"></label>
+        <input type="date" id="expDlvEndDate" class="form-control">
+      </div>
 
-    <!-- 메인 테이블 -->
+      <!-- 상태 -->
+      <div class="col-md-3">
+        <label class="form-label d-block">진행 상태</label>
+        <div class="d-flex gap-2 flex-wrap">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="purStatus" id="statusAll" value="" checked>
+            <label class="form-check-label" for="statusAll">전체</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="purStatus" id="status1" value="pst01">
+            <label class="form-check-label" for="status1">진행중</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="purStatus" id="status2" value="pst02">
+            <label class="form-check-label" for="status2">완료</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="purStatus" id="status3" value="pst03">
+            <label class="form-check-label" for="status3">취소</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 검색 버튼 -->
+      <div class="col-md-2 d-flex align-items-end">
+        <button class="btn btn-primary w-100" id="purSearchBtn">
+          <i class="fas fa-search"></i> 검색
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+   <!-- 버튼 -->
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<div></div>
+			<div class="d-flex flex-wrap gap-2">
+				<button class="btn btn-secondary me-2" id="newBtn">
+					<i class="fas fa-pen"></i> 추가
+				</button>
+				<button class="btn btn-warning me-2" id="searchBtn">
+					<i class="fas fa-eye"></i> 조회
+				</button>
+				<button class="btn btn-danger me-2" id="delBtn">
+					<i class="fas fa-trash"></i> 삭제
+				</button>
+				<button class="btn btn-primary" id="saveBtn">
+					<i class="fas fa-save"></i> 저장
+				</button>
+			</div>
+		</div>
+
+		<!-- 메인 테이블 -->
     <div id="mainGridWrapper" class="position-relative border rounded p-3 bg-white shadow-sm">
       <div id="mainGrid"></div>
 
@@ -208,7 +257,7 @@
 		  setupAutocomplete({
 			    inputSelector: '#reqInput',                              //인풋에 겁색값
 			    selectSelector: $('#reqSelect  option:selected').val(),  //selected 결과값
-			    listSelector: '#autoReqList',                            //자동완성 되는값 
+			    listSelector: '#autoReqList',                            //자동완성 되는곳 
 			    ajaxUrl: '/erp/sales/purRequestList'                     //ajaxurl
 		 });
 	})
@@ -226,7 +275,7 @@
 		  setupAutocomplete({
 			    inputSelector: '#purInput',
 			    selectSelector: $('#purSelect  option:selected').val(),
-			    listSelector: '#purReqList',
+			    listSelector: '#purList',
 			    ajaxUrl: '/erp/sales/purMainList'
 		 });
 	})
@@ -292,6 +341,23 @@
                 },
             ],
         });
+        //발주 검색
+        $('#purSearchBtn').on('click',ev => {
+        	 if(pageStatus =='add'){
+        		 Swal.fire('실패','등록중 조회가 불가합니다.','error');
+        		 return;
+        	 }
+        	 let value = $('#purInput').val();
+			 let type = $("#purSelect option:selected").val();
+			 let url = "/erp/sales/purMainList";
+			 let expDlvStartDate = $('#expDlvStartDate').val();
+			 let expDlvEndDate = $('#expDlvEndDate').val();
+			 console.log(expDlvStartDate)
+			 console.log(expDlvEndDate)
+			 let grid = mainGrid;
+			 let status = $('input[name="purStatus"]:checked').val();
+			 commonSearchObject({type,value,expDlvStartDate,expDlvEndDate,status},url,grid);
+        })
         // 상세그리드
         const detailGrid = new tui.Grid({
             // toastui 아이디 가져오기
@@ -449,6 +515,7 @@
 		let mainRowKey = null;
 		//메인그리드 클릭창
 		mainGrid.on('click',ev => {
+			
 			if (!ev.targetType || ev.targetType !== 'cell') {
 			    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
 			    return;
@@ -558,6 +625,10 @@
 		});
 		//모달 그리드 클릭시 발동
 		requestGrid.on('click', ev => {
+			if (!ev.targetType || ev.targetType !== 'cell') {
+			    // 셀이 아닌 곳 클릭 시 이벤트 무시
+			    return;
+			  }
 			//행클릭시 발주의뢰 코드 값 가져오기
 			let get = requestGrid.getRow(ev.rowKey).purReqCode;
 			//메인그리드 전달
@@ -601,6 +672,10 @@
 		
 		//거래처코드 실행
 		vdrGrid.on('click', ev => {
+			if (!ev.targetType || ev.targetType !== 'cell') {
+			    // 셀이 아닌 곳 클릭 시 이벤트 무시
+			    return;
+			  }
 			//업체코드
 			let vdrCode = vdrGrid.getRow(ev.rowKey).vdrCode;
 			//업체이름
@@ -639,12 +714,16 @@
 		})
 		//라디오버튼처럼 작동
 		mainGrid.on('click', ev => {
+			if (!ev.targetType || ev.targetType !== 'cell') {
+			    // 셀이 아닌 곳 클릭 시 이벤트 무시 
+			    return;
+			  }
 		
 		  const checkedRows = mainGrid.getCheckedRowKeys();
 		  console.log(checkedRows)
 		  if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
 		    mainGrid.uncheckAll();
-		    mainGrid.check(ev.rowKey);  // 여기서 check 이벤트는 따로 안 뜸 (정상)
+		    mainGrid.check(ev.rowKey);  //여기서 check 이벤트는 따로 안 뜸
 		  }
 		
 		  console.log('선택된 row:', ev.rowKey);
@@ -654,6 +733,10 @@
 		let detailRowKey = null;		
 		//디테일그리드 클릭시 발동
 		detailGrid.on('click', ev => {
+			if (!ev.targetType || ev.targetType !== 'cell') {
+			    // 셀이 아닌 곳 클릭 시 이벤트 무시 
+			    return;
+			  }
 			detailRowKey= ev.rowKey;
 		    //아이템리스트 가져오기
 			if(ev.columnName == 'itemName' || ev.columnName == 'itemCode'){
@@ -676,6 +759,10 @@
 		}
 		//아이템그리드 클릭시 디테일그리드 전달
 		itemGrid.on('click',ev  => {
+			if (!ev.targetType || ev.targetType !== 'cell') {
+			    // 셀이 아닌 곳 클릭 시 이벤트 무시 
+			    return;
+			  }
 			//품목코드
 			let itemCode = itemGrid.getRow(ev.rowKey).itemCode;
 			//품목이름
@@ -724,6 +811,7 @@
 	}
     	//총금액값 바꾸기
 		detailGrid.on('afterChange',ev => {
+			
 			//수량이 바뀔시
 			if(ev.changes[0].columnName=='quantity' ||ev.changes[0].columnName=='itemCode' ){
 				
@@ -840,10 +928,10 @@
 	     })
 	     //상세조회
 	     mainGrid.on('check',ev => {
-	    	 console.log('클릭한 ev.rowKey',ev.rowKey)
-	    if(ev.rowKey==undefined){
-	    	return;
-	    }
+	    	
+		    if(ev.rowKey==undefined){
+		    	return;
+		    }
 	    	if(pageStatus=='search'){
 	    		//체크된행 파악
 	    		let mainRowIndex= mainGrid.getCheckedRowKeys()[0];

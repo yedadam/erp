@@ -1,6 +1,7 @@
 package com.dadam.standard.item.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -43,9 +44,11 @@ public class ChitStandardServiceImpl implements ChitStandardService{
 	@Autowired
 	ChitStandardMapper mapper;
 	
-	public List<ChitVO> chitList(String type, String value){
+	public List<ChitVO> chitList(Map<String,Object> map){
 		initAuthInfo();
-		 List<ChitVO> result =  mapper.ChitList(type, value, comId,deptCode);
+		map.put("comId", comId);
+		map.put("deptCode", deptCode);
+		 List<ChitVO> result =  mapper.ChitList(map);
 		 return result;
 	}
 	

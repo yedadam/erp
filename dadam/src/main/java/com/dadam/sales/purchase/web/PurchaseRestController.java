@@ -1,6 +1,7 @@
 package com.dadam.sales.purchase.web;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,9 +32,9 @@ public class PurchaseRestController {
     	  
 	//조회
 	@GetMapping("/purMainList")
-	public List<PurchaseOrderVO> purchaseList(@RequestParam (required = false,defaultValue = "") String type,@RequestParam (required = false, defaultValue = "") String value) {
+	public List<PurchaseOrderVO> purchaseList(@RequestParam Map<String,Object> map) {
 		
-		List<PurchaseOrderVO> result = service.findPurchaseList(type,value);
+		List<PurchaseOrderVO> result = service.findPurchaseList(map);
 		
 		return result;
 	}

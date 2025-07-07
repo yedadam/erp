@@ -8,76 +8,134 @@
     
 </style>
 </head>
-<body class="bg-light">
-    <div class="container-fluid mt-4">
-        <h3 class="mb-4">전표관리</h3>
-        
-		<div class="row mb-4 align-items-start">
-		    <!-- 검색 영역 -->
-		    <div class="col-md-6 position-relative">
-		        <div class="input-group">
-		            <select class="form-select" id="chitSelect" style="max-width: 30%;">
-		                <option value="chitCode" selected>전표코드</option>
-		                <option value="empName">담당자</option>
-		                <option value="chitTile">전표제목</option>
-		                <option value="articleCode">항목코드</option>
-		            </select>
-		            <input type="text" class="form-control" id="chilInput" placeholder="검색어를 입력하세요" autocomplete="off">
-		            <button class="btn btn-outline-secondary" type="button" id="chitSearchBtn">
-		                <i class="fas fa-search"></i>
-		            </button>
-		        </div>
-		        <!-- 자동완성 리스트 -->
-		        <ul id="chitList"
-		            class="list-group position-absolute w-100 shadow-sm"
-		            style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
-		        </ul>
-		    </div>
-		
-		    <!-- 버튼 영역 -->
-		    <div class="col-md-6">
-		        <div class="d-grid gap-2 d-md-flex justify-content-md-end flex-wrap">
-		            <button class="btn btn-secondary me-2 mb-2" id="newBtn">
-		                <i class="fas fa-pen"></i> 행추가
-		            </button>
-		            <button class="btn btn-danger me-2 mb-2" id="delBtn">
-		                <i class="fas fa-trash"></i> 행삭제
-		            </button>
-		
-		            <div th:if="${deptId == 'de1001' or deptId == 'de1005'}">
-		                <button class="btn btn-primary me-2 mb-2" id="purModalBtn">
-		                    <i class="fas fa-save"></i> 발주서
-		                </button>
-		                <button class="btn btn-primary me-2 mb-2" id="salesModalBtn">
-		                    <i class="fas fa-save"></i> 매출서
-		                </button>
-		            </div>
-		             <div th:if="${deptId == 'de1001' or deptId == 'de1003'}">
-		                <button class="btn btn-primary me-2 mb-2" id="moneyModalBtn">
-		                    <i class="fas fa-save"></i> 수금서
-		                </button>
-		             </div>
-		
-		            <div th:if="${deptId == 'de1001' or deptId == 'de1004'}">
-		                <button class="btn btn-primary me-2 mb-2" id="invenModalBtn">
-		                    <i class="fas fa-save"></i> 재고조정
-		                </button>
-		            </div>
-		
-		            <div th:if="${deptId == 'de1001' or deptId == 'de1002'}">
-		                <button class="btn btn-primary me-2 mb-2" id="salaryModalBtn">
-		                    <i class="fas fa-save"></i> 급여처리
-		                </button>
-		            </div>
-		
-		            <button class="btn btn-success mb-2" id="saveBtn">
-		                <i class="fas fa-save"></i> 저장
-		            </button>
-		        </div>
-		    </div>
+<body>
+	<div class="container-fluid mt-4 p-4 rounded shadow-sm">
+		<h3
+			class="mb-4 text-secondary fw-bold border-bottom border-secondary pb-2">전표관리</h3>
+		<!-- 검색 및 버튼 영역 -->
+		<div class="card mb-3 shadow-sm" style="background-color:#f0f8f0">
+			<div class="card-body">
+				<div class="row g-3 align-items-center">
+
+					<!-- 검색 조건 -->
+					<div class="col-md-3">
+						<label for="orderSelect" class="form-label">검색 조건</label>
+						<div class="input-group">
+							<select class="form-select" id="chitSelect"
+								style="max-width: 30%;">
+								<option value="chitCode" selected>전표코드</option>
+								<option value="empName">담당자</option>
+								<option value="chitTile">전표제목</option>
+								<option value="articleCode">항목코드</option>
+							</select> <input type="text" class="form-control" id="chilInput"
+								placeholder="검색어를 입력하세요" autocomplete="off">
+							
+						</div>
+						<!-- 자동완성 리스트 -->
+						<ul id="chitList"
+							class="list-group position-absolute w-100 shadow-sm"
+							style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+						</ul>
+					</div>
+
+					<!-- 날짜 시작 -->
+					<div class="col-md-2">
+						<label for="createdDate" class="form-label">등록일자</label> <input
+							type="date" id="createdStartDate" class="form-control">
+					</div>
+
+					<!-- 날짜 종료 -->
+					<div class="col-md-2">
+						<label for="createdDate" class="form-label"></label> <input
+							type="date" id="createdEndDate" class="form-control">
+					</div>
+
+					<!-- 상태 -->
+					<div class="col-md-3">
+						<label class="form-label d-block">진행 상태</label>
+						<div class="d-flex gap-2 flex-wrap">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="chitStatus"
+									id="statusAll" value="" checked> <label
+									class="form-check-label" for="statusAll">전체</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="chitStatus"
+									id="status1" value="cst01"> <label
+									class="form-check-label" for="status1">등록</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="chitStatus"
+									id="status2" value="cst02"> <label
+									class="form-check-label" for="status2">결재</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="chitStatus"
+									id="status2" value="cst03"> <label
+									class="form-check-label" for="status3">반려</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="chitStatus"
+									id="status3" value="cst04"> <label
+									class="form-check-label" for="status4">결재완료</label>
+							</div>
+						</div>
+					</div>
+
+					<!-- 검색 버튼 -->
+					<div class="col-md-2 d-flex align-items-end">
+						<button class="btn btn-primary w-100" id="chitSearchBtn">
+							<i class="fas fa-search"></i> 검색
+						</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		<div class="d-flex justify-content-end align-items-center mb-3">
+			<div class="d-flex flex-wrap gap-2">
+				<button class="btn btn-secondary me-2 mb-2" id="newBtn">
+					<i class="fas fa-pen"></i> 행추가
+				</button>
+				<button class="btn btn-danger me-2 mb-2" id="delBtn">
+					<i class="fas fa-trash"></i> 행삭제
+				</button>
+
+				<div th:if="${deptId == 'de1001' or deptId == 'de1005'}">
+					<button class="btn btn-primary me-2 mb-2" id="purModalBtn">
+						<i class="fas fa-save"></i> 발주서
+					</button>
+					<button class="btn btn-primary me-2 mb-2" id="salesModalBtn">
+						<i class="fas fa-save"></i> 매출서
+					</button>
+				</div>
+				<div th:if="${deptId == 'de1001' or deptId == 'de1003'}">
+					<button class="btn btn-primary me-2 mb-2" id="moneyModalBtn">
+						<i class="fas fa-save"></i> 수금서
+					</button>
+				</div>
+
+				<div th:if="${deptId == 'de1001' or deptId == 'de1004'}">
+					<button class="btn btn-primary me-2 mb-2" id="invenModalBtn">
+						<i class="fas fa-save"></i> 재고조정
+					</button>
+				</div>
+
+				<div th:if="${deptId == 'de1001' or deptId == 'de1002'}">
+					<button class="btn btn-primary me-2 mb-2" id="salaryModalBtn">
+						<i class="fas fa-save"></i> 급여처리
+					</button>
+				</div>
+
+				<button class="btn btn-success mb-2" id="saveBtn">
+					<i class="fas fa-save"></i> 저장
+				</button>
+			</div>
 		</div>
 
-        <!-- 메인 테이블 -->
+
+
+		<!-- 메인 테이블 -->
 		<div id="mainGridWrapper" style="position: relative;">
 			<div id="mainGrid"></div>
 
@@ -94,8 +152,8 @@
 				</dotlottie-player>
 			</div>
 		</div>
-    </div>
-    <!-- 매입 모달-->
+	</div>
+	<!-- 매입 모달-->
 	<div class="modal fade" id="purModal" tabindex="-1"
 		aria-labelledby="vdrModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-xl">
@@ -1018,11 +1076,14 @@
 			}
 		})
 		$('#chitSearchBtn').on('click', ev=> {
-			 let value = $('#chilInput').val();
+			let value = $('#chilInput').val();
 			 let type = $("#chitSelect option:selected").val();
 			 let url = "/erp/standard/chitList";
+			 let createdStartDate = $('#createdStartDate').val();
+			 let createdEndDate = $('#createdEndDate').val();
 			 let grid = mainGrid;
-			 commonSearch(type,value,url,grid);
+			 let status = $('input[name="chitStatus"]:checked').val();
+			 commonSearchObject({type,value,createdStartDate,createdEndDate,status},url,grid);
 		})
 		$('#chilInput').on('keydown',ev => {
 			if(ev.keyCode ==13){
