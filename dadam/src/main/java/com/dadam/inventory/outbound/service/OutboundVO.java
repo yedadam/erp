@@ -13,12 +13,18 @@ import lombok.NoArgsConstructor;
 @Data
 public class OutboundVO {
 
+	private String outCode;
+	private String outDtlCode;
+	private String holdCode;
 	private String shipReqDtlCode;
 	private String itemCode;
 	private String itemName;
 	private String name;
 	private String status;
 	private String statusName;
+	private String typeName;
+	private String type;
+	private String note;
 	private int quantity;
 	private int totPrice;
 	private int price;

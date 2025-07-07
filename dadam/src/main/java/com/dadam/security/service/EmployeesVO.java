@@ -13,6 +13,7 @@ public class EmployeesVO implements Serializable{
 	private String deptCode;
 	private String pwd;
 	private String empName;
+	private String deptName;
 	private String email; 
 	private String tel;
 	private Date hireDate;

@@ -16,6 +16,7 @@
 		        created_date
 		FROM hold
 		WHERE com_id = #{comId} AND status NOT IN('hs02')
+		ORDER BY hold_code DESC
 	</select>
 	
 	<!-- 출하의뢰상세모달 조회 -->
@@ -42,6 +43,7 @@
                                         join item it
                                         on(sd.item_code = it.item_code AND sd.com_id = it.com_id)
         WHERE sd.com_id = #{comId} AND sd.status in('srd04','srd01','srd05')
+        ORDER BY ship_exp_date
 	</select>
 	
 	<!-- LOT모달 조회 -->

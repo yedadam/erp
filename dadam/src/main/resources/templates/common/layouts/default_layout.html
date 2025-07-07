@@ -9,7 +9,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/erp">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
@@ -17,7 +17,7 @@
             </a>
 
             <!-- Divider -->
-            <hr class="sidebar-divider my-0">
+            <hr class="sidebar-divider my-0 mt-3">
 
             <!-- Heading -->
             <!-- 혹시나 드랍다운 할 경우 있어 남겨놓겠음 -->
@@ -116,12 +116,7 @@
                     <span>창고</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" th:href="@{/erp/standard/chit}">
-                    <i class="fas fa-fw fa-cubes"></i>
-                    <span>전표관리</span>
-                </a>
-            </li>
+          
 			</div>
 			
 			
@@ -155,7 +150,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/erp/standard/chit}">
+                <a class="nav-link" th:href="@{/erp/sales/chit}">
                     <i class="fas fa-fw fa-cubes"></i>
                     <span>전표관리</span>
                 </a>
@@ -215,7 +210,7 @@
 	                </a>
 	            </li>
 	            <li class="nav-item">
-                <a class="nav-link" th:href="@{/erp/standard/chit}">
+                <a class="nav-link" th:href="@{/erp/inventory/chit}">
                     <i class="fas fa-fw fa-cubes"></i>
                     <span>전표관리</span>
                 </a>
@@ -254,9 +249,15 @@
                 </a>
             </li>
             <li class="nav-item">
+
                 <a class="nav-link" th:href="@{/erp/hr/dept}">
                     <i class="fas fa-fw fa-sitemap"></i>
                     <span>부서관리</span>
+
+                <a class="nav-link" th:href="@{/erp/hr/chit}">
+                    <i class="fas fa-fw fa-cubes"></i>
+                    <span>전표관리</span>
+
                 </a>
             </li>
 			</div>
@@ -283,35 +284,35 @@
             <li class="nav-item">
                 <a class="nav-link" href="/erp/accounting/create">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>미수조회</span>
+                    <span>수금 조회</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="Chit">
+                <a class="nav-link" href="/erp/">
                     <i class="fas fa-fw fa-table"></i>
                     <span>세금계산서</span>
                 </a>
             </li>
-            <li class="nav-item">
+<!--             <li class="nav-item">
                 <a class="nav-link" href="Chit">
                     <i class="fas fa-fw fa-table"></i>
                     <span>매입매출조회</span>
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
-                <a class="nav-link" href="Chit">
+                <a class="nav-link" href="/erp/accounting/balanceSheet">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>재무제표</span>
+                    <span>재무상태표</span>
                 </a>
             </li>            
             <li class="nav-item">
-                <a class="nav-link" href="Chit">
+                <a class="nav-link" href="/erp/accounting/profitStatement">
                     <i class="fas fa-fw fa-table"></i>
                     <span>손익계산서</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/erp/standard/chit}">
+                <a class="nav-link" th:href="@{/erp/accounting/chit}">
                     <i class="fas fa-fw fa-cubes"></i>
                     <span>전표관리</span>
                 </a>

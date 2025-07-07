@@ -51,8 +51,9 @@
 		.tui-pagination {
 			padding-bottom: 10px;
 		}
-		
-
+		.row-selected {
+    		background-color: #e6f2ff !important;
+  		}	
 	</style>
 </head>
 <body class="bg-light">
@@ -90,7 +91,7 @@
 			<div class="col-md-6 text-end">
 				<div class="d-flex justify-content-end flex-wrap gap-2">
 				<button id="excel" class="btn btn-success">
-					<i class="fas fa-pen"></i> 엑셀다운
+					<i class="fas fa-pen"></i> 엑셀
 				</button>
 				<button id="addRow" class="btn btn-secondary">
 					<i class="fas fa-eye"></i> 행추가
@@ -110,30 +111,19 @@
 
 		
   <!-- 검색창 영역 -->
- 
-
-		<!--수정하기-->
-		<!-- 주문 그리드 -->
 		<div id="orderGrid" class="mb-4"></div>
 		<!-- 상세 버튼 정렬 -->
 			  <div class="row mb-3">
-					 <!-- <div class="col-md-6">
-                <div class="input-group search-container" style="width: 400px;">
-                    <input type="text" class="form-control" placeholder="검색어를 입력하세요">
-                    <button class="btn btn-outline-secondary" type="button">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div> -->
+					
         	<div class="col-12 d-flex justify-content-end">
                 <div class="btn-group-custom">
                 	<button class="btn btn-secondary me-2" id="addRowdtl">
                         <i class="fas fa-pen"></i>  상세행추가
                     </button>
-										<button class="btn btn-warning" id="modRowdtl">
-											<i class="fas fa-eye"></i>  상세수정
-										</button>
-										 <button class="btn btn-primary" id="saveRowdtl">
+					<button class="btn btn-warning" id="modRowdtl">
+						<i class="fas fa-eye"></i>  상세수정
+					</button>
+					<button class="btn btn-primary" id="saveRowdtl">
                         <i class="fas fa-save"></i> 상세저장
                     </button>
                     <button class="btn btn-danger me-2" id="delRowdtl">
@@ -281,6 +271,7 @@
 			</div>
 		</div>
 
+
 	</div>
 </body>
 <script th:inline="javascript">
@@ -293,14 +284,28 @@
 	let vdrdiscount; //거래처할인율
 	let newOrdPlus; //상단헤더에서  새로추가한 행번호
 	let newDtlList = []; //[] 새로운 주문상세 행번호를 받아옴  
+	let pageStatus='search'; //페이지 기본값 search로 두기 
+
 
 	var payMethod = /*[[${payMethod}]]*/ [];
-	var ordStatus = /*[[${status}]]*/ [];   
+	var ordStatus = /*[[${status}]]*/ [];  
+	var itemType = /*[[${itemType}]]*/ [];  
 
 	orderList(); //주문조회  
 	itemList(); //제품조회 
 	vdrList(); //거래처조회
 	
+	$('#statusCheck').on('click',function(){
+		console.log('상태확인클릭됨');
+	//console.log(orderGrid.getData()); 
+	//console.log('pageStatus',pageStatus);
+    //console.log(itemType);
+		console.log('ordDtl=>',ordDtlGrid.getModifiedRows());
+		console.log('main=>',orderGrid.getModifiedRows()); 
+
+	})
+
+
 		//자동완성기능
 	$('#vdrInput').on('keyup',ev => {
 		 setupAutocomplete({
@@ -325,14 +330,14 @@
 			    inputSelector: '#itemInput',                              //인풋에 겁색값
 			    selectSelector: $('#itemSelect  option:selected').val(),  //selected 결과값
 			    listSelector: '#autoitemList',                            //자동완성 되는값 
-			    ajaxUrl: '/erp/standard/itemAll'                     //ajaxurl
+			    ajaxUrl: '/erp/sales/itemAll'                     //ajaxurl
 		 });
 	});
 	$('#itemInput').on('keyup',ev => {
 		if(ev.keyCode ==13){
 			let type = $("#itemSelect option:selected").val();
 			let value = $("#itemInput").val();
-			let url ='/erp/standard/itemAll';
+			let url ='/erp/sales/itemAll';
 			let grid = itemGrid
 			commonSearch(type,value,url,grid);
 		}
@@ -355,8 +360,6 @@
 			commonSearch(type,value,url,grid);
 		}
 	})	
-	
-
 	//setTimeout(); //초기설정
 	const orderGrid = new tui.Grid({
 		//toastui 아이디 가져오기
@@ -391,8 +394,8 @@
 						 		 options: {listItems: payMethod}
 						}//Map형태로 담아옴 [{"text":"","value":""}]
 			},
-			{header: '진행상태',	name: 'status',align: 'center',
-				formatter: 'listItemText',
+			{header: '진행상태',name: 'status',align: 'center',
+				formatter:'listItemText',
 				editor: {type: 'select',options: {listItems: ordStatus}
 			}
 			}, 
@@ -407,29 +410,39 @@
 			}
 		],
 	});
-	//체크박스눌렀을때 특정태그안에 하위요소 찾기
-	//행클릭시 작동
+
+	let  selectedRowKey; 
 	orderGrid.on('click', (ev) => {
-		//등록중인 행을 클릭하다가 다른행클릭했다가 다시갔을때 Dtl grid가 reset 됨    
-		if (orderGrid.getCheckedRows()[0].ordCode == null ||
-			orderGrid.getCheckedRows()[0].reqDlvDate == null &&
-			orderGrid.getCheckedRows()[0].status == null &&
-			orderGrid.getData()[ev.rowKey].totPrice == null) {
-			ordDtlGrid.resetData([]);
-		}
-		const checkedRows = orderGrid.getCheckedRowKeys(); //행번호 가져오는 	 	
-		// 현재 클릭한 rowKey가 유일하지 않으면 전부 해제 후 현재 행만 체크
+		
+		//이 전에 선택한 행 색깔이 원래대로 돌아옴 
+		orderGrid.removeRowClassName(selectedRowKey,'row-selected'); 
+		selectedRowKey=ev.rowKey; 
+		orderGrid.addRowClassName(ev.rowKey,'row-selected'); 
+
+	//등록중인 행을 클릭하다가 다른행클릭했다가 다시갔을때 Dtl grid가 reset 됨    
+	//	if (orderGrid.getCheckedRows()[0].ordCode == null ||
+	//		orderGrid.getCheckedRows()[0].reqDlvDate == null &&
+	//		orderGrid.getCheckedRows()[0].status == null &&
+	//		orderGrid.getData()[ev.rowKey].totPrice == null) {
+	//		ordDtlGrid.resetData([{}]);
+	//	}
+
+
+		const checkedRows = orderGrid.getCheckedRowKeys();	 	
+
 		if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
 				orderGrid.uncheckAll(); // 전체 해제
 				orderGrid.check(ev.rowKey); // 현재 행만 체크
 		}
 		if (ev.columnName == "vdrCode" || ev.columnName == "vdrName") {
-			console.log('vdr코드클릭됨');
 			openVdrmodal();
+		
 		} //모달열기
 		const rowData = orderGrid.getRow(ev.rowKey);
 		if (rowData && rowData.ordCode?.trim()) {
-			ordDtlList(rowData.ordCode);
+			if(pageStatus=='search'){
+				ordDtlList(rowData.ordCode);
+			}
 		}
 		let headTotPrice = 0;
 		//null값 방지 
@@ -474,15 +487,13 @@
 		rowHeaders: ['checkbox'],
 		columns: [
 			{header: '주문상세정보',name: 'ordDtlCode',	align: 'center',width: 110},
-			{header: '품목코드',name: 'itemCode',align: 'center',editor:'text',width:200},
+			{header: '품목코드',name: 'itemCode',align: 'center',editor:'text',width:100},
 			{header: '품목명',name: 'name',align: 'left',resizable: true,},
-			{header: '가격',name: 'price',	align: 'right',
-				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',	
-				editor: 'text'},
+			{header: '단가',name: 'price',	align: 'right',
+				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',},
 			{header: '수량',name: 'quantity',align: 'center',	
 			 	formatter: ({value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '개',
-				editor: 'text',
-			},
+				editor: 'text'},
 			{header: '공급가액',name: 'supPrice',align: 'right',
 			 	formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
 			{header: '부가세',name: 'vatPrice',	align: 'right',
@@ -490,7 +501,8 @@
 			{header: '할인금액',name: 'discPrice',	align: 'right',	
 				formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'}, 
 			{header: '총가격',name: 'totPrice',	align: 'right',
-				formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'}
+				formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',
+				editor:'text'}
 		]
 	})
 	//아이템 모달안에 아이템그리드 생성  
@@ -502,10 +514,13 @@
 			useClient: true,
 		},
 		columns: [
-			{header: '종류', name: 'type',align: 'center'},
+			{header: '종류', name: 'type',align: 'center',
+				formatter: ({ value }) => formatItemType(value)},
 			{header: '품목코드',name: 'itemCode',align: 'center'},
-			{header: '품목명',name: 'name',align: 'center'},
-			{header: '가격',name: 'price',align:'right'}
+			{header: '품목명',name: 'name',align: 'left'},
+			{header: '가격',name: 'price',align:'right',
+				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'		
+		}
 		]
 	})
 	//vdr 모달안에  vdrGrid 생성  
@@ -595,6 +610,12 @@
 			}
 		})
 	}
+	//메인리스트 불러오기 
+	function mainList(){
+		pageStatus='search'; 
+		orderList(); //조회다시 하기 
+	}
+
 	//주문번호에 해당하는 상세정보 불러오는 함수
 	function ordDtlList(ordcode) {
 		$.ajax({
@@ -606,13 +627,14 @@
 			success: function (result) {
 				//console.log('주문상세정보 불러오기', result);
 				ordDtlGrid.resetData(result);
+				console.log('상세정보조회',result);
 			}
 		})
 	}
 	//아이템리스트 불러오는 함수  
 	function itemList() {
 		$.ajax({
-			url: "/erp/standard/itemAll",
+			url: "/erp/sales/itemAll",
 			method: "GET",
 			success: function (result) {
 				//	console.log(result);
@@ -623,11 +645,11 @@
 
 	function vdrList() { //거래처리스트조회 
 		$.ajax({
-			url: "/erp/standard/venderAll",
+			url: "/erp/sales/venderAll",
 			method: "GET",
 			success: function (result) {
 				vdrAll = result;
-				//console.log(vdrAll);
+				console.log(vdrAll);
 				vdrGrid.resetData(result);
 				console.log(vdrAll);
 			}
@@ -635,31 +657,41 @@
 	}
 	let ordDtlForm;
 	$('#addRow').on('click', function () {
+		orderGrid.uncheckAll();
 
 		console.log(orderGrid.getData()[0].ordCode); //ordCode ord-122 이런꼴로 나옴 
 		let nextordCode = orderGrid.getData()[0].ordCode;  // 예: "ord-122"
 		let numberOnly = String(Number(nextordCode.substr(4))+1);     
+		pageStatus='register'; //등록상태
 	  	nextordCode='ord-'+numberOnly; //ord-123    
 
 		//행추가할 데이터 생성
 		let addRow = {}
+		let addDtlRow={}
 		orderGrid.prependRow(addRow);
-		ordDtlGrid.appendRow(addRow); 
+		ordDtlGrid.resetData([{}]); //행추가 할 경우 디테일그리드에 행이 기본으로 하나 추가됨 
 		const rowCount = orderGrid.getRowCount(); // 전체 행 수
 		const newRow = orderGrid.getRow(rowCount - 1); // 마지막 행 데이터
-		// console.log("추가된 행의 rowKey:", newRow.rowKey);
+	
 		newOrdPlus = newRow.rowKey; //새로추가된 행번호 정의
-		//console.log('새로추가된행번호',newOrdPlus); //newOrdPlus
-		//console.log('(orderGrid.getRow()[newOrdPlus-1]', orderGrid.getRow()[newOrdPlus - 1]);
+
 		orderGrid.refreshLayout();
-		orderGrid.uncheckAll(); //체크해제
+	
 		orderGrid.check(newOrdPlus); //새로추가된 행에 체크
-		ordDtlGrid.resetData([]);
+	
 		orderGrid.setValue(newOrdPlus, "createdDate", dateformatyymmdd(new Date()));
 		orderGrid.setValue(newOrdPlus, "status", "ost01");
 		orderGrid.setValue(newOrdPlus,"ordCode",nextordCode); //nextordCode
 	})
 	$('#deleteRow').on('click', function () {
+
+
+	//주문삭제할 경우 출하요청이 완료된 상품일 경우 경고창 띄우기 	
+	 if(orderGrid.getData()[orderGrid.getCheckedRowKeys()[0]].status=='ost02'||orderGrid.getData()[orderGrid.getCheckedRowKeys()[0]].status=='ost03' ){
+		 Swal.fire('실패','이미 출하요청된 주문건입니다','error');
+			return;
+		} 
+
 		//체크된행을 가져오는 함수	
 		const checkedRows = orderGrid.getCheckedRows();
 		//console.log('행삭제',checkedRows)
@@ -667,9 +699,6 @@
 			//console.log(item.ordCode);
 			if (item.status != 'ost03') { //출고완료 된건이 아닌것만 삭제가능  
 				orderGrid.removeRow(item.rowKey);
-			
-					alert('삭제클릭');
-
 				$.ajax({
 					url: "/erp/sales/ord/delete?ordCode=" + item.ordCode, // URL에 ordCode를 파라미터로 추가
 					method: "DELETE",
@@ -687,6 +716,7 @@
 	})
 	//주문상세 행추가 반영 
 	$('#addRowdtl').on('click', function () {
+	//	orderGrid.uncheckAll(); 
 		let addDtlrow = {} //		
 		ordDtlGrid.appendRow(addDtlrow); //
 		ordDtlGrid.refreshLayout(); //
@@ -696,15 +726,12 @@
 		newNo = ordDtlrowNo(ev.rowKey); //ordDtlrow 
 		ev.columnName == 'itemCode' ? openItemmodal() : console.log('아이템모달안열림');
 		const checkedRows = ordDtlGrid.getCheckedRowKeys();
-		if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
-			ordDtlGrid.uncheckAll(); // 전체 해제
-			ordDtlGrid.check(ev.rowKey); // 현재 행만 체크
-		}
+	
 	})
 	$('#ordreg2').on('click', function () {
 		console.log('rderGrid.getModifiedRows().createdRows[0])',orderGrid.getModifiedRows().createdRows[0]); 
 		console.log('orderGrid.getCheckedRows()[0]', orderGrid.getCheckedRows()[0]); 
-		let regHeader =orderGrid.getCheckedRows()[0]; 
+		let regHeader =orderGrid.getModifiedRows().createdRows[0]; //체크표시 굳이 안해도 주문등록가능  
 		// ❗ 주문 헤더 유효성 검사
 		if (!regHeader.vdrCode || !regHeader.payMethod || !regHeader.status) {
 			Swal.fire({
@@ -736,10 +763,10 @@
 			totDisc+=dtlObj.createdRows[i].discPrice; // 총할인금액	
 			qty+=dtlObj.createdRows[i].quantity; //총수량  
 		}
-		regHeader.totSupPrice=totSup;
-		regHeader.totVatPrice=totVat; 
-		regHeader.totDisc=totDisc; 
-		regHeader.totQuantity=qty; 
+			regHeader.totSupPrice=totSup;
+			regHeader.totVatPrice=totVat; 
+			regHeader.totDisc=totDisc; 
+			regHeader.totQuantity=qty; 
 
 	//console.log('dtlObj',dtlObj);   
 		const dataToSend = {
@@ -759,6 +786,11 @@
 					icon: "success",
 					draggable: true
 				});
+				
+				orderList(); //주문등록하고 다시 주문리스트 
+				pageStatus='search'; //page상태 조회 상태로 되돌리기 
+				orderGrid.uncheckAll();
+				ordDtlGrid.resetData(); 
 			}
 		})
 	})
@@ -766,7 +798,7 @@
 	$('#saveRowdtl').on('click', function(){
 		//validation 체크 
 		let test = ordDtlGrid.getData();
-		console.log(test);
+		//유효성 체크 
 		$.each(test, (idx, item) => {
 			if (item.itemCode == null || item.quantity == null) {
 				Swal.fire({
@@ -788,7 +820,7 @@
 			ord: regHeader, // 일반 객체
 			dtl: dtlObj
 		};
-		console.log('dataToSend', dataToSend);
+
 		$.ajax({
 			url: '/erp/sales/ord/regDtl',
 			type: 'POST',
@@ -799,10 +831,10 @@
 				Swal.fire({
 					title: "저장성공!",
 					icon: "success",
-					draggable: true
+				draggable: true
 				});
 			}
-		})
+		})	
 	})
 	//주문 수정
 	$('#ordupd').on('click', function () {
@@ -821,7 +853,9 @@
 					icon: "success",
 					draggable: true
 				});
+				orderList();
 				orderGrid.uncheckAll();
+				ordDtlGrid.resetData();
 			}
 		})
 	})
@@ -848,7 +882,7 @@
 	});
 	//주문dtl 수정하기 
 	$('#modRowdtl').on('click', function () {
-		let updDtl = ordDtlGrid.getCheckedRows()[0]; //체크된 행을 수정함 
+		let updDtl = ordDtlGrid.getCheckedRows()[0]; //체크된 행을 수정함 단건수정^^ 
 		updDtl.comId = userComId;
 		updDtl.quantity = Number(updDtl.quantity);
 		updDtl.totPrice = updDtl.totprice;
@@ -860,9 +894,8 @@
 										ordDtlGrid.getCheckedRows()[0].vatPrice
 										-ordDtlGrid.getCheckedRows()[0].discPrice;
 		
-
 		console.log('updDtl', updDtl);
-		console.log(orderGrid.getCheckedRows()[0]);
+	
 		ordDtlGrid.setValue(updDtl.rowkey, "ordCode", orderGrid.getCheckedRows()[0].ordCode);
 		console.log('updDtl=>', updDtl);
 
@@ -964,7 +997,6 @@
 		const info = ordDtlGrid.getRow(item);
 		return info;
 	}
-
 	function getOrdHeadplusInfo(newNo) {
 		const info = orderGrid.getRow(newNo);
 		return info;
@@ -977,10 +1009,20 @@
 	$('#excel').on('click',function(){
 		 orderGrid.export('xlsx',topOptions); 
 	})
+	function formatItemType(status){
+			for(let i=0;i<itemType.length;i++){
+				if(itemType[i].subCode==status){
+					return itemType[i].subName;
+				}
+			}
+	}
 
-	// const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1001'}]];
-	// const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '정은애'	}]];
-	// const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'	}]];
+
+	//주문등록 할때 이거 주석처리 하면 안넘어감;; 
+
+	 const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1005'}]];
+	 const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '정은애'	}]];
+	 const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'	}]];
 //	console.log(userID, userName, userComId);
 </script>
 </html>

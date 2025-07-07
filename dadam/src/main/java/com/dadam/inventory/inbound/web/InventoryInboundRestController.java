@@ -3,7 +3,6 @@ package com.dadam.inventory.inbound.web;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,15 +20,25 @@ import com.dadam.inventory.inbound.service.PurchaseVO;
 @RestController
 @RequestMapping("/erp/inventory")
 public class InventoryInboundRestController {
-	@Autowired
-	private InboundService inboundService;
+  @Autowired
+  InboundService inboundService;
 
 	/**
 	 * 발주서 리스트 조회
 	 * @param vo 검색 조건
 	 * @return 발주서 리스트
 	 */
+
+	
+	
+	// 입고 리스트
 	@GetMapping("/purchaseList")
+	public List<InboundVO> inboundPurchaseOrderFindAll(@RequestParam String comId) {
+		return inboundservice.selectPurchaseList(comId);
+	}
+	
+	// 발주서 리스트
+	@GetMapping("/purchaseOrderList")
 	public List<PurchaseVO> inboundPurchaseOrderFindAll(PurchaseVO vo) {
 		return inboundService.inboundPurchaseFindAll(vo);
 	}
@@ -53,5 +62,10 @@ public class InventoryInboundRestController {
 	@GetMapping("/warehouseList")
 	public List<InboundVO> warehouseList(@RequestParam String comId) {
 		return inboundService.warehouseList(comId);
+	}
+	// 현재수량
+	@PostMapping("/purchaseCurrQty")
+	public List<PurchaseVO> purchaseCurrQty(@RequestBody List<PurchaseVO> list) {
+		return inboundservice.purchaseCurrQty(list);
 	}
 }

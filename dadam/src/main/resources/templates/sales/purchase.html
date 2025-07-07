@@ -1,217 +1,194 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{common/layouts/default_layout}"
-	layout:fragment="Content">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/default_layout}"
+      layout:fragment="Content">
 <head>
-    <style>
-    
-</style>
 </head>
-<body class="bg-light">
-    <div class="container-fluid mt-4">
-        <h3 class="mb-4">구매관리</h3>
-        
-        
-        
-        <!-- 검색 및 버튼 영역 -->
-        <div class="row mb-3">
-            <div class="position-relative col-md-6">
-						    <div class="input-group">
-						        <select class="form-select col-4" id="purSelect" style="max-width: 30%;">
-						            <option value="purOrdCode" selected>발주코드</option>
-						            <option value="empName">담당자</option>
-						            <option value="vdrName">거래처이름</option>
-						        </select>
-						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="purInput" autocomplete="off">
-						        <button class="btn btn-outline-secondary" type="button" id="reqSearchBtn">
-						            <i class="fas fa-search"></i>
-						        </button>
-						    </div>
-						
-						    <!-- 자동완성 리스트 -->
-						    <ul id="purReqList"
-						        class="list-group position-absolute w-100 shadow-sm"
-						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
-						    </ul>
-			</div>
-            <div class="col-md-6 text-end">
-                <div class="btn-group-custom mb-3">
-                	<button class="btn btn-secondary me-2" id="newBtn">
-                        <i class="fas fa-pen"></i> 추가
-                    </button>
-					<button class="btn btn-warning me-2" id="searchBtn">
-						<i class="fas fa-eye"></i> 조회
-					</button>
-                    <button class="btn btn-danger me-2" id="delBtn">
-                        <i class="fas fa-trash"></i> 삭제
-                    </button>
-                    <button class="btn btn-primary" id="saveBtn">
-                        <i class="fas fa-save"></i> 저장
-                    </button>
-                </div>
-            </div>
+<body>
+  <div class="container-fluid mt-4 p-4 rounded shadow-sm">
+    <h3 class="mb-4 text-secondary fw-bold border-bottom border-secondary pb-2">구매관리</h3>
+
+    <!-- 검색 및 버튼 영역 -->
+    <div class="row mb-3 align-items-center">
+      <div class="col-md-6 position-relative">
+        <div class="input-group">
+          <select class="form-select" id="purSelect" style="max-width: 30%;">
+            <option value="purOrdCode" selected>발주코드</option>
+            <option value="empName">담당자</option>
+            <option value="vdrName">거래처이름</option>
+          </select>
+          <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="purInput" autocomplete="off">
+          <button class="btn btn-outline-secondary" type="button" id="reqSearchBtn">
+            <i class="fas fa-search"></i>
+          </button>
         </div>
-
-        <!-- 메인 테이블 -->
-		<div id="mainGridWrapper" style="position: relative;">
-			<div id="mainGrid"></div>
-
-			<!-- Lottie 로딩 바 애니메이션 -->
-			<div id="gridSpinner"
-				style="position: absolute; top: 38px; left: 0; width: 100%; height: calc(100% - 38px); background: #fff; z-index: 10; display: none;"
-				class="d-flex align-items-center justify-content-center">
-
-				<!-- dotlottie-player로 변경 -->
-				<dotlottie-player
-					src="https://lottie.host/e8b36d4d-46d8-429f-98b8-d8c1c4dde598/p6hfbX0nTd.lottie"
-					background="transparent" speed="1"
-					style="width: 200px; height: 100px;" loop autoplay>
-				</dotlottie-player>
-			</div>
-		</div>
-
-		<!-- 상세 정보 테이블 -->
-             <div class="text-end">
-                <div class="btn-group-custom">
-                	<button class="btn btn-primary me-2" id="rowAddBtn">
-                        행추가
-                    </button>
-                    <button class="btn btn-danger me-2" id="rowDelBtn">
-                       행삭제
-                    </button>
-                </div>
-            </div>
-                <div id="detailGrid"></div>
+        <ul id="purReqList"
+            class="list-group position-absolute w-100 shadow"
+            style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+        </ul>
+      </div>
+      <div class="col-md-6 text-end">
+        <div class="btn-group mb-3">
+          <button class="btn btn-secondary me-2" id="newBtn">
+            <i class="fas fa-pen"></i> 추가
+          </button>
+          <button class="btn btn-warning me-2" id="searchBtn">
+            <i class="fas fa-eye"></i> 조회
+          </button>
+          <button class="btn btn-danger me-2" id="delBtn">
+            <i class="fas fa-trash"></i> 삭제
+          </button>
+          <button class="btn btn-primary" id="saveBtn">
+            <i class="fas fa-save"></i> 저장
+          </button>
+        </div>
+      </div>
     </div>
+
+    <!-- 메인 테이블 -->
+    <div id="mainGridWrapper" class="position-relative border rounded p-3 bg-white shadow-sm">
+      <div id="mainGrid"></div>
+
+      <!-- Lottie 로딩 바 애니메이션 -->
+      <div id="gridSpinner"
+           class="position-absolute top-0 start-0 w-100 h-100 bg-white d-flex align-items-center justify-content-center"
+           style="top: 38px; display: none; z-index: 10;">
+        <dotlottie-player
+            src="https://lottie.host/e8b36d4d-46d8-429f-98b8-d8c1c4dde598/p6hfbX0nTd.lottie"
+            background="transparent" speed="1"
+            style="width: 200px; height: 100px;" loop autoplay>
+        </dotlottie-player>
+      </div>
+    </div>
+
+    <!-- 상세 정보 테이블 -->
+		<div
+			class="d-flex justify-content-between align-items-center mt-3 mb-3">
+			<div>
+				<h5 class="mb-0">발주상세</h5>
+			</div>
+			<div>
+				<div class="btn-group">
+					<button class="btn btn-primary me-2" id="rowAddBtn">행추가</button>
+					<button class="btn btn-danger" id="rowDelBtn">행삭제</button>
+				</div>
+			</div>
+		</div>
+		<div id="detailGrid"></div>
+  </div>
+
   <!-- 발주의뢰 모달 -->
-	<div class="modal fade" id="requestModal" tabindex="-1"
-		aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-xl">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="exampleModalLabel">발주서 의뢰 리스트</h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"
-						aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-				<!-- 검색조건 -->
-						<div class="position-relative mb-3" style="max-width: 500px;">
-						    <div class="input-group">
-						        <select class="form-select col-4" id="reqSelect" style="max-width: 30%;">
-						            <option value="purReqCode" selected>발주의뢰코드</option>
-						            <option value="empId">담당자</option>
-						            <option value="note">비고</option>
-						        </select>
-						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="reqInput" autocomplete="off">
-						        <button class="btn btn-outline-secondary" type="button" id="reqSearchBtn">
-						            <i class="fas fa-search"></i>
-						        </button>
-						    </div>
-						
-						    <!-- 자동완성 리스트 -->
-						    <ul id="autoReqList"
-						        class="list-group position-absolute w-100 shadow-sm"
-						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
-						    </ul>
-						</div>
-					<div class="container-fluid">
-						<div id="requestGrid"></div>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary"
-						data-bs-dismiss="modal">Close</button>
+  <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="exampleModalLabel">발주서 의뢰 리스트</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="position-relative mb-3" style="max-width: 500px;">
+            <div class="input-group">
+              <select class="form-select" id="reqSelect" style="max-width: 30%;">
+                <option value="purReqCode" selected>발주의뢰코드</option>
+                <option value="empId">담당자</option>
+                <option value="note">비고</option>
+              </select>
+              <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="reqInput" autocomplete="off">
+              <button class="btn btn-outline-secondary" type="button" id="reqSearchBtn">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
 
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- 거래처 모달-->
-	<div class="modal fade" id="vdrModal" tabindex="-1"
-		aria-labelledby="vdrModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-xl">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="vdrModalLabel">거래처 리스트</h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"
-						aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-				
-						<!-- 검색 조건 -->
-						<div class="position-relative mb-3" style="max-width: 500px;">
-						    <div class="input-group">
-						        <select class="form-select col-4" id="vdrSelect" style="max-width: 30%;">
-						            <option value="vdrCode" selected>거래처코드</option>
-						            <option value="vdrName">거래처명</option>
-						        </select>
-						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="vdrInput" autocomplete="off">
-						        <button class="btn btn-outline-secondary" type="button" id="vdrSearchBtn">
-						            <i class="fas fa-search"></i>
-						        </button>
-						    </div>
-						
-						    <!-- 자동완성 리스트 -->
-						    <ul id="autocompleteList"
-						        class="list-group position-absolute w-100 shadow-sm"
-						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
-						    </ul>
-						</div>
-			            <div class="container-fluid">
-					        <div id="vdrGrid"></div>
-					   </div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary"
-						data-bs-dismiss="modal">Close</button>
+            <ul id="autoReqList"
+                class="list-group position-absolute w-100 shadow"
+                style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+            </ul>
+          </div>
+          <div class="container-fluid">
+            <div id="requestGrid"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- 아이템 모달-->
-	<div class="modal fade" id="itemModal" tabindex="-1"
-		aria-labelledby="itemModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-xl">
-			<div class="modal-content">
-				<div class="modal-header mb-3">
-					<h1 class="modal-title fs-5" id="itemModalLabel">품목 항목</h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"
-						aria-label="Close"></button>
-				</div>
-				<!-- 검색 조건 -->
-						<div class="position-relative mb-3 ms-3" style="max-width: 500px;">
-						    <div class="input-group">
-						        <select class="form-select col-4" id="itemSelect" style="max-width: 30%;">
-						            <option value="name" selected>품목명</option>
-						            <option value="itemCode">품목코드</option>
-						        </select>
-						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="itemInput" autocomplete="off">
-						        <button class="btn btn-outline-secondary" type="button" id="itemSearchBtn">
-						            <i class="fas fa-search"></i>
-						        </button>
-						    </div>
-						
-						    <!-- 자동완성 리스트 -->
-						    <ul id="autoItemList"
-						        class="list-group position-absolute w-100 shadow-sm"
-						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
-						    </ul>
-						</div>
-				<div class="modal-body">
-					<div class="container-fluid">
-						<div id="itemGrid"></div>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary"
-						data-bs-dismiss="modal">Close</button>
+  <!-- 거래처 모달 -->
+  <div class="modal fade" id="vdrModal" tabindex="-1" aria-labelledby="vdrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-secondary text-white">
+          <h5 class="modal-title" id="vdrModalLabel">거래처 리스트</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="position-relative mb-3" style="max-width: 500px;">
+            <div class="input-group">
+              <select class="form-select" id="vdrSelect" style="max-width: 30%;">
+                <option value="vdrCode" selected>거래처코드</option>
+                <option value="vdrName">거래처명</option>
+              </select>
+              <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="vdrInput" autocomplete="off">
+              <button class="btn btn-outline-secondary" type="button" id="vdrSearchBtn">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
 
-				</div>
-			</div>
-		</div>
-	</div>
+            <ul id="autocompleteList"
+                class="list-group position-absolute w-100 shadow"
+                style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+            </ul>
+          </div>
+          <div class="container-fluid">
+            <div id="vdrGrid"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 아이템 모달 -->
+  <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="itemModalLabel">품목 항목</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="position-relative mb-3 ms-3" style="max-width: 500px;">
+          <div class="input-group">
+            <select class="form-select" id="itemSelect" style="max-width: 30%;">
+              <option value="name" selected>품목명</option>
+              <option value="itemCode">품목코드</option>
+            </select>
+            <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="itemInput" autocomplete="off">
+            <button class="btn btn-outline-secondary" type="button" id="itemSearchBtn">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+
+          <ul id="autoItemList"
+              class="list-group position-absolute w-100 shadow"
+              style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+          </ul>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div id="itemGrid"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 	<script th:inline="javascript">
 	
 	
@@ -282,7 +259,7 @@
             rowHeaders: ['checkbox'],
             // 페이지네이션
             pageOptions: {
-                perPage: 10,
+                perPage: 7,
                 useClient: true,
             },
             // 필드값 구성

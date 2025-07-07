@@ -38,5 +38,15 @@ public class AccountFormController {
     public String openForm() {
         return "acc/autoRuleForm :: fragment";  // templates/acc/autoRuleForm.html
     }
+    
+    @GetMapping("/balanceSheet")
+    public String getBalanceSheet() {
+        return "acc/balanceSheet";  
+    }
+    
+    @GetMapping("/profitStatement")
+    public String getProfitStatement() {
+        return "acc/profitStatement";  
+    }
 	
 }

@@ -226,24 +226,24 @@ const chitGrid = new tui.Grid({
    { header: '등록일자', name: 'createdDate', align: 'center' },
    { header: '전표명', name: 'chitTitle', align: 'center' },
    { header: '거래처', name: 'vdrCode', align: 'center' },
-   { header: '거래유형', name: 'tType', align: 'center' },
+   { header: '거래유형', name: 'tType', align: 'center' , width: 80,},
    { header: '공급가액', name: 'supplyPrice', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '', hidden: true },
    { header: '부가세', name: 'vatPrice', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '', hidden: true },
    { header: '총금액', name: 'totPrice', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : ''},
    { header: '세금계산서', name: 'taxCode', align: 'center', 
 	   formatter: ({ value }) => value === 'tay02' ? '<span class="grid-action">계산서 발행</span>' 
-			   				   : value === 'tay01' ? '<span class="grid-action">발행 완료</span>' : ''},
+			   				   : value === 'tay01' ? '<span class="grid-action">발행 완료</span>' : '', hidden: true  },
    { header: '결제상태', name: 'status', align: 'center', width: 100,
      	formatter: ({ value }) => value === '등록' ? '<span class="grid-action">등록</span>' 
      						    : value === '결제' ? '<button class="btn grid-action payCheck">결제</button>' 
      						    : value === '결제완료' ? '<span class="grid-acction">결제완료</span>' 
      						    : value === '변려' ? '<button class="btn grid-action reject-btn">반려</button>' 
      						    :''},			    
-   { header: '계정과목', name: 'acctCode', align: 'center', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.aname || row.ANAME },
-   { header: '전표구분', name: 'iType', align: 'center', editor: { type: indTypeEditor }, formatter: ({ row }) =>  row.iname || row.INAME },
-   { header: '금액', name: 'iPrice', align: 'center', editor 	: { type: 'text', options: { inputType: 'number' } } },
-   { name: 'ANAME' },
-   { name: 'INAME' },
+   { header: '계정과목', name: 'acctCode', align: 'center', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.aname || row.ANAME , width: 100},
+   { header: '전표구분', name: 'iType', align: 'center', editor: { type: indTypeEditor }, formatter: ({ row }) =>  row.iname || row.INAME , width: 100 },
+   { header: '금액', name: 'iPrice', align: 'center', editor 	: { type: 'text', options: { inputType: 'number' } } , width: 100},
+   { name: 'ANAME', hidden: true  },
+   { name: 'INAME', hidden: true  },
    { header: '담당부서', name: 'deptCode', hidden: true },
    { header: '결제자', name: 'phyEmpId', hidden: true },
    { header: '승인자', name: 'apprEmpId', hidden: true },
@@ -251,15 +251,22 @@ const chitGrid = new tui.Grid({
    {
 	   header: '분개', name: 'origin', align: 'center',
 	   formatter: ({ row }) => {
-	     const isChild = row._attributes?.tree?.parent !== undefined;
-	     const isNewRow = row.origin === true;
-	    const isStatus = row._attributes?.tree?.status == '등록' || '결제';
-	     if (isChild || isNewRow) {
-	       return `<button class="btn btn-sm btn-primary add-btn">추가</button>
-	               <button class="btn btn-sm btn-danger del-btn">삭제</button>`;
-	     }
-	     return '<button class="btn btn-sm btn-primary auto-btn">분개</button>';
-	   }
+		   const isChild = row._attributes?.tree?.parent !== undefined;
+		   const isNewRow = row.origin === true;
+		   const hasChildren = Array.isArray(row._children) && row._children.length > 0;
+
+		   // 자식 행이거나 신규 행이면 '추가/삭제' 버튼
+		   if (isChild || isNewRow) {
+		     return `<button class="btn btn-sm btn-primary add-btn">추가</button>
+		             <button class="btn btn-sm btn-danger del-btn">삭제</button>`;
+		   }
+
+		   // 자식이 있으면 분개 버튼 숨김
+		   if (hasChildren) return ''; // ❌ 버튼 제거
+
+		   // 분개 버튼 노출
+		   return '<button class="btn btn-sm btn-primary auto-btn">분개</button>';
+		 }
 	 }
  ]
 });
@@ -457,13 +464,13 @@ $('#patBtn').on('click', function () {
 	  const payload = rows.map(row => ({
 	    chitCode: row.chitCode,
 	    articleCode: row.articleCode,
-	    totPrice: row.totPrice
+	    totPrice: row.totPrice,
+	    comId: comId ,
 	  }));
 
 	  $.ajax({
 	    url: "/erp/accounting/modifyChitPay",
 	    method: "POST",
-	    data: {comId},
 	    contentType: "application/json",
 	    data: JSON.stringify(payload),
 	    success(res) {
@@ -542,21 +549,24 @@ chitGrid.on('click', (ev) => {
 	  if (!parentRow || !parentRow.tType) {
 	    return alert("거래유형이 없습니다.");
 	  }
+	  if (['결제', '결제완료'].includes(parentRow.status)) {
+	    return alert("결제 처리된 전표는 분개할 수 없습니다.");
+	  }
 
 	  const chitType = parentRow.tType;
 	  console.log("📦 공급가액:", parentRow.supplyPrice);
-	  
+
 	  function getAutoPriceByVatYn(parentRow, rule) {
-		  const vatYn = rule.vatYn?.toLowerCase() || rule.VAT_YN?.toLowerCase();
-		  const priceMap = {
-		    v: parseFloat(parentRow?.vatPrice) || 0,
-		    s: parseFloat(parentRow?.supplyPrice) || 0,
-		    t: parseFloat(parentRow?.totPrice) || 0
-		  };
-			console.log(priceMap[vatYn])
-			console.log("rule 객체 전체:", rule);
-		  return (priceMap[vatYn] ?? parseFloat(parentRow?.supplyPrice)) || 0;
-		}
+	    const vatYn = rule.vatYn?.toLowerCase() || rule.VAT_YN?.toLowerCase();
+	    const priceMap = {
+	      v: parseFloat(parentRow?.vatPrice) || 0,
+	      s: parseFloat(parentRow?.supplyPrice) || 0,
+	      t: parseFloat(parentRow?.totPrice) || 0
+	    };
+	    console.log(priceMap[vatYn])
+	    console.log("rule 객체 전체:", rule);
+	    return (priceMap[vatYn] ?? parseFloat(parentRow?.supplyPrice)) || 0;
+	  }
 
 	  fetch(`/erp/accounting/ruleByChitType?chitType=${chitType}&comId=${comId}`)
 	    .then(res => res.json())
@@ -570,15 +580,15 @@ chitGrid.on('click', (ev) => {
 	        const iPrice = getAutoPriceByVatYn(parentRow, rule);
 
 	        chitGrid.appendRow({
-	        	  chitCode: parentRow.chitCode,
-	        	  acctCode: rule.ACCT_CODE,    // 대소문자 정확히!
-	        	  iType: rule.ITP_TYPE,        // ✅ 반드시 editor에서 기대하는 값
-	        	  iPrice: iPrice,
-	        	  aname: rule.ANAME,           // formatter용 (계정명)
-	        	  iname: rule.INAME,           // formatter용 (차/대변명)
-	        	  vatYn: rule.VAT_YN,          // 부가세 구분값 (있다면)
-	        	  origin: true,
-	        	  _attributes: {}
+	          chitCode: parentRow.chitCode,
+	          acctCode: rule.ACCT_CODE,
+	          iType: rule.ITP_TYPE,
+	          iPrice: iPrice,
+	          aname: rule.ANAME,
+	          iname: rule.INAME,
+	          vatYn: rule.VAT_YN,
+	          origin: true,
+	          _attributes: {}
 	        }, {
 	          parentRowKey: rowKey,
 	          position: 'last'
@@ -613,9 +623,6 @@ chitGrid.on('afterChange', ev => {
  }
 });
 
-chitGrid.on('editingFinish', ({ columnName }) => {
- if (['iPrice', 'iType'].includes(columnName)) checkBalanceAndMark();
-});
 
 function chitList() {
 	  $.ajax({
@@ -721,7 +728,7 @@ function openAutoRuleModal() {
     	    el: document.getElementById('autoRuleGrid'),
     	    bodyHeight: 300,
     	    scrollX: false,
-    	    scrollY: true,
+    	    scrollY: false,
     	    editingEvent: 'click',
     	    rowHeaders: ['rowNum'],
     	    columns: [

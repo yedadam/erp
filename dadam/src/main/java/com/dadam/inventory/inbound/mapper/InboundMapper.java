@@ -9,17 +9,20 @@ import com.dadam.inventory.inbound.service.PurchaseVO;
 
 @Mapper
 public interface InboundMapper {
-	
+	// 입고리스트 조회
+	public List<InboundVO> selectPurchaseList(String comId);
 	// 조회
 	public List<PurchaseVO> inboundPurchaseFindAll(PurchaseVO vo);
 	// 창고 조회
 	public List<InboundVO> warehouseList(String comId);
 	// 등록
-	public void insertPurchaseInbound(PurchaseVO vo);
+	public int insertPurchaseInbound(PurchaseVO vo);
+	// 현재 수량 조회
+	public int purchaseCurrQty(PurchaseVO vo);
 	// 상태값 업데이트
-	public void updatePurchaseOrderDetailInbound(PurchaseVO vo);
+	public int updatePurchaseOrderDetailInbound(PurchaseVO vo);
 	// 재고테이블 반영
-	public void updateStockInbound(PurchaseVO vo);
+	public int updateStockInbound(PurchaseVO vo);
 	// 프로시저
-	public void prcPurchaseOrderStatus(PurchaseVO vo);
+	public int prcPurchaseOrderStatus(PurchaseVO vo);
 }
