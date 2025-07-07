@@ -331,7 +331,8 @@
 	orderList(); //주문조회  
 	itemList(); //제품조회 
 	vdrList(); //거래처조회
-	
+
+
 let map=new Map(); 
 	// $('#statusCheck').on('click',function(){
 	// 	console.log('상태확인클릭됨');
@@ -364,6 +365,11 @@ $('#orderSearchBtn').on('click',function(){
 	
 		const status = document.querySelector('input[name="orderStatus"]:checked').value;
 		commonSearchObject({type,value,reqDlvStartDate ,reqDlvEndDate,status},url,orderGrid);
+
+		//임시 상태확인용 
+	console.log('orderGrid.getModifiedRows()',orderGrid.getModifiedRows()); 
+	console.log('ordDtlGrid rderGrid.getModifiedRows',ordDtlGrid.getModifiedRows()); 
+
 })
 
 		//자동완성기능

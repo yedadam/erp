@@ -83,7 +83,7 @@
 		DISCOUNT,
 		TOT_PRICE,
 		QUO_CODE)
-		values(#{ordCode},
+		values(getNextOrdCode(),
 		#{vdrCode},
 		#{status},
 		#{createdDate},
@@ -100,6 +100,10 @@
 		'quoCode')
 	</insert>
 	<insert id="odtlInsert" parameterType="com.dadam.sales.order.service.OrdDtlVO">
+		<selectKey resultType="string" keyProperty="ordCode" order="BEFORE">
+			SELECT MAX(ord_code)
+	    	FROM orders
+		</selectKey>
 		INSERT INTO ordersdetail (
 		ORD_DTL_CODE,
 		ITEM_CODE,
