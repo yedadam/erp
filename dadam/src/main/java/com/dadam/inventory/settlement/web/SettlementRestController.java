@@ -46,7 +46,12 @@ public class SettlementRestController {
 		List<SettlementVO> result =service.autoSettlementList();
 		return result;
 	} 
-	
+	 //이번달 결산 했는지체크
+	@GetMapping("/monthCheck")
+	public int monthCheck() {
+		int result = service.monthCheck();
+		return result;
+	}
 	@PostMapping("/settleAdd")
 	public String settleAdd(@RequestBody  List<SettlementVO> vo) {
 		String r = service.settlementAdd(vo);
@@ -102,7 +107,7 @@ public class SettlementRestController {
 	            return ResponseEntity.badRequest().body("fileImage 또는 signImage가 누락되었습니다.");
 	        }
 
-	        // 실제 경로 지정 (개발 환경용)
+	        // 실제 경로 지정
 	        Path path = Paths.get("src/main/resources/templates/settlementEle", vo.getFileImage());
 
 	        // 파일 존재 확인
@@ -141,4 +146,5 @@ public class SettlementRestController {
 		service.prcEletronicUpdate(vo);
 		
 	}
+	
 }

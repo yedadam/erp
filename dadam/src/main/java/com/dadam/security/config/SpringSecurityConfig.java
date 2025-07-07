@@ -44,7 +44,8 @@ public class SpringSecurityConfig {
                         "/css/**", 
                         "/js/**", 
                         "/images/**", 
-                        "/webjars/**").permitAll()
+                        "/webjars/**"
+                        ).permitAll()
                 
                 // 나머지 모든 요청은 인증 필요
                 .anyRequest().authenticated()
@@ -109,7 +110,8 @@ public class SpringSecurityConfig {
                 .requestMatchers(//"/erp/**",
                 		         "/css/**", 
                 				 "/js/**", 
-                        		 "/images/**").permitAll()
+                        		 "/images/**",
+                        		 "/erp/inventory/mineEle").permitAll()
                 .requestMatchers("/erp").hasAnyAuthority("master","ac-101","ac-102","ac-103","ac-104","ac-105")
                 .requestMatchers("/erp/standard/**").hasAnyAuthority("master","ac-101")
                 .requestMatchers("/erp/hr/**").hasAnyAuthority("master","ac-101","ac-103")

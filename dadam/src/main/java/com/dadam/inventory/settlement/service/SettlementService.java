@@ -20,4 +20,8 @@ public interface SettlementService {
 	public List<SettlementVO> mineEle();
 	
 	public void prcEletronicUpdate(SettlementVO vo);
+	
+	public int monthCheck();
+	
+	public int eleList();
 }
