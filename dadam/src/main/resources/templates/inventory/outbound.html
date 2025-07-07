@@ -122,7 +122,7 @@
 	</div>
 	
 	<!-- 출고를 위한 모달 -->
-	<div class="modal fade" id="shipRequestModal" tabindex="-1"
+	<div class="modal fade" id="outboundModal" tabindex="-1"
 		aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
@@ -131,11 +131,14 @@
 				</div>
 				<div class="modal-body">
 					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
-						<button class="btn btn-primary" id="shipRequestBtn" data-bs-dismiss="modal">
-							<i class="fas fa-square-check"></i> 선택
+						<button class="btn btn-danger" id="resetModal">
+						<i class="fas fa-square-minus"></i> 초기화
 						</button>
+						<button class="btn btn-primary" id="registerBtn">
+                        <i class="fas fa-warehouse"></i> 출고
+                    	</button>
 					</div>
-					<div id="shipRequestGrid"></div>
+					<div id="gridModal"></div>
 				</div>
 				<div class="modal-footer">
 				 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -167,6 +170,7 @@ function changeView(viewType){
 		// dom 초기화
 		$('#mainGrids').html('');
 		$('#subGrids').html('');
+		$('#gridModal').html('');
 	}
 	// 그리드 변경
 	if(viewType === '조회'){
@@ -198,6 +202,9 @@ function outboundList(){
 function selectGrid(){
 	// 출고 버튼 삭제
 	$('#saveBtn').remove();
+	$('#selectBtn').prop('disabled', true);
+	$('#insertBtn').prop('disabled', false);
+	
 	// 출고 그리드 생성
 	mainGrid = new tui.Grid({
 	    el: document.getElementById('mainGrids'),
@@ -244,6 +251,10 @@ function selectGrid(){
 	
 	// 출고 상세조회 이벤트
 	mainGrid.on('click',(ev)=>{
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+		    return;
+		  }
 		let { rowKey, columnName } = ev;
 		let outCode = mainGrid.getValue(rowKey, 'outCode');
 		let param = {comId,outCode};
@@ -273,12 +284,25 @@ function holdList(){
 	})
  };
  
- 
- 
 // 등록 화면
 function insertGrid(){
 	// 출고 버튼 생성
-	$('#btnGroup').prepend('<button class="btn btn-primary me-1" id="saveBtn"><i class="fas fa-warehouse"></i> 출고 </button>');
+	$('#btnGroup').prepend('<button class="btn btn-primary me-1" id="saveBtn" data-bs-toggle="modal" data-bs-target="#outboundModal"><i class="fas fa-warehouse"></i> 출고 </button>');
+	// 버튼 비활성화
+	$('#selectBtn').prop('disabled', false);
+	$('#insertBtn').prop('disabled', true);
+	
+	// 모달안에서 그리드 처리
+	$('#outboundModal').on('shown.bs.modal',function(){
+		outboundGrid.refreshLayout();
+	})
+	// 모달 초기화
+	$('#resetModal').on('click', ()=>{
+		outboundGrid.resetData(data);
+	})
+	
+	
+	
 	// 홀드 그리드 생성
 	mainGrid = new tui.Grid({
 	    el: document.getElementById('mainGrids'),
@@ -323,8 +347,44 @@ function insertGrid(){
 	    ],
 	}); // 그리드 끝
 	
+	// 출고처리 모달그리드
+	outboundGrid = new tui.Grid({
+		el: document.getElementById('gridModal'),
+		pageOptions: {
+	        perPage: 10,
+	        useClient: true,
+	    },
+	    columns:[
+			    	{ header: '홀드상세코드', name: 'holdDtlCode', align:'center'},
+			    	{ header: 'lot', name: 'lot', align:'center'},
+			    	{ header: '품목명', name: 'itemName', align:'center'},
+			    	{ header: '의뢰수량', name: 'quantity', align:'center'},
+			    	{ header: '기출고량', name: 'currQty', align:'center'},
+			    	{ header: '미출고량', name: 'reqQty', align:'center'},
+			    	{ header: '출고수량', name: 'qty', align:'center', editor: 'text'},
+			    	{ header: '비고', name: 'note', align:'center', editor: 'text'},
+			    	{ header: '추가/삭제', name: 'origin', align:'center'
+			    	, formatter: (rowKey) => {
+			    		if(rowKey.value){
+			    			return `<button class="btn btn-sm btn-primary add-btn">+</button>`;
+			    		}else{
+			    		return `<button class="btn btn-sm btn-danger add-btn">-</button>`;
+			    		}
+			    	}}
+	    		],
+	    		columnOptions: {
+				frozenCount: 6,
+				frozenBorderWidth: 2
+	    		}
+	});
+	
+	
 	// 출고 상세조회 이벤트
 	mainGrid.on('click',(ev)=>{
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+		    return;
+		  }
 		let { rowKey, columnName } = ev;
 		let holdCode = mainGrid.getValue(rowKey, 'holdCode');
 		let param = {comId,holdCode};
@@ -338,12 +398,88 @@ function insertGrid(){
 			   } // ajax호출 끝
 			});
 	});
-	// 출고 버튼 이벤트
-	$('#saveBtn').on('click', ()=>{
+	// 출고 모달 저장이벤트
+	$('#registerBtn').on('click', ()=>{
 		let check = mainGrid.getCheckedRows();
-		
-		
 	})
+	// 체크한경우 데이터 넣기
+	mainGrid.on('check', checkRow)
+	mainGrid.on('checkAll', checkRow)
+	// 체크아웃한경우 데이터 뺴기
+	mainGrid.on('uncheck', checkRow);
+	mainGrid.on('uncheckAll', checkRow);
+	
+	let data;
+	// check 처리
+	function checkRow(){
+		data= [];
+		let param = {};
+		  let rowCheck = mainGrid.getCheckedRows();
+			console.log(rowCheck)
+		  rowCheck.filter(item =>{
+			  ee = {
+				  holdDtlCode: item.holdDtlCode,
+				  itemCode: item.itemCode,
+				  itemName: item.itemName,
+				  quantity : item.quantity,
+				  price: item.price,
+				  currQty: item.currQty,
+				  reqQty: item.reqQty,
+				  qty : '',
+				  note: '',
+				  origin: true
+			  }
+			  data.push(ee);
+		  })
+		  outboundGrid.resetData(data);
+	}
+	// 행 추가
+	outboundGrid.on('click', (ev)=>{
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+		    return;
+		  }
+		let { rowKey, columnName } = ev;
+		// rowKey = 키값, columnName = 셀의 이름
+		let addData = {
+				      purOrdDtlCode: '',
+				      itemCode: '',
+				      itemName: '',
+				      quantity: ''
+				      , pquantity: ''
+				      , notStock: ''
+				      , loc: ''
+				      , qty: ''
+				      , note: ''
+				      , origin: false
+				    };
+		
+		// 컬럼명과 값을 확인 후 추가 진행
+		if(columnName === 'origin' &&
+				outboundGrid.getValue(rowKey, columnName) === true){
+			
+		let idx = outboundGrid.getIndexOfRow(rowKey);
+		
+		outboundGrid.appendRow(addData, {
+			  at: idx + 1
+			});
+		}
+	})
+	
+	
+	//행삭제
+	outboundGrid.on('click', (ev)=>{
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+		    return;
+		  }
+		let { rowKey, columnName } = ev;
+		// 조건문 = 컬럼명, 값
+		if(columnName === 'origin' && outboundGrid.getValue(rowKey, columnName) === false){
+			outboundGrid.removeRow(rowKey);
+		}
+	})
+	
 } // 등록 그리드 끝
 
 	// 초기화

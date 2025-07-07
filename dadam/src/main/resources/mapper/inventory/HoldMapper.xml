@@ -101,7 +101,7 @@
 	
 	<!-- 현재 입력된값 가져오기 -->
 	<select id="selectHoldStockHoldQty" parameterType="LotVO" resultType="int">
-	SELECT hold_qty
+	SELECT nvl(hold_qty,0) hold_qty
 	FROM stock
 	WHERE lot = #{lot} AND com_id = #{comId}
 	</select>

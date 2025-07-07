@@ -300,6 +300,10 @@ function selectGrid(){
 	});
 	
 	holdGrid.on('click', (ev)=>{
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+		    return;
+		  }
 		let { rowKey, columnName } = ev;
 		let click = holdGrid.getRow(rowKey);
 		let param = {holdCode: click.holdCode,comId}
@@ -330,7 +334,7 @@ function insertGrid(){
 	    columns:[
 	        { header: '구분코드',name:'code',align:'center'},
 	        { header: '품목명',name:'itemName',align:'center'},
-	        { header: 'LOT',name:'lot',align:'center', editor: 'text'
+	        { header: 'LOT',name:'lot',align:'center'
 	        	 , formatter:function(row){
 	        			return '<span class="badge text-bg-danger fs-6">선택</span>'
 	        	}
@@ -474,6 +478,10 @@ function insertGrid(){
 	
 	// 그리드의 lot항목을 클릭하면 모달이 띄우는 이벤트 
 	holdGrid.on('dblclick', (ev)=>{
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+		    return;
+		  }
 		  let itemCode='';
 		  rowKey = ev.rowKey;
 		  columnName = ev.columnName;
@@ -501,6 +509,10 @@ function insertGrid(){
 	
 	// 홀드그리드 클릭이벤트
 	holdGrid.on('click', (ev)=>{
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+		    return;
+		  }
 		let { rowKey, columnName } = ev;
 		let rowData = holdGrid.getRow(rowKey);
 		let rowGrid = lotList.get(rowData.code);

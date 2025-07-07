@@ -36,9 +36,8 @@ public class InventoryInboundRestController {
 	}
 	// 입고 등록
 	@PostMapping("/purchaseRegister")
-	public String updatePurchaseOrderDetailInbound(@RequestBody List<PurchaseVO> list) {
-		inboundservice.insertPurchaseInbound(list);
-		return "redirect:/erp/inventory/inbound";
+	public int updatePurchaseOrderDetailInbound(@RequestBody List<PurchaseVO> list) {
+		return inboundservice.insertPurchaseInbound(list);
 	}
 	// 창고 리스트
 	@GetMapping("/warehouseList")
