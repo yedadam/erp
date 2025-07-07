@@ -111,7 +111,9 @@ public class SpringSecurityConfig {
                 		         "/css/**", 
                 				 "/js/**", 
                         		 "/images/**",
-                        		 "/erp/inventory/mineEle").permitAll()
+                        		 "/erp/inventory/mineEle",
+                        		 "/erp/standard/chitList",
+                        		 "/erp/standard/itemAll").permitAll()
                 .requestMatchers("/erp").hasAnyAuthority("master","ac-101","ac-102","ac-103","ac-104","ac-105")
                 .requestMatchers("/erp/standard/**").hasAnyAuthority("master","ac-101")
                 .requestMatchers("/erp/hr/**").hasAnyAuthority("master","ac-101","ac-103")

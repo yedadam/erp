@@ -1,6 +1,7 @@
 package com.dadam.sales.purchase.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -16,8 +17,6 @@ import com.dadam.sales.purchase.service.PurchaseOrderVO;
 import com.dadam.sales.purchase.service.PurchaseService;
 import com.dadam.security.service.LoginUserAuthority;
 import com.dadam.standard.vender.service.VenderVO;
-
-import jakarta.annotation.PostConstruct;
 
 @Service
 public class PurchaseServiceImpl implements PurchaseService{
@@ -44,10 +43,11 @@ public class PurchaseServiceImpl implements PurchaseService{
 	PurchaseMapper mapper;
 	//전체조회
 	@Override
-	public List<PurchaseOrderVO> findPurchaseList(String type, String value) {
+	public List<PurchaseOrderVO> findPurchaseList(Map<String,Object> map) {
 		initAuthInfo();
+		map.put("comId",comId);
 		//검색하지 않았을때
-		List<PurchaseOrderVO> result = mapper.findPurchaseList(comId,type,value);
+		List<PurchaseOrderVO> result = mapper.findPurchaseList(map);
 		return result;
 	}
 	//단건조회

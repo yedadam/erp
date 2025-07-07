@@ -22,16 +22,27 @@
    FROM purchaseOrder
    WHERE com_id = #{comId}
    <choose>
-            <when test="type.equals('purOrdCode')">
+            <when test="'purOrdCode'.equals(type)">
                 AND PUR_ORD_CODE LIKE '%'||#{value}||'%'
             </when>
-            <when test="type.equals('empName')">
+            <when test="'empName'.equals(type)">
             	 AND getEmpName(EMP_ID,#{comId}) LIKE '%'||#{value}||'%'
             </when>
-            <when test="type.equals('vdrName')">
+            <when test="'vdrName'.equals(type)">
             	 AND getVdrName(VDR_CODE) LIKE '%'||#{value}||'%'
             </when>
    </choose>
+   <if test="expDlvStartDate != null and expDlvStartDate != '' ">
+			AND trunc(exp_dlv_date) >=TO_DATE(#{expDlvStartDate},'yyyy-MM-dd')
+	</if>
+	<if test="expDlvEndDate != null and expDlvEndDate !='' ">
+		  <![CDATA[
+			AND trunc(exp_dlv_date) <= TO_DATE(#{expDlvEndDate},'yyyy-MM-dd')
+		    ]]>
+	</if>
+	<if test="status != null and status !=  ''">
+	    AND status=#{status}		
+	</if>
    ORDER BY PUR_ORD_CODE DESC
    
 </select>
