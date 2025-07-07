@@ -318,7 +318,7 @@ function insertGrid(){
 	    	{ header: '홀드코드',name:'holdCode',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
 	        { header: '수량',name:'quantity',align:'center'},
-	    	{ header: '항목코드',name:'shipReqDtlCode',align:'center'},
+	    	{ header: '항목코드',name:'code',align:'center'},
 	        { header: '구분',name:'typeName',align:'center',
 	        	filter: 'select'
 	        	},
@@ -342,8 +342,8 @@ function insertGrid(){
 	    //필드값 구성
 	    columns:[
 	        { header: '홀드상세코드',name:'holdDtlCode',align:'center'},
-	        { header: '수량',name:'quantity',align:'center'},
 	        { header: 'lot',name:'lot',align:'center'},
+	        { header: '수량',name:'quantity',align:'center'},
 	    ],
 	}); // 그리드 끝
 	
@@ -355,22 +355,27 @@ function insertGrid(){
 	        useClient: true,
 	    },
 	    columns:[
-			    	{ header: '홀드상세코드', name: 'holdDtlCode', align:'center'},
-			    	{ header: 'lot', name: 'lot', align:'center'},
+			    	{ header: '홀드코드', name: 'holdCode', align:'center'},
 			    	{ header: '품목명', name: 'itemName', align:'center'},
+			    	{ header: '항목코드', name: 'code', align:'center'},
+			    	{ header: '구분',name:'typeName',align:'center',
+			        	filter: 'select'
+			        },
+			    	{ header: '상태',name:'statusName',align:'center',
+			        	filter: 'select'
+			        },
 			    	{ header: '의뢰수량', name: 'quantity', align:'center'},
-			    	{ header: '기출고량', name: 'currQty', align:'center'},
-			    	{ header: '미출고량', name: 'reqQty', align:'center'},
 			    	{ header: '출고수량', name: 'qty', align:'center', editor: 'text'},
 			    	{ header: '비고', name: 'note', align:'center', editor: 'text'},
-			    	{ header: '추가/삭제', name: 'origin', align:'center'
-			    	, formatter: (rowKey) => {
-			    		if(rowKey.value){
-			    			return `<button class="btn btn-sm btn-primary add-btn">+</button>`;
-			    		}else{
-			    		return `<button class="btn btn-sm btn-danger add-btn">-</button>`;
-			    		}
-			    	}}
+			    	/* { header: '추가/삭제', name: 'origin', align:'center'
+				    	, formatter: (rowKey) => {
+				    		if(rowKey.value){
+				    			return `<button class="btn btn-sm btn-primary add-btn">+</button>`;
+				    		}else{
+				    		return `<button class="btn btn-sm btn-danger add-btn">-</button>`;
+				    		}
+				    	} 
+			    	}	*/
 	    		],
 	    		columnOptions: {
 				frozenCount: 6,
@@ -418,13 +423,16 @@ function insertGrid(){
 			console.log(rowCheck)
 		  rowCheck.filter(item =>{
 			  ee = {
-				  holdDtlCode: item.holdDtlCode,
+				  holdCode: item.holdCode,
+				  code: item.code,
+				  type: item.type,
+				  typeName: item.typeName,
+				  statusName: item.statusName,
+				  status: item.status,
 				  itemCode: item.itemCode,
 				  itemName: item.itemName,
 				  quantity : item.quantity,
 				  price: item.price,
-				  currQty: item.currQty,
-				  reqQty: item.reqQty,
 				  qty : '',
 				  note: '',
 				  origin: true

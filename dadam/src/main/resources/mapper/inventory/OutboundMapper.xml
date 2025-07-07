@@ -47,7 +47,30 @@
                         on(ho.com_id = hod.com_id AND hod.hold_code = ho.hold_code)
 		WHERE ho.com_id = #{comId} AND ho.status NOT IN('hs02')
 	</select>
-
+	<!-- 현재 사용안함! 출하의뢰상세모달 조회 부분출고, 홀드중, 홀드완료만 조회-->
+	<select id="selectOutboundShipRequestModal" resultType="OutboundVO" parameterType="HoldVO">
+		SELECT 
+			 	sd.ship_req_dtl_code,
+			 	sd.item_code,
+			 	getitemName(sd.item_code) item_name,
+                getitemprice(sd.item_code) price,
+			 	sd.status,
+                subcode(sd.status) statusName,
+			 	sd.quantity,
+			 	sd.tot_price,
+                sd.ship_req_code,
+                getvdrname(sr.vdr_code) vdrName,
+                sr.vdr_code,
+			 	sr.ship_exp_date,
+			 	sr.emp_id,
+                getempName(sr.emp_id, #{comId}) empName,
+                sr.created_date,
+                sd.dlive_date
+		FROM shipRequestDetail sd left join shiprequest sr
+                                    	on(sd.ship_req_code = sr.ship_req_code AND sd.com_id = sr.com_id)
+        WHERE sd.com_id = #{comId} AND sd.status in('srd02','srd04','srd05')
+        ORDER BY ship_exp_date
+    </select>
 	<select id="selectOutboundHoldDetailList" resultType="LotVO" parameterType="LotVO">
 		SELECT    hold_dtl_code
 				, lot
