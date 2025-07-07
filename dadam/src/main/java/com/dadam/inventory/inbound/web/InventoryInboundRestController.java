@@ -17,11 +17,12 @@ import com.dadam.inventory.inbound.service.PurchaseVO;
 /**
  * 입고 관련 Rest 컨트롤러 (JSON 반환)
  */
+
 @RestController
 @RequestMapping("/erp/inventory")
 public class InventoryInboundRestController {
   @Autowired
-  InboundService inboundService;
+  InboundService inboundservice;
 
 	/**
 	 * 발주서 리스트 조회
@@ -40,7 +41,7 @@ public class InventoryInboundRestController {
 	// 발주서 리스트
 	@GetMapping("/purchaseOrderList")
 	public List<PurchaseVO> inboundPurchaseOrderFindAll(PurchaseVO vo) {
-		return inboundService.inboundPurchaseFindAll(vo);
+		return inboundservice.inboundPurchaseFindAll(vo);
 	}
 
 	/**
@@ -60,7 +61,7 @@ public class InventoryInboundRestController {
 	 */
 	@GetMapping("/warehouseList")
 	public List<InboundVO> warehouseList(@RequestParam String comId) {
-		return inboundService.warehouseList(comId);
+		return inboundservice.warehouseList(comId);
 	}
 	// 현재수량
 	@PostMapping("/purchaseCurrQty")
