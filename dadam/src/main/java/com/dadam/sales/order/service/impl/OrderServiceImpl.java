@@ -1,6 +1,7 @@
 package com.dadam.sales.order.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -37,9 +38,10 @@ public class OrderServiceImpl implements OrderService {
 
 	// 전체조회
 	@Override
-	public List<OrdersVO> findOrderList(String type,String value) {
-		initAuthInfo(); 
-		List<OrdersVO> result = orderMapper.findOrderList(type,value,comId);
+	public List<OrdersVO> findOrderList(Map<String,Object> map) {
+		initAuthInfo();
+		map.put("comId", comId);	
+		List<OrdersVO> result = orderMapper.findOrderList(map);
 		return result;
 	}
 

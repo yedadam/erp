@@ -19,6 +19,7 @@ public class ShipreqFormController {
 	@GetMapping("/shipreq")
 	public String shipreq(Model model) {
 		model.addAttribute("mainStatus",codeService.getCodeMap("srq")); 
+		model.addAttribute("ordStatus",codeService.getCodeList("ost")); 
 		model.addAttribute("dtlStatus", codeService.getCodeMap("srd")); 
 		return "sales/shipreq";
 	}

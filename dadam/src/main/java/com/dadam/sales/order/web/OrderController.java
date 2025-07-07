@@ -69,9 +69,10 @@ public class OrderController {
 	
 	@GetMapping("/orderList")
 	@ResponseBody
-	public List<OrdersVO> orderList(@RequestParam(defaultValue = "",required = false) String type,@RequestParam(defaultValue = "",required = false) String value) {
+	public List<OrdersVO> orderList(@RequestParam  Map<String,Object> map) {
 	//	model.addAttribute("ordList",orderservice.findOrderList()); 
-		List<OrdersVO> result = orderService.findOrderList(type,value);
+		System.out.println("map정보 ==>>"+map);
+		List<OrdersVO> result = orderService.findOrderList(map);
 		return result;
 	}
 	@GetMapping("/ordDtlList")
@@ -122,9 +123,11 @@ public class OrderController {
 	}
 	@ResponseBody
 	@DeleteMapping("/ord/delOrdDtl")
-	public String deleteOrdDtl(@RequestParam(name="ordDtlCode") String ordDtlCode) {
-		orderService.deleteOrdDtl(ordDtlCode); 
-		System.out.println("ddddd");
+	public String deleteOrdDtl(@RequestBody List<OrdDtlVO>  dtl){
+		for(int i=0; i<dtl.size();i++) {
+		  orderService.deleteOrdDtl(dtl.get(i).getOrdDtlCode()); 
+		}
+
 		return "OrdDtlDeleteOk"; 
 	}	
 	@GetMapping("/test")
