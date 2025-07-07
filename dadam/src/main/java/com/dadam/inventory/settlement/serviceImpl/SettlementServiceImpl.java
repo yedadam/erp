@@ -68,6 +68,13 @@ public class SettlementServiceImpl implements SettlementService{
     	}
     	return vo.get(0).getSetCode();
     }
+    //이번달 결산 했는지체크
+    @Override
+    public int monthCheck() {
+    	initAuthInfo();
+    	int result = mapper.monthCheck(comId);
+    	return result;
+    }
     
     //결재서 등록
     @Override
@@ -105,16 +112,21 @@ public class SettlementServiceImpl implements SettlementService{
     	return result;
     }
     
+    //결재후 상태값 변경 프로시저
     @Override
     public void prcEletronicUpdate(SettlementVO vo) {
     	initAuthInfo();
     	vo.setAppId(empId);
     	vo.setComId(comId);
-    	System.out.println(vo.getPkCode());
-    	System.out.println(vo.getPkCode());
-    	System.out.println(vo.getPkCode());
-    	System.out.println(vo.getApproveStatus());
-    	System.out.println(vo.getElecCode());
     	mapper.prcEletronicUpdate(vo);
     }
+    
+    //결재 건수 확인
+    @Override
+    public int eleList() {
+    	initAuthInfo();
+    	return mapper.eleList(comId, empId);
+    }
+    
+   
 }

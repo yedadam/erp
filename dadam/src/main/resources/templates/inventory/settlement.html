@@ -429,7 +429,21 @@
 	$('#stockModal').on('shown.bs.modal', () => grid.refreshLayout());
 	
 	// 모달 띄우기
-	$('#newBtn').on('click', () => $('#stockModal').modal('show'));
+	$('#newBtn').on('click', async () => {
+		let result = 0; 
+		await $.ajax({
+			  url : '/erp/inventory/monthCheck',
+			  method :'GET',
+			  success : res => {
+				result = res;  
+			  }
+		})
+		if(result >0){
+			Swal.fire('실패','이미 이번달 결산이 진행되었습니다.','error');
+			return;
+		}
+		$('#stockModal').modal('show');
+	});
 	
 	$("#autoRow").on('click', ev => {
 		$.ajax({
