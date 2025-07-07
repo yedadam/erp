@@ -12,17 +12,23 @@ public interface AttendanceCorrectionService {
      */
     void requestCorrection(AttendanceCorrectionVO vo) throws Exception;
     /**
-     * 정정 승인/반려 처리
-     * @param corrCode - 정정코드
-     * @param status - 상태코드
-     * @param approverId - 승인자ID
+     * 정정 승인/반려 처리 (3개 인자)
      */
     void approveCorrection(String corrCode, String status, String approverId) throws Exception;
     /**
-     * 정정 목록 조회
-     * @param comId - 회사ID
-     * @param empId - 사원번호
-     * @return 정정 리스트
+     * 정정 승인/반려 처리 (4개 인자)
+     */
+    void approveCorrection(String corrCode, String status, String approverId, String note) throws Exception;
+    /**
+     * 정정 목록 조회 (2개 인자)
      */
     List<AttendanceCorrectionVO> getCorrectionList(String comId, String empId);
+    /**
+     * 정정 목록 조회 (3개 인자)
+     */
+    List<AttendanceCorrectionVO> getCorrectionList(String comId, String empId, String status);
+    /**
+     * 정정 단건 조회
+     */
+    AttendanceCorrectionVO getCorrectionDetail(String corrCode);
 } 

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.hr.emp.mapper.DeptMapper">
     <!-- [부서 전체 조회] 부서 테이블 전체 조회 -->
-    <select id="selectAllDepartments" resultType="DeptVO">
+    <select id="getDeptList" resultType="DeptVO">
         SELECT 
             d.dept_code AS deptCode,
             d.dept_name AS deptName,
@@ -22,7 +22,7 @@
     </select>
 
     <!-- [부서 등록] 부서 신규 등록 -->
-    <insert id="insertDepartment" parameterType="DeptVO">
+    <insert id="insertDept" parameterType="DeptVO">
         INSERT INTO departments (
             dept_code, dept_name, parent_dept_code, emp_id, created_date, com_id, acct_yn, remark
         ) VALUES (
@@ -31,7 +31,7 @@
     </insert>
 
     <!-- [부서 수정] 부서 정보 수정 -->
-    <update id="updateDepartment" parameterType="DeptVO">
+    <update id="updateDept" parameterType="DeptVO">
         UPDATE departments
         SET dept_name = #{deptName},
             parent_dept_code = #{parentDeptCode},
@@ -44,12 +44,12 @@
     </update>
 
     <!-- [부서 삭제] 부서 정보 삭제 -->
-    <delete id="deleteDepartment" parameterType="map">
+    <delete id="deleteDept" parameterType="map">
         DELETE FROM departments WHERE dept_code = #{deptCode} AND com_id = #{comId}
     </delete>
 
     <!-- [부서 상세 조회] 부서 상세정보 조회 -->
-    <select id="selectDepartmentByCode" parameterType="map" resultType="DeptVO">
+    <select id="getDeptDetail" parameterType="map" resultType="DeptVO">
         SELECT 
             dept_code AS deptCode,
             dept_name AS deptName,

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/default_layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>내 정보 - 마이페이지</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f5f6fa; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; }
+        .mypage-flex {
+            display: flex; gap: 32px; max-width: 1100px; margin: 40px auto 0; align-items: flex-start;
+        }
+        .profile-card {
+            width: 300px; background: #fff; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 32px 24px 24px 24px; display: flex; flex-direction: column; align-items: center;
+        }
+        .profile-img {
+            width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e7eb;
+        }
+        .profile-name { font-size: 1.3rem; font-weight: 700; color: #222; margin-top: 16px; }
+        .profile-meta { font-size: 1.05rem; color: #555; margin-top: 2px; }
+        .profile-list { width: 100%; margin: 18px 0 0 0; padding: 0; list-style: none; }
+        .profile-list li { display: flex; align-items: center; gap: 10px; color: #444; font-size: 0.98rem; margin-bottom: 10px; }
+        .profile-edit-btn {
+            background: #e5e7eb; color: #3b4a6b; border: none; border-radius: 50%; width: 34px; height: 34px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-top: 10px;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .profile-edit-btn:hover { background: #d1d5db; }
+        .info-section {
+            flex: 1; background: #fff; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 32px 32px 24px 32px;
+        }
+        .info-title { font-size: 1.2rem; font-weight: 600; color: #222; margin-bottom: 18px; }
+        .info-form .row { margin-bottom: 12px; }
+        .form-label { font-weight: 500; color: #374151; margin-bottom: 4px; }
+        .form-control { border-radius: 7px; border: 1.2px solid #e5e7eb; font-size: 1rem; }
+        .form-control[readonly] { background: #f3f4f6; color: #6b7280; }
+        .form-actions { text-align: right; margin-top: 18px; }
+        .btn-save { background: #3b4a6b; color: #fff; border: none; border-radius: 7px; padding: 8px 24px; margin-right: 8px; font-weight: 600; }
+        .btn-cancel { background: #f3f4f6; color: #374151; border: 1.2px solid #e5e7eb; border-radius: 7px; padding: 8px 20px; font-weight: 600; }
+        @media (max-width: 1000px) {
+            .mypage-flex { flex-direction: column; gap: 18px; max-width: 98vw; padding: 0 2vw; }
+            .profile-card { width: 100%; flex-direction: row; align-items: flex-start; gap: 18px; padding: 18px 10px; }
+            .profile-img { margin-right: 18px; }
+            .info-section { padding: 18px 6px 12px 6px; }
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="Content">
+    <div class="erp-mypage-root" style="max-width:1200px;margin:40px auto;display:flex;gap:32px;align-items:flex-start;">
+        <!-- 좌측 프로필 카드 -->
+        <section style="width:320px;min-width:260px;background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);padding:36px 28px 28px 28px;display:flex;flex-direction:column;align-items:center;">
+            <img class="profile-img" th:src="${user.profileImgPath != null ? '/uploads/profile/' + user.profileImgPath : '/static/img/default-profile.png'}" alt="프로필" style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:2px solid #e5e7eb;">
+            <div style="margin-top:18px;text-align:center;width:100%;">
+                <div style="font-size:1.25rem;font-weight:700;color:#222;">
+                    <span th:text="${user.empName}">이름</span>
+                    <span style="font-size:1rem;font-weight:400;opacity:0.8;margin-left:8px;" th:text="'(' + ${user.empId} + ')'">(e1001)</span>
+                </div>
+                <div style="font-size:1.05rem;color:#555;margin-top:2px;">
+                    <span th:text="${user.deptName}">부서</span>
+                    <span th:if="${user.positionName}">| <span th:text="${user.positionName}">직급</span></span>
+                </div>
+            </div>
+            <div style="margin-top:18px;width:100%;">
+                <div style="display:flex;align-items:center;margin-bottom:10px;color:#444;font-size:0.98rem;"><i class="fas fa-envelope me-2"></i><span th:text="${user.email}">이메일</span></div>
+                <div style="display:flex;align-items:center;margin-bottom:10px;color:#444;font-size:0.98rem;"><i class="fas fa-phone me-2"></i><span th:text="${user.tel}">연락처</span></div>
+                <div style="display:flex;align-items:center;margin-bottom:10px;color:#444;font-size:0.98rem;"><i class="fas fa-building me-2"></i><span th:text="${user.addr}">주소</span></div>
+            </div>
+            <button class="profile-edit-btn" onclick="document.getElementById('profileFile').click()" title="프로필 사진 변경" style="margin-top:18px;background:#e5e7eb;color:#3b4a6b;border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;transition:background 0.2s;">
+                <i class="fas fa-camera"></i>
+            </button>
+            <input type="file" id="profileFile" style="display:none;" accept="image/*" onchange="previewImage(this)">
+        </section>
+        <!-- 우측 정보 상세(탭) -->
+        <section style="flex:1;background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);padding:36px 36px 28px 36px;">
+            <!-- 탭 메뉴 -->
+            <ul class="nav nav-tabs mb-4" id="mypageTab" role="tablist" style="border-bottom:1.5px solid #e5e7eb;">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-general" data-bs-toggle="tab" data-bs-target="#tabPanel-general" type="button" role="tab">General</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-job" data-bs-toggle="tab" data-bs-target="#tabPanel-job" type="button" role="tab">Job</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-payroll" data-bs-toggle="tab" data-bs-target="#tabPanel-payroll" type="button" role="tab">Payroll</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-documents" data-bs-toggle="tab" data-bs-target="#tabPanel-documents" type="button" role="tab">Documents</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-setting" data-bs-toggle="tab" data-bs-target="#tabPanel-setting" type="button" role="tab">Setting</button>
+                </li>
+            </ul>
+            <!-- 탭 컨텐츠 -->
+            <div class="tab-content" id="mypageTabContent">
+                <!-- General 탭 -->
+                <div class="tab-pane fade show active" id="tabPanel-general" role="tabpanel">
+                    <div style="font-size:1.08rem;font-weight:600;color:#222;margin-bottom:18px;">Personal Info</div>
+                    <form id="empForm" autocomplete="off">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">사원번호</label>
+                                <input type="text" class="form-control" th:value="${user.empId}" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">이름</label>
+                                <input type="text" class="form-control" th:value="${user.empName}" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">부서</label>
+                                <input type="text" class="form-control" th:value="${user.deptName}" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">직급</label>
+                                <input type="text" class="form-control" th:value="${user.positionName}" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">연락처</label>
+                                <input type="text" class="form-control" id="tel" th:value="${user.tel}" th:readonly="${isAdmin}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">이메일</label>
+                                <input type="email" class="form-control" id="email" th:value="${user.email}" th:readonly="${isAdmin}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">주소</label>
+                                <div class="input-group">
+                                  <input type="text" class="form-control" id="addr" th:value="${user.addr}" />
+                                  <button type="button" class="btn btn-outline-secondary" id="btnAddr">주소검색</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">상세주소</label>
+                                <input type="text" class="form-control" id="addrDetail" th:value="${user.addrDetail}" th:readonly="${isAdmin}">
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-4" th:if="${!isAdmin}">
+                            <button type="button" class="btn btn-primary me-2" style="min-width:100px;" onclick="saveProfile()"><i class="fas fa-save"></i> 저장</button>
+                            <button type="button" class="btn btn-outline-secondary" style="min-width:100px;" onclick="resetForm()"><i class="fas fa-undo"></i> 취소</button>
+                        </div>
+                        <div class="form-actions" th:if="${isAdmin}">
+                            <div class="alert alert-info mt-2 mb-0 p-2" style="font-size:0.95rem;">
+                                <i class="fas fa-info-circle"></i> 관리자 계정은 정보 수정이 제한됩니다.
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- Job 탭 -->
+                <div class="tab-pane fade" id="tabPanel-job" role="tabpanel">
+                    <div style="font-size:1.08rem;font-weight:600;color:#222;margin-bottom:18px;">Job Info</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">부서</label>
+                            <input type="text" class="form-control" th:value="${user.deptName}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">직급</label>
+                            <input type="text" class="form-control" th:value="${user.positionName}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">입사일</label>
+                            <input type="text" class="form-control" value="" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">고용형태</label>
+                            <input type="text" class="form-control" value="" readonly>
+                        </div>
+                    </div>
+                </div>
+                <!-- Payroll 탭 -->
+                <div class="tab-pane fade" id="tabPanel-payroll" role="tabpanel">
+                    <div style="font-size:1.08rem;font-weight:600;color:#222;margin-bottom:18px;">Payroll Info</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">급여계좌</label>
+                            <input type="text" class="form-control" value="" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">연봉</label>
+                            <input type="text" class="form-control" value="" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">세금</label>
+                            <input type="text" class="form-control" value="" readonly>
+                        </div>
+                    </div>
+                </div>
+                <!-- Documents 탭 -->
+                <div class="tab-pane fade" id="tabPanel-documents" role="tabpanel">
+                    <div style="font-size:1.08rem;font-weight:600;color:#222;margin-bottom:18px;">Documents</div>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">증명서/계약서</label>
+                            <input type="text" class="form-control" value="(예시) 재직증명서, 근로계약서 등" readonly>
+                        </div>
+                    </div>
+                </div>
+                <!-- Setting 탭 -->
+                <div class="tab-pane fade" id="tabPanel-setting" role="tabpanel">
+                    <div style="font-size:1.08rem;font-weight:600;color:#222;margin-bottom:18px;">Setting</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">비밀번호 변경</label>
+                            <input type="password" class="form-control" placeholder="새 비밀번호">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">알림 설정</label>
+                            <select class="form-control">
+                                <option>ON</option>
+                                <option>OFF</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script>
+    // 부트스트랩 탭 활성화 (Bootstrap 5)
+    var triggerTabList = [].slice.call(document.querySelectorAll('#mypageTab button'));
+    triggerTabList.forEach(function (triggerEl) {
+      triggerEl.addEventListener('click', function (event) {
+        event.preventDefault();
+        var tabTrigger = new bootstrap.Tab(triggerEl);
+        tabTrigger.show();
+      });
+    });
+    // 프로필 사진 미리보기
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.querySelector('.profile-img').src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    // 정보 저장
+    function saveProfile() {
+        const formData = new FormData();
+        const fileInput = document.getElementById('profileFile');
+        if (fileInput.files[0]) {
+            formData.append('profileImage', fileInput.files[0]);
+        }
+        formData.append('tel', document.getElementById('tel').value);
+        formData.append('email', document.getElementById('email').value);
+        formData.append('addr', document.getElementById('addr').value);
+        formData.append('addrDetail', document.getElementById('addrDetail').value);
+        fetch('/erp/hr/api/mypage/update', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                Swal.fire('저장 완료', data.message || '내 정보가 저장되었습니다.', 'success').then(()=>location.reload());
+            } else {
+                Swal.fire('오류', data.message || '저장에 실패했습니다.', 'error');
+            }
+        })
+        .catch(()=>Swal.fire('오류', '저장 중 오류가 발생했습니다.', 'error'));
+    }
+    // 폼 리셋
+    function resetForm() {
+        Swal.fire({
+            icon: 'question',
+            title: '변경 내용을 취소하시겠습니까?',
+            showCancelButton: true,
+            confirmButtonText: '네',
+            cancelButtonText: '아니오'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('empForm').reset();
+            }
+        });
+    }
+    // 관리자 계정은 수정 불가 안내
+    if (typeof isAdmin !== 'undefined' && isAdmin) {
+        Swal.fire({
+            icon: 'info',
+            title: '관리자 계정은 정보 수정이 제한됩니다.'
+        });
+    }
+    // 카카오 주소 검색
+    $('#btnAddr').on('click', function () {
+      new daum.Postcode({
+        oncomplete: function (data) {
+          $('#addr').val(data.address);
+          $('#addrDetail').focus();
+          Swal.fire({ icon: 'success', title: '주소가 입력되었습니다.' });
+        }
+      }).open();
+    });
+</script>
+</div>
+</body>
+</html>

@@ -37,4 +37,8 @@ public class AttendanceCorrectionVO {
     private LocalDateTime createdAt;
     /** 수정일시 */
     private LocalDateTime updatedAt;
+
+    public String getCorrectionReason() {
+        return reason;
+    }
 } 

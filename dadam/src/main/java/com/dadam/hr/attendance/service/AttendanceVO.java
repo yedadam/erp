@@ -36,6 +36,10 @@ public class AttendanceVO {
     private String workType;       // 정상/재택/외근 등 (공통코드)
     /** 출퇴근 시도 IP */
     private String checkIp;
+    /** GPS 정보 */
+    private String gpsInfo;
+    /** 위치 정보 */
+    private String locationInfo;
     /** 비고 */
     private String note;
     /** 생성일시 */

@@ -31,48 +31,53 @@ public class DeptServiceImpl implements DeptService {
      * @return 부서 리스트
      */
     @Override
-    public List<DeptVO> findAllDepartments() {
-        return deptMapper.findAllDepartments();
+    public List<DeptVO> getDeptList() {
+        return deptMapper.getDeptList();
     }
 
     /**
      * 부서 등록
-     * @param dept - 부서 정보
+     * @param deptVO 부서 정보
      * @return 등록 결과
      */
     @Override
-    public int insertDepartment(DeptVO dept) {
-        return deptMapper.insertDepartment(dept);
+    public boolean insertDept(DeptVO deptVO) {
+        int result = deptMapper.insertDept(deptVO);
+        return result > 0;
     }
 
     /**
      * 부서 수정
-     * @param dept - 부서 정보
+     * @param deptVO 부서 정보
      * @return 수정 결과
      */
     @Override
-    public int updateDepartment(DeptVO dept) {
-        return deptMapper.updateDepartment(dept);
+    public boolean updateDept(DeptVO deptVO) {
+        int result = deptMapper.updateDept(deptVO);
+        return result > 0;
     }
 
     /**
      * 부서 삭제
-     * @param deptCode - 부서코드
+     * @param deptCode 부서코드
+     * @param comId 회사코드
      * @return 삭제 결과
      */
     @Override
-    public int deleteDepartment(String deptCode) {
-        return deptMapper.deleteDepartment(deptCode);
+    public boolean deleteDept(String deptCode, String comId) {
+        int result = deptMapper.deleteDept(deptCode, comId);
+        return result > 0;
     }
 
     /**
      * 부서 상세 조회
-     * @param deptCode - 부서코드
+     * @param deptCode 부서코드
+     * @param comId 회사코드
      * @return 부서 정보
      */
     @Override
-    public DeptVO findDepartmentByCode(String deptCode) {
-        return deptMapper.findDepartmentByCode(deptCode);
+    public DeptVO getDeptDetail(String deptCode, String comId) {
+        return deptMapper.getDeptDetail(deptCode, comId);
     }
 
     /**
@@ -81,8 +86,8 @@ public class DeptServiceImpl implements DeptService {
      */
     @Override
     public OrgNode getOrgTree() {
-        List<DeptVO> allDepts = deptMapper.findAllDepartments();
-        List<EmpVO> allEmps = empMapper.findEmpList(new HashMap<>()); // 전체 사원
+        List<DeptVO> allDepts = deptMapper.getDeptList();
+        List<EmpVO> allEmps = empMapper.selectEmpList(null, null, null); // 전체 사원
         Map<String, DeptVO> deptMap = allDepts.stream().collect(Collectors.toMap(DeptVO::getDeptCode, d -> d));
         Map<String, List<EmpVO>> empMap = allEmps.stream()
             .filter(e -> e.getDeptCode() != null)
@@ -107,9 +112,6 @@ public class DeptServiceImpl implements DeptService {
                     .filter(e -> dept.getEmpId() == null || !dept.getEmpId().equals(e.getEmpId()))
                     .collect(Collectors.toList())
             );
-            System.out.println("부서코드: " + dept.getDeptCode() + ", 부서명: " + dept.getDeptName()
-                + ", 직원수: " + emps.size()
-                + ", 부서장: " + (manager != null ? manager.getEmpName() : "없음"));
             node.setChildren(new ArrayList<>());
             nodeMap.put(dept.getDeptCode(), node);
         }

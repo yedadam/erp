@@ -110,6 +110,10 @@ body {
 #empGrid {
 	width: 100%;
 }
+
+.btn-group-custom { margin-bottom: 20px; }
+.search-container { margin-bottom: 20px; }
+.tui-pagination { padding-bottom: 10px; }
 </style>
 </head>
 
@@ -346,8 +350,7 @@ body {
       scrollX: true,
       scrollY: true,
       theme: 'clean',
-      pageOptions: { perPage: 20, useClient: true },
-      bodyHeight: 470,
+      bodyHeight: 480,
       columns: [
         { header: '사원번호', name: 'empId', align: 'center', minWidth: 80, resizable: true },
         { header: '성명', name: 'empName', align: 'center', minWidth: 100, resizable: true },
@@ -422,12 +425,12 @@ body {
           processData: false,
           contentType: false,
           success: function (res) {
-            if (res === 'ok') {
-              alert(isUpdate ? '수정 완료!' : '등록 완료!');
+            if (res.success) {
+              alert(res.message || (isUpdate ? '수정 완료!' : '등록 완료!'));
               loadEmpList();
               $('#btnNew').click();
             } else {
-              alert(isUpdate ? '수정 실패' : '등록 실패');
+              alert(res.message || (isUpdate ? '수정 실패' : '등록 실패'));
             }
           },
           error: function (xhr) { alert((isUpdate ? '수정' : '등록') + ' 실패: ' + xhr.responseText); }
@@ -446,12 +449,12 @@ body {
         contentType: 'application/json',
         data: JSON.stringify({ empId }),
         success: function (res) {
-          if (res === 'ok') {
-            alert('삭제 완료!');
+          if (res.success) {
+            alert(res.message || '삭제 완료!');
             loadEmpList();
             $('#empForm')[0].reset();
           } else {
-            alert('삭제 실패');
+            alert(res.message || '삭제 실패');
           }
         },
         error: function (xhr) { alert('삭제 실패: ' + xhr.responseText); }

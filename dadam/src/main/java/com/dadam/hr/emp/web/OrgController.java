@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 조직도 API 컨트롤러
+ * 조직도 컨트롤러
+ * - 조직도 화면 반환 담당
  */
 @RestController
 @RequestMapping("/erp/hr")
@@ -23,5 +24,15 @@ public class OrgController {
     @GetMapping("/org")
     public OrgNode getOrgTree() {
         return deptService.getOrgTree();
+    }
+
+    /**
+     * 조직도 화면 반환
+     * @return 조직도 뷰
+     */
+    @GetMapping("/org-tree")
+    public String orgTreeView() {
+        // 실제 구현 내용 또는 return 값 필요
+        return "org-tree";
     }
 } 

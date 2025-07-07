@@ -1,42 +1,230 @@
 <!--
-    급여명세서 목록/관리 화면
-    - Toast UI Grid, Sweetalert, Bootstrap 적용 예시
+  급여명세서(사원 본인용) 화면
+  - Toast UI Grid, SweetAlert2, Bootstrap 적용
+  - 상단: 지급년월 필터, 조회 버튼
+  - 메인: 급여명세서 목록(본인)
+  - 행 클릭: 상세/다운로드 안내
+  - 관리자만 '등록' 버튼 노출(사원은 숨김)
+  - 모든 주요 코드/함수/HTML 블록에 한글 주석 작성
 -->
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/default_layout}"
+      layout:fragment="Content">
 <head>
     <meta charset="UTF-8">
-    <title>급여명세서 관리</title>
+    <title>급여명세서 리스트</title>
     <link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.min.css">
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/main_css/style.css">
     <script src="https://uicdn.toast.com/grid/latest/tui-grid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+      /* inbound/hold.html 스타일 계승: 넓은 그리드, 충분한 여백 */
+      .salary-container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 36px 32px 32px 32px; }
+      .salary-header { display: flex; gap: 16px; align-items: center; margin-bottom: 18px; }
+      .salary-header .form-select, .salary-header .btn { min-width: 120px; }
+      #salaryGrid { width: 100%; margin-top: 10px; }
+      #salaryGrid .tui-grid-cell.highlight {
+        color: #1976d2;
+        font-weight: bold;
+        background: linear-gradient(90deg, #e3f2fd 0%, #fff 100%);
+        font-size: 1.08rem;
+        border-left: 3px solid #1976d2;
+      }
+      #salaryGrid .tui-grid-cell .badge {
+        font-size: 0.95em;
+        padding: 0.3em 0.7em;
+        border-radius: 1em;
+        font-weight: 500;
+      }
+      #salaryGrid .tui-grid-row:hover {
+        background: #f0f7ff !important;
+        transition: background 0.2s;
+      }
+      @media (max-width: 991px) {
+        .row .d-flex.flex-row > div.w-50 { width: 100% !important; min-width: 0 !important; margin-bottom: 1rem; }
+        .d-flex.flex-row { flex-direction: column !important; }
+      }
+    </style>
 </head>
-<body>
-<div class="container mt-4">
-    <h2>급여명세서 관리</h2>
-    <div id="grid" style="margin-top:20px;"></div>
-    <button class="btn btn-primary mt-3" onclick="addSalary()">급여명세서 등록</button>
+<body class="bg-light">
+<div class="container-fluid mt-4">
+  <!-- 상단 급여명세서 카드형 리디자인 START -->
+  <!-- pay-main-card 등 기존 상단 급여명세서 카드형 블록 전체 삭제 -->
+  <!-- ... (pay-main-card ~ pay-main-card END 주석까지 모두 삭제) ... -->
+  <!-- 상단 급여 요약 카드 리디자인 START -->
+  <div class="row mb-4" th:if="${salaryList.size() > 0}">
+    <div class="col-12">
+      <div class="d-flex flex-row w-100 flex-nowrap align-items-stretch" style="gap: 1.5rem;">
+        <!-- 좌측: 실지급액 카드 (1:1 비율) -->
+        <div class="bg-gradient shadow-lg rounded-4 p-4 d-flex flex-column justify-content-center align-items-center w-50" style="background: linear-gradient(135deg, #7b8fff 0%, #a7bfff 100%); flex-basis:50%; min-width:0;">
+          <div class="d-flex align-items-center gap-3 mb-2 w-100">
+            <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;font-size:1.3rem;font-weight:700;" th:text="${salaryList[0].empName != null ? salaryList[0].empName.substring(0,2) : ''}">사원</div>
+            <div>
+              <div class="fw-bold text-white" style="font-size:1.2rem;" th:text="${salaryList[0].empName}">사원명</div>
+              <div class="text-white-50" style="font-size:0.95rem;" th:text="${salaryList[0].positionName}">직급</div>
+            </div>
+          </div>
+          <div class="mt-3 mb-2 w-100 text-center">
+            <div class="fw-bold text-white-50 mb-1" style="font-size:1.1rem;">이번 달 실수령액</div>
+            <div class="display-4 fw-bold text-white mb-1" style="text-shadow:0 2px 8px rgba(0,0,0,0.12);" th:text="${#numbers.formatInteger(salaryList[0].netPay, 0, 'COMMA')}">실지급액</div>
+            <div class="text-white-50" style="font-size:0.95rem;" th:text="${salaryList[0].calcMonth + ' 지급예정'}">지급예정</div>
+          </div>
+          <div class="mt-auto pt-2 w-100 text-end">
+            <span class="badge bg-light text-primary px-3 py-2" style="font-size:1rem;" th:text="${salaryList[0].calcMonth + ' 급여'}">지급월</span>
+          </div>
+        </div>
+        <!-- 우측: 급여 상세내역 카드 (1:1 비율) -->
+        <div class="bg-white shadow rounded-4 p-4 d-flex flex-column justify-content-center w-50" style="flex-basis:50%; min-width:0;">
+          <div class="fw-bold mb-3 d-flex align-items-center" style="font-size:1.2rem;"><i class="fa fa-list-ul text-primary me-2"></i>급여 상세내역</div>
+          <div class="d-flex flex-column gap-2 mb-2">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-1"><span class="fw-bold"><i class="fa fa-coins text-warning me-2"></i>기본급</span><span class="fw-bold" th:text="${#numbers.formatInteger(salaryList[0].baseSalary, 0, 'COMMA')}">기본급</span></div>
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-1"><span class="fw-bold"><i class="fa fa-trophy text-success me-2"></i>성과급</span><span class="fw-bold text-success" th:text="${#numbers.formatInteger(salaryList[0].bonus, 0, 'COMMA')}">성과급</span></div>
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-1"><span class="fw-bold"><i class="fa fa-utensils text-info me-2"></i>식대</span><span class="fw-bold text-info" th:text="${#numbers.formatInteger(salaryList[0].mealAllow, 0, 'COMMA')}">식대</span></div>
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-1"><span class="fw-bold"><i class="fa fa-user-shield text-danger me-2"></i>국민연금</span><span class="fw-bold text-danger" th:text="${#numbers.formatInteger(salaryList[0].natPension, 0, 'COMMA')}">국민연금</span></div>
+            <div class="d-flex justify-content-between align-items-center"><span class="fw-bold"><i class="fa fa-receipt text-danger me-2"></i>소득세</span><span class="fw-bold text-danger" th:text="${#numbers.formatInteger(salaryList[0].incTax, 0, 'COMMA')}">소득세</span></div>
+          </div>
+          <div class="mt-3 pt-2 border-top">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fw-bold text-secondary">지급총액</span>
+              <span class="fw-bold" th:text="${#numbers.formatInteger(salaryList[0].baseSalary + salaryList[0].bonus + salaryList[0].mealAllow, 0, 'COMMA')}">지급총액</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fw-bold text-secondary">공제총액</span>
+              <span class="fw-bold text-danger" th:text="${#numbers.formatInteger(salaryList[0].incTax + salaryList[0].natPension + salaryList[0].healthInsur + salaryList[0].empInsur + salaryList[0].ltcInsur, 0, 'COMMA')}">공제총액</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 상단 급여 요약 카드 리디자인 END -->
+  <!-- 급여 지급내역(Toast UI Grid) 리디자인 START -->
+  <div class="salary-history-card fade-in p-4 rounded-4 shadow-sm bg-white mb-4">
+    <div class="history-controls d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+      <div class="period-selector btn-group" role="group">
+        <button class="period-btn btn btn-outline-primary active">최근 3개월</button>
+        <button class="period-btn btn btn-outline-primary">최근 6개월</button>
+        <button class="period-btn btn btn-outline-primary">올해</button>
+      </div>
+      <button class="download-btn btn btn-success px-4"><i class="fa fa-file-alt me-2"></i>급여명세서</button>
+    </div>
+    <div id="salaryGrid" class="rounded-3 border"></div>
+  </div>
+  <!-- 급여 지급내역(Toast UI Grid) 리디자인 END -->
+  <!-- 하단 누적 공제액/연말정산 카드형 리디자인 START -->
+  <div class="row mt-4 g-4">
+    <div class="col-md-6">
+      <div class="pay-summary-card shadow rounded-4 p-4 h-100 bg-white d-flex flex-column gap-2">
+        <h4 class="fw-bold mb-3"><i class="fa fa-piggy-bank text-primary me-2"></i>올해 누적 공제액</h4>
+        <div class="d-flex justify-content-between align-items-center py-1 border-bottom"><span>국민연금</span><span class="fw-bold text-primary">₩315,000</span></div>
+        <div class="d-flex justify-content-between align-items-center py-1 border-bottom"><span>건강보험</span><span class="fw-bold text-success">₩210,000</span></div>
+        <div class="d-flex justify-content-between align-items-center py-1 border-bottom"><span>소득세</span><span class="fw-bold text-danger">₩385,000</span></div>
+        <div class="d-flex justify-content-between align-items-center py-1"><span>지방소득세</span><span class="fw-bold text-info">₩38,500</span></div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="pay-summary-card shadow rounded-4 p-4 h-100 bg-white d-flex flex-column gap-2">
+        <h4 class="fw-bold mb-3"><i class="fa fa-file-invoice-dollar text-success me-2"></i>연말정산 정보</h4>
+        <div class="d-flex justify-content-between align-items-center py-1 border-bottom"><span>올해 총 급여</span><span class="fw-bold text-primary">₩19,250,000</span></div>
+        <div class="d-flex justify-content-between align-items-center py-1 border-bottom"><span>총 공제액</span><span class="fw-bold text-danger">₩948,500</span></div>
+        <div class="d-flex justify-content-between align-items-center py-1"><span>소득공제 신청</span><button class="btn btn-outline-primary btn-sm px-3"><i class="fa fa-paper-plane me-1"></i>신청하기</button></div>
+      </div>
+    </div>
+  </div>
+  <!-- 하단 누적 공제액/연말정산 카드형 리디자인 END -->
 </div>
-<script>
-    // Toast UI Grid 예시
-    const grid = new tui.Grid({
-        el: document.getElementById('grid'),
-        columns: [
-            { header: 'ID', name: 'id' },
-            { header: '사원ID', name: 'empId' },
-            { header: '지급년월', name: 'payMonth' },
-            { header: '기본급', name: 'baseSalary' },
-            { header: '실지급액', name: 'netPay' }
-        ],
-        data: [], // Ajax로 데이터 로드 필요
-        rowHeaders: ['rowNum'],
-        pageOptions: { useClient: true, perPage: 10 }
-    });
-    // Sweetalert 예시
-    function addSalary() {
-        Swal.fire('등록 기능은 구현 필요!');
-    }
+<!-- 상세 모달(카드형, 컬러풀, 최신 ERP 스타일) 리디자인 START -->
+<div class="modal fade" id="salaryDetailModal" tabindex="-1" aria-labelledby="salaryDetailLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content rounded-4 shadow-lg border-0">
+      <div class="modal-header bg-primary text-white rounded-top-4">
+        <h5 class="modal-title fw-bold" id="salaryDetailLabel"><i class="fa fa-file-invoice-dollar me-2"></i>급여명세서 상세</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body bg-light p-4">
+        <div class="row mb-3">
+          <div class="col-md-6 d-flex align-items-center gap-3">
+            <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:48px;height:48px;font-size:1.2rem;font-weight:700;">김직원</div>
+            <div>
+              <div class="fw-bold">김직원님</div>
+              <div class="text-secondary" style="font-size:0.95rem;">개발팀 · 주임</div>
+            </div>
+          </div>
+          <div class="col-md-6 text-end">
+            <span class="badge bg-info text-dark px-3 py-2 fs-6">2025년 7월 급여</span>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="fs-5 text-secondary mb-1">실지급액</div>
+            <div class="display-5 fw-bold text-primary mb-2">₩2,850,000</div>
+            <div class="text-muted">2025년 7월 지급예정</div>
+          </div>
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+              <div class="fw-bold mb-2"><i class="fa fa-list-ul me-2 text-primary"></i>급여 상세 breakdown</div>
+              <div class="d-flex justify-content-between py-1"><span><i class="fa fa-coins text-warning me-1"></i>기본급</span><span class="fw-bold">₩2,500,000</span></div>
+              <div class="d-flex justify-content-between py-1"><span><i class="fa fa-trophy text-success me-1"></i>성과급</span><span class="fw-bold">₩300,000</span></div>
+              <div class="d-flex justify-content-between py-1"><span><i class="fa fa-utensils text-info me-1"></i>식대</span><span class="fw-bold">₩150,000</span></div>
+              <div class="d-flex justify-content-between py-1"><span><i class="fa fa-user-shield text-danger me-1"></i>국민연금</span><span class="fw-bold text-danger">₩-45,000</span></div>
+              <div class="d-flex justify-content-between py-1"><span><i class="fa fa-receipt text-danger me-1"></i>소득세</span><span class="fw-bold text-danger">₩-55,000</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-12 d-flex justify-content-end gap-2">
+            <button class="btn btn-outline-secondary"><i class="fa fa-print me-1"></i>인쇄</button>
+            <button class="btn btn-outline-info"><i class="fa fa-envelope me-1"></i>이메일</button>
+            <button class="btn btn-success"><i class="fa fa-download me-1"></i>다운로드</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 상세 모달(카드형, 컬러풀, 최신 ERP 스타일) 리디자인 END -->
+<script th:inline="javascript">
+  let salaryList = /*[[${salaryList}]]*/ [];
+
+// =====================
+// 급여명세서 그리드 생성
+// =====================
+const salaryGrid = new tui.Grid({
+  el: document.getElementById('salaryGrid'),
+  rowHeaders: ['rowNum'],
+  bodyHeight: 400,
+  columns: [
+    { name: 'rowSelector', header: '', width: 40, align: 'center', renderer: {
+        type: 'checkbox', options: { name: 'rowSelector' }
+      }
+    },
+    { header: '신고귀속', name: 'payMonth', align: 'center', width: 100 },
+    { header: '사원번호', name: 'empId', align: 'center', width: 100 },
+    { header: '사원명', name: 'empName', align: 'center', width: 100 },
+    { header: '지급총액', name: 'baseSalary', align: 'right', width: 110 },
+    { header: '성과급', name: 'bonus', align: 'right', width: 100 },
+    { header: '식대', name: 'mealAllow', align: 'right', width: 80 },
+    { header: '소득세', name: 'incTax', align: 'right', width: 80 },
+    { header: '국민연금', name: 'natPension', align: 'right', width: 90 },
+    { header: '건강보험', name: 'healthInsur', align: 'right', width: 90 },
+    { header: '고용보험', name: 'empInsur', align: 'right', width: 90 },
+    { header: '장기요양', name: 'ltcInsur', align: 'right', width: 90 },
+    { header: '실지급액', name: 'netPay', align: 'right', width: 110, className: 'highlight' },
+    { header: '지급상태', name: 'status', align: 'center', width: 100, 
+      formatter: ({value}) => value === '지급예정' 
+        ? '<span class="badge bg-warning text-dark">지급예정</span>' 
+        : '<span class="badge bg-success">지급완료</span>' }
+  ]
+});
+console.log(salaryList);
+salaryGrid.resetData(salaryList);
+// =====================
+// 실제 DB 데이터로 그리드 바인딩
+// =====================
+salaryGrid.resetData(salaryList);
 </script>
 </body>
 </html> 
