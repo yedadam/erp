@@ -105,7 +105,18 @@
 			})
 		}
 		
-		
+	//검색조건
+	function commonSearchObject(data,url,grid){
+			$.ajax({
+				url : url,
+				mehtod:'GET',
+				data:data,
+				success:function(result){
+					grid.resetData(result);
+				}
+			})
+		}
+				
 		
 		
 

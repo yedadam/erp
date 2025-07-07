@@ -22,16 +22,28 @@
 		o.vdr_code=v.vdr_code
 		WHERE o.com_id = #{comId}
 		<choose>
-				<when test="type.equals('ordCode')">
+				<when test="'ordCode'.equals(type)">
 					 AND o.ord_code LIKE '%'||#{value}||'%'
 				</when>	
-				<when test="type.equals('vdrCode')">
+				<when test="'vdrCode'.equals(type)">
 					 AND o.vdr_code LIKE '%'||#{value}||'%'	
 				</when>
-				<when test="type.equals('vdrName')">
+				<when test="'vdrName'.equals(type)">
 					 AND v.vdr_name LIKE '%'||#{value}||'%'	
 				</when>
-			</choose>
+		</choose>
+		<if test="reqDlvStartDate != null and reqDlvStartDate != '' ">
+			AND trunc(o.req_dlv_date) >=TO_DATE(#{reqDlvStartDate},'yyyy-MM-dd')
+		</if>
+		<if test="reqDlvEndDate != null and reqDlvEndDate !='' ">
+		  <![CDATA[
+			AND trunc(o.req_dlv_date) <= TO_DATE(#{reqDlvEndDate},'yyyy-MM-dd')
+		    ]]>
+		</if>	
+		<if test="status != null and status !=  ''">
+		AND o.status=#{status}		
+		
+		</if>
 		order by o.ord_code desc			
 	</select>
 
