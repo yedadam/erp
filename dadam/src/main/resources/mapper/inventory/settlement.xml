@@ -13,12 +13,35 @@
   </select>
    
    <select id="autoSettlementList">
-   		WITH latest_settlement AS (
+		WITH pur_sum AS (
+		  SELECT item_code, SUM(quantity) AS pur_quantity
+		  FROM purchase
+		  WHERE TO_CHAR(created_date, 'YYYY-MM') = TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYY-MM')
+		    AND com_id = #{comId}
+		  GROUP BY item_code
+		),
+		out_sum AS (
+		  SELECT od.item_code, SUM(od.quantity) AS del_quantity
+		  FROM outbound o
+		  JOIN outboundDetail od ON o.out_code = od.out_code
+		  WHERE TO_CHAR(o.created_date, 'YYYY-MM') = TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYY-MM')
+		    AND o.com_id = #{comId}
+		  GROUP BY od.item_code
+		),
+		adj_sum AS (
+		  SELECT item_code, SUM(ajd_qty) AS adj_quantity
+		  FROM adjust
+		  WHERE TO_CHAR(created_date, 'YYYY-MM') = TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYY-MM')
+		    AND com_id = #{comId}
+		  GROUP BY item_code
+		),
+		latest_settlement AS (
 		  SELECT item_code, after_quantity, after_price, set_code
 		  FROM (
 		    SELECT item_code, after_quantity, after_price, set_code,
 		           ROW_NUMBER() OVER (PARTITION BY item_code ORDER BY set_code DESC) AS rn
 		    FROM settlementdetail
+		    WHERE com_id = #{comId}
 		  )
 		  WHERE rn = 1
 		)
@@ -27,33 +50,25 @@
 		       i.name,
 		       NVL(ls.after_quantity, 0) AS pre_quantity,
 		       NVL(ls.after_quantity, 0) * i.price AS pre_price,
-		       NVL(SUM(p.quantity), 0) AS pur_quantity,
-		       NVL(SUM(od.quantity), 0) AS del_quantity,
-		       NVL(SUM(j.ajd_qty), 0) AS adj_quantity,
+		       NVL(pur.pur_quantity, 0) AS pur_quantity,
+		       NVL(out.del_quantity, 0) AS del_quantity,
+		       NVL(adj.adj_quantity, 0) AS adj_quantity,
 		       NVL(ls.after_quantity, 0)
-		         + NVL(SUM(p.quantity), 0)
-		         - NVL(SUM(od.quantity), 0)
-		         - NVL(SUM(j.ajd_qty), 0) AS after_quantity,
+		         + NVL(pur.pur_quantity, 0)
+		         - NVL(out.del_quantity, 0)
+		         - NVL(adj.adj_quantity, 0) AS after_quantity,
 		       (NVL(ls.after_quantity, 0)
-		         + NVL(SUM(p.quantity), 0)
-		         - NVL(SUM(od.quantity), 0)
-		         - NVL(SUM(j.ajd_qty), 0)) * i.price AS after_price
-		FROM item i 
-		LEFT JOIN purchase p ON i.item_code = p.item_code
-		                     AND TO_CHAR(p.created_date, 'YYYY-MM') = TO_CHAR(SYSDATE, 'YYYY-MM')
-		LEFT JOIN outboundDetail od ON i.item_code = od.item_code
-		LEFT JOIN outbound o ON o.out_code = od.out_code
-		                     AND TO_CHAR(o.created_date, 'YYYY-MM') = TO_CHAR(SYSDATE, 'YYYY-MM')
-		LEFT JOIN adjust j ON i.item_code = j.item_code
-		                   AND TO_CHAR(j.created_date, 'YYYY-MM') = TO_CHAR(SYSDATE, 'YYYY-MM')
-		LEFT JOIN settlementdetail sd ON i.item_code = sd.item_code
+		         + NVL(pur.pur_quantity, 0)
+		         - NVL(out.del_quantity, 0)
+		         - NVL(adj.adj_quantity, 0)) * i.price AS after_price
+		FROM item i
 		LEFT JOIN latest_settlement ls ON i.item_code = ls.item_code
-		LEFT JOIN settlement s ON s.set_code = sd.set_code
-		                      AND s.set_code = ls.set_code
+		LEFT JOIN pur_sum pur ON i.item_code = pur.item_code
+		LEFT JOIN out_sum out ON i.item_code = out.item_code
+		LEFT JOIN adj_sum adj ON i.item_code = adj.item_code
 		WHERE i.com_id = #{comId}
-		GROUP BY i.item_code, ls.after_quantity, i.price,i.name
 		ORDER BY i.item_code
-   </select>
+</select>
    
    <insert id="settlementMainAdd">
      <selectKey resultType="string" keyProperty="setCode" order="BEFORE">
@@ -158,4 +173,20 @@
       								#{approveStatus, mode=IN, jdbcType=VARCHAR}
       )}
     </update>
+    <!-- 이번달 결산 하였는지 체크 -->
+    <select id="monthCheck" resultType="int">
+      SELECT COUNT(*)
+      FROM settlement
+	  WHERE com_id=#{comId}
+	  AND TO_CHAR(created_date,'yyyyMM') = TO_CHAR(sysdate,'yyyyMM')
+	  AND status != 'st003'
+    </select>
+    
+    <select id="eleList">
+     SELECT COUNT(*)
+     FROM electronic
+     WHERE com_id = #{comId}
+     AND app_id = #{empId}
+     AND approve_status = 'ap02'
+    </select>
 </mapper>

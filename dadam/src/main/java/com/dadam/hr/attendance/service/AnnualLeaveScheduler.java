@@ -24,11 +24,11 @@ public class AnnualLeaveScheduler {
      */
     @Scheduled(cron = "0 0 0 1 1 *")
     public void updateAnnualLeaveForAllEmployees() {
-        List<EmpVO> employees = empMapper.findEmpList(null); // 전체 사원 조회 (파라미터는 필요에 따라 수정)
+        List<EmpVO> employees = empMapper.selectEmpList(null, null, null); // 전체 사원 조회
         for (EmpVO emp : employees) {
             int totalLeave = AnnualLeaveUtil.calculateAnnualLeaveTotal(emp.getHireDate().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate(), LocalDate.now());
             emp.setAnnualLeaveTotal(totalLeave);
-            empMapper.updateEmp(emp); // 연차 총일수 업데이트 (updateEmp 메서드 활용)
+            empMapper.updateEmp(emp); // 연차 총일수 업데이트
         }
         System.out.println("[연차 자동갱신] 전체 사원 연차 갱신 완료: " + LocalDate.now());
     }

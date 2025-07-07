@@ -1,14 +1,18 @@
 package com.dadam.common;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+
+import com.dadam.inventory.settlement.service.SettlementService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 //모든 컨트롤러에 모델을 주입하기 위해 설정
 @ControllerAdvice
 public class AttrController {
-	
+	  @Autowired
+	  SettlementService service;
 	  //return을 하면 actvieMenu에 key값에 저장
 	  @ModelAttribute("activeMenu")
 	  public String setAttriMent(HttpServletRequest req) {
@@ -21,5 +25,15 @@ public class AttrController {
 			  return parts[2];
 		  }
 		  return "home";
+	  }
+	  
+	  @ModelAttribute("elecCount")
+	  public int getEleCount(HttpServletRequest req) {
+		  String uri = req.getRequestURI();
+		 
+		  if(uri.startsWith("/erp")) {
+			  return service.eleList();
+		  }
+		  return 0;
 	  }
 }

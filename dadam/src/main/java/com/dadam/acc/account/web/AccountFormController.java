@@ -24,10 +24,12 @@ public class AccountFormController {
 		return "acc/account";
 	}
 	
-	@GetMapping("/chit")
-	public String getChit() {
+	@GetMapping("/journal")
+	public String getJournal() {
 		return "acc/chit";
 	}
+	
+
 	@GetMapping("/create")
 	public String getCreate() {
 		return "acc/create";

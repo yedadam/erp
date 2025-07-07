@@ -10,44 +10,47 @@ import com.dadam.hr.emp.service.EmpVO;
 
 /**
  * 사원 매퍼 인터페이스
+ * - 사원 관련 DB 연동 메서드 정의
  */
 @Mapper
 public interface EmpMapper {
 
     /**
      * 사원 목록 조회
-     * @param param - 검색 파라미터
+     * @param keyword 검색어
+     * @param status 재직상태
+     * @param dept 부서코드
      * @return 사원 리스트
      */
-    public List<EmpVO> findEmpList(Map<String, Object> param);  // XML과 일치시킴
+    public List<EmpVO> selectEmpList(@Param("keyword") String keyword, @Param("status") String status, @Param("dept") String dept);
 
     /**
      * 사원 상세 조회
-     * @param empId - 사원번호
+     * @param empId 사원번호
      * @return 사원 정보
      */
-    public EmpVO findEmpDetail(@Param("empId") String empId,@Param("comId") String comId);
+    public EmpVO selectEmpDetail(@Param("empId") String empId);
 
     /**
      * 사원 등록
      * @param empVO - 사원 정보
      * @return 등록 결과
      */
-    public int insertEmp(EmpVO empVO);
+    int insertEmp(EmpVO empVO);
 
     /**
      * 사원 수정
      * @param empVO - 사원 정보
      * @return 수정 결과
      */
-    public int updateEmp(EmpVO empVO);
+    int updateEmp(EmpVO empVO);
 
     /**
      * 사원 삭제
      * @param empId - 사원번호
      * @return 삭제 결과
      */
-    public int deleteEmp(String empId);
+    int deleteEmp(String empId);
 
     /**
      * 최대 사번 조회
@@ -62,4 +65,32 @@ public interface EmpMapper {
      * @param totalLeave - 연차 총일수
      */
     void updateAnnualLeaveTotal(String empId, String comId, int totalLeave);
+    
+    /**
+     * 연차 정보 조회
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @return 연차 정보
+     */
+    EmpVO getAnnualLeaveInfo(@Param("empId") String empId, @Param("comId") String comId);
+    
+    /**
+     * 연차 정보 업데이트
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @param totalLeave - 연차 총일수
+     * @param usedLeave - 연차 사용일수
+     * @return 업데이트 결과
+     */
+    int updateAnnualLeaveInfo(@Param("empId") String empId, @Param("comId") String comId, 
+                             @Param("totalLeave") int totalLeave, @Param("usedLeave") int usedLeave);
+    
+    /**
+     * 연차 사용 처리
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @param usedDays - 사용일수
+     * @return 처리 결과
+     */
+    int useAnnualLeave(@Param("empId") String empId, @Param("comId") String comId, @Param("usedDays") int usedDays);
 }

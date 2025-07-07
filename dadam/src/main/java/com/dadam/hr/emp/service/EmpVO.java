@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
- * 사원 정보 VO
+ * 사원 VO
+ * - 사원 정보 데이터 전달 객체
  */
 @Data
 public class EmpVO {

@@ -3,61 +3,72 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
-<body>
+<body class="bg-light">
+	<div class="container-fluid mt-4" style="max-width: 1200px;">
 
-<h2 class="fw-bold mb-3">손익계산서</h2>
+		<!-- 헤더 -->
+		<div class="d-flex justify-content-between align-items-center mb-2">
+			<div>
+				<h2 class="fw-bold mb-1">손익계산서</h2>
+				<small class="text-muted">※ 연도 및 분기별 조회 가능 · 요약 보기 기능 제공</small>
+			</div>
+			<div>
+				<button type="button" class="btn btn-outline-secondary btn-sm" onclick="showProfitSummary()">요약 보기</button>
+			</div>
+		</div>
 
-<!-- 조회 필터 -->
-<form class="row mb-3">
-  <div class="col-md-2">
-    <label>연도</label>
-    <select id="year" class="form-select">
-      <option th:each="y : ${yearList}" th:value="${y}" th:text="${y}" th:selected="${y == param.year}"></option>
-    </select>
-  </div>
-  <div class="col-md-2">
-    <label>반기</label>
-    <select id="half" class="form-select">
-      <option value="">전체</option>
-      <option value="H1">상반기</option>
-      <option value="H2">하반기</option>
-    </select>
-  </div>
-  <div class="col-md-2">
-    <label>분기</label>
-    <select id="quarter" class="form-select">
-      <option value="">전체</option>
-      <option value="Q1">1분기</option>
-      <option value="Q2">2분기</option>
-      <option value="Q3">3분기</option>
-      <option value="Q4">4분기</option>
-    </select>
-  </div>
-  <div class="col-md-2 align-self-end">
-    <button type="button" class="btn btn-primary" onclick="loadProfitData()">조회</button>
-  </div>
-  <div class="col-md-2 align-self-end text-end">
-    <button type="button" class="btn btn-outline-secondary" onclick="showProfitSummary()">요약 보기</button>
-  </div>
-</form>
+		<!-- 조회 필터 -->
+		<form class="row mb-4">
+			<div class="col-md-2">
+				<label class="form-label">연도</label>
+				<select id="year" class="form-select">
+					<option th:each="y : ${yearList}" th:value="${y}" th:text="${y}" th:selected="${y == param.year}"></option>
+				</select>
+			</div>
+			<div class="col-md-2">
+				<label class="form-label">반기</label>
+				<select id="half" class="form-select">
+					<option value="">전체</option>
+					<option value="H1">상반기</option>
+					<option value="H2">하반기</option>
+				</select>
+			</div>
+			<div class="col-md-2">
+				<label class="form-label">분기</label>
+				<select id="quarter" class="form-select">
+					<option value="">전체</option>
+					<option value="Q1">1분기</option>
+					<option value="Q2">2분기</option>
+					<option value="Q3">3분기</option>
+					<option value="Q4">4분기</option>
+				</select>
+			</div>
+			<div class="col-md-2 align-self-end">
+				<button type="button" class="btn btn-primary btn-sm w-100" onclick="loadProfitData()">조회</button>
+			</div>
+		</form>
 
-<!-- Toast UI Grid -->
-<div id="profitGrid" style="height: 600px;"></div>
+		<!-- Toast UI Grid -->
+		<div class="col-12">
+			<div id="profitGrid" class="mx-3" style="height: 600px;"></div>
+		</div>
+	</div>
 
-<!-- 손익 요약 모달 -->
-<div class="modal fade" id="profitSummaryModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">손익 요약</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" id="profitSummaryContent"></div>
-    </div>
-  </div>
-</div>
-
+	<!-- 손익 요약 모달 -->
+	<div class="modal fade" id="profitSummaryModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">손익 요약</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body" id="profitSummaryContent"></div>
+			</div>
+		</div>
+	</div>
 </body>
+
+
 
 <script>
 // 1. 손익계산서 그리드 초기화

@@ -24,4 +24,8 @@ public interface SettlementMapper {
 	public List<SettlementVO> mineEle(@Param("comId") String comId,@Param("appId") String appId);
 	
 	public void prcEletronicUpdate(SettlementVO vo);
+	
+	public int monthCheck(@Param("comId") String comId);
+	
+	public int eleList(@Param("comId") String comId,@Param("empId") String empId);
 }

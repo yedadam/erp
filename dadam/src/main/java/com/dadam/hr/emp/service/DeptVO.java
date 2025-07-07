@@ -4,7 +4,8 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * 부서 정보 VO
+ * 부서 VO
+ * - 부서 정보 데이터 전달 객체
  */
 @Data
 public class DeptVO {

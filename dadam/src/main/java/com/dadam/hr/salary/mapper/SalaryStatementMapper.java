@@ -8,7 +8,7 @@ import java.util.List;
  */
 public interface SalaryStatementMapper {
     /** 전체 급여명세서 목록 조회 */
-    List<SalaryStatementVO> selectSalaryStatementList();
+    List<SalaryStatementVO> selectSalaryStatementList(String empId, String comId);
     /** 단일 급여명세서 조회 */
     SalaryStatementVO selectSalaryStatementById(Long id);
     /** 급여명세서 등록 */

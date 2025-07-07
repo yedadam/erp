@@ -29,10 +29,24 @@ public interface AttendanceCorrectionMapper {
      */
     AttendanceCorrectionVO selectCorrection(String corrCode, String comId);
     /**
+     * 정정 단건 조회
+     * @param corrCode - 정정코드
+     * @return 정정 정보
+     */
+    AttendanceCorrectionVO selectCorrection(String corrCode);
+    /**
      * 정정 목록 조회
      * @param comId - 회사ID
      * @param empId - 사원번호
      * @return 정정 리스트
      */
     List<AttendanceCorrectionVO> findCorrectionList(String comId, String empId);
+    /**
+     * 정정 목록 조회
+     * @param comId - 회사ID
+     * @param empId - 사원번호
+     * @param status - 상태
+     * @return 정정 리스트
+     */
+    List<AttendanceCorrectionVO> findCorrectionListWithStatus(String comId, String empId, String status);
 } 

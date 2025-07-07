@@ -372,9 +372,13 @@
             })
             .then(res => res.json())
             .then(data => {
-                Swal.fire('성공', isUpdate ? '수정되었습니다.' : '등록되었습니다.', 'success');
-                fetchDepartments();
-                cancelEdit();
+                if (data.success) {
+                    Swal.fire('성공', data.message || (isUpdate ? '수정되었습니다.' : '등록되었습니다.'), 'success');
+                    fetchDepartments();
+                    cancelEdit();
+                } else {
+                    Swal.fire('오류', data.message || (isUpdate ? '수정 실패' : '등록 실패'), 'error');
+                }
             })
             .catch(err => Swal.fire('오류', (isUpdate ? '수정' : '등록') + ' 실패', 'error'));
         };
@@ -400,9 +404,13 @@
                     })
                     .then(res => res.json())
                     .then(data => {
-                        Swal.fire('성공', '삭제되었습니다.', 'success');
-                        fetchDepartments();
-                        cancelEdit();
+                        if (data.success) {
+                            Swal.fire('성공', data.message || '삭제되었습니다.', 'success');
+                            fetchDepartments();
+                            cancelEdit();
+                        } else {
+                            Swal.fire('오류', data.message || '삭제 실패', 'error');
+                        }
                     })
                     .catch(err => Swal.fire('오류', '삭제 실패', 'error'));
                 }

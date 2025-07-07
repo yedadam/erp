@@ -8,7 +8,7 @@ import com.dadam.acc.account.service.AccountCodeVO;
 import com.dadam.acc.account.service.AccountVO;
 
 public interface AccountMapper {
-	public List<AccountVO> accFindAll();
+	public List<AccountVO> accFindAll(String comId);
 	public List<AccountVO> accFindByType(@Param("acctType") String acctType);
 	public String codeFind(AccountCodeVO accountCode);
 	

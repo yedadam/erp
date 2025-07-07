@@ -11,6 +11,7 @@
 	       (SELECT subclass_name FROM acct_subclass WHERE subclass_code = a.acct_subclass) AS acct_subclass,
 	       acct_yn, note, created_date, update_date, com_id
 	  FROM account a
+	 WHERE com_id = #{comId}
 	 ORDER BY acct_code
 </select>
 
@@ -24,6 +25,7 @@
 	       acct_yn, note, created_date, update_date, com_id
 	  FROM account a
 	 WHERE a.acct_type = #{acctType}
+	   AND com_id = #{comId}
 	 ORDER BY acct_code
 </select>
 
@@ -31,6 +33,7 @@
 <select id="selectAcctTypes" resultType="string">
   SELECT type_name 
     FROM acct_type 
+   WHERE com_id = #{comId}
    ORDER BY type_code
 </select>
 
@@ -39,6 +42,7 @@
   SELECT class_name 
     FROM acct_class
    WHERE type_code  = (SELECT type_code FROM acct_type WHERE type_name = #{acctType})
+     AND com_id = #{comId}
    ORDER BY class_code
 </select>
 
@@ -48,6 +52,7 @@ SELECT s.subclass_name
   FROM acct_subclass s
   JOIN acct_class c ON s.class_code = c.class_code
  WHERE c.class_name = #{acctClass}
+   AND com_id = #{comId}
  ORDER BY s.subclass_code
 </select>
 
@@ -77,6 +82,7 @@ SELECT s.subclass_name
     SELECT type_code 
       FROM acct_type 
      WHERE type_name = #{typeName}
+       AND com_id = #{comId}
 </select>
 
 <!-- 중분류 유효성검사 -->
@@ -84,6 +90,7 @@ SELECT s.subclass_name
     SELECT class_code 
       FROM acct_class 
      WHERE class_name = #{className}
+       AND com_id = #{comId}
 </select>
 
 <!-- 소분류 유효성검사 -->
@@ -91,6 +98,7 @@ SELECT s.subclass_name
     SELECT subclass_code 
       FROM acct_subclass 
      WHERE subclass_name = #{subclassName}
+       AND com_id = #{comId}
 </select>
 	
 <!-- 계정코드 입력 -->
@@ -116,7 +124,7 @@ SELECT s.subclass_name
          , #{note}
 		 , SYSDATE
 		 , SYSDATE
-		 , 'COM-101'
+		 , #{comId}
 		)
 </insert>
 
@@ -128,11 +136,14 @@ SELECT s.subclass_name
                note = #{note},
         update_date = SYSDATE
     WHERE acct_code = #{acctCode}
+      AND com_id = #{comId}
 </update>
 
 <!-- 계정코드 삭제 -->
 <delete id="delete">
-    DELETE FROM account WHERE acct_code = #{acctCode}
+    DELETE FROM account 
+     WHERE acct_code = #{acctCode}
+       AND com_id = #{comId}
 </delete>
 
 

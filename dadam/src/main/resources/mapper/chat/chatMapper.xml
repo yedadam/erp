@@ -58,7 +58,7 @@
             created_date,
             chat_id,
             emp_id,
-            getEmpName(emp_id) emp_name
+            getEmpName(emp_id,#{comId}) emp_name
         FROM chatMessage
         WHERE chat_id = #{chatId}
         AND com_id= #{comId}
