@@ -13,6 +13,9 @@ public interface ChitMapper {
 	public List<Map<String, String>> acctCodeFindByCode(String keyword, String comId);
 	public List<Map<String, String>> indTypeFindByCode(String keyword, String comId);
 	public List<Map<String, String>> chtTypeFindByCode(String keyword, String comId);
+
+	
+	
 	//전표-분개 등록
 	public void insert(ChitVO chit);
 	public void update(ChitVO chit);

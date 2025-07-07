@@ -34,4 +34,6 @@ public class CreditVO {
 	private String type;		// 상태
 	private String phyEmpId;	// 작성자
 	private String chitCode;	// 전표코드(수금번호)
+	private int price;
+	private String iType;
 }

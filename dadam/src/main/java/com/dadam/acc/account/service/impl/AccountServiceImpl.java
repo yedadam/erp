@@ -3,23 +3,41 @@ package com.dadam.acc.account.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.dadam.acc.account.mapper.AccountMapper;
 import com.dadam.acc.account.service.AccountCodeVO;
 import com.dadam.acc.account.service.AccountService;
 import com.dadam.acc.account.service.AccountVO;
+import com.dadam.security.service.LoginUserAuthority;
 
 //service bean등록
 @Service
 public class AccountServiceImpl implements AccountService{
 	
+    //comName 가져오기
+    String comId = "com-101";
+    public void initAuthInfo() {
+        //로그인 객체값 연결
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //로그인 객체 가져오기
+        Object principal = auth.getPrincipal();
+
+        if (principal instanceof LoginUserAuthority) {
+        	LoginUserAuthority user = (LoginUserAuthority) principal;
+            comId = user.getComId();
+            System.out.println("회사명: " + comId);
+        }
+    }
+	
 	@Autowired AccountMapper accountMapper;
 	
 	// 리스트 IMPL
 	@Override
-	public List<AccountVO> accFindAll() {
-	    return accountMapper.accFindAll();
+	public List<AccountVO> accFindAll(String comId) {
+	    return accountMapper.accFindAll(comId);
 	}
 
 	@Override

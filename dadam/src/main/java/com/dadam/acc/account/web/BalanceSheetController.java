@@ -64,7 +64,9 @@ public class BalanceSheetController {
         String comId = (String) session.getAttribute("comId");
         param.put("comId", comId);
         
-        param.put("acctType", "1,2,3");
+        if (!param.containsKey("acctType") || param.get("acctType") == null || param.get("acctType").toString().isBlank()) {
+            param.put("acctType", "1,2,3");
+        }
         
         return balanceSheetService.selectBalanceSheet(param);
     }
