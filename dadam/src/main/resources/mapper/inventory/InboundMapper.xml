@@ -37,7 +37,7 @@
         po.exp_dlv_date,
         getEmpName(po.emp_id, #{comId}) emp_id,
         getvdrName(po.vdr_code) vdr_code,
-        nvl((select sum(curr_qty)
+        nvl((select max(curr_qty)
 	         from purchase
 	         where pur_ord_dtl_code =  pod.pur_ord_dtl_code),0) curr_qty
 	FROM purchaseOrderDetail pod join purchaseOrder po
@@ -130,7 +130,7 @@
 	{ CALL prc_purchaseOrder_status( #{purOrdDtlCode, mode=IN, jdbcType=VARCHAR})}
 	</update>
 	<select id="purchaseCurrQty" parameterType="PurchaseVO" resultType="int">
-		SELECT sum(curr_qty)
+		SELECT max(curr_qty)
 		FROM purchase
 		WHERE com_id = #{comId} AND pur_ord_dtl_code = #{purOrdDtlCode}
 	</select>

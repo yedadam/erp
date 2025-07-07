@@ -38,11 +38,15 @@ public class InboundServiceImpl implements InboundService{
 	public int insertPurchaseInbound(List<PurchaseVO> list) {
 		Map<String, String> map = new HashMap<>();
 		int result = 0;
-		System.out.println("list:" + list);
 		for (PurchaseVO vo : list) {
 			// 입고항목 등록
 			// 현재수량에 입력한 재고와 현재수량을 더해서 넣음.
-			vo.setCurrQty(vo.getCurrQty() + vo.getQuantity());
+			// vo.setCurrQty(vo.getCurrQty() + vo.getQuantity());
+			
+			// 가장 높은 수량을 가져와서 변수저장
+			// currqt = inboundMapper.purchaseCurrQty(vo);
+			// 변수에 입력한 수량을 더해서 등록진행.
+			// vo.setCurrQty(currqt + vo.getQuantity());
 			result = inboundMapper.insertPurchaseInbound(vo);
 			inboundMapper.updateStockInbound(vo);
 			// 기본은 입고 완료
@@ -65,7 +69,6 @@ public class InboundServiceImpl implements InboundService{
 			inboundMapper.updatePurchaseOrderDetailInbound(vo);
 			inboundMapper.prcPurchaseOrderStatus(vo);
 		}
-		System.out.println("result:" + result);
 		return result;
 	}
 	// 창고 리스트

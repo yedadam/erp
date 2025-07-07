@@ -124,7 +124,9 @@
 					</div>
 					<div id="gridModal"></div>
 			</div>
-			<div class="modal-footer"></div>
+			<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+			</div>
 		</div>
 	</div>
 </div>
@@ -381,23 +383,6 @@ function insertGrid(){
 					data= [];
 					let param = {};
 					  let rowCheck = mainGrid.getCheckedRows();
-					  for(let purCheck of rowCheck){
-						param = {purOrdDtlCode: purCheck.purOrdDtlCode,
-								comId
-							}
-					  }
-					  // 현재수량 가져오기 (SUM)
-					 /*  $.ajax({
-							url:"/erp/inventory/purchaseOrderList",
-							method:"GET",
-							data: {comId},
-						    success:function(result) {
-						    	result.forEach((item)=>{
-						    		item.reqQty= item.quantity - item.currQty;
-						    	});
-						    	mainGrid.resetData(result);
-						   } // ajax호출 끝
-						}) */
 						
 					  rowCheck.filter(item =>{
 						  ee = {
@@ -417,11 +402,12 @@ function insertGrid(){
 					  })
 					  inboundGrid.resetData(data);
 				}
+				
 				// 입고 등록
 				$('#registerBtn').on('click', ()=>{
 					// inboundGrid
 					let gridData = inboundGrid.getData();
-					
+					console.log(gridData);
 					// 빈행 체크
 					for(let item of gridData){
 						if(item.loc == ""){
@@ -445,10 +431,12 @@ function insertGrid(){
 					let code = '';
 					let items = '';
 					let params = [];
-					let quantityCheck = 0;
 					let check = 0;
 					let prices = 0;
 					let status = ''; // 부분입고
+					let quantity = 0;
+					let reqQty = 0;
+					let currQty = 0;
 					
 					// 헤더부분의 값을 담음 덮어쓰기는 의도한거임.
 					gridData.forEach((item) =>{
@@ -457,21 +445,29 @@ function insertGrid(){
 						code = item.purOrdDtlCode
 						items = item.itemCode
 						prices = item.price
-						quantityCheck = item.reqQty // 발주량 X 미입고량을 비교하는걸로 바꿈.
+						quantity = item.quantity
 						check = 0;
+						currQty =item.currQty;  // 기입고량 4700
+						reqQty = item.reqQty;	// 미입고량
 						}
 						
 						// qty를 계속더해서 최대값을 구함
 						check += Number(item.qty)
-						// quantityCheck=헤더부분의 수량, check=입력한 수량
-						if(quantityCheck < check){
+						if(reqQty < check){
+							Swal.fire({
+								  icon: "error",
+								  title: "미입고량보다 입고수량이 많습니다!",
+								  text: "수량을 변경해주세요!"
+								});
+							return;
+						}else if(quantity < check){
 							Swal.fire({
 								  icon: "error",
 								  title: "발주량보다 입고수량이 많습니다!",
 								  text: "수량을 변경해주세요!"
 								});
 							return;
-						}else if(quantityCheck == check){
+						}else if(reqQty == check){
 								status = 'pct02'; // 입고완료
 						}else{
 								status = 'pct01'; // 부분 입고
@@ -479,28 +475,38 @@ function insertGrid(){
 							params = {
 										  purOrdDtlCode: code,
 										  itemCode: items,
+										  currQty: Number(currQty) + Number(item.qty),
+										  price: prices,
+										  empId: empId,
 										  locCode: item.loc,
 										  quantity: item.qty,
-										  price: prices,
 										  note: item.note,
-										  empId: empId,
-										  comId: comId,
-										  status: status
+										  status: status,
+										  comId: comId
 									}
 							param.push(params);
-							console.log(param)
 					})
 					 	$.ajax({
 							url:"/erp/inventory/purchaseRegister",
 							method:"POST",
 							contentType: 'application/json',
 							data: JSON.stringify(param),
-							success:()=>{
+							success:(result)=>{
+								console.log(result)
+							if(result > 0){
 							Swal.fire({
 								  icon: "success",
 								  title: "입고 완료!",
 								  text: "입고가 완료되었습니다."
 								});
+							}else{
+								Swal.fire({
+									  icon: "error",
+									  title: "입고 실패!",
+									  text: "입고가 실패했습니다."
+									});
+							}
+							
 							$('#inboundModal').modal('hide');
 							mainGrid.uncheckAll();
 							inboundGrid.refreshLayout();

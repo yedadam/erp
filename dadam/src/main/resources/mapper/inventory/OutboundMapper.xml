@@ -33,7 +33,7 @@
 	<select id="selectHoldOutboundList" resultType="HoldVO" parameterType="HoldVO">
 		SELECT  
 				ho.hold_code,
-                sh.ship_req_dtl_code,
+                ho.code,
 		        ho.item_code,
 		        getitemName(ho.item_code) itemName,
 		        ho.quantity,
@@ -43,8 +43,8 @@
 		        ho.status,
 		        ho.note,
 		        ho.created_date
-		FROM hold ho join shiprequestdetail sh
-                        on(ho.code = sh.ship_req_dtl_code)
+		FROM hold ho join holddetail hod
+                        on(ho.com_id = hod.com_id AND hod.hold_code = ho.hold_code)
 		WHERE ho.com_id = #{comId} AND ho.status NOT IN('hs02')
 	</select>
 
