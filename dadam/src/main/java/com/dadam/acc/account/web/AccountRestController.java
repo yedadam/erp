@@ -29,8 +29,8 @@ public class AccountRestController {
 	AccountService accountService;
 	
 	@GetMapping("/accFindAll")
-	public List<AccountVO> getAccFindAll() {
-	    return accountService.accFindAll();  //
+	public List<AccountVO> getAccFindAll(String comId) {
+	    return accountService.accFindAll(comId);  //
 	}
 
 	@GetMapping("/accFindByType")

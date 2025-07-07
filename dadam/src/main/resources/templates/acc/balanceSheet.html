@@ -3,86 +3,93 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
-<body>
+<body class="bg-light">
+	<div class="container-fluid mt-4" style="max-width: 1200px;">
 
-	<h2>재무상태표</h2>
+		<!-- 헤더 -->
+		<div class="d-flex justify-content-between align-items-center mb-2">
+			<div>
+				<h2 class="fw-bold mb-1">재무상태표</h2>
+				<small class="text-muted">※ 연도 및 분기별 조회 가능 · 요약 보기 기능 제공</small>
+			</div>
+			<div>
+				<button class="btn btn-outline-secondary btn-sm" onclick="showBalanceSummary()">요약 보기</button>
+			</div>
+		</div>
 
-	<ul class="nav nav-tabs mb-3" id="acctTab">
-		<li class="nav-item">
-			<button class="nav-link active" data-type=""
-				onclick="filterBalanceTab(this)">전체</button>
-		</li>
-		<li class="nav-item">
-			<button class="nav-link" data-type="1"
-				onclick="filterBalanceTab(this)">자산</button>
-		</li>
-		<li class="nav-item">
-			<button class="nav-link" data-type="2"
-				onclick="filterBalanceTab(this)">부채</button>
-		</li>
-		<li class="nav-item">
-			<button class="nav-link" data-type="3"
-				onclick="filterBalanceTab(this)">자본</button>
-		</li>
-	</ul>
-	<div class="d-flex justify-content-end mb-2">
-  <button class="btn btn-outline-secondary" onclick="showBalanceSummary()">요약 보기</button>
-</div>
+		<!-- 대분류 필터 탭 -->
+		<ul class="nav nav-tabs mb-3" id="acctTab">
+			<li class="nav-item">
+				<button class="nav-link active" data-type="" onclick="filterBalanceTab(this)">전체</button>
+			</li>
+			<li class="nav-item">
+				<button class="nav-link" data-type="1" onclick="filterBalanceTab(this)">자산</button>
+			</li>
+			<li class="nav-item">
+				<button class="nav-link" data-type="2" onclick="filterBalanceTab(this)">부채</button>
+			</li>
+			<li class="nav-item">
+				<button class="nav-link" data-type="3" onclick="filterBalanceTab(this)">자본</button>
+			</li>
+		</ul>
 
-	<form id="filterForm" class="row mb-4">
-		<div class="col-md-2">
-			<label>연도</label> <select id="year" class="form-select">
-				<option th:each="y : ${yearList}" th:value="${y}" th:text="${y}"
-					th:selected="${y == param.year}"></option>
-			</select>
-		</div>
-		<div class="col-md-2">
-			<label>반기</label> <select id="half" class="form-select">
-				<option value="">전체</option>
-				<option value="H1">상반기</option>
-				<option value="H2">하반기</option>
-			</select>
-		</div>
-		<div class="col-md-2">
-			<label>분기</label> <select id="quarter" class="form-select">
-				<option value="">전체</option>
-				<option value="Q1">1분기</option>
-				<option value="Q2">2분기</option>
-				<option value="Q3">3분기</option>
-				<option value="Q4">4분기</option>
-			</select>
-		</div>
-		<div class="col-md-2 align-self-end">
-			<button type="button" class="btn btn-primary"
-				onclick="loadBalanceData()">조회</button>
-		</div>
-	</form>
+		<!-- 필터 폼 -->
+		<form id="filterForm" class="row mb-4">
+			<div class="col-md-2">
+				<label class="form-label">연도</label>
+				<select id="year" class="form-select">
+					<option th:each="y : ${yearList}" th:value="${y}" th:text="${y}" th:selected="${y == param.year}"></option>
+				</select>
+			</div>
+			<div class="col-md-2">
+				<label class="form-label">반기</label>
+				<select id="half" class="form-select">
+					<option value="">전체</option>
+					<option value="H1">상반기</option>
+					<option value="H2">하반기</option>
+				</select>
+			</div>
+			<div class="col-md-2">
+				<label class="form-label">분기</label>
+				<select id="quarter" class="form-select">
+					<option value="">전체</option>
+					<option value="Q1">1분기</option>
+					<option value="Q2">2분기</option>
+					<option value="Q3">3분기</option>
+					<option value="Q4">4분기</option>
+				</select>
+			</div>
+			<div class="col-md-2 align-self-end">
+				<button type="button" class="btn btn-primary btn-sm w-100" onclick="loadBalanceData()">조회</button>
+			</div>
+		</form>
 
-	<!-- Toast UI Grid -->
-	<div class="col-12">
-		<div id="balanceGrid" style="height: 600px;"></div>
+		<!-- Toast UI Grid -->
+		<div class="col-12">
+			<div id="balanceGrid" class="mx-3" style="height: 600px;"></div>
+		</div>
+
 	</div>
-	
-	<!-- 재무상태표 요약 모달 -->
-<div class="modal fade" id="summaryModal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="summaryModalLabel">재무상태표 요약</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
-      </div>
-      <div class="modal-body" id="modalSummaryContent">
-        <!-- 계산된 내용이 여기에 삽입됨 -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-      </div>
-    </div>
-  </div>
-</div>
-	
 
+	<!-- 재무상태표 요약 모달 -->
+	<div class="modal fade" id="summaryModal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="summaryModalLabel">재무상태표 요약</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+				</div>
+				<div class="modal-body" id="modalSummaryContent">
+					<!-- 계산된 내용이 여기에 삽입됨 -->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
+
 
 <script>
 //Toast UI Grid 초기화
@@ -133,18 +140,21 @@ columns: [
 //데이터 배열을 받아서 자산/부채/자본 항목별 합계를 계산하는 함수
 //- 출력은 객체 형태로 반환: { '자산': 1000000, '부채': 300000, ... }
 function calculateSummary(data) {
-const summary = {};
-data.forEach(row => {
- const type = row.acctTypeName;
- const amount = Number(row.balance || 0);
+	  const summary = {};
+	  
+	  // 합계 행 제외하고 계산
+	  data.filter(row => !row.isSummary).forEach(row => {
+	    const type = row.acctTypeName;
+	    const amount = Number(row.balance || 0);
 
- if (!summary[type]) {
-   summary[type] = 0;
- }
- summary[type] += amount;
-});
-return summary;
-}
+	    if (!summary[type]) {
+	      summary[type] = 0;
+	    }
+	    summary[type] += amount;
+	  });
+
+	  return summary;
+	}
 
 //자산, 부채, 자본의 합계를 계산하고
 //"자산 = 부채 + 자본" 등식을 만족하는지 결과를 화면에 표시하는 함수
@@ -183,7 +193,7 @@ function showBalanceSummary() {
 
 //서버에서 받은 raw 데이터를 구분별로 그룹핑하고
 //각 그룹(자산, 부채, 자본)의 마지막에 '합계' 행을 추가하여 새로운 배열을 반환
-function groupAndAddSubtotals(data) {
+function groupAndAddSubtotals(data, acctType = '') {
   const result = [];
   let currentGroup = null;
   let subtotal = 0;
@@ -227,12 +237,14 @@ function groupAndAddSubtotals(data) {
       });
 
       // 부채 + 자본 총합 행 추가
+      if(!acctType || acctType === '1,2,3'){
       result.push({
         acctTypeName: '부채 + 자본',
         name: '',
         balance: liabilitySum + capitalSum,
         isSummary: true
       });
+      }
     }
   });
 
@@ -270,13 +282,19 @@ $.ajax({
  method: "GET",
  data: { year, half, quarter, ym, acctType },
  success: function (result) {
-   const finalData = groupAndAddSubtotals(result); // 합계 행 추가
+   const finalData = groupAndAddSubtotals(result, acctType); // 합계 행 추가
    balGrid.resetData(finalData);                   // 그리드 데이터 갱신
    calculateAndRenderSummary(result); 
  }
 });
 }
 
+function calculateAndRenderSummary(data) {
+	  const summary = calculateSummary(data);
+
+	  console.log("요약 정보:", summary);
+	  // 혹은 balGrid 하단에 표시하거나 별도 DOM에 표시 가능
+	}
 
 //페이지 최초 로딩 시 전체 재무상태표 데이터 조회
 $(document).ready(function () {

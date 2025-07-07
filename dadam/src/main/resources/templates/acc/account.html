@@ -237,6 +237,7 @@ $('#saveBtn').on('click', function () {
      $.ajax({
         url: "/erp/accounting/accFindAll",
         method: "GET",
+        data:{comId},
         success: function(result){
            console.log(result)
            accGrid.resetData(result);

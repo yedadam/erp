@@ -30,11 +30,13 @@
 	<select id="creditFindCode" resultType="com.dadam.acc.credit.service.CreditVO">
 	SELECT c.article_code 
 		 , v.credit_price
+		 , i.type iType
+		 , i.price 
 		 , c.tot_price
 		 , v.credit_bal_price
 		 , v.bank
 		 , v.acct_no
-		 , c.type
+		 , getSubCode(c.type) type
 		 , getEmpName(v.emp_id, #{comId}) as emp_id 
 		 , c.created_date
 		 , getEmpName(c.phy_emp_id, #{comId}) as phy_emp_id 
@@ -42,6 +44,7 @@
 	  FROM chit c
 	  JOIN orders o ON ord_code = article_code
 	  JOIN vender v ON o.vdr_code = v.vdr_code
+	  JOIN indignation I ON c.chit_code = i.chit_code
 	 WHERE o.vdr_code = #{vdrCode}
 	   AND c.status = 'cst04'
 	</select>

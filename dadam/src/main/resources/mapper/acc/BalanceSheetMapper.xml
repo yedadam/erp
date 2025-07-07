@@ -17,6 +17,7 @@
   END AS balance
 FROM VW_BALANCE_SHEET_SUMMARY
 <where>
+	  com_id = #{comId}
   <if test="year != null and year != ''">
     year = #{year}
   </if>

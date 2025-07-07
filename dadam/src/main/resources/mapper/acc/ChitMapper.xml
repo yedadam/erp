@@ -4,60 +4,68 @@
 	 <!-- , getVdrName(c.vdr_code) as vdrCode 
 	 			 , '' vdrCode -->
 	<!-- 전표 리스트 출력 컬럼 날짜, 전표명, 계정과목, 거래처, 금액, 세금계산서 발행유무, 처리상태, 구분, 등록부서, 처리자,승인자,비고 -->
-	<select id="chitFindAll" resultType="ChitVO"
-		parameterType="string">
-   SELECT
-    c.created_date AS createdDate,
-    c.chit_title AS chitTitle,
-    '' AS parent,
-    c.chit_code AS chitCode,
-    getVdrName((SELECT vdr_code FROM orders WHERE ord_code = article_code)) AS vdrCode,
-    article_code,
-    c.supply_price AS supplyPrice,
-    c.vat_price AS vatPrice,
-    c.tot_price AS totPrice,
-    0 AS iPrice,
-    c.tax_code AS taxCode,
-    getSubCode(c.status) AS status,
-    getSubCode(c.type) AS tType,
-    getDeptName(c.dept_code) AS deptCode,
-    getEmpName(c.phy_emp_id, #{comId}) AS phyEmpId,
-    getEmpName(c.appr_emp_id, #{comId}) AS apprEmpId,
-    c.note AS note,
-    '' AS acctCode,
-    '' AS iType,
-    '' AS iName,
-    '' AS aName
-  FROM chit c
-  WHERE com_id = #{comId}
+	<select id="chitFindAll" resultType="ChitVO" parameterType="string">
+SELECT
+  c.created_date AS createdDate,
+  c.chit_title AS chitTitle,
+  '' AS parent,
+  c.chit_code AS chitCode,
+  getVdrName((SELECT vdr_code FROM orders WHERE ord_code = article_code)) AS vdrCode,
+  article_code,
+  c.supply_price AS supplyPrice,
+  c.vat_price AS vatPrice,
+  c.tot_price AS totPrice,
+  0 AS iPrice,
+  c.tax_code AS taxCode,
+  getSubCode(c.status) AS status,
+  getSubCode(c.type) AS tType,
+  getDeptName(c.dept_code) AS deptCode,
+  getEmpName(c.phy_emp_id, #{comId}) AS phyEmpId,
+  getEmpName(c.appr_emp_id, #{comId}) AS apprEmpId,
+  c.note AS note,
+  '' AS acctCode,
+  '' AS iType,
+  '' AS iName,
+  '' AS aName,
+  CASE getSubCode(c.status)
+    WHEN '등록' THEN 1
+    WHEN '결제' THEN 2
+    WHEN '반려' THEN 3
+    WHEN '결제완료' THEN 4
+    ELSE 9
+  END AS sort_order
+FROM chit c
+WHERE com_id = #{comId}
 
-  UNION ALL
+UNION ALL
 
-  SELECT
-    i.created_date AS createdDate,
-    '' AS chitTitle,
-    i.chit_code AS parent,
-    i.chit_dt_id AS chitCode,
-    '' AS vdrCode,
-    '' AS article_code,
-    0 AS supplyPrice,
-    0 AS vatPrice,
-    0 AS totPrice,
-    i.price AS iPrice,
-    '' AS taxCode,
-    '' AS status,
-    '' AS tType,
-    '' AS deptCode,
-    '' AS phyEmpId,
-    '' AS apprEmpId,
-    i.note AS note,
-    i.acct_code AS acctCode,
-    i.type AS iType,
-    getSubCode(i.type) AS iName,
-    a.name AS aName
-  FROM indignation i
-  LEFT JOIN account a ON i.acct_code = a.acct_code
-  WHERE i.com_id = #{comId}
+SELECT
+  i.created_date AS createdDate,
+  '' AS chitTitle,
+  i.chit_code AS parent,
+  i.chit_dt_id AS chitCode,
+  '' AS vdrCode,
+  '' AS article_code,
+  0 AS supplyPrice,
+  0 AS vatPrice,
+  0 AS totPrice,
+  i.price AS iPrice,
+  '' AS taxCode,
+  '' AS status,
+  '' AS tType,
+  '' AS deptCode,
+  '' AS phyEmpId,
+  '' AS apprEmpId,
+  i.note AS note,
+  i.acct_code AS acctCode,
+  i.type AS iType,
+  getSubCode(i.type) AS iName,
+  a.name AS aName,
+  99 AS sort_order -- 자식은 가장 마지막에 오게 정렬 (혹은 부모 따라 정렬하게 할 수도 있음)
+FROM indignation i
+LEFT JOIN account a ON i.acct_code = a.acct_code
+WHERE i.com_id = #{comId}
+ORDER BY sort_order ASC, createdDate DESC
 	</select>
 
 	<select id="acctCodeFindByCode" resultType="map">
@@ -100,13 +108,13 @@
 
 
 	<insert id="insert" parameterType="ChitVO"  >
-		<selectKey resultType="string" keyProperty="chitDtId"
-			order="BEFORE">
-			SELECT 'chdt-' ||
-			(NVL(MAX(TO_NUMBER(SUBSTR(chit_dt_id,6))),100)+1) chitDtId
-			FROM indignation
-			WHERE com_id = #{comId}
-		</selectKey>
+  <selectKey resultType="string" keyProperty="chitDtId" order="BEFORE">
+    SELECT
+      #{chitCode} || '-' || LPAD(NVL(MAX(TO_NUMBER(SUBSTR(chit_dt_id, INSTR(chit_dt_id, '-', -1) + 1))), 0) + 1, 2, '0') AS chitDtId
+    FROM indignation
+    WHERE chit_code = #{chitCode}
+      AND com_id = #{comId}
+  </selectKey>
    INSERT INTO indignation (
 		  chit_dt_id
 		, chit_code
@@ -181,6 +189,7 @@ UPDATE chit
     (SELECT sub_name FROM subcodes WHERE sub_code = r.chit_type) chitType,
     (SELECT sub_name FROM subcodes WHERE sub_code = r.itp_type) itpType,
     (SELECT name FROM account a WHERE a.acct_code = r.acct_code) acctCode,
+    vat_yn,
     com_id,
     created_date,
     update_date
@@ -193,30 +202,39 @@ UPDATE chit
 MERGE INTO auto_chit_rule r
 USING (
     SELECT
+        #{ruleId} AS rule_id,
         #{chitType} AS chit_type,
         #{itpType} AS itp_type,
         #{acctCode} AS acct_code,
+        #{vatYn} AS vat_yn,
         #{comId} AS com_id
     FROM dual
 ) src
 ON (
-    r.chit_type = src.chit_type
-    AND r.itp_type = src.itp_type
-    AND r.acct_code = src.acct_code
+    r.rule_id = src.rule_id
     AND r.com_id = src.com_id
 )
 WHEN MATCHED THEN
     UPDATE SET
-        acct_code = src.acct_code -- 필요시 다른 필드도 수정 가능
+        r.chit_type = src.chit_type,
+        r.itp_type = src.itp_type,
+        r.acct_code = src.acct_code,
+        r.vat_yn = src.vat_yn,
+        r.update_date = SYSDATE
 WHEN NOT MATCHED THEN
-    INSERT (rule_id, chit_type, itp_type, acct_code, com_id)
+    INSERT (
+        rule_id, chit_type, itp_type, acct_code, vat_yn, com_id, created_date
+    )
     VALUES (
-        (SELECT 'rule' || LPAD(NVL(MAX(TO_NUMBER(SUBSTR(rule_id, 5))), 0) + 1, 2, '0') 
-         FROM auto_chit_rule WHERE com_id = #{comId}),
+        NVL(src.rule_id,
+            (SELECT 'rule' || LPAD(NVL(MAX(TO_NUMBER(SUBSTR(rule_id, 5))), 0) + 1, 2, '0')
+             FROM auto_chit_rule WHERE com_id = src.com_id)),
         src.chit_type,
         src.itp_type,
         src.acct_code,
-        src.com_id
+        src.vat_yn,
+        src.com_id,
+        SYSDATE
     )
 
 </insert>
@@ -224,6 +242,7 @@ WHEN NOT MATCHED THEN
 <delete id="deleteAutoRule">
   DELETE FROM auto_chit_rule
   WHERE rule_id = #{ruleId}
+  	
 </delete>
 
 
@@ -237,7 +256,9 @@ WHEN NOT MATCHED THEN
 </select>
 
 <select id="findIndTypeCodeByName" resultType="string">
-  SELECT sub_code FROM subcodes WHERE sub_name = #{name} and main_code = 'ind'
+  SELECT sub_code 
+    FROM subcodes 
+   WHERE sub_name = #{name} and main_code = 'itp'
 </select>
 
 <select id="findAcctCodeByName" resultType="string">

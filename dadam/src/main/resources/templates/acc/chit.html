@@ -79,62 +79,60 @@ dialog {
 	z-index: 99999 !important;
 }
 </style>
-</head>
 <body class="bg-light">
-	<div class="container-fluid mt-4">
-		<!-- 헤더 영역 -->
-		<div class="d-flex justify-content-between align-items-center mb-3">
-			<h3 class="fw-bold">전표관리</h3>
+	<div class="container-fluid mt-4" style="max-width: 1200px;">
+
+		<!-- 헤더 -->
+		<div class="d-flex justify-content-between align-items-center mb-2">
 			<div>
-				<button id="" class="btn btn-light border"
+				<h2 class="fw-bold mb-1">전표관리</h2>
+				<small class="text-muted">※ 자동분개 설정 및 컬럼설정은 오른쪽 버튼을 이용하세요</small>
+			</div>
+			<div>
+				<button class="btn btn-outline-secondary btn-sm"
 					onclick="openAutoRuleModal()">자동분개 설정 ⚙️</button>
-				<button id="columnToggleBtn" title="컬럼 설정"
-					class="btn btn-light border">컬럼설정⚙️</button>
+				<button class="btn btn-outline-secondary btn-sm"
+					id="columnToggleBtn">컬럼설정 ⚙️</button>
 			</div>
 		</div>
 
-		<!-- 버튼 영역 -->
+		<!-- 상단 조작 바 -->
 		<div class="d-flex justify-content-end flex-wrap gap-2 mb-3">
-			<button class="btn btn-primary" id="saveBtn">
+			<button class="btn btn-primary btn-sm" id="saveBtn">
 				<i class="fas fa-save"></i> 등록
 			</button>
-			<button class="btn btn-success" id="patBtn">
+			<button class="btn btn-success btn-sm" id="patBtn">
 				<i class="fas fa-credit-card"></i> 결제
 			</button>
 		</div>
 
 		<!-- 전표 그리드 -->
 		<div class="col-12">
-			<div id="chitGrid" class="mx-2"></div>
+			<div id="chitGrid" class="mx-3"></div>
 		</div>
 	</div>
 
 	<!-- 컬럼 설정 다이얼로그 -->
 	<dialog id="columnDialog">
-	<div id="columnOptions"></div>
-
-
+		<div id="columnOptions"></div>
 	</dialog>
 
-
+	<!-- 자동분개 설정 모달 -->
 	<div id="autoRuleModal">
 		<h4 class="mb-3">자동분개 설정</h4>
 		<div class="d-flex justify-content-end mb-2">
-			<button class="btn btn-outline-primary btn-sm"
-				onclick="addAutoRuleRow()">행추가</button>
+			<button class="btn btn-outline-primary btn-sm" onclick="addAutoRuleRow()">행추가</button>
 		</div>
 
-		<!-- 고정 크기 영역 -->
 		<div id="autoRuleGrid"></div>
 
 		<div class="d-flex justify-content-end gap-2 mt-3">
 			<button class="btn btn-primary btn-sm" onclick="saveAutoRules()">저장</button>
-			<button class="btn btn-secondary btn-sm"
-				onclick="hideAutoRuleModal()">닫기</button>
+			<button class="btn btn-secondary btn-sm" onclick="hideAutoRuleModal()">닫기</button>
 		</div>
 	</div>
-
 </body>
+
 <script>
 let autoRuleGrid;
 
@@ -214,6 +212,11 @@ const chtTypeEditor = createChitAutoCompleteEditor({
  displayField: 'TNAME', saveField: 'TTYPE', displayNameField: 'TNAME'
 });
 
+const vatYnEditor = createChitAutoCompleteEditor({
+	  urlBuilder: ({ keyword }) => `/erp/accounting/vatTypeFindByCode?keyword=${keyword}`,
+	  displayField: 'VATNAME', saveField: 'VAT', displayNameField: 'VATNAME'
+	});
+
 
 /** ------------------------- Grid 구성 -------------------------  */
 const chitGrid = new tui.Grid({
@@ -223,17 +226,17 @@ const chitGrid = new tui.Grid({
  editingEvent: 'click',
  treeColumnOptions: { name: 'chitTitle', useIcon: true },
  columns: [
-   { header: '등록일자', name: 'createdDate', align: 'center' },
+   { header: '등록일자', name: 'createdDate', align: 'center',width: 100 },
    { header: '전표명', name: 'chitTitle', align: 'center' },
-   { header: '거래처', name: 'vdrCode', align: 'center' },
+   { header: '거래처', name: 'vdrCode', align: 'center',width: 100 },
    { header: '거래유형', name: 'tType', align: 'center' , width: 80,},
    { header: '공급가액', name: 'supplyPrice', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '', hidden: true },
    { header: '부가세', name: 'vatPrice', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '', hidden: true },
-   { header: '총금액', name: 'totPrice', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : ''},
+   { header: '총금액', name: 'totPrice', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '',width: 100},
    { header: '세금계산서', name: 'taxCode', align: 'center', 
 	   formatter: ({ value }) => value === 'tay02' ? '<span class="grid-action">계산서 발행</span>' 
 			   				   : value === 'tay01' ? '<span class="grid-action">발행 완료</span>' : '', hidden: true  },
-   { header: '결제상태', name: 'status', align: 'center', width: 100,
+   { header: '결제상태', name: 'status', align: 'center', width: 80,
      	formatter: ({ value }) => value === '등록' ? '<span class="grid-action">등록</span>' 
      						    : value === '결제' ? '<button class="btn grid-action payCheck">결제</button>' 
      						    : value === '결제완료' ? '<span class="grid-acction">결제완료</span>' 
@@ -249,7 +252,7 @@ const chitGrid = new tui.Grid({
    { header: '승인자', name: 'apprEmpId', hidden: true },
    { header: '비고', name: 'note', hidden: true },
    {
-	   header: '분개', name: 'origin', align: 'center',
+	   header: '분개', name: 'origin', align: 'center', width: 120,
 	   formatter: ({ row }) => {
 		   const isChild = row._attributes?.tree?.parent !== undefined;
 		   const isNewRow = row.origin === true;
@@ -258,11 +261,9 @@ const chitGrid = new tui.Grid({
 		   // 자식 행이거나 신규 행이면 '추가/삭제' 버튼
 		   if (isChild || isNewRow) {
 		     return `<button class="btn btn-sm btn-primary add-btn">추가</button>
-		             <button class="btn btn-sm btn-danger del-btn">삭제</button>`;
-		   }
-
+		             <button class="btn btn-sm btn-danger del-btn">삭제</button>`;  }
 		   // 자식이 있으면 분개 버튼 숨김
-		   if (hasChildren) return ''; // ❌ 버튼 제거
+		   if (hasChildren) return '';
 
 		   // 분개 버튼 노출
 		   return '<button class="btn btn-sm btn-primary auto-btn">분개</button>';
@@ -554,14 +555,14 @@ chitGrid.on('click', (ev) => {
 	  }
 
 	  const chitType = parentRow.tType;
-	  console.log("📦 공급가액:", parentRow.supplyPrice);
+	  console.log("공급가액:", parentRow.supplyPrice);
 
 	  function getAutoPriceByVatYn(parentRow, rule) {
 	    const vatYn = rule.vatYn?.toLowerCase() || rule.VAT_YN?.toLowerCase();
 	    const priceMap = {
-	      v: parseFloat(parentRow?.vatPrice) || 0,
-	      s: parseFloat(parentRow?.supplyPrice) || 0,
-	      t: parseFloat(parentRow?.totPrice) || 0
+	      vaty1: parseFloat(parentRow?.vatPrice) || 0,
+	      vaty2: parseFloat(parentRow?.supplyPrice) || 0,
+	      vaty3: parseFloat(parentRow?.totPrice) || 0
 	    };
 	    console.log(priceMap[vatYn])
 	    console.log("rule 객체 전체:", rule);
@@ -735,7 +736,29 @@ function openAutoRuleModal() {
     	      { header: '거래유형', name: 'chitType', editor: { type: chtTypeEditor }, formatter: ({ row }) => row.TNAME ||row.chitType },
     	      { header: '차/대', name: 'itpType', editor: { type: indTypeEditor }, formatter: ({ row }) => row.INAME || row.itpType },
     	      { header: '계정코드', name: 'acctCode', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.ANAME || row.acctCode},
-    	      { header: '비고', name: 'note', editor: 'text' },
+    	      {
+    	          header: '부가세유무',
+    	          name: 'vatYn',
+    	          editor: {
+    	            type: 'select',
+    	            options: {
+    	              listItems: [
+    	                { text: '부가세', value: 'vaty1' },
+    	                { text: '공급가액', value: 'vaty2' },
+    	                { text: '총금액', value: 'vaty3' }
+    	              ]
+    	            }
+    	          },
+    	          formatter: ({ value }) => {
+    	            const map = {
+    	              vaty1: '부가세',
+    	              vaty2: '공급가액',
+    	              vaty3: '총금액'
+    	            };
+    	            return map[value] || '';
+    	          }
+    	        },
+    	      { header: '비고', name: 'note', editor : 'text' },
     	      { name: 'ANAME', hidden: true },
     	      { name: 'INAME', hidden: true },
     	      { name: 'TNAME', hidden: true },
@@ -775,6 +798,7 @@ function openAutoRuleModal() {
     	      chitType: row.chitType,
     	      itpType: row.itpType,
     	      acctCode: row.acctCode,
+    	      vatYn: row.vatYn,
     	      note: row.note
     	    }));
     	}

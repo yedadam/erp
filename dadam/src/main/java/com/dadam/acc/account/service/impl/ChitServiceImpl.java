@@ -53,6 +53,7 @@ public class ChitServiceImpl implements ChitService{
 	public List<Map<String, String>> chtTypeFindByCode(String keyword) {
 		return chitMapper.chtTypeFindByCode(keyword, comId);
 	}
+
 	
 	
 	@Override
@@ -118,25 +119,45 @@ public class ChitServiceImpl implements ChitService{
         return chitMapper.selectAutoChitRules(comId);
 	}
 	
+	private String normalizeIndType(String raw) {
+	    if (raw == null || raw.isBlank()) return null;
+	    if (raw.startsWith("itp")) return raw;
+	    if (raw.matches("^\\d{1,2}$")) return "itp" + String.format("%02d", Integer.parseInt(raw));
+	    return chitMapper.findIndTypeCodeByName(raw);
+	}
+
+	private String normalizeChitType(String raw) {
+	    if (raw == null || raw.isBlank()) return null;
+	    if (raw.startsWith("cht")) return raw;
+	    if (raw.matches("^\\d{1,2}$")) return "cht" + String.format("%02d", Integer.parseInt(raw));
+	    return chitMapper.findTypeCodeByName(raw);
+	}
+
+	private String normalizeAcctCode(String raw) {
+	    if (raw == null || raw.isBlank()) return null;
+	    if (raw.matches("^\\d+$")) return raw; // 숫자형 코드면 그대로
+	    return chitMapper.findAcctCodeByName(raw);
+	}
+
+	
 	@Override
 	public void saveAllRules(List<ChitVO> rules) {
-	    initAuthInfo(); // comId 설정 (현재 로그인 사용자 기준)
+	    initAuthInfo(); // comId 세팅
 
 	    for (ChitVO rule : rules) {
-	        // 삭제 요청인 경우 ruleId 기준 삭제
 	        if ("delete".equals(rule.getStatus())) {
 	            if (rule.getRuleId() != null) {
 	                chitMapper.deleteRule(rule.getRuleId());
 	            }
-	            continue; // 삭제는 여기서 끝
+	            continue;
 	        }
 
-	        // 생성 또는 수정 처리 (MERGE)
 	        rule.setComId(comId);
 
-	        String chitType = chitMapper.findTypeCodeByName(rule.getChitType());
-	        String itpType = chitMapper.findIndTypeCodeByName(rule.getItpType());
-	        String acctCode = chitMapper.findAcctCodeByName(rule.getAcctCode());
+	        // ✅ 여기에 정규화 삽입!
+	        String chitType = normalizeChitType(rule.getChitType());
+	        String itpType = normalizeIndType(rule.getItpType());
+	        String acctCode = normalizeAcctCode(rule.getAcctCode());
 
 	        if (chitType == null) throw new IllegalArgumentException("거래유형 코드 없음");
 	        if (itpType == null) throw new IllegalArgumentException("차/대변 코드 없음");
@@ -149,6 +170,7 @@ public class ChitServiceImpl implements ChitService{
 	        chitMapper.mergeAutoChitRule(rule);
 	    }
 	}
+
 
 
     @Override
