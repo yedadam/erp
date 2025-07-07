@@ -167,7 +167,7 @@ public class ChitServiceImpl implements ChitService{
 	        rule.setItpType(itpType);
 	        rule.setAcctCode(acctCode);
 
-	        chitMapper.mergeAutoChitRule(rule);
+	        chitMapper.insertRule(rule);
 	    }
 	}
 
@@ -176,6 +176,83 @@ public class ChitServiceImpl implements ChitService{
     @Override
     public List<Map<String, Object>> getAutoRules(String chitType, String comId) {
         return chitMapper.selectAutoRules(chitType, comId);
+    }
+
+    @Override
+    public void saveAllRulesSeparated(List<ChitVO> createdRows, List<ChitVO> updatedRows, List<ChitVO> deletedRows) {
+        initAuthInfo(); // comId 세팅
+        // [2024-07-07] 자동분개 규칙 저장 로직 Account 방식으로 리팩토링
+        // - createdRows: 신규, updatedRows: 수정, deletedRows: 삭제
+        // - MERGE 대신 insertRule, updateRule, deleteRule만 사용
+        // - ruleId가 없으면 getNextRuleId로 자동생성
+        // - 각 단계별로 진단 로그 추가
+        // 생성
+        if (createdRows != null) {
+            for (ChitVO rule : createdRows) {
+                rule.setComId(comId);
+                String chitType = normalizeChitType(rule.getChitType());
+                String itpType = normalizeIndType(rule.getItpType());
+                String acctCode = normalizeAcctCode(rule.getAcctCode());
+                if (chitType == null) throw new IllegalArgumentException("거래유형 코드 없음");
+                if (itpType == null) throw new IllegalArgumentException("차/대변 코드 없음");
+                if (acctCode == null) throw new IllegalArgumentException("계정과목 코드 없음");
+                rule.setChitType(chitType);
+                rule.setItpType(itpType);
+                rule.setAcctCode(acctCode);
+                // [2024-07-07] ruleId 자동생성 및 진단 로그
+                if (rule.getRuleId() == null || rule.getRuleId().isBlank()) {
+                    String nextRuleId = chitMapper.getNextRuleId(comId);
+                    System.out.println("[DEBUG] getNextRuleId 쿼리 결과: " + nextRuleId);
+                    if (nextRuleId == null || nextRuleId.isBlank()) {
+                        nextRuleId = "rule01";
+                    }
+                    System.out.println("[DEBUG] 최종 생성된 ruleId: " + nextRuleId);
+                    rule.setRuleId(nextRuleId);
+                }
+                System.out.println("[DEBUG] insert 전 ruleId: " + rule.getRuleId());
+                chitMapper.insertRule(rule);
+            }
+        }
+        // 수정
+        if (updatedRows != null) {
+            for (ChitVO rule : updatedRows) {
+                rule.setComId(comId);
+                String chitType = normalizeChitType(rule.getChitType());
+                String itpType = normalizeIndType(rule.getItpType());
+                String acctCode = normalizeAcctCode(rule.getAcctCode());
+                if (chitType == null) throw new IllegalArgumentException("거래유형 코드 없음");
+                if (itpType == null) throw new IllegalArgumentException("차/대변 코드 없음");
+                if (acctCode == null) throw new IllegalArgumentException("계정과목 코드 없음");
+                rule.setChitType(chitType);
+                rule.setItpType(itpType);
+                rule.setAcctCode(acctCode);
+                // [2024-07-07] ruleId가 없으면 신규로 간주하여 insert, 있으면 update
+                if (rule.getRuleId() == null || rule.getRuleId().isBlank()) {
+                    String nextRuleId = chitMapper.getNextRuleId(comId);
+                    System.out.println("[DEBUG] getNextRuleId 쿼리 결과: " + nextRuleId);
+                    if (nextRuleId == null || nextRuleId.isBlank()) {
+                        nextRuleId = "rule01";
+                    }
+                    System.out.println("[DEBUG] 최종 생성된 ruleId: " + nextRuleId);
+                    rule.setRuleId(nextRuleId);
+                    System.out.println("[DEBUG] update->insert 전 ruleId: " + rule.getRuleId());
+                    chitMapper.insertRule(rule);
+                } else {
+                    System.out.println("[DEBUG] update 전 ruleId: " + rule.getRuleId());
+                    chitMapper.updateRule(rule);
+                }
+            }
+        }
+        // 삭제
+        if (deletedRows != null) {
+            for (ChitVO rule : deletedRows) {
+                // [2024-07-07] ruleId가 있을 때만 삭제
+                if (rule.getRuleId() != null && !rule.getRuleId().isBlank()) {
+                    System.out.println("[DEBUG] delete 전 ruleId: " + rule.getRuleId());
+                    chitMapper.deleteRule(rule.getRuleId());
+                }
+            }
+        }
     }
 
 }	

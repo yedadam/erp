@@ -112,4 +112,22 @@ public class ChitRestController {
         return ResponseEntity.ok(rules);
     }
    
+    // 자동분개 규칙 일괄 저장 (Account 방식)
+    @PostMapping("/ruleSaveAll")
+    @ResponseBody
+    public Map<String, Object> saveAutoRulesAll(@RequestBody Map<String, List<ChitVO>> payload) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            List<ChitVO> createdRows = payload.get("createdRows");
+            List<ChitVO> updatedRows = payload.get("updatedRows");
+            List<ChitVO> deletedRows = payload.get("deletedRows");
+            chitService.saveAllRulesSeparated(createdRows, updatedRows, deletedRows);
+            result.put("result", "success");
+            result.put("message", "자동분개 규칙이 저장되었습니다.");
+        } catch (IllegalArgumentException e) {
+            result.put("result", "fail");
+            result.put("message", "오류: " + e.getMessage());
+        }
+        return result;
+    }
 }

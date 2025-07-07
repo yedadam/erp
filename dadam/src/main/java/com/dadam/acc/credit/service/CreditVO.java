@@ -18,9 +18,9 @@ public class CreditVO {
 	private String vdrCode;		// 거래처 코드
 	private String bizNo;		// 거래처 사업자등록번호
 	private String empId;		// 담당자
-	private int creditPeriod;	// 여신 개월수
-	private int creditPrice; 	// 여신 총 금액
-	private int creditBalPrice;	// 여신 잔액
+	private Double creditPeriod;	// 여신 개월수
+	private Double creditPrice; 	// 여신 총 금액
+	private Double creditBalPrice;	// 여신 잔액
 	private String status;		// 상태
 	
 	@JsonFormat(pattern = "yyyy-MM-dd")
@@ -28,12 +28,12 @@ public class CreditVO {
 	
 	// 여신관리 상세
 	private String articleCode; // 항목코드
-	private int totPrice; 		// 총 금액
+	private Double totPrice; 		// 총 금액
 	private String bank; 		// 은행명
 	private String acctNo;		// 계좌명
 	private String type;		// 상태
 	private String phyEmpId;	// 작성자
 	private String chitCode;	// 전표코드(수금번호)
-	private int price;
+	private Double price;
 	private String iType;
 }

@@ -804,26 +804,25 @@ function openAutoRuleModal() {
     	}
 
     function saveAutoRules() {
-    	  const rules = getAutoRulePayload();
-
-    	  if (rules.length === 0) {
-    	    alert("입력된 자동분개 규칙이 없습니다.");
-    	    return;
-    	  }
-
-    	  const hasEmpty = rules.some(rule => !rule.chitType || !rule.itpType || !rule.acctCode);
-    	  if (hasEmpty) {
-    	    alert("거래유형, 차/대, 계정코드를 모두 입력하세요.");
-    	    return;
-    	  }
-
-    	  fetch("/erp/accounting/ruleSave", {
+    	  const changes = autoRuleGrid.getModifiedRows();
+    	  const payload = {
+    	    createdRows: changes.createdRows,
+    	    updatedRows: changes.updatedRows,
+    	    deletedRows: changes.deletedRows
+    	  };
+    	  fetch("/erp/accounting/ruleSaveAll", {
     	    method: "POST",
     	    headers: { "Content-Type": "application/json" },
-    	    body: JSON.stringify(rules)
-    	  }).then(() => {
-    	    alert("자동분개 저장 완료");
-    	    hideAutoRuleModal();
+    	    body: JSON.stringify(payload)
+    	  })
+    	  .then(res => res.json())
+    	  .then(data => {
+    	    if (data.result === "success") {
+    	      alert(data.message);
+    	      hideAutoRuleModal();
+    	    } else {
+    	      alert("실패: " + data.message);
+    	    }
     	  });
     	}
 

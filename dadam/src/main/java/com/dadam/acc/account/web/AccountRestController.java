@@ -28,52 +28,50 @@ public class AccountRestController {
 	@Autowired
 	AccountService accountService;
 	
-	@GetMapping("/accFindAll")
-	public List<AccountVO> getAccFindAll(String comId) {
-	    return accountService.accFindAll(comId);  //
-	}
+    // ✅ comId를 요청 파라미터로 받는 구조 (chit처럼)
+    @GetMapping("/accFindAll")
+    public List<AccountVO> getAccFindAll() {
+        return accountService.accFindAll();
+    }
 
-	@GetMapping("/accFindByType")
-	public List<AccountVO> getAccByType(@RequestParam(required = false) String acctType) {
-	    return accountService.accFindByType(acctType);
-	}
-	
-	
-	@PostMapping("/saveAll")
-	@ResponseBody
-	public Map<String, Object> saveAccounts(@RequestBody AccountVO accountVO) {
-	    Map<String, Object> result = new HashMap<>();
-	    System.out.println(result);
+    @GetMapping("/accFindByType")
+    public List<AccountVO> getAccByType(@RequestParam(required = false) String acctType) {
+        // 로그인 정보 기반 comId 사용
+        // 서비스에서 initAuthInfo()로 comId를 얻어야 하므로, 임시로 null 전달
+        return accountService.accFindByType(acctType, null);
+    }
 
-	    try {
-	        accountService.saveAll(accountVO);
-	        result.put("result", "success");
-	        result.put("message", "저장이 완료되었습니다.  ");
-	    } catch (IllegalArgumentException e) {
-	        result.put("result", "fail");
-	        result.put("message", "유효성 오류: " + e.getMessage());
-	    }
+    // ✅ 저장은 comId 없이 요청 → ServiceImpl에서 initAuthInfo() 처리
+    @PostMapping("/saveAll")
+    @ResponseBody
+    public Map<String, Object> saveAccounts(@RequestBody AccountVO accountVO) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            accountService.saveAll(accountVO);
+            result.put("result", "success");
+            result.put("message", "저장이 완료되었습니다.");
+        } catch (IllegalArgumentException e) {
+            result.put("result", "fail");
+            result.put("message", "유효성 오류: " + e.getMessage());
+        }
+        return result;
+    }
 
-	    return result;
-	}
-	
-	// 대분류 자동완성 코드 조회
-	@GetMapping("/api/account/type")
-	public List<String> getAcctTypes() {
-	    return accountService.getAcctTypes();  // ["자산", "부채", "자본", ...]
-	}
-	
-	// 중분류 자동완성 코드 조회
-	@GetMapping("/api/account/class")
-	public List<String> getAcctClasses(@RequestParam String typeCode) {
-		System.out.println("중분류 전달값" + typeCode);
-	    return accountService.getAcctClasses(typeCode);
-	}
-	
-	// 소분류 자동완성 코드 조회
-	@GetMapping("/api/account/subclass")
-	public List<String> getAcctSubClasses(@RequestParam String classCode) {
-		System.out.println("소분류 전달값" + classCode);
-	    return accountService.getAcctSubClasses(classCode);
-	}
+    // 자동완성 관련: comId 없이 처리 가능
+    @GetMapping("/api/account/type")
+    public List<String> getAcctTypes() {
+        return accountService.getAcctTypes();
+    }
+
+    @GetMapping("/api/account/class")
+    public List<String> getAcctClasses(@RequestParam String typeCode) {
+        System.out.println("중분류 전달값: " + typeCode);
+        return accountService.getAcctClasses(typeCode);
+    }
+
+    @GetMapping("/api/account/subclass")
+    public List<String> getAcctSubClasses(@RequestParam String classCode) {
+        System.out.println("소분류 전달값: " + classCode);
+        return accountService.getAcctSubClasses(classCode);
+    }
 }
