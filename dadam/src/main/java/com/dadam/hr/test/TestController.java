@@ -7,13 +7,12 @@ import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.dadam.hr.emp.service.EmpService;
 import com.dadam.hr.attendance.service.AttendanceService;
@@ -27,8 +26,8 @@ import com.dadam.hr.integration.service.IntegrationService;
  * - 급여 관리 기능 테스트
  * - 권한별 기능 제어 테스트
  */
-@Controller
-@RequestMapping("/erp/hr/test")
+@RestController
+@RequestMapping("/erp/hr")
 public class TestController {
     
     @Autowired
@@ -42,24 +41,6 @@ public class TestController {
     
     @Autowired
     private IntegrationService integrationService;
-    
-    /**
-     * 테스트 메인 페이지
-     */
-    @GetMapping("/main")
-    public String testMain(HttpSession session, Model model) {
-        String comId = (String) session.getAttribute("comId");
-        String authority = (String) session.getAttribute("authority");
-        if (authority == null) {
-            session.setAttribute("authority", "ADMIN");
-            authority = "ADMIN";
-        }
-        System.out.println("테스트 진입 시 세션 권한: " + authority);
-        if (!"ADMIN".equals(authority)) {
-            return "redirect:/error/403";
-        }
-        return "hr/test/main";
-    }
     
     /**
      * 사원 관리 기능 테스트 (Ajax)

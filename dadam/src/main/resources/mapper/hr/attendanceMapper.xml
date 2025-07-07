@@ -88,7 +88,7 @@
     <!-- [IP 검증] 요청 IP가 허용된 IP인지 검증 -->
     <select id="validateIp" parameterType="map" resultType="boolean">
         SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
-        FROM attendance_ip ai
+        FROM ATTENDANCEALLOWEDIP ai
         WHERE ai.com_id = #{comId}
           AND ai.ip_address = #{requestIp}
           AND ai.acct_yn = 'Y'

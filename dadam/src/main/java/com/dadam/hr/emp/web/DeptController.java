@@ -12,19 +12,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.dadam.security.service.LoginUserAuthority;
 import com.dadam.security.service.LoginMainAuthority;
+import com.dadam.hr.emp.service.OrgNode;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * 부서 관리 API 컨트롤러
- * - 권한별 기능 제어: 부서 등록/수정/삭제는 관리자만 가능
- * - 부서별 데이터 접근: 본인 부서만 조회 가능 (일반 사용자)
+ * 부서 관리 컨트롤러
+ * - 부서 등록/수정/삭제, 목록 등 담당
  */
 @RestController
 @RequestMapping("/erp/hr")
 public class DeptController {
 
+    /** 부서 서비스 */
     private final DeptService deptService;
 
     public DeptController(DeptService deptService) {
@@ -32,8 +33,8 @@ public class DeptController {
     }
 
     /**
-     * 현재 사용자의 권한 정보를 가져오는 메서드
-     * @return 권한 정보 (comId, deptCode, authority)
+     * 현재 로그인 사용자 권한 정보 조회
+     * @return 권한 정보 Map
      */
     private java.util.Map<String, String> getCurrentUserInfo() {
         java.util.Map<String, String> userInfo = new java.util.HashMap<>();
@@ -59,8 +60,8 @@ public class DeptController {
     }
 
     /**
-     * 관리자 권한 확인
-     * @return 관리자 여부
+     * 관리자 권한 여부 확인
+     * @return 관리자 여부(Y/N)
      */
     private boolean isAdmin() {
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
@@ -69,78 +70,84 @@ public class DeptController {
     }
 
     /**
-     * 부서 목록 조회 (권한별 필터링)
+     * 부서 목록 조회
      * @return 부서 리스트
      */
     @GetMapping("/dept")
     public List<DeptVO> getDeptList() {
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
-        
         // 관리자가 아닌 경우 본인 부서만 조회 가능
         if (!isAdmin()) {
-            DeptVO userDept = deptService.findDepartmentByCode(userInfo.get("deptCode"));
+            DeptVO userDept = deptService.getDeptDetail(userInfo.get("deptCode"), userInfo.get("comId"));
             List<DeptVO> result = new java.util.ArrayList<>();
             if (userDept != null) {
                 result.add(userDept);
             }
             return result;
         }
-        
-        return deptService.findAllDepartments();
+        return deptService.getDeptList();
     }
 
     /**
-     * 부서 등록 (관리자만 가능)
-     * @param dept - 부서 정보
+     * 부서 등록
+     * @param dept 부서 정보
      * @return 등록 결과
      */
     @PostMapping("/deptInsert")
-    public String insertDept(@RequestBody DeptVO dept) {
-        // 관리자 권한 확인
+    public Map<String, Object> insertDept(@RequestBody DeptVO dept) {
+        Map<String, Object> result = new java.util.HashMap<>();
         if (!isAdmin()) {
-            return "unauthorized";
+            result.put("success", false);
+            result.put("message", "권한 없음");
+            return result;
         }
-        
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
         dept.setComId(userInfo.get("comId"));
-        
-        int result = deptService.insertDepartment(dept);
-        return result > 0 ? "ok" : "fail";
+        boolean insertResult = deptService.insertDept(dept);
+        result.put("success", insertResult);
+        result.put("message", insertResult ? "등록 성공" : "등록 실패");
+        return result;
     }
 
     /**
-     * 부서 수정 (관리자만 가능)
-     * @param dept - 부서 정보
+     * 부서 수정
+     * @param dept 부서 정보
      * @return 수정 결과
      */
     @PostMapping("/deptUpdate")
-    public String updateDept(@RequestBody DeptVO dept) {
-        // 관리자 권한 확인
+    public Map<String, Object> updateDept(@RequestBody DeptVO dept) {
+        Map<String, Object> result = new java.util.HashMap<>();
         if (!isAdmin()) {
-            return "unauthorized";
+            result.put("success", false);
+            result.put("message", "권한 없음");
+            return result;
         }
-        
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
         dept.setComId(userInfo.get("comId"));
-        
-        int result = deptService.updateDepartment(dept);
-        return result > 0 ? "ok" : "fail";
+        boolean updateResult = deptService.updateDept(dept);
+        result.put("success", updateResult);
+        result.put("message", updateResult ? "수정 성공" : "수정 실패");
+        return result;
     }
 
     /**
-     * 부서 삭제 (관리자만 가능)
-     * @param param - 부서코드
+     * 부서 삭제
+     * @param param 부서코드
      * @return 삭제 결과
      */
     @PostMapping("/deptDelete")
-    public String deleteDept(@RequestBody Map<String, String> param) {
-        // 관리자 권한 확인
+    public Map<String, Object> deleteDept(@RequestBody Map<String, String> param) {
+        Map<String, Object> result = new java.util.HashMap<>();
         if (!isAdmin()) {
-            return "unauthorized";
+            result.put("success", false);
+            result.put("message", "권한 없음");
+            return result;
         }
-        
-        int result = deptService.deleteDepartment(param.get("deptCode"));
-        return result > 0 ? "ok" : "fail";
+        java.util.Map<String, String> userInfo = getCurrentUserInfo();
+        boolean deleteResult = deptService.deleteDept(param.get("deptCode"), userInfo.get("comId"));
+        result.put("success", deleteResult);
+        result.put("message", deleteResult ? "삭제 성공" : "삭제 실패");
+        return result;
     }
 
     /**
@@ -151,13 +158,11 @@ public class DeptController {
     @GetMapping("/deptDetail")
     public DeptVO getDeptDetail(@RequestParam String deptCode) {
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
-        
         // 관리자가 아닌 경우 본인 부서만 조회 가능
         if (!isAdmin() && !deptCode.equals(userInfo.get("deptCode"))) {
             return null; // 권한 없음
         }
-        
-        return deptService.findDepartmentByCode(deptCode);
+        return deptService.getDeptDetail(deptCode, userInfo.get("comId"));
     }
 
     /**
@@ -165,12 +170,11 @@ public class DeptController {
      * @return 조직도 트리 데이터
      */
     @GetMapping("/orgTree")
-    public List<DeptVO> getOrgTree() {
+    public OrgNode getOrgTree() {
         // 관리자 권한 확인
         if (!isAdmin()) {
             return null;
         }
-        
-        return deptService.findAllDepartments(); // 트리 구조는 Service에서 처리
+        return deptService.getOrgTree();
     }
 } 

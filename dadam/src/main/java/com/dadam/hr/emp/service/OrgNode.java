@@ -4,7 +4,8 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 조직 트리 노드 VO
+ * 조직도 노드 VO
+ * - 조직 트리 구조 표현
  */
 @Data
 public class OrgNode {

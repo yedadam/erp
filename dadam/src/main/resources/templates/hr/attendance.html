@@ -581,25 +581,25 @@
                     actualStartTime: now.toISOString()
                 }),
                 success: function(response) {
-                    if (response === 'ok') {
+                    if (response.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: '출근 기록',
+                            title: response.message || '출근 기록',
                             text: '오늘 출근이 정상적으로 기록되었습니다.',
                             confirmButtonText: '확인'
                         });
-                        loadAttendanceData(); // 데이터 새로고침
-                    } else if (response === 'duplicate') {
+                        loadAttendanceData();
+                    } else if (response.duplicate) {
                         Swal.fire({
                             icon: 'warning',
-                            title: '중복 출근',
+                            title: response.message || '중복 출근',
                             text: '오늘 이미 출근 기록이 있습니다.',
                             confirmButtonText: '확인'
                         });
                     } else {
                         Swal.fire({
                             icon: 'error',
-                            title: '출근 실패',
+                            title: response.message || '출근 실패',
                             text: '출근 기록 중 오류가 발생했습니다.',
                             confirmButtonText: '확인'
                         });
@@ -632,25 +632,25 @@
                     actualEndTime: now.toISOString()
                 }),
                 success: function(response) {
-                    if (response === 'ok') {
+                    if (response.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: '퇴근 기록',
+                            title: response.message || '퇴근 기록',
                             text: '오늘 퇴근이 정상적으로 기록되었습니다.',
                             confirmButtonText: '확인'
                         });
-                        loadAttendanceData(); // 데이터 새로고침
-                    } else if (response === 'duplicate') {
+                        loadAttendanceData();
+                    } else if (response.duplicate) {
                         Swal.fire({
                             icon: 'warning',
-                            title: '중복 퇴근',
+                            title: response.message || '중복 퇴근',
                             text: '오늘 이미 퇴근 기록이 있습니다.',
                             confirmButtonText: '확인'
                         });
                     } else {
                         Swal.fire({
                             icon: 'error',
-                            title: '퇴근 실패',
+                            title: response.message || '퇴근 실패',
                             text: '퇴근 기록 중 오류가 발생했습니다.',
                             confirmButtonText: '확인'
                         });
@@ -741,12 +741,12 @@
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function(resp) {
-                    if (resp === 'ok') {
-                        Swal.fire({ icon: 'success', title: '신청 완료', text: '연차/휴가가 신청되었습니다.' });
+                    if (resp.success) {
+                        Swal.fire({ icon: 'success', title: resp.message || '신청 완료', text: '연차/휴가가 신청되었습니다.' });
                         $('#leaveModal').modal('hide');
                         loadLeaveData();
                     } else {
-                        Swal.fire({ icon: 'error', title: '신청 실패', text: '신청 처리 중 오류가 발생했습니다.' });
+                        Swal.fire({ icon: 'error', title: resp.message || '신청 실패', text: '신청 처리 중 오류가 발생했습니다.' });
                     }
                 },
                 error: function() {

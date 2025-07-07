@@ -16,8 +16,8 @@ public class SalaryStatementServiceImpl implements SalaryStatementService {
     private SalaryStatementMapper salaryStatementMapper;
 
     @Override
-    public List<SalaryStatementVO> getSalaryStatementList() {
-        return salaryStatementMapper.selectSalaryStatementList();
+    public List<SalaryStatementVO> getSalaryStatementList(String empId, String comId) {
+        return salaryStatementMapper.selectSalaryStatementList(empId, comId);
     }
     @Override
     public SalaryStatementVO getSalaryStatementById(Long id) {

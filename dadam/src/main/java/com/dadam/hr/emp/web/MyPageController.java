@@ -28,16 +28,21 @@ import com.dadam.security.service.LoginMainAuthority;
 
 import jakarta.servlet.http.HttpSession;
 
+/**
+ * 마이페이지 컨트롤러
+ * - 내 정보 조회/수정, 프로필 이미지 등 담당
+ */
 @Controller
 @RequestMapping("/erp/hr")
 public class MyPageController {
 
+    /** 사원 서비스 */
     @Autowired
     private EmpService empService;
 
     /**
-     * 현재 사용자의 권한 정보를 가져오는 메서드
-     * @return 권한 정보 (comId, deptCode, authority, empId)
+     * 현재 로그인 사용자 권한 정보 조회
+     * @return 권한 정보 Map
      */
     private Map<String, String> getCurrentUserInfo() {
         Map<String, String> userInfo = new HashMap<>();
@@ -68,7 +73,10 @@ public class MyPageController {
     }
 
     /**
-     * 마이페이지 화면
+     * 마이페이지 화면 반환
+     * @param model 뷰 모델
+     * @param session 세션
+     * @return 마이페이지 뷰
      */
     @GetMapping("/mypage")
     public String mypage(Model model, HttpSession session) {
@@ -97,7 +105,7 @@ public class MyPageController {
                 model.addAttribute("isAdmin", true);
             } else {
                 // 일반 사용자 정보 조회
-                EmpVO user = empService.findEmpDetail(empId);
+                EmpVO user = empService.getEmpDetail(empId);
                 if (user != null) {
                     model.addAttribute("user", user);
                 } else {
@@ -128,6 +136,13 @@ public class MyPageController {
 
     /**
      * 프로필 업데이트 API
+     * @param profileImage 프로필 이미지
+     * @param tel 연락처
+     * @param email 이메일
+     * @param addr 주소
+     * @param addrDetail 상세주소
+     * @param session 세션
+     * @return 성공/실패 메시지
      */
     @PostMapping("/api/mypage/update")
     @ResponseBody
@@ -153,7 +168,7 @@ public class MyPageController {
             }
 
             // 사용자 정보 조회
-            EmpVO user = empService.findEmpDetail(empId);
+            EmpVO user = empService.getEmpDetail(empId);
             if (user == null) {
                 response.put("success", false);
                 response.put("message", "사용자 정보를 찾을 수 없습니다.");
@@ -176,9 +191,9 @@ public class MyPageController {
             user.setAddrDetail(addrDetail);
 
             // 데이터베이스 업데이트
-            int updateResult = empService.updateEmp(user);
+            boolean updateResult = empService.updateEmp(user);
             
-            if (updateResult > 0) {
+            if (updateResult) {
                 response.put("success", true);
                 response.put("message", "프로필이 성공적으로 업데이트되었습니다.");
                 if (profileImageName != null) {
@@ -200,6 +215,9 @@ public class MyPageController {
 
     /**
      * 프로필 이미지 업로드
+     * @param file 이미지 파일
+     * @param empId 사원번호
+     * @return 파일명
      */
     private String uploadProfileImage(MultipartFile file, String empId) {
         try {
@@ -233,6 +251,8 @@ public class MyPageController {
 
     /**
      * 사용자 정보 조회 API
+     * @param session 세션
+     * @return 사용자 정보/성공여부
      */
     @GetMapping("/api/mypage/user")
     @ResponseBody
@@ -250,7 +270,7 @@ public class MyPageController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            EmpVO user = empService.findEmpDetail(empId);
+            EmpVO user = empService.getEmpDetail(empId);
             if (user != null) {
                 response.put("success", true);
                 response.put("user", user);

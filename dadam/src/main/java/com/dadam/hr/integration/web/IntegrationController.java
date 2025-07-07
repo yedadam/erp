@@ -18,23 +18,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.dadam.hr.integration.service.IntegrationService;
 
 /**
- * 통합 연동 컨트롤러
- * - 시스템 상태 확인
- * - 데이터 연동 검증
- * - 통합 테스트
- * - 대시보드 및 통계
+ * 통합 관리 컨트롤러
+ * - 인사/근태/급여 등 통합 기능 담당
  */
 @Controller
-@RequestMapping("/erp/hr/integration")
+@RequestMapping("/erp/hr")
 public class IntegrationController {
     
+    /** 통합 서비스 */
     @Autowired
     private IntegrationService integrationService;
     
     /**
      * 통합 관리 메인 페이지
      */
-    @GetMapping("/main")
+    @GetMapping("/integration")
     public String integrationMain(HttpSession session, Model model) {
         String comId = (String) session.getAttribute("comId");
         String authority = (String) session.getAttribute("authority");

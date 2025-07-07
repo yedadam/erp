@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.dadam.hr.emp.service.DeptService;
 import com.dadam.hr.emp.service.EmpService;
@@ -33,16 +34,20 @@ import com.dadam.security.service.LoginMainAuthority;
 // - 사원 전체조회, 상세조회, 등록, 수정, 삭제, 사번생성 등
 // - /erp/hr/emp-all, /erp/hr/empList 등 매핑
 // - 부서 목록 조회(등록/수정 폼용)
-@Controller
+
+@RestController
 @RequestMapping("/erp/hr")
 public class EmpController {
 
+    /** 사원 서비스 */
     @Autowired
     private EmpService empService;
 
+    /** 부서 서비스 */
     @Autowired
     private DeptService deptService;
 
+    /** 코드 서비스 */
     @Autowired
     private CodeService codeService;
 
@@ -84,25 +89,6 @@ public class EmpController {
     }
 
     /**
-     * 사원 목록 페이지 이동
-     * @param model - 뷰 모델
-     * @return 사원 목록 뷰
-     */
-    @GetMapping("/emp")
-    public String empPage(Model model) {
-        java.util.Map<String, String> userInfo = getCurrentUserInfo();
-        
-        model.addAttribute("departments", deptService.findAllDepartments());
-        model.addAttribute("positions", codeService.getCodeMap("pos"));
-        model.addAttribute("workTypes", codeService.getCodeMap("emp"));
-        model.addAttribute("empStatuses", codeService.getCodeMap("stt"));
-        model.addAttribute("isAdmin", isAdmin());
-        model.addAttribute("userDeptCode", userInfo.get("deptCode"));
-        
-        return "hr/emplist";
-    }
-
-    /**
      * 사원 목록 조회 (권한별 필터링)
      * @param keyword - 검색어
      * @param status - 재직상태
@@ -115,13 +101,11 @@ public class EmpController {
                                @RequestParam(required = false) String status,
                                @RequestParam(required = false) String dept) {
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
-        
         // 관리자가 아닌 경우 본인 부서만 조회 가능
         if (!isAdmin()) {
             dept = userInfo.get("deptCode");
         }
-        
-        return empService.findEmpList(keyword, status, dept);
+        return empService.getEmpList(keyword, status, dept);
     }
 
     /**
@@ -133,13 +117,11 @@ public class EmpController {
     @ResponseBody
     public EmpVO empDetail(@RequestParam String empId) {
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
-        
         // 관리자가 아닌 경우 본인 정보만 조회 가능
         if (!isAdmin() && !empId.equals(userInfo.get("empId"))) {
             return null; // 권한 없음
         }
-        
-        return empService.findEmpDetail(empId);
+        return empService.getEmpDetail(empId);
     }
 
     /**
@@ -155,20 +137,17 @@ public class EmpController {
         if (!isAdmin()) {
             return "unauthorized";
         }
-        
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
         empVO.setComId(userInfo.get("comId"));
         empVO.setPwd("init");
-        
         if (profileImg != null && !profileImg.isEmpty()) {
             empVO.setProfileImgPath(saveProfileImage(profileImg));
         }
         if (empVO.getEmpId() == null || empVO.getEmpId().isEmpty()) {
             empVO.setEmpId(generateNextEmpId());
         }
-        
-        int result = empService.insertEmp(empVO);
-        return result > 0 ? "ok" : "fail";
+        boolean result = empService.insertEmp(empVO);
+        return result ? "ok" : "fail";
     }
 
     /**
@@ -181,18 +160,15 @@ public class EmpController {
     @ResponseBody
     public String updateEmp(@ModelAttribute EmpVO empVO, @RequestParam(value = "profileImg", required = false) MultipartFile profileImg) {
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
-        
         // 관리자가 아니고 본인이 아닌 경우 수정 불가
         if (!isAdmin() && !empVO.getEmpId().equals(userInfo.get("empId"))) {
             return "unauthorized";
         }
-        
         if (profileImg != null && !profileImg.isEmpty()) {
             empVO.setProfileImgPath(saveProfileImage(profileImg));
         }
-        
-        int result = empService.updateEmp(empVO);
-        return result > 0 ? "ok" : "fail";
+        boolean result = empService.updateEmp(empVO);
+        return result ? "ok" : "fail";
     }
 
     /**
@@ -207,12 +183,10 @@ public class EmpController {
         if (!isAdmin()) {
             return "unauthorized";
         }
-        
         String empId = param.get("empId");
         if (empId == null || empId.isEmpty()) return "fail";
-        
-        int result = empService.deleteEmp(empId);
-        return result > 0 ? "ok" : "fail";
+        boolean result = empService.deleteEmp(empId);
+        return result ? "ok" : "fail";
     }
 
     /**
@@ -226,18 +200,15 @@ public class EmpController {
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
         String empId = param.get("empId");
         String newPassword = param.get("newPassword");
-        
         // 본인만 비밀번호 변경 가능
         if (!empId.equals(userInfo.get("empId"))) {
             return "unauthorized";
         }
-        
         EmpVO empVO = new EmpVO();
         empVO.setEmpId(empId);
         empVO.setPwd(newPassword);
-        
-        int result = empService.updateEmp(empVO);
-        return result > 0 ? "ok" : "fail";
+        boolean result = empService.updateEmp(empVO);
+        return result ? "ok" : "fail";
     }
 
     /**
@@ -340,15 +311,6 @@ public class EmpController {
     @GetMapping("/dept-list")
     public String deptListPage() {
         return "hr/dept";
-    }
-
-    /**
-     * 조직도 페이지 이동
-     * @return 조직도 뷰
-     */
-    @GetMapping("/org-tree")
-    public String orgTreeFinalPage() {
-        return "hr/org-tree-final";
     }
 
     /**

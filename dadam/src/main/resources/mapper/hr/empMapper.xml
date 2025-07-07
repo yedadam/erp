@@ -188,4 +188,17 @@
 		AND (annual_leave_total - annual_leave_used) >= #{usedDays}
 	</update>
 
+	<!-- [자동 추가] 사원 상세 조회 (selectEmpDetail) -->
+	<select id="selectEmpDetail" parameterType="string" resultType="EmpVO">
+		SELECT e.emp_id, e.com_id, e.dept_code, getDeptName(e.dept_code) AS dept_name, e.pwd, getEmpName(e.emp_id, e.com_id) AS emp_name,
+		e.email, e.tel, e.addr, e.addr_detail AS addrDetail, e.hire_date, e.position, e.resign_date,
+		e.emp_status, e.work_type, e.resign_reason,
+		e.sal, e.bank, e.acct_no, e.birth_date, e.profile_img_path, e.note,
+		e.annual_leave_total AS annualLeaveTotal,
+		e.annual_leave_used AS annualLeaveUsed,
+		(e.annual_leave_total - e.annual_leave_used) AS annualLeaveRemain
+		FROM employees e
+		WHERE e.emp_id = #{empId}
+	</select>
+
 </mapper>
