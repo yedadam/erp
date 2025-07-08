@@ -38,7 +38,7 @@ public class EmpViewController {
     
 
     
-    @GetMapping("/deptList")
+    @GetMapping({"/deptList", "/deptlist"})
     public String deptListPage() {
         return "hr/deptlist";
     }

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/default_layout}"
+      layout:fragment="Content"
+      lang="ko">
+<head>
+    <title>소상공인 ERP - 급여관리</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tui-grid/4.21.17/tui-grid.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        .dashboard-container {
+            max-width: 90vw;
+            margin: 40px auto;
+            padding: 32px 40px;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 32px rgba(102,126,234,0.08);
+        }
+        .dashboard-header {
+            background: linear-gradient(90deg, #7b8cff 0%, #8f6ed5 100%);
+            color: #fff;
+            padding: 24px 32px 16px 32px;
+            border-radius: 16px 16px 0 0;
+            margin-bottom: 32px;
+        }
+        .dashboard-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .dashboard-header .nav-breadcrumb {
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+        .summary-cards {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .summary-card {
+            flex: 1;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.06);
+        }
+        .summary-card h3 {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        .summary-card .amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+        }
+        .filter-panel {
+            background: #f5f7fa;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 24px;
+            align-items: flex-end;
+        }
+        .filter-panel .form-group {
+            margin-bottom: 0;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .tui-grid-container {
+            margin-bottom: 32px;
+        }
+        .badge-status {
+            font-size: 0.95em;
+            padding: 4px 14px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .badge-paid { background: #4caf50; color: #fff; }
+        .badge-pending { background: #ffb300; color: #fff; }
+        .badge-error { background: #e57373; color: #fff; }
+        .swal2-popup { font-size: 1.1rem !important; }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width:1400px; margin:0 auto; padding:20px;">
+        <!-- 헤더 -->
+        <div class="header" style="background:white; border-radius:12px; padding:20px 30px; margin-bottom:24px; box-shadow:0 2px 10px rgba(0,0,0,0.1); display:flex; justify-content:space-between; align-items:center;">
+            <h1 style="font-size:28px; font-weight:700; color:#1d1d1f;">급여관리</h1>
+            <div class="header-actions" style="display:flex; gap:12px;">
+                <button class="btn btn-secondary" id="exportPayrollBtn">📊 급여대장 내보내기</button>
+                <button class="btn btn-primary" id="addPayrollBtn">➕ 급여 생성</button>
+            </div>
+        </div>
+        <!-- 통계 카드 -->
+        <div class="stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; margin-bottom:30px;">
+            <div class="stat-card" style="background:white; border-radius:12px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="font-size:14px; color:#666; margin-bottom:8px; font-weight:500;">이번 달 총 급여</h3>
+                <div class="value" id="totalPay" style="font-size:28px; font-weight:700; color:#1d1d1f; margin-bottom:8px;">₩45,600,000</div>
+                <div class="change" style="font-size:12px; color:#34C759; font-weight:500;">+5.2% 전월 대비</div>
+            </div>
+            <div class="stat-card" style="background:white; border-radius:12px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="font-size:14px; color:#666; margin-bottom:8px; font-weight:500;">지급 완료</h3>
+                <div class="value" id="paidCount" style="font-size:28px; font-weight:700; color:#1d1d1f; margin-bottom:8px;">23명</div>
+                <div class="change" style="font-size:12px; color:#34C759; font-weight:500;">전체 대상자 25명 중</div>
+            </div>
+            <div class="stat-card" style="background:white; border-radius:12px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="font-size:14px; color:#666; margin-bottom:8px; font-weight:500;">미지급</h3>
+                <div class="value" id="unpaidCount" style="font-size:28px; font-weight:700; color:#1d1d1f; margin-bottom:8px;">2명</div>
+                <div class="change" style="font-size:12px; color:#34C759; font-weight:500;">조속한 처리 필요</div>
+            </div>
+            <div class="stat-card" style="background:white; border-radius:12px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="font-size:14px; color:#666; margin-bottom:8px; font-weight:500;">평균 급여</h3>
+                <div class="value" id="avgPay" style="font-size:28px; font-weight:700; color:#1d1d1f; margin-bottom:8px;">₩1,824,000</div>
+                <div class="change" style="font-size:12px; color:#34C759; font-weight:500;">+2.1% 전월 대비</div>
+            </div>
+        </div>
+        <!-- 필터 섹션 -->
+        <div class="filter-section" style="background:white; border-radius:12px; padding:24px; margin-bottom:24px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+            <div class="filter-row d-flex align-items-center flex-wrap gap-3">
+                <div class="filter-group">
+                    <label>기간</label>
+                    <select class="form-select" id="payroll-month" style="min-width:120px;">
+                        <option value="2024-12">2024년 12월</option>
+                        <option value="2024-11">2024년 11월</option>
+                        <option value="2024-10">2024년 10월</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>부서</label>
+                    <select class="form-select" id="department" style="min-width:100px;">
+                        <option value="all">전체</option>
+                        <option value="dev">개발팀</option>
+                        <option value="sales">영업팀</option>
+                        <option value="admin">관리팀</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>상태</label>
+                    <select class="form-select" id="status" style="min-width:100px;">
+                        <option value="all">전체</option>
+                        <option value="paid">지급완료</option>
+                        <option value="approved">승인</option>
+                        <option value="pending">대기</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>직원명</label>
+                    <input type="text" class="form-control" id="searchInput" placeholder="직원명 검색" style="min-width:180px;">
+                </div>
+                <div class="filter-group align-self-end">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" id="searchBtn" style="min-width:60px;">검색</button>
+                </div>
+            </div>
+        </div>
+        <!-- 급여 목록 + Toast UI Grid -->
+        <div class="table-container" style="background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+            <div class="table-header" style="padding:20px 24px; border-bottom:1px solid #e5e5e7; display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="font-size:20px; font-weight:600; color:#1d1d1f;">급여 목록</h2>
+                <div class="table-actions" style="display:flex; gap:12px;">
+                    <button class="btn btn-secondary btn-small" id="bulkApproveBtn">일괄 승인</button>
+                    <button class="btn btn-secondary btn-small" id="bulkPayBtn">일괄 지급</button>
+                </div>
+            </div>
+            <div id="payrollGrid" class="tui-grid-container"></div>
+        </div>
+        <!-- 페이지네이션은 Toast UI Grid 내장 사용 -->
+    </div>
+    <!-- Toast UI Grid, SweetAlert2, Bootstrap 등 스크립트는 기존과 동일하게 유지 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tui-grid/4.21.17/tui-grid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+const payrollData = [
+  { no: 1, empName: '김현수', dept: '개발팀', position: '시니어 개발자', month: '2024-12', baseSalary: 4500000, allowance: 300000, deduction: 450000, netPay: 4350000, status: '지급완료', payDate: '2024-12-25' },
+  { no: 2, empName: '이영희', dept: '영업팀', position: '영업 팀장', month: '2024-12', baseSalary: 5000000, allowance: 500000, deduction: 550000, netPay: 4950000, status: '승인', payDate: '-' },
+  { no: 3, empName: '박민수', dept: '관리팀', position: '사원', month: '2024-12', baseSalary: 3000000, allowance: 200000, deduction: 320000, netPay: 2880000, status: '대기', payDate: '-' },
+  { no: 4, empName: '정수빈', dept: '개발팀', position: '주니어 개발자', month: '2024-12', baseSalary: 3500000, allowance: 150000, deduction: 350000, netPay: 3300000, status: '대기', payDate: '-' },
+  { no: 5, empName: '최영수', dept: '영업팀', position: '사원', month: '2024-12', baseSalary: 3200000, allowance: 250000, deduction: 345000, netPay: 3105000, status: '대기', payDate: '-' }
+];
+
+function renderStatusBadge(status) {
+  if(status === '지급완료') return '<span style="background:#e6f4ea;color:#1a7f37;padding:4px 14px;border-radius:12px;font-size:13px;font-weight:600;">지급완료</span>';
+  if(status === '승인') return '<span style="background:#e6f4fa;color:#1a7f37;padding:4px 14px;border-radius:12px;font-size:13px;font-weight:600;">승인</span>';
+  if(status === '대기') return '<span style="background:#faeaea;color:#d93025;padding:4px 14px;border-radius:12px;font-size:13px;font-weight:600;">대기</span>';
+  return status;
+}
+
+const grid = new tui.Grid({
+  el: document.getElementById('payrollGrid'),
+  data: payrollData,
+  rowHeaders: ['checkbox'],
+  scrollX: false,
+  scrollY: true,
+  minBodyHeight: 350,
+  columns: [
+    { header: 'No.', name: 'no', width: 50, align: 'center' },
+    { header: '직원명', name: 'empName', width: 100, align: 'center' },
+    { header: '부서', name: 'dept', width: 100, align: 'center' },
+    { header: '직급', name: 'position', width: 120, align: 'center' },
+    { header: '급여월', name: 'month', width: 90, align: 'center' },
+    { header: '기본급', name: 'baseSalary', width: 110, align: 'right', formatter: ({value}) => value.toLocaleString()+'원' },
+    { header: '수당', name: 'allowance', width: 90, align: 'right', formatter: ({value}) => value.toLocaleString()+'원' },
+    { header: '공제액', name: 'deduction', width: 100, align: 'right', formatter: ({value}) => value.toLocaleString()+'원' },
+    { header: '실지급액', name: 'netPay', width: 120, align: 'right', formatter: ({value}) => '<b>'+value.toLocaleString()+'원</b>' },
+    { header: '상태', name: 'status', width: 90, align: 'center', formatter: ({value}) => renderStatusBadge(value) },
+    { header: '지급일', name: 'payDate', width: 100, align: 'center' },
+    { header: '관리', name: 'actions', width: 120, align: 'center',
+      renderer: {
+        type: 'html',
+        options: {
+          html: (props) => {
+            return `<button class='btn btn-primary btn-sm' style='font-size:13px;padding:4px 12px;margin-right:4px;'>수정</button><button class='btn btn-secondary btn-sm' style='font-size:13px;padding:4px 12px;background:#f5f6fa;color:#333;border:none;'>삭제</button>`;
+          }
+        }
+      }
+    }
+  ],
+  pageOptions: { useClient: true, perPage: 10 }
+});
+    </script>
+</body>
+</html> 

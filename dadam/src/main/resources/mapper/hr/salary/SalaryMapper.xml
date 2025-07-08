@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.hr.salary.mapper.SalaryMapper">
 
-    <!-- 급여 명세서 목록 조회 -->
+    <!-- [급여명세서 목록 조회] 급여 리스트 조회 -->
     <select id="selectSalaryList" parameterType="map" resultType="map">
         SELECT 
             s.salary_id,
@@ -34,7 +34,7 @@
         LIMIT #{offset}, #{limit}
     </select>
 
-    <!-- 급여 명세서 상세 조회 -->
+    <!-- [급여명세서 상세 조회] 급여 상세정보 조회 -->
     <select id="selectSalaryDetail" parameterType="long" resultType="map">
         SELECT 
             s.salary_id,
@@ -58,7 +58,7 @@
         WHERE s.salary_id = #{salaryId}
     </select>
 
-    <!-- 급여 상세 항목 조회 -->
+    <!-- [급여상세 항목 조회] 급여 상세 항목 리스트 -->
     <select id="selectSalaryDetailItems" parameterType="long" resultType="map">
         SELECT 
             detail_id,
@@ -72,7 +72,7 @@
         ORDER BY item_type, item_name
     </select>
 
-    <!-- 급여 상태 업데이트 -->
+    <!-- [급여 상태 업데이트] 상태값 변경 및 일시 처리 -->
     <update id="updateSalaryStatus" parameterType="map">
         UPDATE salary_master 
         SET 
@@ -87,7 +87,7 @@
         WHERE salary_id = #{salaryId}
     </update>
 
-    <!-- 급여 항목 설정 조회 -->
+    <!-- [급여항목 설정 조회] 회사별 급여항목 조회 -->
     <select id="selectSalaryItemsByCompany" parameterType="long" resultType="map">
         SELECT 
             sal1, sal2, sal3, sal4, sal5,
@@ -96,7 +96,7 @@
         WHERE company_id = #{companyId}
     </select>
 
-    <!-- 급여 항목 설정 저장 -->
+    <!-- [급여항목 설정 저장] 회사별 급여항목 저장 -->
     <insert id="insertSalaryItems" parameterType="map">
         INSERT INTO salary_items (
             company_id, sal1, sal2, sal3, sal4, sal5,
@@ -121,7 +121,7 @@
             updated_at = NOW()
     </insert>
 
-    <!-- 급여 마스터 저장 -->
+    <!-- [급여 마스터 저장] 급여 계산 결과 저장 -->
     <insert id="insertSalaryMaster" parameterType="SalaryCalculationVO" 
             useGeneratedKeys="true" keyProperty="salaryId">
         INSERT INTO salary_master (
@@ -135,7 +135,7 @@
         )
     </insert>
 
-    <!-- 급여 상세 저장 -->
+    <!-- [급여상세 저장] 급여 상세정보 저장 -->
     <insert id="insertSalaryDetail" parameterType="SalaryDetailVO">
         INSERT INTO salary_detail (
             salary_id, item_type, item_name, amount, remarks, created_at
@@ -144,14 +144,14 @@
         )
     </insert>
 
-    <!-- 사원별 년월 급여 삭제 -->
+    <!-- [사원별 년월 급여 삭제] 사원/월별 급여 삭제 -->
     <delete id="deleteSalaryByEmployeeAndMonth" parameterType="map">
         DELETE s FROM salary_master s
         WHERE s.employee_id = #{employeeId} 
         AND s.year_month = #{yearMonth}
     </delete>
 
-    <!-- 급여 계산 통계 조회 -->
+    <!-- [급여계산 통계 조회] 급여 상태별 통계 -->
     <select id="selectSalaryCalculationStats" parameterType="map" resultType="map">
         SELECT 
             COUNT(*) as total_count,
@@ -167,7 +167,7 @@
         </if>
     </select>
 
-    <!-- 급여 항목별 통계 조회 -->
+    <!-- [급여항목별 통계 조회] 항목별 합계/평균 -->
     <select id="selectSalaryItemStats" parameterType="map" resultType="map">
         SELECT 
             item_type,
@@ -185,7 +185,7 @@
         ORDER BY item_type, total_amount DESC
     </select>
 
-    <!-- 급여 계산 이력 조회 -->
+    <!-- [급여계산 이력 조회] 급여 이력 리스트 -->
     <select id="selectSalaryCalculationHistory" parameterType="map" resultType="map">
         SELECT 
             s.salary_id,
@@ -207,7 +207,7 @@
         LIMIT #{limit}
     </select>
 
-    <!-- 급여 승인 대기 목록 조회 -->
+    <!-- [급여 승인 대기 목록] 승인대기 급여 리스트 -->
     <select id="selectPendingApprovalList" parameterType="long" resultType="map">
         SELECT 
             s.salary_id,
@@ -226,7 +226,7 @@
         ORDER BY s.calculated_at ASC
     </select>
 
-    <!-- 급여 지급 완료 목록 조회 -->
+    <!-- [급여 지급완료 목록] 지급완료 급여 리스트 -->
     <select id="selectPaidSalaryList" parameterType="map" resultType="map">
         SELECT 
             s.salary_id,
