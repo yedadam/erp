@@ -152,10 +152,10 @@ public class SubscirbeServiceImple implements SubscribeService {
                 }
             }
 
-            throw new RuntimeException("Access token 발급 실패: " + response.getBody());
+            throw new RuntimeException("token 발급 실패: " + response.getBody());
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("JSON 변환 실패 또는 요청 실패", e);
+            throw new RuntimeException("실패", e);
         }
     }
 
