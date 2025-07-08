@@ -102,13 +102,13 @@
 </head>
 <!--출하관리 html 원본   -->
 <body class="bg-light">
-    <div class="container-fluid mt-4">
-        <h3 class="mb-4">출하의뢰</h3>
+     <div class="container-fluid mt-4 p-4 rounded shadow-sm">
+    <h3 class="mb-4 text-secondary fw-bold border-bottom border-secondary pb-2">출하의뢰</h3>
         
         <!-- 검색 및 버튼 영역 -->
       <!-- 📦 출하의뢰 조건 + 버튼 카드 -->
 		<!-- 🔍 검색 박스 -->
-<div class="card mb-3">
+<div class="card mb-3 shadow-sm">
   <div class="card-body">
     <div class="row g-3 align-items-end">
       
@@ -198,16 +198,16 @@
 
         <!-- 상세 정보 테이블 -->
 
-             <!-- <div class="text-end">
+           <div class="text-end">
                 <div class="btn-group-custom">
-                	<button class="btn btn-primary me-2" id="rowAddBtn">
+                	<!-- <button class="btn btn-primary me-2" id="rowAddBtn">
                         행추가
-                    </button>
+                    </button> -->
                     <button class="btn btn-danger me-2" id="rowDelBtn">
                        행삭제
                     </button>
                 </div>
-            </div> -->
+            </div> 
                 <div id="detailGrid"></div>
     </div>
   <!-- 주문 모달 -->
@@ -353,6 +353,12 @@
 		}
 	})
 
+
+	//조회버튼 눌렀을때 main
+	$('#searchBtn').on('click',ev=>{
+			mainList();	
+	})
+
         // 메인그리드
 		 let  mainGrid = new tui.Grid({
             // toastui 아이디 가져오기
@@ -395,9 +401,14 @@
             columns: [
                 {header:'출하의뢰상세코드', name: 'shipReqDtlCode', align: 'center', width: 120},
                 {header:'품목코드', name: 'itemCode', align: 'center', width: 120},
-                {header:'품목이름', name: 'name', align: 'center',customHeader:getName('품목이름')},
+                {header:'품목이름', name: 'name', align: 'left',customHeader:getName('품목이름')},
                 {header:'수량', name: 'quantity', align: 'center',customHeader:getName('수량'),
-                	formatter: function(quantity){return quantity.value+'개'; }, },
+                	formatter: function(quantity){
+					 	if(quantity.value==null){
+							return 0+'개';
+						}else{
+							return quantity.value+'개';
+						} } },
                 {header:'단가', name: 'price', align: 'right',
 									formatter: function(price){	return priceFormat(price.value)+'원';},		
                 },
@@ -406,8 +417,10 @@
                 {header:'부가세', name: 'vatPrice', align: 'right', 
                 	formatter: function(price){return priceFormat(price.value)+'원';},},
                 {header:'할인금액', name: 'discPrice', align: 'right', 
-                	formatter: function(discPrice){  return discPrice.value+'원'; },},
-								{header:'합계금액', name: 'totPrice', align: 'right', 
+                	formatter: function(discPrice){
+						if(discPrice.value==null){return 0+'원'}
+						else{ return discPrice.value+'원';} },},
+				{header:'합계금액', name: 'totPrice', align: 'right', 
                 	formatter: function(totPrice){ return priceFormat(totPrice.value)+'원';},},	
                 {header:'상태', name: 'status', align: 'center',
 									formatter:function(status){return detailStatus(status.value)} },
@@ -428,11 +441,12 @@
             // 필드값 구성
             columns: [
             {header:'주문코드', name: 'ordCode', align: 'center'},
-						{header:'거래처코드', name: 'vdrCode', align: 'center'},
-						{header:'거래처명', name: 'vdrName', align: 'center'},
-        		{header:'등록일자', name: 'createdDate', align: 'center'},
-        		{header:'상태', name: 'status', align: 'center'},
-                {header:'총공급세',	name: 'totSupPrice',	align:'right',
+			{header:'거래처코드', name: 'vdrCode', align: 'center'},
+			{header:'거래처명', name: 'vdrName', align: 'center'},
+        	{header:'등록일자', name: 'createdDate', align: 'center'},
+        	{header:'상태', name: 'status', align: 'center',
+				formatter:({value})=>formatReqStatus(value)},
+            {header:'총공급세',	name: 'totSupPrice',	align:'right',
 				 		formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},   
                 {header:'총부가세',	name: 'totVatPrice',	align:'right',
 				    	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
@@ -555,7 +569,7 @@
         mainList();
         // 신규버튼 이벤트 처리
         $('#newBtn').on('click', function(ev) {
-        	pageStatus="add"
+          pageStatus="add"
           let searchBtn =$('#searchBtn');
       	  let newBtn = $('#newBtn'); 
       	  //조회버튼 활성화
@@ -566,7 +580,7 @@
         	//그리드 초기화ㅣ
           mainGrid.resetData([{empId: empId,empName : empName}])
 					console.log('키번호',mainGrid.getData()[0].rowKey); 
-					mainGrid.setValue(mainGrid.getData()[0].rowKey,"shipReqCode",maxShipReqNO); 
+				//	mainGrid.setValue(mainGrid.getData()[0].rowKey,"shipReqCode",maxShipReqNO); 
           detailGrid.resetData([{}]);       		
         });
 		//메인그리드 클릭 RowKey
@@ -595,7 +609,7 @@
 			    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
 			    return;
 			  }
-			if(ev.targetType=='cell' &&ev.columnName=='shipReqCode'&&ev.rowKey==0){
+			if(ev.targetType=='cell' &&ev.columnName=='shipReqCode'&&ev.rowKey==0&&pageStatus=='add'){
 						requestModal(); //모달이열림
 			}
 			mainRowKey = ev.rowKey;
@@ -614,6 +628,9 @@
 			}
 		
 		})
+
+		
+
 		//주문의뢰 모달창
 		function requestModal(){	
 			$.ajax({
@@ -621,6 +638,7 @@
 				method : "GET",
 				success : function(result) {
 					requestGrid.resetData(result);
+					 disableProcessedRows(requestGrid);
 				}
 			})
 			$('#requestModal').modal('show');
@@ -650,8 +668,20 @@
 		}
 		//모달 그리드 클릭시 발동
 		requestGrid.on('click', ev => {
-			//행클릭시 발주의뢰 코드 값 가져오기
+			
+			//이미 출하요청된 주문건일 경우 경고창이 뜸 
+			if(requestGrid.getRow(ev.rowKey).status=='ost02' || requestGrid.getRow(ev.rowKey).status=='ost03' ){
+						 Swal.fire('실패','이미 출하요청된 주문건입니다','error');
+						 return; 
+			}
+
+			console.log('ev',ev); 
+			console.log(requestGrid.getRow(ev.rowKey));
+			console.log(requestGrid.getRow(ev.rowKey).status);
+
 			let get = requestGrid.getRow(ev.rowKey).ordCode;
+
+
 			//메인그리드 전달
 			//mainGrid.setValue(mainRowKey,'purReqCode',get);
 			mainGrid.setValue(mainGrid.getCheckedRowKeys()[0]!=null?mainGrid.getCheckedRowKeys()[0]:0,'totPrice',requestGrid.getRow(ev.rowKey).totPrice);
@@ -669,7 +699,12 @@
 			$('#requestModal').modal('hide');
 
 		})
-			
+
+		//requestGrid.on
+		
+
+
+
 		//거래처코드 실행
 		vdrGrid.on('click', ev => {
 			console.log(ev);
@@ -703,12 +738,12 @@
 		$('#rowDelBtn').on('click', ev => {
 			//클릭된 정보 가져오기
 			const checkedRows = detailGrid.getCheckedRows();
-			console.log('상세그리드 heckedRows',checkedRows);
+			
 				let dataToSend = {
 	    				head : mainGrid.getCheckedRows()[0], //{}   
 	    				dtl : checkedRows    //[{},{}]
 	    		};	
-					if(head.status=='srq03'){
+					if( mainGrid.getCheckedRows()[0].status=='srq03'){
 						 Swal.fire('실패','이미 출하완료된 건입니다','error');
 							 return; 
 					}	
@@ -841,21 +876,17 @@
 		})
 	     //등록함수
 	     function shipReqAdd(){
-	    	let mainGridInfo = mainGrid.getData(); //[{},{},{}]
-	    	let detailGridInfo = detailGrid.getData(); //[{}]
-	    		//메인 그리드 해당 값이 기입했는지 체크
-	    	let mainResult = mainGridInfo.every(item => {
-	    				
-	    			return item.vdrName &&
-	    			       item.shipExpDate &&
-						   			item.ordCode	;
+			let mainGridInfo=mainGrid.getData(); 
+			let detailGridInfo=detailGrid.getData();
+	    	//메인 그리드 해당 값이 기입했는지 체크
+	    	let mainResult = mainGridInfo.every(item => {		
+	    		return item.vdrName &&item.shipExpDate &&item.ordCode;
 	    	})
 	    		 //디테일 값 있는지 체크
 		    let detailResult = detailGridInfo.some(item => {
-		    	return !item.itemCode || item.quantity ==0 ||
-		    			       item.supPrice==0 || item.totPrice==0;
-		    	})
-		    	console.log(detailResult)
+		    	return !item.itemCode || item.quantity ==0 ||item.supPrice==0 || item.totPrice==0;
+		    })
+
 	    		//값 체크
 	    		if(!mainResult){
 	    		   Swal.fire('실패','메인 그리드에 입력란들을 기입하세요','error');
@@ -864,14 +895,16 @@
 	    			Swal.fire('실패','상세 그리드에 입력란들을 기입하세요','error');
 	    		   return;
 	    		}
+
+
 	    		
 	    		//등록데이터 정리
-	    		let mainData = mainGrid.getData(); // [{},{},{}]
+	    		let mainData = mainGrid.getData()[0]; // [{},{},{}]
 	    		let detailData = detailGrid.getData(); //[{},{},{}]
-	    		console.log(mainData);
-	    		console.log(detailData);
+
+
 	    		let dataToSend = {
-	    				head : mainData[0], //{}   
+	    				head : mainData, //{}   
 	    				dtl : detailData    //[{},{}]
 	    		};
 	    		console.log(dataToSend)
@@ -902,16 +935,31 @@
 	    	 if(pageStatus == 'add'){
 	    		 //등록함수발동
 	    		 shipReqAdd();
+				 pageStatus='search'; //페이지 상태 다시 조회 상태로 바뀜
+				 newBtn.prop('disabled', false); //조회상태로 바뀌면서 다시 추가버튼이 활성화
 	    	 }
 	    	 //조회버튼클릭시
 	    	 if(pageStatus=='search'){
 	    		 shipReqModify();
 					 mainList();
 	    	 }
+
+
 	     })
 
 			 //전체검색버튼 눌림 
 	      $('#searchButton').on('click',ev => {
+			if(pageStatus=='add'){
+			let check=confirm('출하의뢰 작성중입니다 나가시겠습니까?');
+				if(check){
+					pageStatus='search';
+					let newBtn = $('#newBtn'); 
+					newBtn.prop('disabled', false);    				
+				}else{
+					return;
+				}
+			}
+			console.log('pageStatus==>>',pageStatus);
 			// 	//map으로 넘길값 
 			 	let shipExpStartDate=document.getElementById('shipExpStartDate').value;
 			 	let shipExpEndDate=document.getElementById('shipExpEndDate').value; 
@@ -934,7 +982,7 @@
 	     async function shipReqModify(){
 	    	 let checkedRows = detailGrid.getModifiedRows();
 	    	 let mainRowIndex= mainGrid.getCheckedRowKeys()[0];
-			 let mainRowData = mainGrid.getRow(mainRowIndex);
+			 let mainRowData = mainGrid.getModifiedRows().updatedRows; 
 
 	    	 if( mainGrid.getCheckedRowKeys().length<1){
 	    		 Swal.fire('실패','메인그리드에 해당하는 값을 체크해주세요','error');
@@ -944,11 +992,7 @@
 				Swal.fire('실패','이미 출하완료된 건입니다','error');
 				return;
 			}	
-			//메인그리드 해당란 다있는지 체크
-			if(mainRowData.vdrCode==null){
-				Swal.fire('dddd','해당하는값을 입력해ㅇㅇㅇㅇ주세요','error');
-				return; 
-			}
+		
 	    	 //메인창
 	    	 console.log('수정함수 작동중',mainRowData)
 	    	  await $.ajax({
@@ -995,6 +1039,21 @@
 			return status;
 		} 
 	}
+
+	function formatReqStatus(status){
+		for(let i=0;i<ordStatus.length;i++){
+				if(ordStatus[i].subCode==status){
+					return ordStatus[i].subName;
+				}
+		}
+	}
+	function disableProcessedRows(grid) {
+  		grid.getData().forEach(row => {
+    	if (['ost02', 'ost03'].includes(row.status)) {
+      		grid.disableRow(row.rowKey);        // v4.x 이상 API
+    	}
+  });
+}
 
 
 	

@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.sales.shipreq.mapper.ShipreqMapper">
 
-	<select id="findShipreqList" resultType="com.dadam.sales.shipreq.service.ShipReqVO">
+	<select id="findShipreqList"
+		resultType="com.dadam.sales.shipreq.service.ShipReqVO">
 		SELECT
 		SHIP_REQ_CODE,
 		VDR_CODE,
@@ -33,7 +34,8 @@
 			</when>
 		</choose>
 		<if test="shipExpStartDate != null and shipExpStartDate != '' ">
-			AND trunc(ship_exp_date) >=TO_DATE(#{shipExpStartDate},'yyyy-MM-dd')
+			AND trunc(ship_exp_date)
+			>=TO_DATE(#{shipExpStartDate},'yyyy-MM-dd')
 		</if>
 		<if test="shipExpEndDate != null and shipExpEndDate !='' ">
 		  <![CDATA[
@@ -47,7 +49,7 @@
 		</if>
 		order by ship_req_code desc
 	</select>
-	
+
 
 	<select id="findShipreqDtlList"
 		resultType="com.dadam.sales.shipreq.service.ShipReqDtlVO">
@@ -72,8 +74,10 @@
 		FROM
 		shiprequest s JOIN shiprequestdetail sd ON
 		(sd.ship_req_code=s.ship_req_code and sd.com_id=s.com_id)
-		JOIN vender v ON (s.vdr_code=v.vdr_code and s.com_id=v.com_id)
-		WHERE s.ship_req_code=#{shipReqCode} AND s.com_id=#{comId}
+		JOIN vender v
+		ON (s.vdr_code=v.vdr_code and s.com_id=v.com_id)
+		WHERE
+		s.ship_req_code=#{shipReqCode} AND s.com_id=#{comId}
 		order by
 		sd.ship_req_dtl_code
 	</select>
@@ -81,7 +85,8 @@
 		parameterType="com.dadam.sales.shipreq.service.ShipReqVO">
 		<selectKey resultType="string" keyProperty="shipReqCode"
 			order="BEFORE">
-			SELECT 'sr-' || TO_CHAR(NVL(MAX(TO_NUMBER(SUBSTR(ship_req_code, 4))), 100)
+			SELECT 'sr-' || TO_CHAR(NVL(MAX(TO_NUMBER(SUBSTR(ship_req_code,
+			4))), 100)
 			+ 1)
 			FROM shiprequest
 		</selectKey>
@@ -113,10 +118,9 @@
 	</insert>
 	<insert id="insertShipreqDtl"
 		parameterType="com.dadam.sales.shipreq.service.ShipReqDtlVO">
-		<selectKey resultType="string" keyProperty="shipReqDtlCode"
-			order="BEFORE">
-			SELECT 'srd-' || TO_CHAR(NVL(MAX(TO_NUMBER(SUBSTR(ship_req_dtl_code, 5))),
-			100) + 1)
+		<selectKey resultType="string" keyProperty="shipReqDtlCode" order="BEFORE">
+			SELECT 'srd-' ||
+			TO_CHAR(NVL(MAX(TO_NUMBER(SUBSTR(ship_req_dtl_code, 5))),100) + 1)
 			FROM shiprequestdetail
 		</selectKey>
 		INSERT INTO shiprequestdetail (
@@ -142,7 +146,8 @@
 	<update id="updateStatusByordNo">
 		UPDATE orders
 		SET status='ost02'
-		WHERE ord_code=#{ordCode}
+		WHERE
+		ord_code=#{ordCode}
 		AND com_id=#{comId}
 	</update>
 	<!-- 납기일자 변경하기 -->
@@ -157,13 +162,15 @@
 	<update id="updateOrdStatus">
 		update orders
 		SET status='ost01'
-		WHERE ord_code=#{ordCode}
+		WHERE
+		ord_code=#{ordCode}
 		AND com_id=#{comId}
 	</update>
 	<!-- 출하헤더 삭제시 출하디테일삭제 -->
 	<delete id="deleteShipreqDtl">
 		delete shiprequestdetail
-		where ship_req_code=#{shipReqCode}
+		where
+		ship_req_code=#{shipReqCode}
 		AND com_id=#{comId}
 	</delete>
 	<!-- 출하헤더삭제 -->
@@ -175,8 +182,29 @@
 	<!-- 출하 디테일 단건삭제 -->
 	<delete id="deleteShipReqDtlBydtlno">
 		delete shiprequestdetail
-		where ship_req_code=#{shipReqDtlCode}
+		where
+		ship_req_dtl_code=#{shipReqDtlCode}
 		AND com_id=#{comId}
 	</delete>
+	<!-- 출화의뢰 최대번호 찾기 -->
+	<select id="findMaxShipReqNo" parameterType="String" resultType="String">
+		select max(ship_req_code)
+		from shiprequest
+		WHERE com_id=#{comId}
+	</select>
+	<!-- ShipReqMapper.xml -->
+<update id="updateTotPriceAfterDelete">
+    UPDATE shiprequest
+    SET tot_price = tot_price
+                 - NVL(  /* 삭제할 상세 행의 금액이 없으면 0 */
+                     ( SELECT sd.tot_price
+                       FROM   shiprequestdetail sd
+                       WHERE  sd.ship_req_dtl_code = #{shipReqDtlCode}
+                       AND    sd.ship_req_code     = #{shipReqCode}
+                     ), 0 )
+    WHERE ship_req_code = #{shipReqCode}
+    AND com_id=#{comId}
+</update>
+	
 
 </mapper>

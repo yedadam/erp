@@ -136,15 +136,11 @@
     <button id="addRow" class="btn btn-secondary">
       <i class="fas fa-plus"></i> 행추가
     </button>
-    <button id="ordupd" class="btn btn-warning">
-      <i class="fas fa-edit"></i> 주문수정
-    </button>
+
     <button id="ordreg2" class="btn btn-primary">
       <i class="fas fa-pen"></i> 주문등록
     </button>
-		  <button id="statusCheck" class="btn btn-primary">
-      <i class="fas fa-pen"></i> 상태확인
-    </button>
+		  
     <button id="deleteRow" class="btn btn-danger">
       <i class="fas fa-trash"></i> 행삭제
     </button>
@@ -336,34 +332,6 @@
 
 
 let map=new Map(); 
-	// $('#statusCheck').on('click',function(){
-	// 	console.log('상태확인클릭됨');
-	// //console.log(orderGrid.getData()); 
-	// //console.log('pageStatus',pageStatus);
-  //   //console.log(itemType);
-	// 	let startdate=document.getElementById('reqDlvStartDate').value;
-	// 	let endDate=document.getElementById('reqDlvEndDate').value; 
-	// 	console.log('startdate',startdate); 
-	// 	const selectedStatus = document.querySelector('input[name="orderStatus"]:checked').value;
-	// 	console.log("선택된 상태:", selectedStatus); // 예: "ord02"
-
-	// 	map["reqDlvStartDate"]=startdate; 
-	// 	map["reqDlvEndDate"]=endDate; 
-	// 	map["type"]= $('#orderSelect  option:selected').val(); 
-	// 	map["val"]=$('#orderInput').val();
-	// 	map["status"]=selectedStatus;  
-	// //	map["type"]=document.querySelector
-	// 	console.log(map);
-	
-	// })
-$('#statusCheck').on('click',function(){
-	console.log('상태확인');
-	console.log('새로생성된 행 확인하기!',orderGrid.getModifiedRows().createdRows.length); 
-	console.log('상세저장 =>',ordDtlGrid.getModifiedRows()); //상세저장 할때  
-	console.log('수정하고난뒤에 ord도 바뀌는지 확인하기 ',orderGrid.getData()[0]);
-})
-
-
 
 $('#orderSearchBtn').on('click',function(){
 //	console.log('돋보기가 클릭됨');
@@ -375,10 +343,6 @@ $('#orderSearchBtn').on('click',function(){
 	
 		const status = document.querySelector('input[name="orderStatus"]:checked').value;
 		commonSearchObject({type,value,reqDlvStartDate ,reqDlvEndDate,status},url,orderGrid);
-
-		//임시 상태확인용 
-	console.log('orderGrid.getModifiedRows()',orderGrid.getModifiedRows()); 
-	console.log('ordDtlGrid rderGrid.getModifiedRows',ordDtlGrid.getModifiedRows()); 
 
 })
 
@@ -748,7 +712,6 @@ $('#orderSearchBtn').on('click',function(){
 			let insert=confirm('주문등록을 완료 하지 않았습니다 정말 나가시겠습니까?'); 
 			if(!insert) return; 
 		}
-	
 
 		console.log(orderGrid.getData()[0].ordCode); //ordCode ord-122 이런꼴로 나옴 
 		let nextordCode = orderGrid.getData()[0].ordCode;  // 예: "ord-122"
