@@ -465,8 +465,9 @@ function insertGrid(){
 	        { header: '위치',name:'locCode',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
 	        { header: 'lot재고',name:'quantity',align:'center'},
+	        { header: '예약재고',name:'holdQty',align:'center'},
+	        { header: '가용재고',name:'currQty',align:'center'},
 	        { header: '입력재고',name:'qty',align:'center'},
-	        { header: '예약재고',name:'reqqty',align:'center'}
 	    ],
 	});
 	
@@ -590,9 +591,11 @@ function insertGrid(){
 					lot: item.lot,
 					itemCode: item.itemCode,
 					itemName: item.itemName,
-					quantity: item.qty,
-					price: item.price,
-					qty: item.qty,
+					quantity: item.quantity, // lot 재고
+					price: item.price,		
+					qty: item.qty,			// 입력한 수량
+					holdQty: item.holdQty,  // 예약재고
+					currQty: item.currQty,  // 가용재고
 					locCode: item.locCode
 		}));
 		
@@ -649,6 +652,14 @@ function insertGrid(){
 						});
 					return;
 				}
+				console.log(lotparam);
+				// 수량 반영하기
+				/* for(let qtys of lotparam){
+					qtys
+				} */
+				
+				// 홀드의 수량은 발주서 수량이 들어가는중...
+				// lot로 입력한 갯수가 아님
 				let saveData={
 								  itemCode: item.itemCode		// 품목코드
 								, quantity: item.quantity		// 발주서수량
@@ -662,7 +673,7 @@ function insertGrid(){
 				param.push(saveData)
 			}
 			// 등록
-		$.ajax({
+		/* $.ajax({
 				url:"/erp/inventory/inserthold",
 				method:"POST",
 				contentType: "application/json",
@@ -675,7 +686,7 @@ function insertGrid(){
 						});
 					changeView('조회');
 				}
-			})
+			}) */
 		}else{
 			Swal.fire({
 				  icon: "error",

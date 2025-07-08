@@ -45,6 +45,7 @@ public class HoldServiceImpl implements HoldService{
 		// 홀드 등록
 		for(HoldVO vo : list) {
 			holdMapper.insertHoldList(vo);
+			// ht01 = 재고이동 ht02 = 출하의뢰
 			if(vo.getType() == "ht01") {
 				//if(vo.getStatus() == )
 				vo.setShipReqDtlCode(vo.getCode());
@@ -69,14 +70,10 @@ public class HoldServiceImpl implements HoldService{
 				lot.setHoldCode(vo.getHoldCode());
 				lot.setComId(vo.getComId());
 				holdMapper.insertHoldLotList(lot);
-				System.out.println(lot);
 				// 조회 후 등록된 값을 val에 담고. 
 				holdQty = holdMapper.selectHoldStockHoldQty(lot);
-				System.out.println(holdQty);
-				System.out.println("여기까지");
 				// 증감 입력처리
 				holdQty = lot.getQuantity() + holdQty;
-				System.out.println(holdQty);
 				lot.setHoldQty(holdQty);
 				holdMapper.updateHoldStock(lot);
 			}

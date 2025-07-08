@@ -211,7 +211,7 @@ function selectGrid(){
 	    rowHeaders: ['checkbox'],
 	    //페이지네이션
 	    pageOptions: {
-	        perPage: 5,
+	        perPage: 10,
 	        useClient: true,
 	    },
 	    //필드값 구성
@@ -229,47 +229,6 @@ function selectGrid(){
 	        { header: '비고',name:'note',align:'center'}
 	    ],
 	});
-	// 출고 상세그리드
-	subGrid = new tui.Grid({
-	    el: document.getElementById('subGrids'),
-	    rowHeaders: ['checkbox'],
-	    //페이지네이션
-	    pageOptions: {
-	        perPage: 5,
-	        useClient: true,
-	    },
-	    //필드값 구성
-	    columns:[
-	    	{ header: '출고코드',name:'outDtlCode',align:'center'},
-	        { header: '홀드코드',name:'holdCode',align:'center'},
-	        { header: '제품명',name:'itemName',align:'center'},
-	        { header: '수량',name:'quantity',align:'center'},
-	        { header: 'lot',name:'lot',align:'center'},
-	        { header: '비고',name:'note',align:'center'}
-	    ],
-	}); // 그리드 끝
-	
-	// 출고 상세조회 이벤트
-	mainGrid.on('click',(ev)=>{
-		if (!ev.targetType || ev.targetType !== 'cell') {
-		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
-		    return;
-		  }
-		let { rowKey, columnName } = ev;
-		let outCode = mainGrid.getValue(rowKey, 'outCode');
-		let param = {comId,outCode};
-		
-			$.ajax({
-				url:"/erp/inventory/outboundDetailList",
-				method:"GET"
-				,data:param
-			   ,success:function(result) {
-				   subGrid.resetData(result);
-			   } // ajax호출 끝
-			});
-	});
-	
-	
 } // 조회화면 끝
 
 //등록 그리드 데이터
@@ -313,12 +272,13 @@ function insertGrid(){
 	    rowHeaders: ['checkbox'],
 	    //페이지네이션
 	    pageOptions: {
-	        perPage: 5,
+	        perPage: 15,
 	        useClient: true,
 	    },
 	    //필드값 구성
 	    columns:[
 	    	{ header: '홀드상세코드',name:'holdDtlCode',align:'center'},
+	    	{ header: 'LOT',name:'lot',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
 	        { header: '의뢰수량',name:'quantity',align:'center'},
 	        { header: '기출고량',name:'currQty',align:'center'},
@@ -334,7 +294,7 @@ function insertGrid(){
 	        { header: '비고',name:'note',align:'center'}
 	    ],
 	});
-	
+	/* 
 	// 홀드상세그리드
 	subGrid = new tui.Grid({
 	    el: document.getElementById('subGrids'),
@@ -350,14 +310,14 @@ function insertGrid(){
 	        { header: 'lot',name:'lot',align:'center'},
 	        { header: '수량',name:'quantity',align:'center', dataType: 'number'},
 	    ],
-	}); // 그리드 끝
+	}); // 그리드 끝 */
 	
 	// 출고처리 모달그리드
 	outboundGrid = new tui.Grid({
 		el: document.getElementById('gridModal'),
 		rowHeaders: ['rowNum'],
 		pageOptions: {
-	        perPage: 10,
+	        perPage: 15,
 	        useClient: true,
 	    },
 	    columns:[
@@ -384,7 +344,7 @@ function insertGrid(){
 	
 	
 	// 출고 상세조회 이벤트
-	mainGrid.on('click',(ev)=>{
+	/* mainGrid.on('click',(ev)=>{
 		if (!ev.targetType || ev.targetType !== 'cell') {
 		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
 		    return;
@@ -401,11 +361,12 @@ function insertGrid(){
 				   subGrid.resetData(result);
 			   } // ajax호출 끝
 			});
-	});
+	}); */
 	
 	// 출고 모달 저장이벤트
 	$('#registerBtn').on('click', ()=>{
 		let data = outboundGrid.getData();
+		console.log(data)
 		// 벨리데이션 체크 + 등록을 위한 변수처리
 		for(let value of data){
 			// 입력한 값이 number타입으로 변환
@@ -436,9 +397,32 @@ function insertGrid(){
 					});
 				return;
 			}
+			// 상태값 처리
+			// ht01 == 재고이동 ht02 == 출하의뢰
+			if(value.type === 'ht02'){
+				value.type = 'obt01';
+				value.typeName = '거래처';
+				// obs01 = 대기 02 = 부분출고 03 = 출고완료 reqQty=미출고량
+				// hs01 = 부분홀드 02 = 처리완료 03 = 출고보류
+				if(value.status == 'hs02' && value.qty == value.reqQty){
+					value.status = 'obs03';
+					value.statusName = '출고완료';
+				}else{
+					value.status = 'obs02';
+					value.statusName = '부분출고';
+				}
+				
+				
+				
+				// 재고이동일떄
+			}else{
+				value.type = 'obt02';
+				value.type = '공장';
+			}
+			
 		} // for문 종료
 		console.log(data);
-		 $.ajax({
+		  $.ajax({
 			url:"/erp/inventory/insertoutbound",
 			method:"POST",
 			contentType: 'application/json',
@@ -458,7 +442,6 @@ function insertGrid(){
 					  text: "출고가 실패했습니다."
 					});
 			}
-			
 			$('#outboundModal').modal('hide');
 			mainGrid.uncheckAll();
 			outboundGrid.refreshLayout();
