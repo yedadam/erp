@@ -1,12 +1,12 @@
 package com.dadam.chat.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
 import com.dadam.chat.service.ChatMessageVO;
 import com.dadam.chat.service.ChatVO;
-import com.dadam.standard.vender.service.VenderVO;
 
 public interface ChatMapper {
 	
@@ -21,5 +21,7 @@ public interface ChatMapper {
 	public List<ChatVO> selectChatMessages(@Param("chatId") String roomId,@Param("comId") String comId);
 	//채팅 메시지 등록
 	public int insertChatMessage(ChatMessageVO vo);
+	//채팅멤버 리스트
+	public List<ChatVO> memberList(Map<String,Object> map);
 	
 }

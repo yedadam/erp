@@ -55,13 +55,14 @@
         SELECT 
             message_id,
             message,
-            created_date,
+            c.created_date,
             chat_id,
-            emp_id,
-            getEmpName(emp_id,#{comId}) emp_name
-        FROM chatMessage
-        WHERE chat_id = #{chatId}
-        AND com_id= #{comId}
+            e.emp_id,
+            getEmpName(e.emp_id,#{comId}) emp_name,
+            profile_img_path
+        FROM chatMessage c JOIN employees e ON e.emp_id = c.emp_id
+        WHERE chat_id =#{chatId}
+        AND e.com_id= #{comId}
         ORDER BY created_date ASC
     </select>
 
@@ -88,4 +89,11 @@
             #{comId}
         )
     </insert>
+    <!-- 채팅 멤버 리스트 -->
+    <select id="memberList">
+       SELECT getEmpName(emp_id,#{comId}) empName
+       FROM chatDetail
+       WHERE chat_id = #{chatId}
+        AND com_id = #{comId}
+    </select>
 </mapper>

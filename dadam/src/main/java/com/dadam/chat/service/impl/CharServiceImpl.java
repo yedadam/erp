@@ -1,6 +1,7 @@
 package com.dadam.chat.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -76,7 +77,16 @@ public class CharServiceImpl implements ChatService{
 	//채팅메시지 등록
 	@Override
 	public int insertChatMessage(ChatMessageVO vo) {
+		initAuthInfo();
+		vo.setChatId(comId);
 	    int result = mapper.insertChatMessage(vo);
+		return result;
+	}
+	
+	@Override
+	public List<ChatVO> memberList(Map<String, Object> map) {
+		map.put("comId", comId);
+		List<ChatVO> result = mapper.memberList(map);
 		return result;
 	}
 }

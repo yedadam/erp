@@ -15,7 +15,7 @@ public class ChatVO {
 	private String chatDtlId;
 	private String chatId;
 	private String name;
-	@JsonFormat(pattern = "yyyy-MM-dd")
+	@JsonFormat(pattern = "HH:mm:ss", timezone = "Asia/Seoul")
 	private Date createdDate;
 	private int chatQuantity;
 	private String message;
