@@ -1,8 +1,8 @@
 package com.dadam.chat.service;
 
 import java.util.List;
+import java.util.Map;
 
-import com.dadam.standard.vender.service.VenderVO;
 
 public interface ChatService {
     //사원목록조회
@@ -15,5 +15,6 @@ public interface ChatService {
 	public List<ChatVO> selectChatMessages(String roomId);
 	//채팅 메시지 등록
 	public int insertChatMessage(ChatMessageVO vo);
-	
+    //채팅 멤버 리스트
+	public List<ChatVO> memberList(Map<String,Object> map);
 }

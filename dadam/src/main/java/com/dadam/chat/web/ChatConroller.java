@@ -1,13 +1,13 @@
 package com.dadam.chat.web;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,6 +61,7 @@ public class ChatConroller {
     @MessageMapping("/chat.{roomId}")
     public void sendMessage(@DestinationVariable String roomId, @Payload ChatMessageVO chatMessage) {
     	//메시지 전송
+    	chatMessage.setCreatedDate(new Date());
         messagingTemplate.convertAndSend("/topic/chat." + roomId, chatMessage);
         // 사용자 이름을 세션에 저장
         System.out.println(chatMessage.getEmpId());
@@ -68,5 +69,13 @@ public class ChatConroller {
         //DB저장
         service.insertChatMessage(chatMessage);
         
+    }
+    
+    //멤버 리스트
+    @GetMapping("/memberList")
+    @ResponseBody
+    public List<ChatVO> memberList(@RequestParam Map<String,Object> map){
+    	List<ChatVO> result = service.memberList(map);
+    	return result;
     }
 }

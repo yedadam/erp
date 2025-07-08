@@ -183,7 +183,6 @@
 		 const $list = $('#chatRoomList');
 		  $list.html('<div class="text-center text-muted small">로딩 중...</div>');
 
-
 		  $.ajax({
 		    url: '/erp/chatList',
 		    method: 'GET',
@@ -215,7 +214,7 @@
 		      });
 
 		      $list.html(html);
-		      $('#chatRoomBadge').text(rooms.length);
+		      //$('#chatRoomBadge').text(rooms.length);
 		    },
 		    error: function () {
 		      $list.html('<div class="text-center text-danger small">불러오기 실패</div>');
@@ -224,35 +223,48 @@
 		}
 	let currentSubscription = null;
 	//채팅방열기
-	function openChatRoom(id, name) {
+	async function openChatRoom(id, name) {
 	    const $chatPopup = $('#chatPopup');
 	
-	    // 제목 변경
-	    $chatPopup.find('.card-header span').text(name);
 	
 	    // 팝업 보이기
 	    $chatPopup.css('display', 'flex');
-	
 	    // 현재 채팅방 ID 저장
 	    $chatPopup.attr('data-room-id', id);
+	    let empList= null;
+	    
+	    await $.ajax({
+	    	url:'/erp/memberList',
+	    	method : 'GET',
+	    	
+	    	data : {chatId : id},
+	    	success : res => {
+	           empList = `(${res.map(item => item.empName).join(',')})`;
+	    	},
+	    	 error: function() {
+		            alert('이전 메시지를 불러오지 못했습니다.');
+		        }
+	    })
+	    $chatPopup.find('.card-header span').html(name+'</br>'+empList);
 	
 	    // 메시지 입력창 포커스
 	    $('#chatInput').focus();
-	    $.ajax({
-	        url: '/erp/history',
-	        method: 'GET',
-	        data: { roomId: id },
-	        success: function(messages) {
-	        	$('#chatBox').html('');
-	            messages.forEach(function(msg) {
-	                showChatMessage(msg);
-	            });
-	        },
-	        error: function() {
-	            alert('이전 메시지를 불러오지 못했습니다.');
-	        }
-	    });
+	   await $.ajax({
+		        url: '/erp/history',
+		        method: 'GET',
+		        data: { roomId: id },
+		        success: function(messages) {
+		        	$('#chatBox').html('');
+		            messages.forEach(function(msg) {
+		                showChatMessage(msg);
+		            });
+		        },
+		        error: function() {
+		            alert('이전 메시지를 불러오지 못했습니다.');
+		        }
+		    });
 
+	    // 제목 변경
 	    // STOMP 구독도 같이 처리
 	    if (currentSubscription) currentSubscription.unsubscribe();
 	    currentSubscription = stompClient.subscribe(`/topic/chat.${id}`, function(response) {
@@ -284,7 +296,6 @@
 		          </div>
 		        </a>
 		      `).join('');
-			  console.log(alertHtml)
 		      $('#alertsDropdownMenu').html(`
 		        <h6 class="dropdown-header">알림 센터</h6>
 		        ${alertHtml || '<div class="dropdown-item text-center text-muted small">알림이 없습니다.</div>'}
@@ -310,9 +321,8 @@
 		  const elecCode = $(this).attr('id');
 		  const fileImage = $(this).data('file');
 		  const pkCode = $(this).data('pk');
-		  console.log(pkCode);
           
-		  if(elecCode.length <1){
+		  if(elecCode==undefined){
 			  return;
 		  }
 		//팝업창 열기

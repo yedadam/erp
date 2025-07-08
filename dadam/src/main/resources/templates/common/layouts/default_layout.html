@@ -432,7 +432,7 @@
 			        
 			          <label class="list-group-item d-flex align-items-center">
 				            <input class="form-check-input me-2" type="checkbox" value="${emp.empId}" name="selectedEmployees">
-				            <img src="${profileUrl}" class="rounded-circle me-3" width="40" height="40">
+				            <img src="/uploads/profile/${profileUrl}" class="rounded-circle me-3" width="40" height="40">
 				            <div>
 				              <div>${emp.empName}</div>
 				              <small class="text-muted">${emp.deptName}</small>
@@ -521,10 +521,8 @@
 			                currentSubscription.unsubscribe();
 			            }
 			            currentSubscription = stompClient.subscribe(`/topic/chat.${currentRoomId}`, function(response) {
-			            	console.log(response)
 			                const message = JSON.parse(response.body);
 			                if (message.sender !== comId) {
-			                	console.log('보낸값',message);
 			                    showChatMessage(message);
 			                }
 			            });
@@ -570,27 +568,49 @@
 				    $('#chatInput').val('');
 				}
 		  //보내는 화면 표시
-		  function showChatMessage(msg) {
-			    console.log(msg)
-			  	const myEmpId = empId;
-			  
-			    const isMine = (msg.empId === myEmpId);
-			    const alignClass = isMine ? 'text-end' : '';
-			    const bubbleColor = isMine ? 'bg-primary text-white' : 'bg-white';
-			    const senderName = isMine ? '나' : msg.empName;
-
-			    const html = `
-			        <div class="${alignClass} mb-2">
-			            <div class="fw-bold">
-			                ${senderName} <small class="text-muted">${msg.createdDate}</small>
-			            </div>
-			            <div class="${bubbleColor} rounded p-2 d-inline-block">${msg.message}</div>
-			        </div>
-			    `;
-
-			    $('#chatBox').append(html);
-			    $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight); // 항상 맨 아래로
-			}
+		 function showChatMessage(msg) {
+		    const myEmpId = empId;
+		    
+		    const isMine = (msg.empId === myEmpId);
+		    const alignClass = isMine ? 'text-end' : '';
+		    const bubbleColor = isMine ? 'bg-primary text-white' : 'bg-secondary text-white';
+		    const senderName = isMine ? '' : msg.empName;
+		    
+		    const profileUrl = msg.profileImgPath || '/default.png';
+		    let html;
+		    
+		    if (isMine) {
+		        // 내가 보낸 메시지 (프로필 사진 없음)
+		        html = `
+		        <div class="${alignClass} mb-2">
+		            <div class="fw-bold">
+		                ${senderName} <small class="text-muted">${msg.createdDate}</small>
+		            </div>
+		            <div class="${bubbleColor} rounded p-2 d-inline-block">${msg.message}</div>
+		        </div>
+		        `;
+		    } else {
+		        // 상대방이 보낸 메시지 (프로필 사진 포함)
+		        html = `
+		        <div class="${alignClass} mb-2">
+		            <div class="d-flex align-items-start">
+		                <div class="me-2">
+		                    <img src="/uploads/profile/${profileUrl}" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
+		                </div>
+		                <div>
+		                    <div class="fw-bold">
+		                        ${senderName} <small class="text-muted">${msg.createdDate}</small>
+		                    </div>
+		                    <div class="${bubbleColor} rounded p-2 d-inline-block">${msg.message}</div>
+		                </div>
+		            </div>
+		        </div>
+		        `;
+		    }
+		    
+		    $('#chatBox').append(html);
+		    $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight); // 항상 맨 아래로
+   }
 		  
 		  
 		  

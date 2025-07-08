@@ -10,7 +10,7 @@ import lombok.Data;
 public class ChatMessageVO {
 	private String messageId;
 	private String message;
-	@JsonFormat(pattern = "yyyy-MM-dd")
+	@JsonFormat(pattern = "HH:mm:ss", timezone = "Asia/Seoul")
 	private Date createdDate;
 	private String chatId;
 	private String empId;
