@@ -20,15 +20,15 @@ public class CreditRestController {
 	CreditService creditServic;
 	
 	@GetMapping("/creditFindAll")
-	public List<CreditVO> getCredit() {
-		return creditServic.creditFindAll();
+	public List<CreditVO> getCredit(String comId) {
+		return creditServic.creditFindAll(comId);
 	}
 	
 	@GetMapping("/creditFindByCode")
 	@ResponseBody
-	public List<CreditVO> getCreditDtl(@RequestParam String vdrCode){
+	public List<CreditVO> getCreditDtl(@RequestParam String vdrCode, String comId){
 		System.out.println("vdr코드는" + vdrCode);
-		List<CreditVO> result = creditServic.creditFindCode(vdrCode);
+		List<CreditVO> result = creditServic.creditFindCode(vdrCode, comId);
 		return result;
 	}
 	

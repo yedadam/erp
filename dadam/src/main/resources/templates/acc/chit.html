@@ -215,7 +215,7 @@ const chtTypeEditor = createChitAutoCompleteEditor({
 const vatYnEditor = createChitAutoCompleteEditor({
 	  urlBuilder: ({ keyword }) => `/erp/accounting/vatTypeFindByCode?keyword=${keyword}`,
 	  displayField: 'VATNAME', saveField: 'VAT', displayNameField: 'VATNAME'
-	});
+});
 
 
 /** ------------------------- Grid 구성 -------------------------  */
@@ -227,7 +227,7 @@ const chitGrid = new tui.Grid({
  treeColumnOptions: { name: 'chitTitle', useIcon: true },
  columns: [
    { header: '등록일자', name: 'createdDate', align: 'center',width: 100 },
-   { header: '전표명', name: 'chitTitle', align: 'center' },
+   { header: '전표명', name: 'chitTitle', align: 'left' },
    { header: '거래처', name: 'vdrCode', align: 'center',width: 100 },
    { header: '거래유형', name: 'tType', align: 'center' , width: 80,},
    { header: '공급가액', name: 'supplyPrice', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '', hidden: true },
@@ -737,24 +737,16 @@ function openAutoRuleModal() {
     	      { header: '차/대', name: 'itpType', editor: { type: indTypeEditor }, formatter: ({ row }) => row.INAME || row.itpType },
     	      { header: '계정코드', name: 'acctCode', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.ANAME || row.acctCode},
     	      {
-    	          header: '부가세유무',
-    	          name: 'vatYn',
-    	          editor: {
-    	            type: 'select',
-    	            options: {
-    	              listItems: [
-    	                { text: '부가세', value: 'vaty1' },
-    	                { text: '공급가액', value: 'vaty2' },
-    	                { text: '총금액', value: 'vaty3' }
+    	          header: '부가세유무', name: 'vatYn', editor: {type: 'select',
+    	            options: { listItems: [ { text: '부가세', value: 'vaty1' },
+    	                					{ text: '공급가액', value: 'vaty2' },
+    	                					{ text: '총금액', value: 'vaty3' }
     	              ]
     	            }
     	          },
-    	          formatter: ({ value }) => {
-    	            const map = {
-    	              vaty1: '부가세',
-    	              vaty2: '공급가액',
-    	              vaty3: '총금액'
-    	            };
+    	          formatter: ({ value }) => { const map = { vaty1: '부가세',
+    	              										vaty2: '공급가액',
+    	              										vaty3: '총금액' };
     	            return map[value] || '';
     	          }
     	        },
@@ -765,7 +757,8 @@ function openAutoRuleModal() {
     	      {
     	        header: '행추가/삭제',
     	        name: 'actions',
-    	        formatter: () => `<button class="delete-rule">🗑</button>`
+    	        align:'center',
+    	        formatter: () => `<button class="btn btn-sm btn-outline-danger delete-rule">삭제</button>`
     	      }
     	    ],
     	    data: []

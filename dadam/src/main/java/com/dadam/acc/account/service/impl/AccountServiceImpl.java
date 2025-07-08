@@ -21,7 +21,7 @@ public class AccountServiceImpl implements AccountService {
 
 
 
-    private String getComIdFromAuth() {
+    private String initAuthInfo() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Object principal = auth.getPrincipal();
         if (principal instanceof LoginUserAuthority) {
@@ -33,13 +33,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<AccountVO> accFindAll() {
-        String comId = getComIdFromAuth();
+        String comId = initAuthInfo();
         return accountMapper.accFindAll(comId);
     }
 
     @Override
     public List<AccountVO> accFindByType(String acctType, String unused) {
-        String comId = getComIdFromAuth();
+        String comId = initAuthInfo();
         return accountMapper.accFindByType(acctType, comId);
     }
 
@@ -65,14 +65,14 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void insert(AccountVO acct) {
-        String comId = getComIdFromAuth();
+        String comId = initAuthInfo();
         acct.setComId(comId);
         accountMapper.insert(acct);
     }
 
     @Override
     public void saveAll(AccountVO account) {
-        String comId = getComIdFromAuth();
+        String comId = initAuthInfo();
 
         List<AccountVO> rows = account.getCreatedRows();
         if (rows != null) {

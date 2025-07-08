@@ -51,78 +51,123 @@
   </div>
 </body>
 <script>
+   console.log(comId)
         const tranGrid = new tui.Grid({
             el: document.getElementById('tranGrid'),
             scrollX: false,
             scrollY: true,
             columns: [
-                { header: '코드', name: 'txnHistCode', width: 120, editor: 'text' },
-                { header: '거래일자', name: 'txnDate', width: 120, editor: 'text' },
-                { header: '구분', name: 'txnType', width: 80, editor: 'text' },
+                { header: '코드', name: 'txnHistCode', width: 120, editor: 'text', hidden: true },
+                { header: '거래일자', name: 'txnDate', width: 120 },
+                { header: '입출금구분', name: 'txnType', width: 80, editor: 'text', hidden: true  },
                 { header: '이름', name: 'txnName', width: 100, editor: 'text' },
-                { header: '메모', name: 'txnMemo', width: 150, editor: 'text' },
-                { header: '금액', name: 'price', width: 100, editor: 'text' },
+                { header: '입금', name: 'deposit', width: 100, editor: 'text',
+                    formatter: ({ row }) => row.txnType === 'tt01' ? row.price?.toLocaleString() : '',
+                },
+                { header: '출금', name: 'withdraw', width: 100, editor: 'text',
+                	formatter: ({ row }) => row.txnType === 'tt02' ? row.price?.toLocaleString() : '',
+                },
                 { header: '잔액', name: 'balance', width: 100, editor: 'text' },
                 { header: '은행', name: 'bank', width: 100, editor: 'text' },
                 { header: '계좌번호', name: 'acctNo', width: 120, editor: 'text' },
-                { header: '확인', name: 'cfmdYn', width: 60, editor: 'text' },
-                { header: '확인일시', name: 'cfmdAt', width: 120, editor: 'text' },
-                { header: '확인자', name: 'cfmdBy', width: 80, editor: 'text' }
+                { header: '메모', name: 'txnMemo', width: 150, editor: 'text' },
             ],
             data: [],
             rowHeaders: ['checkbox'],
             bodyHeight: 400
         });
 		
-        // 입출금내역 목록 아작스
-        function fetchData() {
-        	  $.ajax({
-        	    url: '/api/account/transactions',
-        	    method: 'GET',
-        	    dataType: 'json',
-        	    success: function (data) {
-        	    	tranGrid.resetData(data);
-        	    },
-        	    error: function () {
-        	      alert("데이터를 불러오는 중 오류 발생");
-        	    }
-        	  });
-        	}
-        fetchData();
+// 입출금내역 목록 아작스
+function fetchData() {
+  $.ajax({
+    url: '/erp/accounting/transactions',
+    method: 'GET',
+    dataType: 'json',
+    data: { comId },
+    success: function (data) {
+      // txnType 값에 따라 입금/출금 값 설정
+      const displayData = data.map(row => {
+        if (row.txnType === 'tt01') {
+          row.deposit = row.price;
+        } else if (row.txnType === 'tt02') {
+          row.withdraw = row.price;
+        }
+        return row;
+      });
+
+      tranGrid.resetData(displayData);
+    },
+    error: function () {
+      alert("데이터를 불러오는 중 오류 발생");
+    }
+  });
+}
+        
+        
+        
+fetchData();
 	
         //행추가
         $('#btn-add').on('click', function () {
-        	tranGrid.appendRow({});
+        	tranGrid.appendRow({
+        		  deposit: '',
+        		  withdraw: '',
+        		  balance: '',
+        		  txnName: '',
+        		  bank: '',
+        		  acctNo: '',
+        		  txnMemo: ''
+        		});
         	});
         
      // 저장 버튼
         $('#btn-save').on('click', function () {
-          const changes = tranGrid.getModifiedRows();
+  const changes = tranGrid.getModifiedRows();
+  const payload = {
+    createdRows: changes.createdRows.map(row => {
+      let txnType = '';
+      let price = 0;
 
-          const payload = {
-            createdRows: changes.createdRows,
-            updatedRows: changes.updatedRows,
-            deletedRows: changes.deletedRows
-          };
+      // 사용자가 입력한 값에 따라 txnType 결정
+      if (row.deposit && !row.withdraw) {
+        txnType = 'tt01';
+        price = parseInt(row.deposit);
+      } else if (!row.deposit && row.withdraw) {
+        txnType = 'tt02';
+        price = parseInt(row.withdraw);
+      } else {
+        alert("입금 또는 출금 중 하나만 입력하세요.");
+        return null;
+      }
 
-          $.ajax({
-            url: '/api/credit/transactions/saveAll',  // ✔️ 이 엔드포인트에 모두 처리하는 API 만들어야 함
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(payload),
-            success: function (res) {
-              if (res.result === 'success') {
-                alert(res.message || '저장 완료');
-                fetchData(); // ✅ 전체 새로고침
-              } else {
-                alert('저장 실패: ' + res.message);
-              }
-            },
-            error: function () {
-              alert("서버 오류: 저장 실패");
-            }
-          });
-        });
+      return {
+        txnName: row.txnName,
+        txnType,
+        price,
+        balance: row.balance,
+        bank: row.bank,
+        acctNo: row.acctNo,
+        txnMemo: row.txnMemo
+      };
+    }).filter(row => row !== null)
+  };
+
+  if (payload.createdRows.length === 0) return;
+
+  $.ajax({
+    url: '/erp/accounting/transactionsData',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(payload),
+    success: function (res) {
+      alert('저장 완료');
+      fetchData();
+    },
+    error: function () {
+      alert('저장 실패');
+    }
+  });
+});
     </script>
 
 </html>

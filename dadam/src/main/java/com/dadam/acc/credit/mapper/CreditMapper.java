@@ -5,7 +5,7 @@ import java.util.List;
 import com.dadam.acc.credit.service.CreditVO;
 
 public interface CreditMapper {
-	public List<CreditVO> creditFindAll();
-	public List<CreditVO> creditFindCode(String vdrCode);
+	public List<CreditVO> creditFindAll(String comId);
+	public List<CreditVO> creditFindCode(String vdrCode, String comId);
 
 }

@@ -4,6 +4,8 @@ import com.dadam.acc.credit.service.TransactionsService;
 import com.dadam.acc.credit.service.TransactionsVO;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,40 +13,25 @@ import java.util.Map;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping("/api/account")
+@RequestMapping("/erp/accounting")
 public class TransactionsRestController {
 	
     @Autowired
-    private TransactionsService transactionsService;
+    TransactionsService transactionsService;
 
     @GetMapping("/transactions")
-    public List<TransactionsVO> getAll() {
-        return transactionsService.getAll();
+    public List<TransactionsVO> getAll(String comId) {
+        return transactionsService.getAll(comId);
     }
 
 
-    @PostMapping("")
-    public void add(@RequestBody TransactionsVO vo) {
-        transactionsService.add(vo);
-    }
-
-    @PutMapping("")
-    public void update(@RequestBody TransactionsVO vo) {
-        transactionsService.update(vo);
-    }
-
-
-    @PostMapping("/saveAll")
-    public Map<String, Object> saveAll(@RequestBody TransactionsVO vo) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            transactionsService.saveAll(vo);
-            result.put("result", "success");
-            result.put("message", "저장이 완료되었습니다.");
-        } catch (IllegalArgumentException e) {
-            result.put("result", "fail");
-            result.put("message", "유효성 오류: " + e.getMessage());
+    @PostMapping("/transactionsData")
+    public Map<String, Object> add(@RequestBody Map<String, List<TransactionsVO>> payload) {
+        List<TransactionsVO> createdRows = payload.get("createdRows");
+        for (TransactionsVO vo : createdRows) {
+            transactionsService.add(vo);
         }
-        return result;
+        return Map.of("result", "success", "message", "입출금 등록 완료");
     }
-} 
+
+} 	
