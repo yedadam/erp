@@ -13,9 +13,10 @@ public interface OrderMapper {
         public List<OrdDtlVO> findOrdListByOrdNo(String ordCode);//주문건당 상세내역  
         public int orderInsert(OrdersVO ord); //주문헤더 insert
         public int odtlInsert(OrdDtlVO dtl); //주문Dtl insert 
+        public int odtlInsertDetailSave(OrdDtlVO dtl); //상세저장할때 주문 dtl insert 
         public int updVdrcreditBalPrice( @Param("vdrCode") String vdrCode,@Param ("totPrice") Long totPrice,@Param("comId")String comId);
-        // 프로시저 호출
-        
+
+        public int deleteOrdersDtl(@Param("ordCode")String ordCode,@Param("comId") String comId);
         
         void callUpdateCreditBal(@Param("vdrId") String vdrId, @Param("totPrice") Long totPrice); //여신잔량 계산 
         public int deleteOrders(@Param("ordCode")String ordCode,@Param("comId") String comId);//주문삭제 

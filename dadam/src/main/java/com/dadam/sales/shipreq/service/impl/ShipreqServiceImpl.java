@@ -1,6 +1,7 @@
 package com.dadam.sales.shipreq.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -37,8 +38,10 @@ public class ShipreqServiceImpl implements ShipreqService {
 	ShipreqMapper shipreqMapper;
 
 	@Override
-	public List<ShipReqVO> findShipreqList(String type,String value) {
-		List<ShipReqVO> result=shipreqMapper.findShipreqList(type,value,comId); 
+	public List<ShipReqVO> findShipreqList(Map<String,Object> map) {
+		initAuthInfo();
+		map.put("comId", comId);
+		List<ShipReqVO> result=shipreqMapper.findShipreqList(map); 
 		return result;
 	}
 

@@ -83,7 +83,7 @@
 		DISCOUNT,
 		TOT_PRICE,
 		QUO_CODE)
-		values(#{ordCode},
+		values(getNextOrdCode(),
 		#{vdrCode},
 		#{status},
 		#{createdDate},
@@ -99,7 +99,12 @@
 		#{totPrice},
 		'quoCode')
 	</insert>
+	<!-- 주문등록할때 odtl insert하는 sql -->
 	<insert id="odtlInsert" parameterType="com.dadam.sales.order.service.OrdDtlVO">
+		<selectKey resultType="string" keyProperty="ordCode" order="BEFORE">
+			SELECT MAX(ord_code)
+	    	FROM orders
+		</selectKey>
 		INSERT INTO ordersdetail (
 		ORD_DTL_CODE,
 		ITEM_CODE,
@@ -122,6 +127,31 @@
 		#{ordCode}
 		)
 	</insert>
+	
+	<!-- 상세저장할때 주문 insert 하는거  -->
+	<insert id="odtlInsertDetailSave" parameterType="com.dadam.sales.order.service.OrdDtlVO">
+		INSERT INTO ordersdetail (
+		ORD_DTL_CODE,
+		ITEM_CODE,
+		QUANTITY,
+		SUP_PRICE,
+		VAT_PRICE,
+		DISC_PRICE,
+		TOT_PRICE,
+		COM_ID,
+		ORD_CODE)
+		VALUES (
+		getNextOrdDtlCode(),
+		#{itemCode},
+		#{quantity},
+		#{supPrice},
+		#{vatPrice},
+		#{discPrice},
+		#{totPrice},
+		#{comId},
+		#{ordCode}
+		)	
+	</insert>
 	<update id="updVdrcreditBalPrice">
 		update vender
 		set credit_bal_price=#{creditBalPrice}-#{totPrice}
@@ -141,17 +171,23 @@
 		where ord_code=#{ordCode}
 		and   com_id=#{comId}
 	</delete>
-	<delete id="deleteOrdersDtl" parameterType="String">
+	<delete id="deleteOrdersDtl">
 		delete from orders
 		where ord_code=#{ordCode}
+		AND com_id=#{comId}
 	</delete>
 	<update id="updOrder" parameterType="com.dadam.sales.order.service.OrdersVO">
 		UPDATE ORDERS
 		SET vdr_code = #{vdrCode},
-		req_dlv_date =#{reqDlvDate},
-		pay_method = #{payMethod},
-		update_id = #{updateId},
-		update_date = sysdate
+			req_dlv_date =#{reqDlvDate},
+			pay_method = #{payMethod},
+			update_id = #{updateId},
+			update_date = sysdate, 
+			tot_quantity=#{totQuantity},
+			tot_supPrice=#{totSupPrice}, 
+			tot_vatPrice=#{totVatPrice},
+			tot_disc=#{totDisc},
+			tot_price=#{totPrice} 
 		WHERE ord_code = #{ordCode}
 		AND com_id=#{comId}
 	</update>

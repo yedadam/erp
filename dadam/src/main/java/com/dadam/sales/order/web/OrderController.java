@@ -88,13 +88,14 @@ public class OrderController {
 		String vdrcode=req.getOrd().getVdrCode();
 		Long totPrice=req.getOrd().getTotPrice(); // 총금액 해당 거래처코드에 가서 credit_bal_price-totPrice 여신잔액  
 		orderService.orderInsert(req); //insert 처리 		{ord:{}}
-	    return "ok";
+	    
+		return "ok";
 	}
 	
 	@ResponseBody
-	@PostMapping("/ord/regDtl")
+	@PostMapping("/ord/regDtl")  //상세저장 새로생긴건(createdRows) insert,update된거() update 
 	public String regDtl(@RequestBody OrdReqVO req) {
-	    orderService.ordDtlInsert(req); 
+	    orderService.ordDtlInsert(req); //상세저장 눌렀을때 
 	    Log.info(req); 
 	    return "okDtl";  
 	}

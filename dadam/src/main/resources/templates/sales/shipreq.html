@@ -97,19 +97,22 @@
     	background-color: #e6f2ff !important;
   	}
 
+
 </style>
 </head>
+<!--출하관리 html 원본   -->
 <body class="bg-light">
     <div class="container-fluid mt-4">
         <h3 class="mb-4">출하의뢰</h3>
         
         <!-- 검색 및 버튼 영역 -->
       <!-- 📦 출하의뢰 조건 + 버튼 카드 -->
-		<div class="card mb-3 shadow-sm">
-		<div class="card-body">
-		<div class="row g-3 align-items-end">
-
-      <!-- 🔍 검색 조건 -->
+		<!-- 🔍 검색 박스 -->
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      
+      <!-- 검색 조건 -->
       <div class="col-md-4">
         <label for="shipReqSelect" class="form-label">검색 조건</label>
         <div class="input-group">
@@ -120,30 +123,24 @@
             <option value="ordCode">주문코드</option>
           </select>
           <input type="text" class="form-control" id="shipReqInput" placeholder="검색어 입력">
-          <button class="btn btn-outline-secondary" type="button" id="shipReqSearchBtn">
-            <i class="fas fa-search"></i>
-          </button>
         </div>
-        <!-- 자동완성 리스트 -->
         <ul id="autoShipReqList"
           class="list-group position-absolute w-100 shadow-sm"
           style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
         </ul>
       </div>
 
-      <!-- 📅 출고예정일 시작 -->
-      <div class="col-md-2">
-        <label for="shipExpStartDate" class="form-label">출고예정일자</label>
-        <input type="date" id="shipExpStartDate" class="form-control">
+      <!-- 출고예정일 -->
+      <div class="col-md-3">
+        <label class="form-label">출고예정일자</label>
+        <div class="d-flex gap-2">
+          <input type="date" id="shipExpStartDate" class="form-control">
+          <input type="date" id="shipExpEndDate" class="form-control">
+        </div>
       </div>
 
-      <!-- 📅 출고예정일 종료 -->
-      <div class="col-md-2">
-        <label for="shipExpEndDate" class="form-label">~</label>
-        <input type="date" id="shipExpEndDate" class="form-control">
-      </div>
-			<!--진행상태-->	
-			 <div class="col-md-3">
+      <!-- 진행 상태 -->
+      <div class="col-md-3">
         <label class="form-label d-block">진행 상태</label>
         <div class="d-flex gap-2 flex-wrap">
           <div class="form-check">
@@ -164,33 +161,32 @@
           </div>
         </div>
       </div>
-	
 
-      <!-- ✅ 버튼그룹 -->
-      <div class="col-md-4 d-flex justify-content-end gap-2">
-        <button class="btn btn-dark" id="newBtn">
-          <i class="fas fa-pen"></i> 추가
-        </button>
-        <button class="btn btn-warning" id="searchBtn">
-          <i class="fas fa-eye"></i> 조회
-        </button>
-        <button class="btn btn-danger" id="delBtn">
-          <i class="fas fa-trash"></i> 삭제
-        </button>
-        <button class="btn btn-primary" id="saveBtn">
-          <i class="fas fa-save"></i> 저장
-        </button>
-      </div>
-
-			   <!-- 검색 버튼 -->
-      <div class="col-md-2 d-flex align-items-end">
-        <button class="btn btn-primary w-100" id="searchBtn">
+      <!-- 검색 버튼 -->
+      <div class="col-md-2 d-flex justify-content-end">
+        <button class="btn btn-primary w-100" id="searchButton">
           <i class="fas fa-search"></i> 검색
         </button>
       </div>
-
     </div>
   </div>
+</div>
+
+<!-- ✅ 하단 버튼 그룹 -->
+<div class="d-flex justify-content-end gap-2 mb-3">
+  <button class="btn btn-dark" id="newBtn">
+    <i class="fas fa-pen"></i> 추가
+  </button>
+  <button class="btn btn-warning" id="searchBtn">
+    <i class="fas fa-eye"></i> 조회
+  </button>
+  <button class="btn btn-danger" id="delBtn">
+    <i class="fas fa-trash"></i> 삭제
+  </button>
+  <button class="btn btn-primary" id="saveBtn">
+    <i class="fas fa-save"></i> 저장
+  </button>
+</div>
 </div>
 
 
@@ -202,7 +198,7 @@
 
         <!-- 상세 정보 테이블 -->
 
-             <div class="text-end">
+             <!-- <div class="text-end">
                 <div class="btn-group-custom">
                 	<button class="btn btn-primary me-2" id="rowAddBtn">
                         행추가
@@ -211,7 +207,7 @@
                        행삭제
                     </button>
                 </div>
-            </div>
+            </div> -->
                 <div id="detailGrid"></div>
     </div>
   <!-- 주문 모달 -->
@@ -280,6 +276,7 @@
 		</div>
 	</div>
 	<!--창고모달-->	
+	<!--ㄴㅇㄹㄴㅇㄹㅇㄴㄹ-->
 	<div class="modal fade" id="warehouseModal" tabindex="-1"
 		aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-xl">
@@ -300,7 +297,9 @@
 				</div>
 			</div>
 		</div>
-	</div>
+<!-- div 하나 없음....-->
+
+
 	<script th:inline="javascript">
 	//세션
 	// let empId = 'emp-101';
@@ -370,7 +369,7 @@
             // 필드값 구성
             columns: [
                 {header: '사원', name: 'empId', align: 'center', editor: 'text'},
-				{header: '회사ID', name: 'comId', align: 'center', editor: 'text'},
+								{header: '회사ID', name: 'comId', align: 'center', editor: 'text'},
                 {header: '출하의뢰코드', name: 'shipReqCode', align: 'center',customHeader:getName('출하의뢰코드')},
                 {header: '거래처이름', name: 'vdrName', align: 'center',customHeader:getName('거래처이름')},
                 {header: '거래처코드', name: 'vdrCode', align: 'center'},
@@ -762,6 +761,13 @@
 					}
 				})
 		})
+
+	
+
+
+
+
+
 		//라디오버튼처럼 작동
 		mainGrid.on('click', ev => {		
 		  const checkedRows = mainGrid.getCheckedRowKeys();
@@ -903,16 +909,27 @@
 					 mainList();
 	    	 }
 	     })
-	     //조회버튼
-	     $('#searchBtn').on('click',ev => {
-	    	 mainList();
-	     })
+
+			 //전체검색버튼 눌림 
+	      $('#searchButton').on('click',ev => {
+			// 	//map으로 넘길값 
+			 	let shipExpStartDate=document.getElementById('shipExpStartDate').value;
+			 	let shipExpEndDate=document.getElementById('shipExpEndDate').value; 
+			 	let type=$('#shipReqSelect  option:selected').val();  //type 
+			 	let value=$("#shipReqInput").val();
+			 	let status=document.querySelector('input[name="shipReqStatus"]:checked').value;
+				console.log(shipExpEndDate,shipExpStartDate,type,value,status);	
+			 	let url='/erp/sales/shipReqList'; 
+			 	commonSearchObject({type,value,shipExpStartDate,shipExpEndDate,status},url,mainGrid);
+					
+	    })
+
+	     
 		 //주문서불러오기 버튼
 		 $('#reqBtn').on('click',ev=>{
 			requestModal(); 
 		 })
-
-	   
+		 
 	     //수정 함수
 	     async function shipReqModify(){
 	    	 let checkedRows = detailGrid.getModifiedRows();

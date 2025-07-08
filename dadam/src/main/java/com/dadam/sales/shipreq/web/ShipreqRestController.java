@@ -1,6 +1,7 @@
 package com.dadam.sales.shipreq.web;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,12 +29,14 @@ public class ShipreqRestController {
     	  
 	//조회
 	@GetMapping("/shipReqList")
-	public List<ShipReqVO> shipReqList(@RequestParam(defaultValue = "",required = false) String type,@RequestParam(defaultValue = "",required = false) String value){
-		List<ShipReqVO> result = service.findShipreqList(type,value);
-		System.out.println("조회");
+	public List<ShipReqVO> shipReqList(@RequestParam  Map<String,Object> map){
+		List<ShipReqVO> result = service.findShipreqList(map);
+		System.out.println("map=>>>"+map);
+		
+		System.out.println(result);
 		return result;
 	}
-	
+
 	@GetMapping("/shipReqDtlList")
 	public List<ShipReqDtlVO> shipReqDtlList(@RequestParam(name="shipReqCode")String shipReqCode){
 		List<ShipReqDtlVO> result = service.findShipreqDtlList(shipReqCode);
