@@ -11,8 +11,16 @@ import org.springframework.web.bind.annotation.*;
 import com.dadam.security.service.LoginUserAuthority;
 import com.dadam.security.service.LoginMainAuthority;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+
+import org.springframework.http.ResponseEntity;
+
+import lombok.extern.slf4j.Slf4j;
+
+import com.dadam.hr.salary.service.SalaryCalculationVO;
 
 /**
  * 급여 계산 REST 컨트롤러
@@ -20,6 +28,7 @@ import java.util.Map;
  * - 급여 지급 처리
  * - 권한별 기능 제어
  */
+@Slf4j
 @RestController
 @RequestMapping("/erp/salary/calculation")
 public class SalaryCalculationController {
@@ -79,7 +88,7 @@ public class SalaryCalculationController {
             return null; // 권한 없음
         }
         
-        return salaryCalculationService.calculateSalary(empId, payMonth, userInfo.get("comId"));
+        return salaryCalculationService.getSalaryStatement(empId, payMonth);
     }
 
     /**
@@ -95,7 +104,7 @@ public class SalaryCalculationController {
         }
         
         Map<String, String> userInfo = getCurrentUserInfo();
-        return salaryCalculationService.processSalaryPayment(statementId, userInfo.get("comId"));
+        return salaryCalculationService.processSalaryPayment(statementId);
     }
 
     /**
@@ -121,7 +130,7 @@ public class SalaryCalculationController {
             return "reject_reason_required";
         }
         
-        return salaryCalculationService.approveSalaryPayment(paymentId, status, userInfo.get("empId"), rejectReason);
+        return salaryCalculationService.approveSalaryPayment(paymentId, status, rejectReason);
     }
 
     /**
@@ -139,7 +148,7 @@ public class SalaryCalculationController {
         }
         
         Map<String, String> userInfo = getCurrentUserInfo();
-        return salaryCalculationService.getSalaryStatistics(userInfo.get("comId"), deptCode, payMonth);
+        return salaryCalculationService.getSalaryStatistics(deptCode, payMonth);
     }
 
     /**
@@ -160,7 +169,7 @@ public class SalaryCalculationController {
             empId = userInfo.get("empId");
         }
         
-        return salaryCalculationService.getSalaryPaymentHistory(userInfo.get("comId"), empId, fromMonth, toMonth);
+        return salaryCalculationService.getSalaryPaymentHistory(empId, fromMonth, toMonth);
     }
 
     /**
@@ -177,7 +186,7 @@ public class SalaryCalculationController {
             return 0.0; // 권한 없음
         }
         
-        return salaryCalculationService.calculateBaseSalary(empId, userInfo.get("comId"));
+        return salaryCalculationService.getBaseSalary(empId);
     }
 
     /**
@@ -195,7 +204,7 @@ public class SalaryCalculationController {
             return null; // 권한 없음
         }
         
-        return salaryCalculationService.calculateWorkDays(empId, payMonth, userInfo.get("comId"));
+        return salaryCalculationService.getWorkDays(empId, payMonth);
     }
 
     /**
@@ -250,5 +259,89 @@ public class SalaryCalculationController {
         }
         
         return salaryCalculationService.calculateOvertimePay(empId, payMonth, userInfo.get("comId"));
+    }
+
+    /**
+     * 월별 급여 일괄 계산 실행
+     * 
+     * @param request 계산 요청 정보
+     * @return 계산 결과
+     */
+    @PostMapping("/monthly")
+    public ResponseEntity<Map<String, Object>> calculateMonthlySalary(@RequestBody Map<String, Object> request) {
+        log.info("월별 급여 일괄 계산 요청 - 회사ID: {}, 년월: {}", 
+                request.get("companyId"), request.get("yearMonth"));
+        
+        try {
+            Long companyId = Long.valueOf(request.get("companyId").toString());
+            String yearMonth = request.get("yearMonth").toString();
+            
+            // 급여 계산 실행
+            int calculatedCount = salaryCalculationService.calculateMonthlySalary(companyId, yearMonth);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "급여 계산이 완료되었습니다.");
+            response.put("calculatedCount", calculatedCount);
+            response.put("companyId", companyId);
+            response.put("yearMonth", yearMonth);
+            
+            log.info("월별 급여 일괄 계산 완료 - 계산된 건수: {}", calculatedCount);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("월별 급여 일괄 계산 중 오류 발생", e);
+            
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "급여 계산 중 오류가 발생했습니다: " + e.getMessage());
+            
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    /**
+     * 개별 사원 급여 계산
+     * 
+     * @param request 계산 요청 정보
+     * @return 계산 결과
+     */
+    @PostMapping("/employee")
+    public ResponseEntity<Map<String, Object>> calculateEmployeeSalary(@RequestBody Map<String, Object> request) {
+        log.info("개별 사원 급여 계산 요청 - 사원ID: {}, 년월: {}", 
+                request.get("employeeId"), request.get("yearMonth"));
+        
+        try {
+            Long companyId = Long.valueOf(request.get("companyId").toString());
+            Long employeeId = Long.valueOf(request.get("employeeId").toString());
+            String yearMonth = request.get("yearMonth").toString();
+            
+            // 개별 사원 급여 계산
+            SalaryCalculationVO calculationResult = salaryCalculationService.calculateEmployeeSalary(
+                companyId, employeeId, yearMonth);
+            
+            Map<String, Object> response = new HashMap<>();
+            
+            if (calculationResult != null) {
+                response.put("success", true);
+                response.put("message", "급여 계산이 완료되었습니다.");
+                response.put("calculation", calculationResult);
+            } else {
+                response.put("success", false);
+                response.put("message", "급여 계산 대상이 아닙니다.");
+            }
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("개별 사원 급여 계산 중 오류 발생", e);
+            
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "급여 계산 중 오류가 발생했습니다: " + e.getMessage());
+            
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 } 

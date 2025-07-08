@@ -36,13 +36,16 @@ public class SalaryStatementController {
     }
     /**
      * 급여명세서 상세 화면
-     * @param id - 급여명세서 PK
+     * @param id - 급여명세서 PK (문자열 SAL_ID)
      * @param model - 뷰 모델
      * @return 급여명세서 상세 뷰
      */
     @GetMapping("/salary/detail/{id}")
-    public String detail(@PathVariable Long id, Model model) {
-        SalaryStatementVO vo = salaryStatementService.getSalaryStatementById(id);
+    public String detail(@PathVariable String id, Model model) {
+        java.util.Map<String, Object> param = new java.util.HashMap<>();
+        param.put("salId", id); // SAL_ID는 문자열
+        param.put("comId", "com-101"); // 실제 로그인 정보에서 추출 필요
+        SalaryStatementVO vo = salaryStatementService.getSalaryStatementById(param);
         model.addAttribute("salary", vo);
         return "hr/salarydetail";
     }

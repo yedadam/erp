@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 급여 지급/승인/이력 관리</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Toast UI Grid -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.css" />
+    <style>
+        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: 600; }
+        .status-CALCULATED { background: #e3f2fd; color: #1976d2; }
+        .status-APPROVED { background: #f3e5f5; color: #7b1fa2; }
+        .status-PAID { background: #e8f5e8; color: #388e3c; }
+    </style>
+</head>
+<body>
+<div class="container-fluid py-4">
+    <h3 class="mb-4"><i class="bi bi-cash-coin"></i> 급여 지급/승인/이력 관리</h3>
+    <div class="card mb-3">
+        <div class="card-body">
+            <form class="row g-2 align-items-end" id="filterForm">
+                <div class="col-md-2">
+                    <label class="form-label">지급년월</label>
+                    <input type="month" class="form-control" id="yearMonth">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">상태</label>
+                    <select class="form-select" id="status">
+                        <option value="">전체</option>
+                        <option value="CALCULATED">계산완료</option>
+                        <option value="APPROVED">승인완료</option>
+                        <option value="PAID">지급완료</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">사원명</label>
+                    <input type="text" class="form-control" id="employeeName" placeholder="사원명 검색">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-primary w-100" id="btnSearch"><i class="bi bi-search"></i> 조회</button>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-success w-100" id="btnApproveAll"><i class="bi bi-check2-all"></i> 일괄승인</button>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-warning w-100" id="btnPayAll"><i class="bi bi-cash"></i> 일괄지급</button>
+                </div>
+                <div class="col-md-2 mt-2">
+                    <button type="button" class="btn btn-outline-secondary w-100" id="btnExcel"><i class="bi bi-file-earmark-excel"></i> 엑셀다운로드</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div id="salaryGrid" style="height: 500px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Toast UI Grid -->
+<script src="https://uicdn.toast.com/grid/latest/tui-grid.js"></script>
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<script>
+    let grid;
+    $(document).ready(function() {
+        // Toast UI Grid 초기화
+        grid = new tui.Grid({
+            el: document.getElementById('salaryGrid'),
+            scrollX: false,
+            scrollY: true,
+            rowHeaders: ['rowNum'],
+            columns: [
+                { header: '사원명', name: 'employeeName', width: 120 },
+                { header: '직급', name: 'position', width: 80 },
+                { header: '고용형태', name: 'empType', width: 90 },
+                { header: '지급년월', name: 'yearMonth', width: 90 },
+                { header: '기본급', name: 'baseSalary', formatter: 'listItemText', align: 'right', width: 100 },
+                { header: '총급여', name: 'totalSalary', align: 'right', width: 100 },
+                { header: '실수령액', name: 'netSalary', align: 'right', width: 100 },
+                { header: '상태', name: 'status', width: 100, formatter: function({value}) {
+                    return `<span class="status-badge status-${value}">${value === 'CALCULATED' ? '계산완료' : value === 'APPROVED' ? '승인완료' : value === 'PAID' ? '지급완료' : value}</span>`;
+                } },
+                { header: '계산일시', name: 'calculatedAt', width: 120 },
+                { header: '승인일시', name: 'approvedAt', width: 120 },
+                { header: '지급일시', name: 'paidAt', width: 120 },
+                { header: '상세', name: 'detail', width: 70, align: 'center', renderer: {
+                    type: tui.Grid.ButtonRenderer,
+                    options: {
+                        text: '상세',
+                        className: 'btn btn-sm btn-outline-primary',
+                        onClick: function(ev) {
+                            const row = grid.getRow(ev.rowKey);
+                            window.open(`/hr/salary/detail/${row.salaryId}`, '_blank');
+                        }
+                    }
+                }}
+            ],
+            data: []
+        });
+
+        // 조회 버튼 클릭
+        $('#btnSearch').click(function() {
+            loadSalaryList();
+        });
+        // 일괄 승인
+        $('#btnApproveAll').click(function() {
+            if(confirm('조회된 급여를 모두 승인 처리하시겠습니까?')) {
+                approveOrPayAll('APPROVED');
+            }
+        });
+        // 일괄 지급
+        $('#btnPayAll').click(function() {
+            if(confirm('조회된 급여를 모두 지급 처리하시겠습니까?')) {
+                approveOrPayAll('PAID');
+            }
+        });
+        // 엑셀 다운로드
+        $('#btnExcel').click(function() {
+            exportExcel();
+        });
+        // 최초 로딩 시 현재월 기본값
+        const now = new Date();
+        $('#yearMonth').val(now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0'));
+        loadSalaryList();
+    });
+
+    function loadSalaryList() {
+        const params = {
+            yearMonth: $('#yearMonth').val(),
+            status: $('#status').val(),
+            employeeName: $('#employeeName').val()
+        };
+        $.ajax({
+            url: '/api/salary/list',
+            method: 'GET',
+            data: params,
+            success: function(res) {
+                if(res.success) {
+                    grid.resetData(res.data);
+                } else {
+                    alert('조회 실패: ' + res.message);
+                }
+            },
+            error: function() { alert('조회 중 오류 발생'); }
+        });
+    }
+    function approveOrPayAll(status) {
+        const params = {
+            yearMonth: $('#yearMonth').val(),
+            status: status
+        };
+        $.ajax({
+            url: status === 'APPROVED' ? '/api/salary/approve/batch' : '/api/salary/pay/batch',
+            method: 'POST',
+            data: params,
+            success: function(res) {
+                if(res.success) {
+                    alert('처리 완료!');
+                    loadSalaryList();
+                } else {
+                    alert('처리 실패: ' + res.message);
+                }
+            },
+            error: function() { alert('처리 중 오류 발생'); }
+        });
+    }
+    function exportExcel() {
+        const params = $.param({
+            yearMonth: $('#yearMonth').val(),
+            status: $('#status').val()
+        });
+        window.location.href = '/api/salary/export?' + params;
+    }
+</script>
+</body>
+</html> 

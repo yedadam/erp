@@ -7,9 +7,9 @@ import java.util.List;
  * 급여명세서 Service 인터페이스
  */
 public interface SalaryStatementService {
-    SalaryStatementVO getSalaryStatementById(Long id);
+    SalaryStatementVO getSalaryStatementById(java.util.Map<String, Object> param);
     int addSalaryStatement(SalaryStatementVO vo);
     int modifySalaryStatement(SalaryStatementVO vo);
-    int removeSalaryStatement(Long id);
+    int removeSalaryStatement(java.util.Map<String, Object> param);
     List<SalaryStatementVO> getSalaryStatementList(String empId, String comId);
 } 

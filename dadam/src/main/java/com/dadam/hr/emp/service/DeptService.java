@@ -1,6 +1,7 @@
 package com.dadam.hr.emp.service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 부서 서비스 인터페이스
@@ -12,6 +13,10 @@ public interface DeptService {
      * @return 부서 리스트
      */
     List<DeptVO> getDeptList();
+    /**
+     * 검색 파라미터 기반 부서 목록 조회
+     */
+    List<DeptVO> getDeptList(Map<String, String> params);
     /**
      * 부서 등록
      * @param deptVO 부서 정보

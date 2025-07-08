@@ -71,7 +71,10 @@ public class SalaryStatementRestController {
     @PostMapping("/delete/{id}")
     public Map<String, Object> delete(@PathVariable Long id) {
         Map<String, Object> result = new HashMap<>();
-        int deleteResult = salaryStatementService.removeSalaryStatement(id);
+        java.util.Map<String, Object> param = new java.util.HashMap<>();
+        param.put("id", id);
+        param.put("comId", "com-101"); // 실제 로그인 정보에서 추출 필요
+        int deleteResult = salaryStatementService.removeSalaryStatement(param);
         boolean success = deleteResult > 0;
         result.put("success", success);
         result.put("message", success ? "삭제 성공" : "삭제 실패");

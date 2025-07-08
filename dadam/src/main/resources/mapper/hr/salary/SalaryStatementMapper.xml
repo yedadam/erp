@@ -27,7 +27,7 @@
         ORDER BY s.CALC_MONTH DESC
     </select>
     <!-- 단일 급여명세서 상세 조회 (SAL_ID 기준) -->
-    <select id="selectSalaryStatementById" parameterType="string" resultType="SalaryStatementVO">
+    <select id="selectSalaryStatementById" parameterType="map" resultType="SalaryStatementVO">
         SELECT
             s.*,
             e.EMP_NAME AS empName
@@ -51,7 +51,7 @@
         WHERE id = #{id} AND com_id = #{comId}
     </update>
     <!-- 급여명세서 삭제 -->
-    <delete id="deleteSalaryStatement" parameterType="long">
+    <delete id="deleteSalaryStatement" parameterType="map">
         DELETE FROM salaryStatement WHERE id = #{id} AND com_id = #{comId}
     </delete>
 </mapper> 
