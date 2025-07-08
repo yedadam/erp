@@ -1,4 +1,4 @@
-package com.dadam.hr.salary.web.vo;
+package com.dadam.hr.salary.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

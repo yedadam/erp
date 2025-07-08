@@ -124,4 +124,9 @@ public class DeptServiceImpl implements DeptService {
         }
         return roots.isEmpty() ? null : roots.get(0);
     }
+
+    @Override
+    public List<DeptVO> getDeptList(Map<String, String> params) {
+        return deptMapper.getDeptList(params);
+    }
 } 

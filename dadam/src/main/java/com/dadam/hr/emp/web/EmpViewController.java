@@ -35,4 +35,11 @@ public class EmpViewController {
         // 권한/부서 정보 등은 JS에서 Ajax로 별도 조회 권장
         return "hr/emplist";
     }
+    
+
+    
+    @GetMapping("/deptList")
+    public String deptListPage() {
+        return "hr/deptlist";
+    }
 } 

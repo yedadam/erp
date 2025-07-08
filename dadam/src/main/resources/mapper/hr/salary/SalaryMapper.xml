@@ -122,7 +122,7 @@
     </insert>
 
     <!-- 급여 마스터 저장 -->
-    <insert id="insertSalaryMaster" parameterType="com.dadam.hr.salary.web.vo.SalaryCalculationVO" 
+    <insert id="insertSalaryMaster" parameterType="SalaryCalculationVO" 
             useGeneratedKeys="true" keyProperty="salaryId">
         INSERT INTO salary_master (
             company_id, employee_id, year_month,
@@ -136,7 +136,7 @@
     </insert>
 
     <!-- 급여 상세 저장 -->
-    <insert id="insertSalaryDetail" parameterType="com.dadam.hr.salary.web.vo.SalaryDetailVO">
+    <insert id="insertSalaryDetail" parameterType="SalaryDetailVO">
         INSERT INTO salary_detail (
             salary_id, item_type, item_name, amount, remarks, created_at
         ) VALUES (

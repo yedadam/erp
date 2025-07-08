@@ -74,18 +74,9 @@ public class DeptController {
      * @return 부서 리스트
      */
     @GetMapping("/dept")
-    public List<DeptVO> getDeptList() {
-        java.util.Map<String, String> userInfo = getCurrentUserInfo();
-        // 관리자가 아닌 경우 본인 부서만 조회 가능
-        if (!isAdmin()) {
-            DeptVO userDept = deptService.getDeptDetail(userInfo.get("deptCode"), userInfo.get("comId"));
-            List<DeptVO> result = new java.util.ArrayList<>();
-            if (userDept != null) {
-                result.add(userDept);
-            }
-            return result;
-        }
-        return deptService.getDeptList();
+    public List<DeptVO> getDeptList(@RequestParam Map<String, String> params) {
+    	System.out.println(params);
+        return deptService.getDeptList(params);
     }
 
     /**

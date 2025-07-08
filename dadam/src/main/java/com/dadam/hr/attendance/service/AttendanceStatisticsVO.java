@@ -1,4 +1,4 @@
-package com.dadam.hr.attendance.web.vo;
+package com.dadam.hr.attendance.service;
 
 import java.math.BigDecimal;
 

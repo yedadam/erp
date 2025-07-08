@@ -42,4 +42,8 @@ public interface DeptMapper {
      * @return 삭제 결과
      */
     int deleteDept(@Param("deptCode") String deptCode, @Param("comId") String comId);
+    /**
+     * 검색 파라미터 기반 부서 목록 조회
+     */
+    List<DeptVO> getDeptList(java.util.Map<String, String> params);
 } 

@@ -2,22 +2,44 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.hr.emp.mapper.DeptMapper">
     <!-- [부서 전체 조회] 부서 테이블 전체 조회 -->
-    <select id="getDeptList" resultType="DeptVO">
+    <select id="getDeptList" parameterType="map" resultType="DeptVO">
         SELECT 
             d.dept_code AS deptCode,
             d.dept_name AS deptName,
             d.parent_dept_code AS parentDeptCode,
+            -- 상위부서명(조회용)
+            (SELECT dept_name FROM departments pd WHERE pd.dept_code = d.parent_dept_code) AS parentDeptName,
             d.emp_id AS empId,
             d.created_date AS createdDate,
+            TO_CHAR(d.created_date, 'YYYY-MM-DD') AS createdDateStr,
             d.com_id AS comId,
             d.acct_yn AS acctYn,
+            -- 사용여부 한글(조회용)
+            CASE d.acct_yn WHEN 'Y' THEN '사용' ELSE '미사용' END AS statusText,
             d.remark,
+            -- 인원수(조회용)
             (
                 SELECT COUNT(*)
                 FROM employees e
                 WHERE e.dept_code = d.dept_code
-            ) AS empCount
+            ) AS empCount,
+            -- 권한코드/권한명(조회용)
+            d.auth_code AS authCode,
+            a.auth_name AS authName
         FROM departments d
+        LEFT JOIN auth a ON d.auth_code = a.auth_code
+        WHERE 1=1
+         <choose>
+            <when test="'deptCode'.equals(type)">
+                AND dept_code LIKE '%'||#{value}||'%'
+            </when>
+            <when test="'deptName'.equals(type)">
+            	 AND dept_name '%'||#{value}||'%'
+            </when>
+            <when test="'parentDeptName'.equals(type)">
+            	 AND parent_dept_name  LIKE '%'||#{value}||'%'
+            </when>
+   </choose>
         ORDER BY d.dept_code
     </select>
 

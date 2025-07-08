@@ -6,8 +6,8 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.dadam.hr.salary.web.vo.SalaryCalculationVO;
-import com.dadam.hr.salary.web.vo.SalaryDetailVO;
+import com.dadam.hr.salary.service.SalaryCalculationVO;
+import com.dadam.hr.salary.service.SalaryDetailVO;
 
 /**
  * 급여 매퍼 인터페이스

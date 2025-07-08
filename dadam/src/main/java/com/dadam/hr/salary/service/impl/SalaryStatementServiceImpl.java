@@ -20,8 +20,8 @@ public class SalaryStatementServiceImpl implements SalaryStatementService {
         return salaryStatementMapper.selectSalaryStatementList(empId, comId);
     }
     @Override
-    public SalaryStatementVO getSalaryStatementById(Long id) {
-        return salaryStatementMapper.selectSalaryStatementById(id);
+    public SalaryStatementVO getSalaryStatementById(java.util.Map<String, Object> param) {
+        return salaryStatementMapper.selectSalaryStatementById(param);
     }
     @Override
     public int addSalaryStatement(SalaryStatementVO vo) {
@@ -32,7 +32,7 @@ public class SalaryStatementServiceImpl implements SalaryStatementService {
         return salaryStatementMapper.updateSalaryStatement(vo);
     }
     @Override
-    public int removeSalaryStatement(Long id) {
-        return salaryStatementMapper.deleteSalaryStatement(id);
+    public int removeSalaryStatement(java.util.Map<String, Object> param) {
+        return salaryStatementMapper.deleteSalaryStatement(param);
     }
 } 

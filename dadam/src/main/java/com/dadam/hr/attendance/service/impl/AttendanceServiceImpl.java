@@ -1,6 +1,6 @@
 package com.dadam.hr.attendance.service.impl;
 
-import com.dadam.hr.attendance.mapper.AttendanceMapper;
+import com.dadam.hr.attendance.mapper.AttendanceManageMapper;
 import com.dadam.hr.attendance.mapper.AttendanceIpMapper;
 import com.dadam.hr.attendance.service.AttendanceService;
 import com.dadam.hr.attendance.service.AttendanceVO;
@@ -22,7 +22,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     /** 근태 Mapper */
     @Autowired
-    private AttendanceMapper attendanceMapper;
+    private AttendanceManageMapper attendanceMapper;
     
     /** IP 관리 Mapper */
     @Autowired

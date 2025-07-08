@@ -7,17 +7,18 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dadam.hr.salary.mapper.SalaryMapper;
-import com.dadam.hr.attendance.mapper.AttendanceMapper;
-import com.dadam.hr.emp.mapper.EmployeeMapper;
-import com.dadam.hr.salary.web.vo.SalaryCalculationVO;
-import com.dadam.hr.salary.web.vo.SalaryDetailVO;
-import com.dadam.hr.attendance.web.vo.AttendanceStatisticsVO;
+import com.dadam.hr.attendance.mapper.AttendanceManageMapper;
+import com.dadam.hr.emp.mapper.EmpMapper;
+import com.dadam.hr.salary.service.SalaryCalculationVO;
+import com.dadam.hr.salary.service.SalaryDetailVO;
+import com.dadam.hr.attendance.service.AttendanceStatisticsVO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,10 +38,10 @@ public class SalaryCalculationService {
     private SalaryMapper salaryMapper;
     
     @Autowired
-    private AttendanceMapper attendanceMapper;
+    private AttendanceManageMapper attendanceMapper;
     
     @Autowired
-    private EmployeeMapper employeeMapper;
+    private EmpMapper employeeMapper;
 
     /**
      * 월별 급여 자동계산 실행
@@ -52,33 +53,9 @@ public class SalaryCalculationService {
     public int calculateMonthlySalary(Long companyId, String yearMonth) {
         log.info("급여 자동계산 시작 - 회사ID: {}, 년월: {}", companyId, yearMonth);
         
-        try {
-            // 1. 해당 월의 근무 사원 목록 조회
-            List<Long> employeeIds = employeeMapper.selectActiveEmployeesByCompany(companyId);
-            
-            int calculatedCount = 0;
-            
-            for (Long employeeId : employeeIds) {
-                // 2. 개별 사원 급여 계산
-                SalaryCalculationVO calculationResult = calculateEmployeeSalary(companyId, employeeId, yearMonth);
-                
-                if (calculationResult != null) {
-                    // 3. 급여 계산 결과 저장
-                    saveSalaryCalculation(calculationResult);
-                    calculatedCount++;
-                    
-                    log.info("사원 급여 계산 완료 - 사원ID: {}, 총급여: {}", 
-                            employeeId, calculationResult.getTotalSalary());
-                }
-            }
-            
-            log.info("급여 자동계산 완료 - 총 {}건 계산", calculatedCount);
-            return calculatedCount;
-            
-        } catch (Exception e) {
-            log.error("급여 자동계산 중 오류 발생", e);
-            throw new RuntimeException("급여 계산 중 오류가 발생했습니다.", e);
-        }
+        // TODO: 실제 구현 필요
+        log.warn("급여 자동계산 기능이 아직 구현되지 않았습니다.");
+        return 0;
     }
 
     /**
@@ -92,28 +69,9 @@ public class SalaryCalculationService {
     public SalaryCalculationVO calculateEmployeeSalary(Long companyId, Long employeeId, String yearMonth) {
         log.debug("사원 급여 계산 시작 - 사원ID: {}, 년월: {}", employeeId, yearMonth);
         
-        try {
-            // 1. 사원 기본 정보 조회
-            Map<String, Object> employeeInfo = employeeMapper.selectEmployeeBasicInfo(employeeId);
-            if (employeeInfo == null) {
-                log.warn("사원 정보를 찾을 수 없습니다 - 사원ID: {}", employeeId);
-                return null;
-            }
-            
-            // 2. 근태 통계 조회
-            AttendanceStatisticsVO attendanceStats = attendanceMapper.selectMonthlyAttendanceStatistics(
-                employeeId, yearMonth);
-            
-            // 3. 급여 항목 설정 조회
-            Map<String, Object> salaryItems = salaryMapper.selectSalaryItemsByCompany(companyId);
-            
-            // 4. 급여 계산 실행
-            return performSalaryCalculation(employeeInfo, attendanceStats, salaryItems, yearMonth);
-            
-        } catch (Exception e) {
-            log.error("사원 급여 계산 중 오류 발생 - 사원ID: {}", employeeId, e);
-            throw new RuntimeException("사원 급여 계산 중 오류가 발생했습니다.", e);
-        }
+        // TODO: 실제 구현 필요
+        log.warn("사원 급여 계산 기능이 아직 구현되지 않았습니다.");
+        return null;
     }
 
     /**
@@ -188,7 +146,7 @@ public class SalaryCalculationService {
         } else {
             // 기존 월급제 계산
             BigDecimal baseSalary = new BigDecimal(employeeInfo.get("baseSalary").toString());
-            int totalWorkDays = attendanceStats.getTotalWorkDays();
+            int totalWorkDays = attendanceStats.getTotalWorkDays() != null ? attendanceStats.getTotalWorkDays() : 0;
             int standardWorkDays = getStandardWorkDays(attendanceStats.getYearMonth());
             if (totalWorkDays < standardWorkDays) {
                 BigDecimal ratio = BigDecimal.valueOf(totalWorkDays)
@@ -250,7 +208,7 @@ public class SalaryCalculationService {
      */
     private BigDecimal calculateOvertimeAllowance(Map<String, Object> employeeInfo, AttendanceStatisticsVO attendanceStats) {
         BigDecimal hourlyWage = new BigDecimal(employeeInfo.get("hourlyWage").toString());
-        int overtimeHours = attendanceStats.getOvertimeHours();
+        int overtimeHours = attendanceStats.getOvertimeHours() != null ? attendanceStats.getOvertimeHours().intValue() : 0;
         
         // 연장근무수당 = 시간당 임금 × 연장근무시간 × 1.5
         return hourlyWage
@@ -268,7 +226,7 @@ public class SalaryCalculationService {
      */
     private BigDecimal calculateNightAllowance(Map<String, Object> employeeInfo, AttendanceStatisticsVO attendanceStats) {
         BigDecimal hourlyWage = new BigDecimal(employeeInfo.get("hourlyWage").toString());
-        int nightHours = attendanceStats.getNightHours();
+        int nightHours = attendanceStats.getNightHours() != null ? attendanceStats.getNightHours().intValue() : 0;
         
         // 야간수당 = 시간당 임금 × 야간근무시간 × 0.5
         return hourlyWage
@@ -286,7 +244,7 @@ public class SalaryCalculationService {
      */
     private BigDecimal calculateHolidayAllowance(Map<String, Object> employeeInfo, AttendanceStatisticsVO attendanceStats) {
         BigDecimal hourlyWage = new BigDecimal(employeeInfo.get("hourlyWage").toString());
-        int holidayHours = attendanceStats.getHolidayHours();
+        int holidayHours = attendanceStats.getHolidayHours() != null ? attendanceStats.getHolidayHours().intValue() : 0;
         
         // 휴일수당 = 시간당 임금 × 휴일근무시간 × 1.5
         return hourlyWage
@@ -551,8 +509,10 @@ public class SalaryCalculationService {
     private void saveSalaryCalculation(SalaryCalculationVO calculation) {
         try {
             // 기존 급여 데이터가 있으면 삭제
-            salaryMapper.deleteSalaryByEmployeeAndMonth(
-                calculation.getEmployeeId(), calculation.getYearMonth());
+            Map<String, Object> params = new HashMap<>();
+            params.put("employeeId", calculation.getEmployeeId());
+            params.put("yearMonth", calculation.getYearMonth());
+            salaryMapper.deleteSalaryByEmployeeAndMonth(params);
             
             // 급여 마스터 저장
             salaryMapper.insertSalaryMaster(calculation);
@@ -656,5 +616,203 @@ public class SalaryCalculationService {
         if (yearMonth != null) params.put("yearMonth", yearMonth);
         if (status != null) params.put("status", status);
         return salaryMapper.selectSalaryExportData(params);
+    }
+
+    /**
+     * 급여 명세서 조회
+     * 
+     * @param empId 사원 ID
+     * @param payMonth 지급 년월
+     * @return 급여 명세서
+     */
+    public SalaryStatementVO getSalaryStatement(String empId, String payMonth) {
+        log.debug("급여 명세서 조회 - 사원ID: {}, 지급년월: {}", empId, payMonth);
+        
+        // TODO: 실제 구현 필요
+        log.warn("급여 명세서 조회 기능이 아직 구현되지 않았습니다.");
+        return null;
+    }
+
+    /**
+     * 급여 지급 처리
+     * 
+     * @param statementId 급여명세서 ID
+     * @return 처리 결과
+     */
+    public String processSalaryPayment(Long statementId) {
+        log.debug("급여 지급 처리 - 명세서ID: {}", statementId);
+        
+        // TODO: 실제 구현 필요
+        log.warn("급여 지급 처리 기능이 아직 구현되지 않았습니다.");
+        return "not_implemented";
+    }
+
+    /**
+     * 급여 지급 승인/반려
+     * 
+     * @param paymentId 지급 ID
+     * @param status 상태 (APPROVED/REJECTED)
+     * @param rejectReason 반려사유
+     * @return 처리 결과
+     */
+    public String approveSalaryPayment(Long paymentId, String status, String rejectReason) {
+        log.debug("급여 지급 승인/반려 - 지급ID: {}, 상태: {}", paymentId, status);
+        
+        // TODO: 실제 구현 필요
+        log.warn("급여 지급 승인/반려 기능이 아직 구현되지 않았습니다.");
+        return "not_implemented";
+    }
+
+    /**
+     * 급여 통계 조회
+     * 
+     * @param deptCode 부서코드
+     * @param payMonth 지급년월
+     * @return 통계 정보
+     */
+    public Map<String, Object> getSalaryStatistics(String deptCode, String payMonth) {
+        log.debug("급여 통계 조회 - 부서코드: {}, 지급년월: {}", deptCode, payMonth);
+        
+        // TODO: 실제 구현 필요
+        log.warn("급여 통계 조회 기능이 아직 구현되지 않았습니다.");
+        return new HashMap<>();
+    }
+
+    /**
+     * 급여 지급 이력 조회
+     * 
+     * @param empId 사원번호
+     * @param fromMonth 시작년월
+     * @param toMonth 종료년월
+     * @return 지급 이력
+     */
+    public List<Map<String, Object>> getSalaryPaymentHistory(String empId, String fromMonth, String toMonth) {
+        log.debug("급여 지급 이력 조회 - 사원ID: {}, 기간: {} ~ {}", empId, fromMonth, toMonth);
+        
+        // TODO: 실제 구현 필요
+        log.warn("급여 지급 이력 조회 기능이 아직 구현되지 않았습니다.");
+        return new ArrayList<>();
+    }
+
+    /**
+     * 기본급 조회
+     * 
+     * @param empId 사원번호
+     * @return 기본급
+     */
+    public double getBaseSalary(String empId) {
+        log.debug("기본급 조회 - 사원ID: {}", empId);
+        
+        // TODO: 실제 구현 필요
+        log.warn("기본급 조회 기능이 아직 구현되지 않았습니다.");
+        return 0.0;
+    }
+
+    /**
+     * 근무일수 조회
+     * 
+     * @param empId 사원번호
+     * @param payMonth 지급년월
+     * @return 근무일수 정보
+     */
+    public Map<String, Object> getWorkDays(String empId, String payMonth) {
+        log.debug("근무일수 조회 - 사원ID: {}, 지급년월: {}", empId, payMonth);
+        
+        // TODO: 실제 구현 필요
+        log.warn("근무일수 조회 기능이 아직 구현되지 않았습니다.");
+        return new HashMap<>();
+    }
+
+    /**
+     * 지각/조퇴 공제 조회
+     * 
+     * @param empId 사원번호
+     * @param payMonth 지급년월
+     * @return 지각/조퇴 공제 정보
+     */
+    public Map<String, Object> getLateEarlyDeduction(String empId, String payMonth) {
+        log.debug("지각/조퇴 공제 조회 - 사원ID: {}, 지급년월: {}", empId, payMonth);
+        
+        // TODO: 실제 구현 필요
+        log.warn("지각/조퇴 공제 조회 기능이 아직 구현되지 않았습니다.");
+        return new HashMap<>();
+    }
+
+    /**
+     * 연차수당 조회
+     * 
+     * @param empId 사원번호
+     * @param payMonth 지급년월
+     * @return 연차수당
+     */
+    public double getAnnualLeavePay(String empId, String payMonth) {
+        log.debug("연차수당 조회 - 사원ID: {}, 지급년월: {}", empId, payMonth);
+        
+        // TODO: 실제 구현 필요
+        log.warn("연차수당 조회 기능이 아직 구현되지 않았습니다.");
+        return 0.0;
+    }
+
+    /**
+     * 연장수당 조회
+     * 
+     * @param empId 사원번호
+     * @param payMonth 지급년월
+     * @return 연장수당
+     */
+    public double getOvertimePay(String empId, String payMonth) {
+        log.debug("연장수당 조회 - 사원ID: {}, 지급년월: {}", empId, payMonth);
+        
+        // TODO: 실제 구현 필요
+        log.warn("연장수당 조회 기능이 아직 구현되지 않았습니다.");
+        return 0.0;
+    }
+
+    /**
+     * 지각/조퇴 공제 계산
+     * 
+     * @param empId 사원번호
+     * @param payMonth 지급년월
+     * @param comId 회사ID
+     * @return 공제 정보
+     */
+    public Map<String, Object> calculateLateEarlyDeduction(String empId, String payMonth, String comId) {
+        log.debug("지각/조퇴 공제 계산 - 사원ID: {}, 지급년월: {}, 회사ID: {}", empId, payMonth, comId);
+        
+        // TODO: 실제 구현 필요
+        log.warn("지각/조퇴 공제 계산 기능이 아직 구현되지 않았습니다.");
+        return new HashMap<>();
+    }
+
+    /**
+     * 연차수당 계산
+     * 
+     * @param empId 사원번호
+     * @param payMonth 지급년월
+     * @param comId 회사ID
+     * @return 연차수당
+     */
+    public double calculateAnnualLeavePay(String empId, String payMonth, String comId) {
+        log.debug("연차수당 계산 - 사원ID: {}, 지급년월: {}, 회사ID: {}", empId, payMonth, comId);
+        
+        // TODO: 실제 구현 필요
+        log.warn("연차수당 계산 기능이 아직 구현되지 않았습니다.");
+        return 0.0;
+    }
+
+    /**
+     * 연장근무수당 계산
+     * 
+     * @param empId 사원번호
+     * @param payMonth 지급년월
+     * @param comId 회사ID
+     * @return 연장근무수당
+     */
+    public double calculateOvertimePay(String empId, String payMonth, String comId) {
+        log.debug("연장근무수당 계산 - 사원ID: {}, 지급년월: {}, 회사ID: {}", empId, payMonth, comId);
+        
+        // TODO: 실제 구현 필요
+        log.warn("연장근무수당 계산 기능이 아직 구현되지 않았습니다.");
+        return 0.0;
     }
 } 

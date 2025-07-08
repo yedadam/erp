@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.dadam.security.service.LoginUserAuthority;
 import com.dadam.security.service.LoginMainAuthority;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ import org.springframework.http.ResponseEntity;
 
 import lombok.extern.slf4j.Slf4j;
 
-import com.dadam.hr.salary.web.vo.SalaryCalculationVO;
+import com.dadam.hr.salary.service.SalaryCalculationVO;
 
 /**
  * 급여 계산 REST 컨트롤러
@@ -87,7 +88,7 @@ public class SalaryCalculationController {
             return null; // 권한 없음
         }
         
-        return salaryCalculationService.calculateSalary(empId, payMonth, userInfo.get("comId"));
+        return salaryCalculationService.getSalaryStatement(empId, payMonth);
     }
 
     /**
@@ -103,7 +104,7 @@ public class SalaryCalculationController {
         }
         
         Map<String, String> userInfo = getCurrentUserInfo();
-        return salaryCalculationService.processSalaryPayment(statementId, userInfo.get("comId"));
+        return salaryCalculationService.processSalaryPayment(statementId);
     }
 
     /**
@@ -129,7 +130,7 @@ public class SalaryCalculationController {
             return "reject_reason_required";
         }
         
-        return salaryCalculationService.approveSalaryPayment(paymentId, status, userInfo.get("empId"), rejectReason);
+        return salaryCalculationService.approveSalaryPayment(paymentId, status, rejectReason);
     }
 
     /**
@@ -147,7 +148,7 @@ public class SalaryCalculationController {
         }
         
         Map<String, String> userInfo = getCurrentUserInfo();
-        return salaryCalculationService.getSalaryStatistics(userInfo.get("comId"), deptCode, payMonth);
+        return salaryCalculationService.getSalaryStatistics(deptCode, payMonth);
     }
 
     /**
@@ -168,7 +169,7 @@ public class SalaryCalculationController {
             empId = userInfo.get("empId");
         }
         
-        return salaryCalculationService.getSalaryPaymentHistory(userInfo.get("comId"), empId, fromMonth, toMonth);
+        return salaryCalculationService.getSalaryPaymentHistory(empId, fromMonth, toMonth);
     }
 
     /**
@@ -185,7 +186,7 @@ public class SalaryCalculationController {
             return 0.0; // 권한 없음
         }
         
-        return salaryCalculationService.calculateBaseSalary(empId, userInfo.get("comId"));
+        return salaryCalculationService.getBaseSalary(empId);
     }
 
     /**
@@ -203,7 +204,7 @@ public class SalaryCalculationController {
             return null; // 권한 없음
         }
         
-        return salaryCalculationService.calculateWorkDays(empId, payMonth, userInfo.get("comId"));
+        return salaryCalculationService.getWorkDays(empId, payMonth);
     }
 
     /**

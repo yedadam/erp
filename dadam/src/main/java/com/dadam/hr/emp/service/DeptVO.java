@@ -27,5 +27,15 @@ public class DeptVO {
     private String remark;
     /** 인원수 */
     private Integer empCount;
+    /** 상위부서명(조회용) */
+    private String parentDeptName;
+    /** 사용여부 한글(조회용) */
+    private String statusText;
+    /** 권한코드 */
+    private String authCode;
+    /** 권한명(조회용) */
+    private String authName;
+    /** 등록일(문자열, 조회용) */
+    private String createdDateStr;
 }
  
