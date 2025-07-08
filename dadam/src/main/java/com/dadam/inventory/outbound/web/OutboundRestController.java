@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,18 +30,23 @@ public class OutboundRestController {
 	// 출고상세 리스트
 	@GetMapping("/outboundDetailList")
 	public List<OutboundVO> selectOutBoundDetailList(OutboundVO vo) {
-	return outboundservice.selectOutBoundDetailList(vo);
+		return outboundservice.selectOutBoundDetailList(vo);
 		}
 	
 	// 홀드 리스트
 	@GetMapping("/outboundHoldList")
 	public List<HoldVO> selectHoldOutboundList(HoldVO vo) {
-	return outboundservice.selectHoldOutboundList(vo);
+		return outboundservice.selectHoldOutboundList(vo);
 	}
 	
 	// 홀드상세 리스트
 	@GetMapping("/outboundHoldDetailList")
 	public List<LotVO> selectOutboundHoldDetailList(LotVO vo) {
-	return outboundservice.selectOutboundHoldDetailList(vo);
+		return outboundservice.selectOutboundHoldDetailList(vo);
+	}
+	// 출고 등록
+	@PostMapping("/insertoutbound")
+	public int insertOutbound(@RequestBody List<OutboundVO> list){
+		return outboundservice.insertOutbound(list);
 	}
 }

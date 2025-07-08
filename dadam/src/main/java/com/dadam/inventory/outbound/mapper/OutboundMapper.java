@@ -19,4 +19,8 @@ public interface OutboundMapper {
 	public List<HoldVO> selectHoldOutboundList(HoldVO vo);
 	// 홀드상세 조회
 	public List<LotVO> selectOutboundHoldDetailList(LotVO vo);
+	// 출고 등록
+	public int insertOutbound(OutboundVO vo);
+	// 출고상세 등록(취소)
+	//public int insertOutboundDetail(OutboundVO vo);
 }

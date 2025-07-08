@@ -21,6 +21,7 @@ public class HoldVO {
 	private int quantity;   // 수량
 	private int holdQty;   // 예약수량
 	private int price;   // 단가
+	private int currQty;   // 현수량
 	private String type;   // 홀드구분
 	private String typeName;
 	private String status; 

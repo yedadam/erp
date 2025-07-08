@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class OutboundVO {
 
 	private String outCode;
+	private String code;
 	private String outDtlCode;
 	private String holdCode;
 	private String shipReqDtlCode;

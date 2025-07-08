@@ -14,4 +14,6 @@ public interface OutboundService {
 	public List<HoldVO> selectHoldOutboundList(HoldVO vo);
 	// 홀드상세 조회
 	public List<LotVO> selectOutboundHoldDetailList(LotVO vo);
+	// 출고 등록
+	public int insertOutbound(List<OutboundVO> list);
 }
