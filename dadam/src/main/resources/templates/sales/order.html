@@ -59,7 +59,7 @@
 <body class="bg-light">
 	<div class="container-fluid mt-4">
 		<div class="d-flex justify-content-between align-items-center mb-3">
-			<h2 class="fw-bold"> 주문관리</h2>
+		<h3 class="mb-4 text-secondary fw-bold border-bottom border-secondary pb-2">주문관리</h3>
 		</div>
 		<!--수정하기 -->
 		<!-- 상단 버튼 정렬 -->
@@ -126,7 +126,6 @@
     </div>
   </div>
 </div>
-
 <!-- ✅ 버튼 그룹 (검색박스 아래 자연스럽게 배치) -->
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div></div> <!-- 왼쪽 공간 비워두기 (필요 시 추가 요소 가능) -->
@@ -143,6 +142,9 @@
     <button id="ordreg2" class="btn btn-primary">
       <i class="fas fa-pen"></i> 주문등록
     </button>
+		  <button id="statusCheck" class="btn btn-primary">
+      <i class="fas fa-pen"></i> 상태확인
+    </button>
     <button id="deleteRow" class="btn btn-danger">
       <i class="fas fa-trash"></i> 행삭제
     </button>
@@ -157,9 +159,9 @@
                 	<button class="btn btn-secondary me-2" id="addRowdtl">
                         <i class="fas fa-pen"></i>  상세행추가
                     </button>
-					<button class="btn btn-warning" id="modRowdtl">
+					<!-- <button class="btn btn-warning" id="modRowdtl">
 						<i class="fas fa-eye"></i>  상세수정
-					</button>
+					</button> -->
 					<button class="btn btn-primary" id="saveRowdtl">
                         <i class="fas fa-save"></i> 상세저장
                     </button>
@@ -353,6 +355,14 @@ let map=new Map();
 	// 	console.log(map);
 	
 	// })
+$('#statusCheck').on('click',function(){
+	console.log('상태확인');
+	console.log('새로생성된 행 확인하기!',orderGrid.getModifiedRows().createdRows.length); 
+	console.log('상세저장 =>',ordDtlGrid.getModifiedRows()); //상세저장 할때  
+	console.log('수정하고난뒤에 ord도 바뀌는지 확인하기 ',orderGrid.getData()[0]);
+})
+
+
 
 $('#orderSearchBtn').on('click',function(){
 //	console.log('돋보기가 클릭됨');
@@ -728,11 +738,12 @@ $('#orderSearchBtn').on('click',function(){
 	$('#addRow').on('click', function () {
 		orderGrid.uncheckAll();
 		//orderGrid 수정체크 
-		if(orderGrid.isModified()){
-			let insert=confirm('주문등록을 하지 않았습니다 정말 나가시겠습니까?'); 
+		if(orderGrid.getModifiedRows().createdRows.length>0 ||ordDtlGrid.getModifiedRows().createdRows.length>=1){
+			let insert=confirm('주문등록을 완료 하지 않았습니다 정말 나가시겠습니까?'); 
 			if(!insert) return; 
 		}
 	
+
 		console.log(orderGrid.getData()[0].ordCode); //ordCode ord-122 이런꼴로 나옴 
 		let nextordCode = orderGrid.getData()[0].ordCode;  // 예: "ord-122"
 		let numberOnly = String(Number(nextordCode.substr(4))+1);     
@@ -750,12 +761,11 @@ $('#orderSearchBtn').on('click',function(){
 		newOrdPlus = newRow.rowKey; //새로추가된 행번호 정의
 
 		orderGrid.refreshLayout();
-	
 		orderGrid.check(newOrdPlus); //새로추가된 행에 체크
 	
 		orderGrid.setValue(newOrdPlus, "createdDate", dateformatyymmdd(new Date()));
 		orderGrid.setValue(newOrdPlus, "status", "ost01");
-		orderGrid.setValue(newOrdPlus,"ordCode",nextordCode); //nextordCode
+	//	orderGrid.setValue(newOrdPlus,"ordCode",nextordCode); //nextordCode
 	})
 	$('#deleteRow').on('click', function () {
 
@@ -764,7 +774,6 @@ $('#orderSearchBtn').on('click',function(){
 		 Swal.fire('실패','이미 출하요청된 주문건입니다','error');
 			return;
 		} 
-
 		//체크된행을 가져오는 함수	
 		const checkedRows = orderGrid.getCheckedRows();
 		//console.log('행삭제',checkedRows)
@@ -801,9 +810,16 @@ $('#orderSearchBtn').on('click',function(){
 	
 	})
 	$('#ordreg2').on('click', function () {
-		console.log('rderGrid.getModifiedRows().createdRows[0])',orderGrid.getModifiedRows().createdRows[0]); 
-		console.log('orderGrid.getCheckedRows()[0]', orderGrid.getCheckedRows()[0]); 
 		let regHeader =orderGrid.getModifiedRows().createdRows[0]; //체크표시 굳이 안해도 주문등록가능  
+
+		if(regHeader==null){
+			Swal.fire({
+				icon: "error",
+				title: "error",
+				text: "주문건을 추가하시오"
+			});
+			return;
+		}
 		// ❗ 주문 헤더 유효성 검사
 		if (!regHeader.vdrCode || !regHeader.payMethod || !regHeader.status) {
 			Swal.fire({
@@ -822,6 +838,7 @@ $('#orderSearchBtn').on('click',function(){
 			});
 			return;
 		}
+	
 		regHeader.empId = userID;
 		regHeader.comId = userComId;
 		const dtlObj = ordDtlGrid.getModifiedRows(); 
@@ -839,13 +856,12 @@ $('#orderSearchBtn').on('click',function(){
 			regHeader.totVatPrice=totVat; 
 			regHeader.totDisc=totDisc; 
 			regHeader.totQuantity=qty; 
-
-	//console.log('dtlObj',dtlObj);   
+ 
 		const dataToSend = {
 			ord: regHeader, // 일반 객체 {}
 			dtl: dtlObj     // [{},{}]
 		};
-		console.log('dataToSend',dataToSend);
+	
 		$.ajax({
 			url: '/erp/sales/ord/register',
 			type: 'POST',
@@ -956,42 +972,42 @@ $('#orderSearchBtn').on('click',function(){
 			})
 	});
 	//주문dtl 수정하기 
-	$('#modRowdtl').on('click', function () {
-		let updDtl = ordDtlGrid.getCheckedRows()[0]; //체크된 행을 수정함 단건수정^^ 
-		updDtl.comId = userComId;
-		updDtl.quantity = Number(updDtl.quantity);
-		updDtl.totPrice = updDtl.totprice;
+	// $('#modRowdtl').on('click', function () {
+	// 	let updDtl = ordDtlGrid.getCheckedRows()[0]; //체크된 행을 수정함 단건수정^^ 
+	// 	updDtl.comId = userComId;
+	// 	updDtl.quantity = Number(updDtl.quantity);
+	// 	updDtl.totPrice = updDtl.totprice;
 	
-		updDtl.ordCode=orderGrid.getCheckedRows()[0].ordCode; //주문번호 체크 
-		updDtl.vatPrice=(ordDtlGrid.getCheckedRows()[0].supPrice)/10; //부가세 설정 
-		updDtl.totPrice=ordDtlGrid.getCheckedRows()[0].supPrice+
-										ordDtlGrid.getCheckedRows()[0].vatPrice
-										-ordDtlGrid.getCheckedRows()[0].discPrice;
+	// 	updDtl.ordCode=orderGrid.getCheckedRows()[0].ordCode; //주문번호 체크 
+	// 	updDtl.vatPrice=(ordDtlGrid.getCheckedRows()[0].supPrice)/10; //부가세 설정 
+	// 	updDtl.totPrice=ordDtlGrid.getCheckedRows()[0].supPrice+
+	// 									ordDtlGrid.getCheckedRows()[0].vatPrice
+	// 									-ordDtlGrid.getCheckedRows()[0].discPrice;
 		
-		console.log('updDtl', updDtl);
+	// 	console.log('updDtl', updDtl);
 	
-		ordDtlGrid.setValue(updDtl.rowkey, "ordCode", orderGrid.getCheckedRows()[0].ordCode);
-		console.log('updDtl=>', updDtl);
+	// 	ordDtlGrid.setValue(updDtl.rowkey, "ordCode", orderGrid.getCheckedRows()[0].ordCode);
+	// 	console.log('updDtl=>', updDtl);
 
-		$.ajax({
-			url: '/erp/sales/ord/updDtl',
-			type: 'PUT',
-			contentType: 'application/json',
-			data: JSON.stringify(updDtl),
-			success: function (res) {
-				console.log('전송 성공', res);
-				Swal.fire({
-					title: "주문수정성공!",
-					icon: "success",
-					draggable: true
-				});
-				ordDtlGrid.uncheckAll();
-			},
-			error: function (err) {
-				console.error('에러 발생', err);
-			}
-		});
-	})
+	// 	$.ajax({
+	// 		url: '/erp/sales/ord/updDtl',
+	// 		type: 'PUT',
+	// 		contentType: 'application/json',
+	// 		data: JSON.stringify(updDtl),
+	// 		success: function (res) {
+	// 			console.log('전송 성공', res);
+	// 			Swal.fire({
+	// 				title: "주문수정성공!",
+	// 				icon: "success",
+	// 				draggable: true
+	// 			});
+	// 			ordDtlGrid.uncheckAll();
+	// 		},
+	// 		error: function (err) {
+	// 			console.error('에러 발생', err);
+	// 		}
+	// 	});
+	// })
 	//[1:{}] 
 	//ordDtlRow의 수량 입력시 총금액,공급가액,부가세 계산되어 자동입력됨 
 	ordDtlGrid.on('afterChange', ev => {

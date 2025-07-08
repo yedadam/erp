@@ -92,9 +92,9 @@ public class OrderController {
 	}
 	
 	@ResponseBody
-	@PostMapping("/ord/regDtl")
+	@PostMapping("/ord/regDtl")  //상세저장 새로생긴건(createdRows) insert,update된거() update 
 	public String regDtl(@RequestBody OrdReqVO req) {
-	    orderService.ordDtlInsert(req); 
+	    orderService.ordDtlInsert(req); //상세저장 눌렀을때 
 	    Log.info(req); 
 	    return "okDtl";  
 	}

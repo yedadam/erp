@@ -1,6 +1,7 @@
 package com.dadam.sales.shipreq.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -8,7 +9,7 @@ import com.dadam.sales.shipreq.service.ShipReqDtlVO;
 import com.dadam.sales.shipreq.service.ShipReqVO;
 
 public interface ShipreqMapper {
-	public List<ShipReqVO> findShipreqList(@Param("type") String type, @Param("value") String value, @Param("comId") String comId); //출하의뢰 리스트조회
+	public List<ShipReqVO> findShipreqList(Map<String,Object> map); //출하의뢰 리스트조회
 	public List<ShipReqDtlVO> findShipreqDtlList(@Param("shipReqCode")String shipReqCode,@Param("comId") String comId); //출하의뢰코드로 상세조회
 	public int insertShipreqHead(ShipReqVO head); //헤더등록 
 	public int insertShipreqDtl(ShipReqDtlVO dtl); //디테일 등록 
