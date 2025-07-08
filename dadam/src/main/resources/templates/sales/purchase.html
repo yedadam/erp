@@ -723,7 +723,7 @@
 		  console.log(checkedRows)
 		  if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
 		    mainGrid.uncheckAll();
-		    mainGrid.check(ev.rowKey);  //여기서 check 이벤트는 따로 안 뜸
+		    mainGrid.check(ev.rowKey);  
 		  }
 		
 		  console.log('선택된 row:', ev.rowKey);

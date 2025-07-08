@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -163,6 +164,7 @@ public class SubscirbeServiceImple implements SubscribeService {
      * @implNote
      *  - 구독 건마다 재청구 API 호출, 만기일 업데이트, 구독 및 세금계산서 재등록 수행
      */
+   // @Scheduled (fixedDelay = 3000)
     public void subsCriptionList() {
         List<SubsListVO> subs = subsMapper.selectSubs();
 
@@ -170,7 +172,7 @@ public class SubscirbeServiceImple implements SubscribeService {
             chargeSubscription(sub);
             sub.setSubsType("S01");
             // 만기일자 업데이트
-            subsMapper.subsEnd(sub.getBillingKey());
+            //subsMapper.subsEnd(sub.getBillingKey());
             // 다시 결제 진행
             subsMapper.subsAdd(sub);
             // 세금계산서 발행

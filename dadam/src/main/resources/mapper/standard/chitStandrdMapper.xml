@@ -29,14 +29,14 @@
 	   	 AND type = 'cht04'
 	   </if>
 	   <if test="deptCode.equals('de1002')">
-	     AND type IN('cht01','cht04')   
+	     AND type = 'cht06'
 	   </if>
 	   <choose>
             <when test="'chitCode'.equals(type)">
                 AND chit_code LIKE '%'||#{value}||'%'
             </when>
             <when test="'empName'.equals(type)">
-            	 AND getEmpName(EMP_ID) LIKE '%'||#{value}||'%'
+            	 AND getEmpName(EMP_ID,#{comId}) LIKE '%'||#{value}||'%'
             </when>
             <when test="'chitTile'.equals(type)">
             	 AND CHIT_TITLE LIKE '%'||#{value}||'%'
@@ -108,7 +108,7 @@
          extra_allow,
          tot_price,
          emp_id,
-         getEmpName(emp_id) emp_name
+         getEmpName(emp_id,#{comId}) emp_name
   FROM salaryPayment
   WHERE com_id = #{comId}
    <choose>
@@ -116,7 +116,7 @@
                 AND sal_pay_code LIKE '%'||#{value}||'%'
             </when>
             <when test="type.equals('empName')">
-            	 AND getEmpName(EMP_ID) LIKE '%'||#{value}||'%'
+            	 AND getEmpName(EMP_ID,#{comId}) LIKE '%'||#{value}||'%'
             </when>
    </choose>
 </select>

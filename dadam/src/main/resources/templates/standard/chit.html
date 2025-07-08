@@ -94,12 +94,6 @@
 		</div>
 		<div class="d-flex justify-content-end align-items-center mb-3">
 			<div class="d-flex flex-wrap gap-2">
-				<button class="btn btn-secondary me-2 mb-2" id="newBtn">
-					<i class="fas fa-pen"></i> 행추가
-				</button>
-				<button class="btn btn-danger me-2 mb-2" id="delBtn">
-					<i class="fas fa-trash"></i> 행삭제
-				</button>
 
 				<div th:if="${deptId == 'de1001' or deptId == 'de1005'}">
 					<button class="btn btn-primary me-2 mb-2" id="purModalBtn">
@@ -126,7 +120,12 @@
 						<i class="fas fa-save"></i> 급여처리
 					</button>
 				</div>
-
+				<button class="btn btn-secondary me-2 mb-2" id="newBtn">
+					<i class="fas fa-pen"></i> 행추가
+				</button>
+				<button class="btn btn-danger me-2 mb-2" id="delBtn">
+					<i class="fas fa-trash"></i> 행삭제
+				</button>
 				<button class="btn btn-success mb-2" id="saveBtn">
 					<i class="fas fa-save"></i> 저장
 				</button>
@@ -374,6 +373,10 @@
 	
 	<script th:inline="javascript">
 	
+	//라디오버튼처럼 작동
+	
+	
+	
 	//필수값 별찍기
 	function getName(name){
 		const header = document.createElement('span');
@@ -426,7 +429,16 @@
             	formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '' },
         ],
     });
+    mainGrid.on('click', ev => {
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시 
+		    return;
+		  }
 	
+	  mainGrid.check(ev.rowKey); 
+	
+	  console.log('선택된 row:', ev.rowKey);
+	});
  // 메인 리스트 불러오기
     function mainList() {
 	  // 로딩 스피너 표시
