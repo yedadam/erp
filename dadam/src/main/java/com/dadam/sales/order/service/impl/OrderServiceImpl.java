@@ -61,7 +61,7 @@ public class OrderServiceImpl implements OrderService {
 		
 		orderMapper.orderInsert(ord.getOrd()); //헤더 제일먼저 insert 
 		
-		String ordCode=ord.getOrd().getOrdCode();
+	//	String ordCode=ord.getOrd().getOrdCode();
 		
 		orderMapper.orderInsert(ord.getOrd()); //헤더 제일먼저 insert 
 		
