@@ -53,36 +53,36 @@
         <div class="row g-3 align-items-center">
 
           <div class="col-md-3">
-            <label for="orderSelect" class="form-label">검색 조건</label>
+            <label for="acctSelect" class="form-label">검색 조건</label>
             <div class="input-group">
-              <select class="form-select" id="orderSelect">
+              <select class="form-select" id="acctSelect">
                 <option value="ordCode">계정명</option>
                 <option value="vdrCode">내용</option>
               </select>
-              <input type="text" class="form-control" id="orderInput" placeholder="검색어 입력">
+              <input type="text" class="form-control" id="acctInput" placeholder="검색어 입력">
             </div>
           </div>
 
           <div class="col-md-3">
-            <label class="form-label d-block">진행 상태</label>
+            <label class="form-label d-block">사용유무</label>
             <div class="d-flex gap-2 flex-wrap">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="orderStatus" id="statusAll" value="" checked>
+                <input class="form-check-input" type="radio" name="acctStatus" id="statusAll" value="" checked>
                 <label class="form-check-label" for="statusAll">전체</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="orderStatus" id="status1" value="ost01">
+                <input class="form-check-input" type="radio" name="acctStatus" id="status1" value="y">
                 <label class="form-check-label" for="status1">사용중</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="orderStatus" id="status2" value="ost02">
+                <input class="form-check-input" type="radio" name="acctStatus" id="status2" value="n">
                 <label class="form-check-label" for="status2">사용안함</label>
               </div>
             </div>
           </div>
 
           <div class="col-md-2 d-flex align-items-end">
-            <button class="btn btn-primary w-100" id="orderSearchBtn">
+            <button class="btn btn-primary w-100" id="acctSearchBtn">
               <i class="fas fa-search"></i> 검색
             </button>
           </div>
@@ -410,6 +410,36 @@ $('#saveBtn').on('click', function () {
   })
   
   
+
+// 계정과목 다중검색 (계정명, 내용, 사용유무)
+$('#acctSearchBtn').on('click', function() {
+  // 검색조건 수집
+  const searchType = $('#acctSelect').val();
+  const searchValue = $('#acctInput').val();
+  const acctYn = $('input[name="acctStatus"]:checked').val();
+
+  // 파라미터 구성
+  let params = {};
+  if (searchType === 'ordCode') {
+    params.name = searchValue;
+  } else if (searchType === 'vdrCode') {
+    params.note = searchValue;
+  }
+  params.acctYn = acctYn;
+
+  // 서버에 AJAX 요청
+  $.ajax({
+    url: '/erp/accounting/accountSearch',
+    method: 'GET',
+    data: params,
+    success: function(result) {
+      accGrid.resetData(result);
+    },
+    error: function(xhr, status, error) {
+      alert('검색 실패: ' + error);
+    }
+  });
+});
 
 </script>
 

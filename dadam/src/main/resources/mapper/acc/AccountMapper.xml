@@ -146,6 +146,28 @@ SELECT s.subclass_name
        AND com_id = #{comId}
 </delete>
 
+<!-- 다중조건 검색 -->
+<select id="accountSearch" resultType="com.dadam.acc.account.service.AccountVO">
+  SELECT acct_code,
+         name,
+         (SELECT type_name FROM acct_type WHERE type_code = a.acct_type) AS acct_type,
+         (SELECT class_name FROM acct_class WHERE class_code = a.acct_class) AS acct_class,
+         (SELECT subclass_name FROM acct_subclass WHERE subclass_code = a.acct_subclass) AS acct_subclass,
+         acct_yn, note, created_date, update_date, com_id
+    FROM account a
+   WHERE com_id = #{comId}
+   <if test="name != null and name != ''">
+     AND name LIKE '%'||#{name}||'%'
+   </if>
+   <if test="note != null and note != ''">
+     AND note LIKE '%'||#{note}||'%'
+   </if>
+   <if test="acctYn != null and acctYn != ''">
+     AND UPPER(acct_yn) = UPPER(#{acctYn})
+   </if>
+   ORDER BY acct_code
+</select>
+
 
 
 
