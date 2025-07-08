@@ -63,10 +63,12 @@ public class SubsManagerFormController {
         mv.setView(jasperDownCommon);
 
         // 보고서 템플릿경로 지정
-        mv.addObject("filename", "/report/taxinvoice.jasper");
+        mv.addObject("filename", "/report/taxinvoice.jrxml");
 
         // 보고서 파라미터 넣기
         HashMap<String, Object> map = new HashMap<>();
+        String reportDirPath = getClass().getResource("/report/").getPath(); 
+        map.put("REPORT_DIR", reportDirPath);
         map.put("p_subsCode", subsCode);
         mv.addObject("param", map);
 
