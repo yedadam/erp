@@ -129,9 +129,10 @@
 	<update id="prcPurchaseOrderStatus" parameterType="PurchaseVO">
 	{ CALL prc_purchaseOrder_status( #{purOrdDtlCode, mode=IN, jdbcType=VARCHAR})}
 	</update>
-	<select id="purchaseCurrQty" parameterType="PurchaseVO" resultType="int">
+	<!-- 사용안함 -->
+	<!-- <select id="purchaseCurrQty" parameterType="PurchaseVO" resultType="int">
 		SELECT max(curr_qty)
 		FROM purchase
 		WHERE com_id = #{comId} AND pur_ord_dtl_code = #{purOrdDtlCode}
-	</select>
+	</select> -->
 </mapper>

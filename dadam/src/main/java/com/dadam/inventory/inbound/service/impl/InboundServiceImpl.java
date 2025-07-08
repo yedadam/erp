@@ -77,13 +77,9 @@ public class InboundServiceImpl implements InboundService{
 		List<InboundVO> list = inboundMapper.warehouseList(comId);
 		return list;
 	}
-	// 현재수량
-	@Override
-	public List<PurchaseVO> purchaseCurrQty(List<PurchaseVO> list) {
-		/*
-		 * List<Integer> lists; for(List<String> vo : list) { lists =
-		 * inboundMapper.purchaseCurrQty(vo); }
-		 */
+	// 사용안함
+	@Override public List<PurchaseVO> purchaseCurrQty(List<PurchaseVO> list) {
 		return null;
 	}
+	 
 }
