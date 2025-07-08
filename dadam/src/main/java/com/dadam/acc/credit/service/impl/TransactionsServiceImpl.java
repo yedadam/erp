@@ -14,40 +14,43 @@ import com.dadam.security.service.LoginUserAuthority;
 
 @Service
 public class TransactionsServiceImpl implements TransactionsService {
+	
+	@Autowired
+	TransactionsMapper transactionsMapper;
+	
+    String comId = "com-123123";
+    public void initAuthInfo() {
+        //로그인 객체값 연결
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(auth);
+        if(auth == null) {
+        	return;
+        }
+        //로그인 객체 가져오기
+        Object principal = auth.getPrincipal();
+		System.out.println("auth:" + auth);
+        if (principal instanceof LoginUserAuthority) {
+        	LoginUserAuthority user = (LoginUserAuthority) principal;
+            comId = user.getComId();
+            System.out.println("회사명: " + comId);
+        }
+    }
     
 
-    @Autowired
-    private TransactionsMapper transactionsMapper;
-
     @Override
-    public List<TransactionsVO> getAll() {
-        return transactionsMapper.selectAll();
+    public List<TransactionsVO> getAll(String comId) {
+    
+    	initAuthInfo();
+        return transactionsMapper.selectAll(comId);
     }
 
-    private String getComIdFromAuth() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = auth.getPrincipal();
-        if (principal instanceof LoginUserAuthority) {
-            return ((LoginUserAuthority) principal).getComId();
-        }
-        return "com-101";
-    }
 
     @Override
     public void add(TransactionsVO vo) {
-        vo.setComId(getComIdFromAuth());
+    	initAuthInfo();
+    	vo.setComId(comId);
         transactionsMapper.insert(vo);
     }
 
-    @Override
-    public void update(TransactionsVO vo) {
-        vo.setComId(getComIdFromAuth());
-        transactionsMapper.update(vo);
-    }
 
-
-    @Override
-    public void saveAll(TransactionsVO vo) {
-
-    }
 } 

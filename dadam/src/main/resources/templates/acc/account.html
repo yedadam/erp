@@ -4,80 +4,156 @@
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
 
+<head>
+  <meta charset="UTF-8">
+  <title>계정과목 관리</title>
+	<style>
+	#accGrid {
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+	
+	.nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+}
+.nav-tabs .nav-link.active {
+  border: 1px solid #dee2e6;
+  border-bottom-color: white;
+  background-color: #fff;
+}
+#accGrid .tui-grid-container {
+  min-height: 500px;
+}
+  </style>
+</head>
 
-<body class="bg-light">
-	<div class="container-fluid mt-4" style="max-width: 1200px;">
+<body class="bg-light"> 
+  <div class="container-fluid mt-4 p-4 rounded shadow-sm">
 
-		<!-- 헤더 -->
-		<div class="d-flex justify-content-between align-items-center mb-2">
-			<div>
-				<h2 class="fw-bold mb-1">계정과목 관리</h2>
-				<small class="text-muted">※ 대·중·소 분류 및 검색 기능은 후순위 개발 예정</small>
-			</div>
-		</div>
+    <!-- 헤더 + 부가기능 -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div>
+        <h3 class="mb-1 text-secondary fw-bold border-bottom pb-2">계정과목 관리</h3>
+      </div>
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" id="modeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          모드 선택
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="modeDropdown">
+          <li><a class="dropdown-item" href="#" onclick="changeMode('read')">조회</a></li>
+          <li><a class="dropdown-item" href="#" onclick="changeMode('create')">등록</a></li>
+        </ul>
+      </div>
+    </div>
 
-		<!-- 상단 조작 바 -->
-		<div
-			class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <!-- 검색 조건 영역 -->
+    <div class="card mb-3 shadow-sm" style="background-color:#f0f8f0">
+      <div class="card-body">
+        <div class="row g-3 align-items-center">
 
-			<!-- 모드 선택 드롭다운 -->
-			<div class="dropdown">
-				<button class="btn btn-outline-secondary dropdown-toggle"
-					type="button" id="modeDropdown" data-bs-toggle="dropdown"
-					aria-expanded="false">모드 선택</button>
-				<ul class="dropdown-menu" aria-labelledby="modeDropdown">
-					<li><a class="dropdown-item" href="#"
-						onclick="changeMode('read')">조회</a></li>
-					<li><a class="dropdown-item" href="#"
-						onclick="changeMode('create')">등록</a></li>
-				</ul>
-			</div>
+          <div class="col-md-3">
+            <label for="orderSelect" class="form-label">검색 조건</label>
+            <div class="input-group">
+              <select class="form-select" id="orderSelect">
+                <option value="ordCode">계정명</option>
+                <option value="vdrCode">내용</option>
+              </select>
+              <input type="text" class="form-control" id="orderInput" placeholder="검색어 입력">
+            </div>
+          </div>
 
-			<!-- 동적 버튼 영역 -->
-			<div class="d-flex flex-wrap gap-2">
-				<button id="addRow" class="btn btn-info btn-sm"
-					style="display: none;">
-					<i class="fas fa-plus"></i> 행추가
-				</button>
-				<button id="saveBtn" class="btn btn-primary btn-sm"
-					style="display: none;">
-					<i class="fas fa-save"></i> 저장
-				</button>
-				<button id="excel" class="btn btn-outline-dark btn-sm"
-					style="display: none;">
-					<i class="fas fa-file-excel"></i> 엑셀다운
-				</button>
-				<button id="excelTemplate" class="btn btn-outline-dark btn-sm"
-					style="display: none;">
-					<i class="fas fa-file-alt"></i> 양식다운
-				</button>
-				<input type="file" id="excelUpload" accept=".xlsx, .xls"
-					style="display: none;" />
-			</div>
+          <div class="col-md-3">
+            <label class="form-label d-block">진행 상태</label>
+            <div class="d-flex gap-2 flex-wrap">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="orderStatus" id="statusAll" value="" checked>
+                <label class="form-check-label" for="statusAll">전체</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="orderStatus" id="status1" value="ost01">
+                <label class="form-check-label" for="status1">사용중</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="orderStatus" id="status2" value="ost02">
+                <label class="form-check-label" for="status2">사용안함</label>
+              </div>
+            </div>
+          </div>
 
-		</div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-primary w-100" id="orderSearchBtn">
+              <i class="fas fa-search"></i> 검색
+            </button>
+          </div>
 
-		<!-- 대분류 필터 -->
-		<div class="btn-group mb-4" role="group" aria-label="계정 분류 필터">
-			<button class="btn btn-outline-secondary typeBtn" data-type="">모두</button>
-			<button class="btn btn-outline-primary typeBtn" data-type="1">자산</button>
-			<button class="btn btn-outline-primary typeBtn" data-type="2">부채</button>
-			<button class="btn btn-outline-primary typeBtn" data-type="3">자본</button>
-			<button class="btn btn-outline-primary typeBtn" data-type="4">수익</button>
-			<button class="btn btn-outline-primary typeBtn" data-type="5">비용</button>
-		</div>
+        </div>
+      </div>
+    </div>
 
-		<hr />
+    <!-- 주요 기능 버튼 영역 -->
+    <div class="d-flex justify-content-end align-items-center mb-3 flex-wrap gap-2">
+      <button id="addRow" class="btn btn-info btn-sm" style="display: none;">
+        <i class="fas fa-plus"></i> 행추가
+      </button>
+      <button id="saveBtn" class="btn btn-primary btn-sm" style="display: none;">
+        <i class="fas fa-save"></i> 저장
+      </button>
+      <button id="excel" class="btn btn-outline-dark btn-sm">
+        <i class="fas fa-file-excel"></i> 엑셀다운
+      </button>
+      <button id="excelTemplate" class="btn btn-outline-dark btn-sm">
+        <i class="fas fa-file-alt"></i> 양식다운
+      </button>
+      <input type="file" id="excelUpload" accept=".xlsx, .xls" style="display: none;">
+    </div>
 
-		<!-- Grid 영역 -->
-		<div class="col-12">
-			<div id="accGrid" class="mx-3"></div>
-		</div>
-	</div>
+    <!-- 필터 버튼 그룹 -->
+<ul class="nav nav-tabs mb-3" id="acctTab">
+  <li class="nav-item">
+    <button class="nav-link active" data-type="" onclick="filterAcctTab(this)">전체</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-type="1" onclick="filterAcctTab(this)">자산</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-type="2" onclick="filterAcctTab(this)">부채</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-type="3" onclick="filterAcctTab(this)">자본</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-type="4" onclick="filterAcctTab(this)">수익</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-type="5" onclick="filterAcctTab(this)">비용</button>
+  </li>
+</ul>
+    <!-- 그리드 영역 -->
+    <div class="col-12">
+      <div id="accGrid" class="mx-3"></div>
+    </div>
+
+  </div>
 </body>
 
-
 <script>
+function filterAcctTab(button) {
+	  const acctType = $(button).data('type') || '';
+
+	  // 탭 스타일 설정
+	  $('#acctTab .nav-link').removeClass('active');
+	  $(button).addClass('active');
+
+	  // 필터링 요청
+	  const url = acctType
+	    ? `/erp/accounting/accFindByType?acctType=${acctType}`
+	    : `/erp/accounting/accFindAll`;
+
+	  $.get(url, function (data) {
+	    accGrid.resetData(data);
+	  });
+	}
 
 
 	// 대분류 조회 
@@ -105,10 +181,10 @@
   let currentMode = 'read';
 
   const columnsBase = [
-    { header: '계정코드', name: 'acctCode', align: 'center', width: 100 },
-    { header: '대분류',name:'acctType',align:'center', editor: { type: TypeEditor }, width:100 },
-    { header: '중분류',name:'acctClass',align:'center',editor: { type: ClassEditor }, width:100 },
-    { header: '소분류',name:'acctSubclass',align:'center',editor: { type: SubclassEditor }, width:100 },
+    { header: '계정코드', name: 'acctCode', align: 'center', width: 150 },
+    { header: '대분류',name:'acctType',align:'center', editor: { type: TypeEditor }, width:150 },
+    { header: '중분류',name:'acctClass',align:'center',editor: { type: ClassEditor }, width:150 },
+    { header: '소분류',name:'acctSubclass',align:'center',editor: { type: SubclassEditor }, width:150 },
     { header: '계정명', name: 'name', align: 'center', width: 200 },
     {
       header: '사용유무',
@@ -120,7 +196,8 @@
         type: ToggleRenderer
       }
     },
-    { header: '비고', name: 'note', align: 'center', width: 450 }
+    { header: '비고', name: 'note', align: 'center', width: 600 }
+    	
   ];
 
   function ToggleRenderer(props) {
@@ -162,6 +239,7 @@
       scrollX: false,
       scrollY: false,
      pagination: true,
+     bodyHeight: 400,
      pageOptions: {
         useClient: true,
         perPage: 10,

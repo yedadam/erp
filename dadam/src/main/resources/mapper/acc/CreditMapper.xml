@@ -23,6 +23,7 @@
              WHERE o.vdr_code = v.vdr_code
                AND c.status = 'cst04') AS createdDate
 	  FROM vender v
+	 WHERE v.com_id = #{comId}
 	 ORDER BY v.vdr_code
 	</select>
 	
@@ -46,6 +47,7 @@
 	  JOIN vender v ON o.vdr_code = v.vdr_code
 	  JOIN indignation I ON c.chit_code = i.chit_code
 	 WHERE o.vdr_code = #{vdrCode}
+	   AND c.com_id = #{comId}
 	   AND c.status = 'cst04'
 	</select>
 

@@ -3,93 +3,112 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
+<head>
+  <meta charset="UTF-8">
+  <title>재무상태표</title>
+</head>
+
 <body class="bg-light">
-	<div class="container-fluid mt-4" style="max-width: 1200px;">
+  <div class="container-fluid mt-4 p-4 rounded shadow-sm">
 
-		<!-- 헤더 -->
-		<div class="d-flex justify-content-between align-items-center mb-2">
-			<div>
-				<h2 class="fw-bold mb-1">재무상태표</h2>
-				<small class="text-muted">※ 연도 및 분기별 조회 가능 · 요약 보기 기능 제공</small>
-			</div>
-			<div>
-				<button class="btn btn-outline-secondary btn-sm" onclick="showBalanceSummary()">요약 보기</button>
-			</div>
-		</div>
+    <!-- 헤더 + 부가기능 -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div>
+        <h3 class="mb-1 text-secondary fw-bold border-bottom pb-2">재무상태표</h3>
+        <small class="text-muted">※ 연도 및 분기별 조회 가능 · 요약 보기 기능 제공</small>
+      </div>
+      <div>
+      	<button id="excel" class="btn btn-outline-dark btn-sm">
+        <i class="fas fa-file-excel"></i> 엑셀다운
+      </button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="showBalanceSummary()">요약 보기</button>
+      </div>
+    </div>
 
-		<!-- 대분류 필터 탭 -->
-		<ul class="nav nav-tabs mb-3" id="acctTab">
-			<li class="nav-item">
-				<button class="nav-link active" data-type="" onclick="filterBalanceTab(this)">전체</button>
-			</li>
-			<li class="nav-item">
-				<button class="nav-link" data-type="1" onclick="filterBalanceTab(this)">자산</button>
-			</li>
-			<li class="nav-item">
-				<button class="nav-link" data-type="2" onclick="filterBalanceTab(this)">부채</button>
-			</li>
-			<li class="nav-item">
-				<button class="nav-link" data-type="3" onclick="filterBalanceTab(this)">자본</button>
-			</li>
-		</ul>
+    <!-- 필터 탭 -->
+    <ul class="nav nav-tabs mb-3" id="acctTab">
+      <li class="nav-item">
+        <button class="nav-link active" data-type="" onclick="filterBalanceTab(this)">전체</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" data-type="1" onclick="filterBalanceTab(this)">자산</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" data-type="2" onclick="filterBalanceTab(this)">부채</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" data-type="3" onclick="filterBalanceTab(this)">자본</button>
+      </li>
+    </ul>
 
-		<!-- 필터 폼 -->
-		<form id="filterForm" class="row mb-4">
-			<div class="col-md-2">
-				<label class="form-label">연도</label>
-				<select id="year" class="form-select">
-					<option th:each="y : ${yearList}" th:value="${y}" th:text="${y}" th:selected="${y == param.year}"></option>
-				</select>
-			</div>
-			<div class="col-md-2">
-				<label class="form-label">반기</label>
-				<select id="half" class="form-select">
-					<option value="">전체</option>
-					<option value="H1">상반기</option>
-					<option value="H2">하반기</option>
-				</select>
-			</div>
-			<div class="col-md-2">
-				<label class="form-label">분기</label>
-				<select id="quarter" class="form-select">
-					<option value="">전체</option>
-					<option value="Q1">1분기</option>
-					<option value="Q2">2분기</option>
-					<option value="Q3">3분기</option>
-					<option value="Q4">4분기</option>
-				</select>
-			</div>
-			<div class="col-md-2 align-self-end">
-				<button type="button" class="btn btn-primary btn-sm w-100" onclick="loadBalanceData()">조회</button>
-			</div>
-		</form>
+    <!-- 검색 필터 영역 -->
+    <div class="card mb-3 shadow-sm" style="background-color:#f0f8f0">
+      <div class="card-body">
+        <div class="row g-3 align-items-center">
 
-		<!-- Toast UI Grid -->
-		<div class="col-12">
-			<div id="balanceGrid" class="mx-3" style="height: 600px;"></div>
-		</div>
+          <div class="col-md-2">
+            <label class="form-label">연도</label>
+            <select id="year" class="form-select">
+              <option th:each="y : ${yearList}" th:value="${y}" th:text="${y}" th:selected="${y == param.year}"></option>
+            </select>
+          </div>
 
-	</div>
+          <div class="col-md-2">
+            <label class="form-label">반기</label>
+            <select id="half" class="form-select">
+              <option value="">전체</option>
+              <option value="H1">상반기</option>
+              <option value="H2">하반기</option>
+            </select>
+          </div>
 
-	<!-- 재무상태표 요약 모달 -->
-	<div class="modal fade" id="summaryModal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-sm">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="summaryModalLabel">재무상태표 요약</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
-				</div>
-				<div class="modal-body" id="modalSummaryContent">
-					<!-- 계산된 내용이 여기에 삽입됨 -->
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">닫기</button>
-				</div>
-			</div>
-		</div>
-	</div>
+          <div class="col-md-2">
+            <label class="form-label">분기</label>
+            <select id="quarter" class="form-select">
+              <option value="">전체</option>
+              <option value="Q1">1분기</option>
+              <option value="Q2">2분기</option>
+              <option value="Q3">3분기</option>
+              <option value="Q4">4분기</option>
+            </select>
+          </div>
+
+          <div class="col-md-2 align-self-end">
+            <button type="button" class="btn btn-primary btn-sm w-100" onclick="loadBalanceData()">
+              <i class="fas fa-search"></i> 조회
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- 그리드 영역 -->
+    <div class="col-12">
+      <div id="balanceGrid" class="mx-3" style="height: 600px;"></div>
+    </div>
+
+  </div>
+
+  <!-- 요약 모달 -->
+  <div class="modal fade" id="summaryModal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="summaryModalLabel">재무상태표 요약</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+        </div>
+        <div class="modal-body" id="modalSummaryContent">
+          <!-- 계산된 내용 삽입 -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">닫기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
-
 
 <script>
 //Toast UI Grid 초기화
@@ -104,27 +123,16 @@ pageOptions: {
  perPage: 15      // 페이지당 15개 행 표시
 },
 columns: [
- {
-   header: '구분',
-   name: 'acctTypeName',
-   align: 'center',
-   // 합계 행이면 굵게 표시, 아니면 일반 텍스트
+ { header: '구분', name: 'acctTypeName', align: 'center', // 합계 행이면 굵게 표시, 아니면 일반 텍스트
    formatter: ({ row }) => {
-     return row.isSummary
+	   return row.isSummary
        ? `<strong>${row.acctTypeName}</strong>`
        : row.acctTypeName;
    }
  },
- {
-   header: '계정명',
-   name: 'name',
-   align: 'left'
+ { header: '계정명', name: 'name', align: 'left'
  },
- {
-   header: '금액',
-   name: 'balance',
-   align: 'right',
-   // 금액 형식 변환 및 합계 행에 스타일 적용
+ { header: '금액', name: 'balance', align: 'right', // 금액 형식 변환 및 합계 행에 스타일 적용
    formatter: ({ row }) => {
      const amount = Number(row.balance || 0);
      const text = amount.toLocaleString() + '원';
@@ -135,6 +143,38 @@ columns: [
  }
 ]
 });
+
+$('#excel').on('click', function () {
+	  const data = balGrid.getData();
+
+	  // 1. 헤더 + 데이터 구성
+	  const header = ['계정분류', '계정코드명', '금액'];
+	  const rows = data.map(row => [row.acctTypeName, row.name, row.balance]);
+
+	  const sheetData = [header, ...rows];
+
+	  // 2. SheetJS 시트 생성
+	  const ws = XLSX.utils.aoa_to_sheet(sheetData);
+
+	  // 3. 스타일 커스터마이징 (컬럼 너비 + 색상 등)
+	  ws['!cols'] = [
+	    { wch: 20 }, // 계정명 너비
+	    { wch: 15 }, // 계정코드 너비
+	    { wch: 20 }  // 금액 너비
+	  ];
+
+	  // 배경색 예시 (헤더 첫 셀)
+	  ws['A1'].s = {
+	    fill: { fgColor: { rgb: 'D9E1F2' } }, // 연한 파랑
+	    font: { bold: true },
+	    alignment: { horizontal: 'center' }
+	  };
+
+	  // 4. 워크북 생성 및 다운로드
+	  const wb = XLSX.utils.book_new();
+	  XLSX.utils.book_append_sheet(wb, ws, "재무상태표");
+	  XLSX.writeFile(wb, '재무상태표.xlsx');
+	});
 
 
 //데이터 배열을 받아서 자산/부채/자본 항목별 합계를 계산하는 함수
