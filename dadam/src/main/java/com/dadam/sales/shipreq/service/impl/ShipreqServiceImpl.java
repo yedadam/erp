@@ -47,24 +47,23 @@ public class ShipreqServiceImpl implements ShipreqService {
 
 	@Override
 	public List<ShipReqDtlVO> findShipreqDtlList(String shipReqCode) {
+		initAuthInfo(); 
 		List<ShipReqDtlVO> result=shipreqMapper.findShipreqDtlList(shipReqCode,comId); 
 		return result;
 	}
 
 	@Override
 	public int insertShipreqReg(ShipReqFrontVO req) {
-		String shipreqCode=req.getHead().getShipReqCode();
-		String ordCode=req.getHead().getOrdCode(); 
-
-		req.getHead().setComId(comId); //comId를 설정 해줌  
+	
+		initAuthInfo();
 		
-		System.out.println("comId"+req.getHead().getComId());
+		String ordCode=req.getHead().getOrdCode(); 
+		req.getHead().setComId(comId); //comId 설정   
 		
 		shipreqMapper.insertShipreqHead(req.getHead()); //헤더먼저등록
 		shipreqMapper.updateStatusByordNo(ordCode,comId); 	// 출고대기 ost02로 변경 
-	
-		System.out.println(shipreqCode);
-		System.out.println(req.getDtl());
+		String shipreqCode=shipreqMapper.findMaxShipReqNo(comId);
+		
 		for(int i=0;i<req.getDtl().size(); i++ ) {
 		  req.getDtl().get(i).setShipReqCode(shipreqCode); //shipreqCode로 지정		
 		  req.getDtl().get(i).setComId(comId);
@@ -73,14 +72,19 @@ public class ShipreqServiceImpl implements ShipreqService {
 		return 0;
 	}
 	@Override
-	public int updateShiPExpDate(ShipReqVO head) {
-		head.setComId(comId);
-		shipreqMapper.updateShiPExpDate(head); 
+	public int updateShiPExpDate(List<ShipReqVO> list) {
+		initAuthInfo(); 
+		for(int i=0;i<list.size();i++) {
+			list.get(i).setComId(comId);
+			shipreqMapper.updateShiPExpDate(list.get(i)); 
+		}
+		
 		return 0;
 	}
 
 	@Override
 	public int deleteShipReq(ShipReqFrontVO req) {
+		initAuthInfo();
 		req.getHead().setComId(comId); //comId 부여 
 		shipreqMapper.updateOrdStatus(req.getHead().getOrdCode(),req.getHead().getComId()); 
 		System.out.println("updateOrdStatus완료");
@@ -92,9 +96,12 @@ public class ShipreqServiceImpl implements ShipreqService {
 	//dtl번호받아서 삭제하기 
 	@Override
 	public int deleteShipReqDtlBydtlno(ShipReqFrontVO req) {
+		initAuthInfo(); 
 		req.getHead().setComId(comId);
+		String shipReqCode=req.getHead().getShipReqCode(); //출하의뢰번호 
 		for(int i=0; i<req.getDtl().size();i++) {
 		   req.getDtl().get(i).setComId(comId);
+		   shipreqMapper.updateTotPriceAfterDelete(shipReqCode,req.getDtl().get(i).getShipReqDtlCode(), comId); //출하의뢰 헤더번호 
 		   shipreqMapper.deleteShipReqDtlBydtlno(req.getDtl().get(i).getShipReqDtlCode(),comId); 
 		}
 		return 0;

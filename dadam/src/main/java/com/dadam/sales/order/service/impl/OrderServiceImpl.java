@@ -61,10 +61,6 @@ public class OrderServiceImpl implements OrderService {
 		
 		orderMapper.orderInsert(ord.getOrd()); //헤더 제일먼저 insert 
 		
-	//	String ordCode=ord.getOrd().getOrdCode();
-		
-		orderMapper.orderInsert(ord.getOrd()); //헤더 제일먼저 insert 
-		
 		String vdrCode = ord.getOrd().getVdrCode(); // vdrCode 거래처코드
 		Long totPrice = ord.getOrd().getTotPrice(); // totPrice
 		// 외상매입금일경우 여신차감-> 모든 지불방식인 경우에 여신잔량 깎는걸로 변경 
@@ -79,11 +75,9 @@ public class OrderServiceImpl implements OrderService {
 			orderMapper.odtlInsert(ord.getDtl().getCreatedRows().get(i));
 		}
 		
-		
 		return 0;
 	}
-
-
+	
 	@Override
 	public int removeOrders(String ordCode) {
 		initAuthInfo(); 

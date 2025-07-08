@@ -54,9 +54,8 @@ public class ShipreqRestController {
 	
 	//출하 메인 수정
 	@PutMapping("/shipReqMainModify")
-	public int shipReqMainModify(@RequestBody ShipReqVO param) {
-		System.out.println(param);
-		int result = service.updateShiPExpDate(param);
+	public int shipReqMainModify(@RequestBody List<ShipReqVO> list ) {
+		int result = service.updateShiPExpDate(list);
 		return result;
 	}
 	

@@ -18,5 +18,8 @@ public interface ShipreqMapper {
 	public int updateOrdStatus(@Param("ordCode")String ordCode,@Param("comId")String comId); //주문상태 바꾸기 
 	public int deleteShipreqDtl(@Param("shipReqCode")String shipReqCode,@Param("comId")String comId ); //출하헤더 삭제시출하디테일 삭제하기
 	public int deleteShipreqHead(@Param("shipReqCode")String shipReqCode,@Param("comId")String comId);//출하헤더 삭제하기
-	public int deleteShipReqDtlBydtlno(@Param("shipReqCode") String shipReqDtlCode,@Param("comId")String comId); // 
+	public int deleteShipReqDtlBydtlno(@Param("shipReqDtlCode") String shipReqDtlCode,@Param("comId")String comId); // 
+	public String findMaxShipReqNo(String comId); //출하의뢰 max 넘버찾기
+	
+	int updateTotPriceAfterDelete(@Param("shipReqCode")String shipReqCode,  @Param("shipReqDtlCode")  String shipReqDtlCode,@Param("comId")String comId); //행삭제후 헤더 총가격 변경 
 }
