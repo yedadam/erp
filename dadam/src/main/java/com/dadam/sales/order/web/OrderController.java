@@ -88,7 +88,8 @@ public class OrderController {
 		String vdrcode=req.getOrd().getVdrCode();
 		Long totPrice=req.getOrd().getTotPrice(); // 총금액 해당 거래처코드에 가서 credit_bal_price-totPrice 여신잔액  
 		orderService.orderInsert(req); //insert 처리 		{ord:{}}
-	    return "ok";
+	    
+		return "ok";
 	}
 	
 	@ResponseBody
