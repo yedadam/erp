@@ -1,12 +1,182 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
- xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{common/layouts/default_layout}" 
-  layout:fragment="Content">
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
 
-<body>
+<head>
+<meta charset="UTF-8" />
+<title>회계 메인페이지</title>
+<style>
+.card-title {
+	font-size: 1rem;
+}
 
-<h1>회계</h1>
+.card-value {
+	font-size: 1.3rem;
+	font-weight: bold;
+}
 
+.shortcut-btn {
+	min-width: 120px;
+	height: 100px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	font-size: 0.9rem;
+}
+</style>
+</head>
+<body class="bg-light">
+	<div class="container-fluid mt-4 p-4 rounded shadow-sm bg-white">
+
+		<!-- 헤더 -->
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<h3 class="fw-bold text-secondary border-bottom pb-2">회계 메인 페이지</h3>
+		</div>
+
+		<!-- 요약 카드 영역 -->
+		<div class="row row-cols-1 row-cols-md-4 g-4 mb-4">
+			<div class="col">
+				<div class="card border-start border-primary border-4 shadow-sm">
+					<div class="card-body">
+						<div class="card-title text-muted">미결 전표</div>
+						<div class="card-value text-primary">3건</div>
+					</div>
+				</div>
+			</div>
+			<div class="col">
+				<div class="card border-start border-success border-4 shadow-sm">
+					<div class="card-body">
+						<div class="card-title text-muted">이번 달 수익</div>
+						<div class="card-value text-success">₩12,000,000</div>
+					</div>
+				</div>
+			</div>
+			<div class="col">
+				<div class="card border-start border-danger border-4 shadow-sm">
+					<div class="card-body">
+						<div class="card-title text-muted">이번 달 비용</div>
+						<div class="card-value text-danger">₩8,500,000</div>
+					</div>
+				</div>
+			</div>
+			<div class="col">
+				<div class="card border-start border-warning border-4 shadow-sm">
+					<div class="card-body">
+						<div class="card-title text-muted">통장 잔액</div>
+						<div class="card-value text-warning">₩3,200,000</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 바로가기 버튼 -->
+		<div class="row g-3 mb-4">
+			<div class="col-auto">
+				<a href="/acc/chit" class="btn btn-outline-primary shortcut-btn">
+					<i class="bi bi-journal-text fs-4"></i><br />전표관리
+				</a>
+			</div>
+			<div class="col-auto">
+				<a href="/acc/account" class="btn btn-outline-success shortcut-btn">
+					<i class="bi bi-book fs-4"></i><br />계정과목
+				</a>
+			</div>
+			<div class="col-auto">
+				<a href="/acc/ledger" class="btn btn-outline-secondary shortcut-btn">
+					<i class="bi bi-person-lines-fill fs-4"></i><br />거래처원장
+				</a>
+			</div>
+			<div class="col-auto">
+				<a href="/acc/bank" class="btn btn-outline-info shortcut-btn"> <i
+					class="bi bi-bank fs-4"></i><br />입출금내역
+				</a>
+			</div>
+			<div class="col-auto">
+				<a href="/acc/profit" class="btn btn-outline-warning shortcut-btn">
+					<i class="bi bi-graph-up fs-4"></i><br />손익계산서
+				</a>
+			</div>
+			<div class="col-auto">
+				<a href="/acc/balanceSheet"
+					class="btn btn-outline-dark shortcut-btn"> <i
+					class="bi bi-bar-chart fs-4"></i><br />재무상태표
+				</a>
+			</div>
+		</div>
+
+		<!-- 차트나 최근 항목 등 추가 가능 -->
+		<div class="mt-5">
+			<div class="mt-5">
+				<h5 class="fw-bold mb-3">월별 수익/비용 차트</h5>
+				<div id="profitChart" style="height: 300px;"></div>
+			</div>
+		</div>
+		<div class="mt-5">
+			<div class="mt-5">
+				<h5 class="fw-bold mb-3">회계 일정 달력</h5>
+				<div id="Calendar" style="height: 600px;"></div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bootstrap Icons (선택) -->
 </body>
+
+<script>
+  // Toast UI Chart - 월별 수익/비용
+  const chartData = {
+    categories: ['1월', '2월', '3월', '4월', '5월', '6월'],
+    series: [
+      {
+        name: '수익',
+        data: [12000000, 11500000, 15000000, 13000000, 17000000, 16500000]
+      },
+      {
+        name: '비용',
+        data: [8000000, 9500000, 10000000, 8700000, 11000000, 10500000]
+      }
+    ]
+  };
+
+  const chartOptions = {
+    chart: { title: '월별 수익/비용 비교', width: 'auto', height: 300 },
+    yAxis: { title: '금액 (₩)' },
+    xAxis: { title: '월' },
+    series: { stack: false },
+    tooltip: { grouped: true }
+  };
+
+  toastui.Chart.columnChart({ el: document.getElementById('profitChart'), data: chartData, options: chartOptions });
+
+  // Toast UI Calendar - 회계 일정 달력
+  const Calendar = toastui.Calendar;
+  const calendar = new Calendar('#calendar', {
+    defaultView: 'month',
+    usageStatistics: false
+  });
+
+  // 예시 일정 추가
+  calendar.createEvents([
+    {
+      id: '1',
+      calendarId: '1',
+      title: '급여 지급일',
+      category: 'time',
+      start: '2025-07-10T09:00:00',
+      end: '2025-07-10T10:00:00'
+    },
+    {
+      id: '2',
+      calendarId: '1',
+      title: '세금 납부 마감',
+      category: 'allday',
+      start: '2025-07-25',
+      end: '2025-07-25'
+    }
+  ]);
+</script>
 </html>

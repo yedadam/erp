@@ -74,4 +74,9 @@ public class AccountRestController {
         System.out.println("소분류 전달값: " + classCode);
         return accountService.getAcctSubClasses(classCode);
     }
+
+    @GetMapping("/accountSearch")
+    public List<AccountVO> accountSearch(@RequestParam Map<String, Object> params) {
+        return accountService.accountSearch(params);
+    }
 }

@@ -1,6 +1,7 @@
 package com.dadam.acc.account.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -127,5 +128,12 @@ public class AccountServiceImpl implements AccountService {
                 accountMapper.delete(acct.getAcctCode());
             }
         }
+    }
+
+    @Override
+    public List<AccountVO> accountSearch(Map<String, Object> params) {
+        String comId = initAuthInfo();
+        params.put("comId", comId);
+        return accountMapper.accountSearch(params);
     }
 }
