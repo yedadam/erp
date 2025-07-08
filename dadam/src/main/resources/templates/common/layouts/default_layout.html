@@ -509,7 +509,7 @@
 		  let stompClient = null;		 
 		
 		  function connect() {
-			  const socket = new SockJS('/ws/chat');
+			    const socket = new SockJS('/ws/chat');
 			    stompClient = Stomp.over(socket);
 
 			    stompClient.connect({}, function(frame) {
@@ -521,6 +521,7 @@
 			                currentSubscription.unsubscribe();
 			            }
 			            currentSubscription = stompClient.subscribe(`/topic/chat.${currentRoomId}`, function(response) {
+			            	console.log(response)
 			                const message = JSON.parse(response.body);
 			                if (message.sender !== comId) {
 			                	console.log('보낸값',message);
@@ -535,7 +536,7 @@
 		  
 		  $(document).ready(function() {
 			    connect();
-			});
+		  });
 		 $('#chatInput').on('keydown',ev=>{
 			 if(ev.keyCode==13){
 				 sendChat();
@@ -570,6 +571,7 @@
 				}
 		  //보내는 화면 표시
 		  function showChatMessage(msg) {
+			    console.log(msg)
 			  	const myEmpId = empId;
 			  
 			    const isMine = (msg.empId === myEmpId);
@@ -580,7 +582,7 @@
 			    const html = `
 			        <div class="${alignClass} mb-2">
 			            <div class="fw-bold">
-			                ${senderName} <small class="text-muted">${new Date().toLocaleTimeString()}</small>
+			                ${senderName} <small class="text-muted">${msg.createdDate}</small>
 			            </div>
 			            <div class="${bubbleColor} rounded p-2 d-inline-block">${msg.message}</div>
 			        </div>
