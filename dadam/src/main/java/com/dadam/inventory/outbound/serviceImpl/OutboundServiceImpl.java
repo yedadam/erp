@@ -38,11 +38,21 @@ public class OutboundServiceImpl implements OutboundService{
 		List<HoldVO> list = outboundmapper.selectHoldOutboundList(vo);
 		return list;
 	}
-
+	// 홀드 리스트
 	@Override
 	public List<LotVO> selectOutboundHoldDetailList(LotVO vo) {
 		List<LotVO> list = outboundmapper.selectOutboundHoldDetailList(vo);
 		return list;
+	}
+	// 출고등록 
+	@Override
+	public int insertOutbound(List<OutboundVO> list) {
+		int result = 0;
+		for(OutboundVO vo : list) {
+			System.out.println(vo);
+			result = outboundmapper.insertOutbound(vo);
+		}
+		return result;
 	}
 
 	

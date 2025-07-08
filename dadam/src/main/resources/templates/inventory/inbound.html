@@ -510,8 +510,9 @@ function insertGrid(){
 							$('#inboundModal').modal('hide');
 							mainGrid.uncheckAll();
 							inboundGrid.refreshLayout();
+							mainGrid.refreshLayout();
 							}
-						});
+						}); // ajax 끝
 					});
 		  
 				// 행 추가
