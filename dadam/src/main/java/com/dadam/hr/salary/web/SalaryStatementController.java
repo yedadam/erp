@@ -27,12 +27,8 @@ public class SalaryStatementController {
      */
     @GetMapping("/salary/list")
     public String list(Model model) {
-        // TODO: 실제 로그인 정보에서 empId, comId 추출
-        String empId = "e1002";
-        String comId = "com-101";
-        List<SalaryStatementVO> list = salaryStatementService.getSalaryStatementList(empId, comId);
-        model.addAttribute("salaryList", list);
-        return "hr/salarylist";
+        // 실제 데이터 바인딩은 필요시 추가
+        return "hr/salary";
     }
     /**
      * 급여명세서 상세 화면

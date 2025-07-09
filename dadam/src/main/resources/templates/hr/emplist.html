@@ -286,6 +286,8 @@ body {
 		</div>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<!-- Bootstrap JS 추가 (jQuery 다음) -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="https://uicdn.toast.com/grid/latest/tui-grid.min.js"></script>
 	<script
 		src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
@@ -367,7 +369,7 @@ body {
       let status = $('#statusFilter').val();
       if (status === '') status = undefined; // 전체 선택 시 파라미터 제거
       $.ajax({
-        url: '/erp/hr/empList',
+        url: '/erp/hr/empListAjax',
         method: 'GET',
         data: { keyword, status },
         success: function (data) { empGrid.resetData(data); }
@@ -408,13 +410,34 @@ body {
     $('#searchInput').on('keydown', function (e) { if (e.key === 'Enter') loadEmpList(); });
     $('#statusFilter').on('change', loadEmpList);
 
-    // 저장 (신규/수정 통합)
+    // 사진 미리보기 기능 추가
+    $('#profileImg').on('change', function() {
+      const input = this;
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          $('#profilePreview').attr('src', e.target.result).show();
+        }
+        reader.readAsDataURL(input.files[0]);
+      } else {
+        $('#profilePreview').attr('src', '/static/img/user-default.png');
+      }
+    });
+
+    // 저장 (신규/수정 통합) - 응답이 문자열일 때도 처리
     $('#btnSave').on('click', function () {
+      // 필수값 체크
+      const empName = $('#empName').val().trim();
+      const deptCode = $('#deptCode').val();
+      const position = $('#position').val();
+      if (!empName) { alert('성명을 입력하세요.'); $('#empName').focus(); return; }
+      if (!deptCode) { alert('부서를 선택하세요.'); $('#deptCode').focus(); return; }
+      if (!position) { alert('직급을 선택하세요.'); $('#position').focus(); return; }
+      // ... 필요시 추가 필수값 체크
+
       const form = document.getElementById('empForm');
       const formData = new FormData(form);
       const empId = $('#empId').val();
-
-      // empId가 있더라도 DB에 존재하는지 체크 후 분기
       $.get('/erp/hr/empDetail', { empId }, function(data) {
         const isUpdate = (data && data.empId);
         const url = isUpdate ? '/erp/hr/updateEmp' : '/erp/hr/insertEmp';
@@ -425,12 +448,22 @@ body {
           processData: false,
           contentType: false,
           success: function (res) {
-            if (res.success) {
+            if (typeof res === 'string') {
+              if (res === 'ok') {
+                alert(isUpdate ? '수정 완료!' : '등록 완료!');
+                loadEmpList();
+                $('#btnNew').click();
+              } else if (res === 'unauthorized') {
+                alert('권한이 없습니다.');
+              } else {
+                alert(isUpdate ? '수정 실패' : '등록 실패');
+              }
+            } else if (res && res.success) {
               alert(res.message || (isUpdate ? '수정 완료!' : '등록 완료!'));
               loadEmpList();
               $('#btnNew').click();
             } else {
-              alert(res.message || (isUpdate ? '수정 실패' : '등록 실패'));
+              alert(res && res.message ? res.message : (isUpdate ? '수정 실패' : '등록 실패'));
             }
           },
           error: function (xhr) { alert((isUpdate ? '수정' : '등록') + ' 실패: ' + xhr.responseText); }
@@ -438,23 +471,34 @@ body {
       });
     });
 
-    // 삭제
+    // 삭제 - 응답이 문자열일 때도 처리
     $('#btnDelete').on('click', function () {
       const empId = $('#empId').val();
+      const comId = $('#comId').val(); // comId도 같이 전송
       if (!empId) { alert('사원을 선택하세요'); return; }
       if (!confirm('정말 삭제하시겠습니까?')) return;
       $.ajax({
         url: '/erp/hr/deleteEmp',
         method: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ empId }),
+        data: JSON.stringify({ empId, comId }),
         success: function (res) {
-          if (res.success) {
+          if (typeof res === 'string') {
+            if (res === 'ok') {
+              alert('삭제 완료!');
+              loadEmpList();
+              $('#empForm')[0].reset();
+            } else if (res === 'unauthorized') {
+              alert('권한이 없습니다.');
+            } else {
+              alert('삭제 실패');
+            }
+          } else if (res && res.success) {
             alert(res.message || '삭제 완료!');
             loadEmpList();
             $('#empForm')[0].reset();
           } else {
-            alert(res.message || '삭제 실패');
+            alert(res && res.message ? res.message : '삭제 실패');
           }
         },
         error: function (xhr) { alert('삭제 실패: ' + xhr.responseText); }

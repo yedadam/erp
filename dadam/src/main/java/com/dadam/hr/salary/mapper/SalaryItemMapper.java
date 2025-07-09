@@ -11,13 +11,13 @@ import java.util.List;
 @Mapper
 public interface SalaryItemMapper {
     /** 전체 급여항목 목록 조회 */
-    List<SalaryItemVO> selectSalaryItemList(@Param("comId") String comId);
+    public List<SalaryItemVO> selectSalaryItemList(@Param("comId") String comId);
     /** 단일 급여항목 조회 */
-    SalaryItemVO selectSalaryItem(@Param("comId") String comId, @Param("allowCode") String allowCode);
+    public SalaryItemVO selectSalaryItem(@Param("comId") String comId, @Param("allowCode") String allowCode);
     /** 급여항목 등록 */
-    int insertSalaryItem(SalaryItemVO vo);
+    public int insertSalaryItem(SalaryItemVO vo);
     /** 급여항목 수정 */
-    int updateSalaryItem(SalaryItemVO vo);
+    public int updateSalaryItem(SalaryItemVO vo);
     /** 급여항목 삭제 */
-    int deleteSalaryItem(@Param("comId") String comId, @Param("allowCode") String allowCode);
+    public int deleteSalaryItem(@Param("comId") String comId, @Param("allowCode") String allowCode);
 } 

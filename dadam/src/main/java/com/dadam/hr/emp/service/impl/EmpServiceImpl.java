@@ -42,30 +42,25 @@ public class EmpServiceImpl implements EmpService {
 
     /**
      * 사원 목록 조회
-     * @param keyword - 검색어
-     * @param status - 재직상태
-     * @param dept - 부서코드
+     * @param param - 검색 파라미터
      * @return 사원 리스트
      */
     @Override
-    public List<EmpVO> getEmpList(String keyword, String status, String dept) {
-    	initAuthInfo();
-        java.util.Map<String, Object> param = new java.util.HashMap<>();
-        param.put("keyword", keyword);
-        param.put("status", status);
-        param.put("dept", dept);
-        return empMapper.selectEmpList(keyword, status, dept);
+    public List<EmpVO> findEmpList(java.util.Map<String, Object> param) {
+        initAuthInfo();
+        param.put("comId", comId);
+        return empMapper.findEmpList(param);
     }
 
     /**
      * 사원 상세 조회
      * @param empId - 사원번호
+     * @param comId - 회사ID
      * @return 사원 정보
      */
     @Override
-    public EmpVO getEmpDetail(String empId) {
-    	initAuthInfo();
-        return empMapper.selectEmpDetail(empId);
+    public EmpVO getEmpDetail(String empId, String comId) {
+        return empMapper.getEmpDetail(empId, comId);
     }
 
     /**
@@ -75,6 +70,8 @@ public class EmpServiceImpl implements EmpService {
      */
     @Override
     public boolean insertEmp(EmpVO empVO) {
+    	initAuthInfo();
+    	empVO.setComId(comId);
         log.info("사원 등록 시작: {} ({})", empVO.getEmpName(), empVO.getEmpId());
         int result = empMapper.insertEmp(empVO);
         
@@ -94,6 +91,8 @@ public class EmpServiceImpl implements EmpService {
      */
     @Override
     public boolean updateEmp(EmpVO empVO) {
+    	initAuthInfo();
+    	empVO.setComId(comId);
         log.info("사원 정보 수정: {} ({})", empVO.getEmpName(), empVO.getEmpId());
         int result = empMapper.updateEmp(empVO);
         
@@ -109,18 +108,25 @@ public class EmpServiceImpl implements EmpService {
     /**
      * 사원 삭제(퇴사)
      * @param empId - 사원번호
+     * @param comId - 회사ID
      * @return 삭제 결과
      */
     @Override
-    public boolean deleteEmp(String empId) {
-        log.info("사원 삭제: {}", empId);
-        int result = empMapper.deleteEmp(empId);
-        
+    public boolean deleteEmp(String empId, String comId) {
+        // comId가 null 또는 빈 값이면 로그인 정보에서 보완
+        if (comId == null || comId.isEmpty()) {
+            initAuthInfo();
+            comId = this.comId;
+        }
+        java.util.Map<String, String> param = new java.util.HashMap<>();
+        param.put("empId", empId);
+        param.put("comId", comId);
+        int result = empMapper.deleteEmp(param);
         if (result > 0) {
-            log.info("✅ 사원 삭제 성공: {}", empId);
+            log.info("✅ 사원 삭제 성공: {} (회사: {})", empId, comId);
             return true;
         } else {
-            log.error("❌ 사원 삭제 실패: {}", empId);
+            log.error("❌ 사원 삭제 실패: {} (회사: {})", empId, comId);
             return false;
         }
     }

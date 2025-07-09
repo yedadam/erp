@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +39,8 @@ import com.dadam.security.service.LoginMainAuthority;
 @RestController
 @RequestMapping("/erp/hr")
 public class EmpController {
-
+	@Autowired
+	private PasswordEncoder passwordEncoder;
     /** 사원 서비스 */
     @Autowired
     private EmpService empService;
@@ -57,23 +59,6 @@ public class EmpController {
      */
     private java.util.Map<String, String> getCurrentUserInfo() {
         java.util.Map<String, String> userInfo = new java.util.HashMap<>();
-        
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = auth.getPrincipal();
-
-        if (principal instanceof LoginUserAuthority) {
-            LoginUserAuthority user = (LoginUserAuthority) principal;
-            userInfo.put("comId", user.getComId());
-            userInfo.put("deptCode", user.getDeptCode());
-            userInfo.put("authority", user.getOptionCode());
-            userInfo.put("empId", user.getUserId());
-        } else if (principal instanceof LoginMainAuthority) {
-            LoginMainAuthority user = (LoginMainAuthority) principal;
-            userInfo.put("comId", user.getComId());
-            userInfo.put("deptCode", user.getDeptCode());
-            userInfo.put("authority", user.getAuthority());
-            userInfo.put("empId", "");
-        }
         
         return userInfo;
     }
@@ -95,17 +80,30 @@ public class EmpController {
      * @param dept - 부서코드
      * @return 사원 리스트
      */
-    @GetMapping("/empList")
+    @GetMapping("/empListAjax")
     @ResponseBody
     public List<EmpVO> empList(@RequestParam(required = false) String keyword,
                                @RequestParam(required = false) String status,
                                @RequestParam(required = false) String dept) {
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
+        String comId = userInfo.get("comId");
         // 관리자가 아닌 경우 본인 부서만 조회 가능
         if (!isAdmin()) {
             dept = userInfo.get("deptCode");
         }
-        return empService.getEmpList(keyword, status, dept);
+        // 예시: 로그인 정보에서 comId 추출
+        // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        // LoginUserAuthority user = (LoginUserAuthority) auth.getPrincipal();
+        // String comId = user.getComId();
+        //
+        // 사원 목록 조회
+        java.util.Map<String, Object> param = new java.util.HashMap<>();
+        param.put("keyword", keyword);
+        param.put("status", status);
+        param.put("dept", dept);
+        param.put("comId", comId); // 회사별 전체 조회
+        // empId는 검색 조건 입력 시에만 param.put("empId", empId);
+        return empService.findEmpList(param);
     }
 
     /**
@@ -117,11 +115,20 @@ public class EmpController {
     @ResponseBody
     public EmpVO empDetail(@RequestParam String empId) {
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
-        // 관리자가 아닌 경우 본인 정보만 조회 가능
-        if (!isAdmin() && !empId.equals(userInfo.get("empId"))) {
-            return null; // 권한 없음
-        }
-        return empService.getEmpDetail(empId);
+        // 예시: 로그인 정보에서 comId 추출
+        // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        // LoginUserAuthority user = (LoginUserAuthority) auth.getPrincipal();
+        // String comId = user.getComId();
+        //
+        // 사원 상세 조회
+        // comId는 로그인 정보에서 추출 필요 (예시)
+        // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        // LoginUserAuthority user = (LoginUserAuthority) auth.getPrincipal();
+        // String comId = user.getComId();
+        // return empService.getEmpDetail(empId, comId);
+        // 임시로 comId를 "com-101"로 지정
+        String comId = "com-101";
+        return empService.getEmpDetail(empId, comId);
     }
 
     /**
@@ -134,12 +141,11 @@ public class EmpController {
     @ResponseBody
     public String insertEmp(@ModelAttribute EmpVO empVO, @RequestParam(value = "profileImg", required = false) MultipartFile profileImg) {
         // 관리자 권한 확인
-        if (!isAdmin()) {
-            return "unauthorized";
-        }
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
         empVO.setComId(userInfo.get("comId"));
-        empVO.setPwd("init");
+        empVO.setPwd("1234");
+        empVO.setPwd(passwordEncoder.encode(empVO.getPwd())); 
+        
         if (profileImg != null && !profileImg.isEmpty()) {
             empVO.setProfileImgPath(saveProfileImage(profileImg));
         }
@@ -161,9 +167,6 @@ public class EmpController {
     public String updateEmp(@ModelAttribute EmpVO empVO, @RequestParam(value = "profileImg", required = false) MultipartFile profileImg) {
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
         // 관리자가 아니고 본인이 아닌 경우 수정 불가
-        if (!isAdmin() && !empVO.getEmpId().equals(userInfo.get("empId"))) {
-            return "unauthorized";
-        }
         if (profileImg != null && !profileImg.isEmpty()) {
             empVO.setProfileImgPath(saveProfileImage(profileImg));
         }
@@ -173,19 +176,16 @@ public class EmpController {
 
     /**
      * 사원 삭제 (관리자만 가능)
-     * @param param - 사원번호
+     * @param param - 사원번호, 회사ID
      * @return 삭제 결과
      */
     @PostMapping("/deleteEmp")
     @ResponseBody
     public String deleteEmp(@RequestBody java.util.Map<String, String> param) {
-        // 관리자 권한 확인
-        if (!isAdmin()) {
-            return "unauthorized";
-        }
         String empId = param.get("empId");
-        if (empId == null || empId.isEmpty()) return "fail";
-        boolean result = empService.deleteEmp(empId);
+        String comId = param.get("comId");
+        if (empId == null || empId.isEmpty() || comId == null || comId.isEmpty()) return "fail";
+        boolean result = empService.deleteEmp(empId, comId);
         return result ? "ok" : "fail";
     }
 
@@ -287,30 +287,6 @@ public class EmpController {
     @ResponseBody
     public String nextEmpId() {
         return generateNextEmpId();
-    }
-
-    /**
-     * 전체 사원 목록 페이지 이동 (관리자만)
-     * @param model - 뷰 모델
-     * @return 전체 사원 목록 뷰
-     */
-    @GetMapping("/emp-all")
-    public String empAllPage(Model model) {
-        if (!isAdmin()) {
-            return "redirect:/erp/hr/emp"; // 권한 없으면 기본 페이지로
-        }
-        
-        model.addAttribute("empStatuses", codeService.getCodeMap("stt"));
-        return "hr/emp-all";
-    }
-
-    /**
-     * 부서 목록 페이지 이동
-     * @return 부서 목록 뷰
-     */
-    @GetMapping("/dept-list")
-    public String deptListPage() {
-        return "hr/dept";
     }
 
     /**

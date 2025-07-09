@@ -47,6 +47,7 @@
             e.annual_leave_used AS annualLeaveUsed,
             (e.annual_leave_total - e.annual_leave_used) AS annualLeaveRemain
         FROM employees e
+        WHERE e.com_id = #{comId}
         <where>
             <if test="keyword != null and keyword != ''">
                 (e.emp_id LIKE '%' || #{keyword} || '%'
@@ -108,7 +109,9 @@
 		UPDATE employees
 		SET com_id = #{comId},
 		dept_code = #{deptCode},
-		pwd = #{pwd},
+		<if test="pwd !=null and pwd != ''">
+		  pwd = #{pwd},
+		</if>
 		emp_name = #{empName},
 		email = #{email},
 		tel = #{tel},

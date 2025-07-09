@@ -9,18 +9,17 @@ import java.util.List;
 public interface EmpService {
     /**
      * 사원 목록 조회
-     * @param keyword 검색어
-     * @param status 재직상태
-     * @param dept 부서코드
+     * @param param - 검색 파라미터
      * @return 사원 리스트
      */
-    List<EmpVO> getEmpList(String keyword, String status, String dept);
+    List<EmpVO> findEmpList(java.util.Map<String, Object> param);
     /**
      * 사원 상세 조회
-     * @param empId 사원번호
+     * @param empId - 사원번호
+     * @param comId - 회사ID
      * @return 사원 정보
      */
-    EmpVO getEmpDetail(String empId);
+    EmpVO getEmpDetail(String empId, String comId);
     /**
      * 사원 등록
      * @param empVO 사원 정보
@@ -36,9 +35,10 @@ public interface EmpService {
     /**
      * 사원 삭제
      * @param empId 사원번호
+     * @param comId 회사ID
      * @return 삭제 성공 여부
      */
-    boolean deleteEmp(String empId);
+    boolean deleteEmp(String empId, String comId);
     /**
      * 최대 사번 조회
      * @return 사번
