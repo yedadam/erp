@@ -18,7 +18,7 @@ public class SalaryDetailVO {
     private Long detailId;
     /** 급여 ID */
     private Long salaryId;
-    /** 항목 유형 (ALLOWANCE, DEDUCTION) */
+    /** 항목유형 (ALLOWANCE, DEDUCTION) */
     private String itemType;
     /** 항목명 */
     private String itemName;

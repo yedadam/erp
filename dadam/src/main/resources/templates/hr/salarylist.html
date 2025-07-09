@@ -51,17 +51,27 @@
 </head>
 <body class="bg-light">
 <div class="container-fluid mt-4">
-  <!-- 상단 요약 카드 및 실지급액 강조 -->
+  <!-- [카드] 상단 요약/실지급액 -->
   <div class="salary-summary d-flex flex-row justify-content-between align-items-center mb-4 p-4 rounded-4 shadow bg-white">
     <div class="employee-info">
-      <span th:text="${salaryList[0].empName}">사원명</span> |
-      <span th:text="${salaryList[0].calcMonth}">2024-06</span> |
-      <span th:text="${salaryList[0].deptName}">부서</span> |
-      <span th:text="${salaryList[0].positionName}">직급</span>
+      <th:block th:if="${#lists.isEmpty(salaryList)}">
+        <span class="text-danger">데이터가 없습니다.</span>
+      </th:block>
+      <th:block th:if="${!#lists.isEmpty(salaryList)}">
+        <span th:text="${salaryList[0].empName}">사원명</span> |
+        <span th:text="${salaryList[0].calcMonth}">2024-06</span> |
+        <span th:text="${salaryList[0].deptName}">부서</span> |
+        <span th:text="${salaryList[0].positionName}">직급</span>
+      </th:block>
     </div>
     <div class="net-pay-highlight text-center">
       <span class="fw-bold text-secondary">실수령액</span><br/>
-      <span class="display-5 fw-bold text-primary" th:text="${#numbers.formatInteger(salaryList[0].netPay, 0, 'COMMA')}">2,950,000원</span>
+      <th:block th:if="${!#lists.isEmpty(salaryList)}">
+        <span class="display-5 fw-bold text-primary" th:text="${#numbers.formatInteger(salaryList[0].netPay, 0, 'COMMA')}">2,950,000원</span>
+      </th:block>
+      <th:block th:if="${#lists.isEmpty(salaryList)}">
+        <span class="text-danger">-</span>
+      </th:block>
     </div>
     <div class="salary-actions d-flex gap-2">
       <button class="btn btn-outline-success"><i class="fa fa-download me-1"></i>PDF 다운로드</button>
@@ -76,16 +86,16 @@
         <h5 class="fw-bold mb-2"><i class="fa fa-list-ul text-primary me-2"></i>지급항목</h5>
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            기본급 <span th:text="${#numbers.formatInteger(salaryList[0].baseSalary, 0, 'COMMA')}">2,500,000원</span>
+            기본급 <span th:text="${!#lists.isEmpty(salaryList) ? #numbers.formatInteger(salaryList[0].baseSalary, 0, 'COMMA') : '-'}">2,500,000원</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            식대 <span th:text="${#numbers.formatInteger(salaryList[0].mealAllow, 0, 'COMMA')}">200,000원</span>
+            식대 <span th:text="${!#lists.isEmpty(salaryList) ? #numbers.formatInteger(salaryList[0].mealAllow, 0, 'COMMA') : '-'}">200,000원</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            성과급 <span th:text="${#numbers.formatInteger(salaryList[0].bonus, 0, 'COMMA')}">250,000원</span>
+            성과급 <span th:text="${!#lists.isEmpty(salaryList) ? #numbers.formatInteger(salaryList[0].bonus, 0, 'COMMA') : '-'}">250,000원</span>
           </li>
         </ul>
-        <div class="subtotal text-end mt-2 fw-bold">지급합계: <span th:text="${#numbers.formatInteger(salaryList[0].baseSalary + salaryList[0].mealAllow + salaryList[0].bonus, 0, 'COMMA')}">2,950,000원</span></div>
+        <div class="subtotal text-end mt-2 fw-bold">지급합계: <span th:text="${!#lists.isEmpty(salaryList) ? #numbers.formatInteger(salaryList[0].baseSalary + salaryList[0].mealAllow + salaryList[0].bonus, 0, 'COMMA') : '-'}">2,950,000원</span></div>
       </div>
     </div>
     <div class="col-md-6">
@@ -93,13 +103,13 @@
         <h5 class="fw-bold mb-2"><i class="fa fa-minus-circle text-danger me-2"></i>공제항목</h5>
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            소득세 <span class="text-danger" th:text="${#numbers.formatInteger(salaryList[0].incTax, 0, 'COMMA')}">50,000원</span>
+            소득세 <span class="text-danger" th:text="${!#lists.isEmpty(salaryList) ? #numbers.formatInteger(salaryList[0].incTax, 0, 'COMMA') : '-'}">50,000원</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            4대보험 <span class="text-danger" th:text="${#numbers.formatInteger(salaryList[0].natPension + salaryList[0].healthInsur + salaryList[0].empInsur + salaryList[0].ltcInsur, 0, 'COMMA')}">100,000원</span>
+            4대보험 <span class="text-danger" th:text="${!#lists.isEmpty(salaryList) ? #numbers.formatInteger(salaryList[0].natPension + salaryList[0].healthInsur + salaryList[0].empInsur + salaryList[0].ltcInsur, 0, 'COMMA') : '-'}">100,000원</span>
           </li>
         </ul>
-        <div class="subtotal text-end mt-2 fw-bold">공제합계: <span class="text-danger" th:text="${#numbers.formatInteger(salaryList[0].incTax + salaryList[0].natPension + salaryList[0].healthInsur + salaryList[0].empInsur + salaryList[0].ltcInsur, 0, 'COMMA')}">150,000원</span></div>
+        <div class="subtotal text-end mt-2 fw-bold">공제합계: <span class="text-danger" th:text="${!#lists.isEmpty(salaryList) ? #numbers.formatInteger(salaryList[0].incTax + salaryList[0].natPension + salaryList[0].healthInsur + salaryList[0].empInsur + salaryList[0].ltcInsur, 0, 'COMMA') : '-'}">150,000원</span></div>
       </div>
     </div>
   </div>
@@ -107,10 +117,15 @@
   <div class="salary-history bg-white rounded-3 shadow-sm p-3 mb-4">
     <h6 class="fw-bold mb-2"><i class="fa fa-history text-secondary me-2"></i>명세서 발급 이력</h6>
     <ul class="list-unstyled mb-0">
-      <li th:each="history : ${salaryList[0].historyList}" th:text="${history}">2024-06-25 09:00:00 - PDF 다운로드</li>
+      <th:block th:if="${#lists.isEmpty(salaryList)}">
+        <li class="text-danger">이력이 없습니다.</li>
+      </th:block>
+      <th:block th:if="${!#lists.isEmpty(salaryList)}">
+        <li th:each="history : ${salaryList[0].historyList}" th:text="${history}">2024-06-25 09:00:00 - PDF 다운로드</li>
+      </th:block>
     </ul>
   </div>
-  <!-- 급여 지급내역(Toast UI Grid) 리디자인 START -->
+  <!-- [그리드] 급여명세서 Toast UI Grid -->
   <div class="salary-history-card fade-in p-4 rounded-4 shadow-sm bg-white mb-4">
     <div class="history-controls d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
       <div class="period-selector btn-group" role="group">
@@ -122,7 +137,6 @@
     </div>
     <div id="salaryGrid" class="rounded-3 border"></div>
   </div>
-  <!-- 급여 지급내역(Toast UI Grid) 리디자인 END -->
   <!-- 하단 누적 공제액/연말정산 카드형 리디자인 START -->
   <div class="row mt-4 g-4">
     <div class="col-md-6">
@@ -199,7 +213,7 @@
   let salaryList = /*[[${salaryList}]]*/ [];
 
 // =====================
-// 급여명세서 그리드 생성
+// [함수] 급여명세서 그리드/조회/다운로드
 // =====================
 const salaryGrid = new tui.Grid({
   el: document.getElementById('salaryGrid'),

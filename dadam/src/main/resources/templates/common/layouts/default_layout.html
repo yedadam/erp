@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <link rel="icon" href="/main_img/icon.png" type="image/png">      
-<head th:replace="common/configs/config :: ConfigFragment"></head>
+<head th:replace="~{common/configs/config :: ConfigFragment}"></head>
 <body id="page-top">
     <div id="wrapper">
         <!-- Sidebar -->
@@ -146,10 +146,6 @@
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>출하의뢰</span>
                 </a>
-                <a class="nav-link" th:href="@{/erp/sales}">
-                    <i class="fas fa-fw fa-chart-area"></i>
-                    <span>수금조회</span>
-                </a>
                 <a class="nav-link" th:href="@{/erp/sales/purchase}">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>발주관리</span>
@@ -248,24 +244,24 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" th:href="@{/erp/hr/salary-dashboard}">
+                    <i class="fas fa-fw fa-coins"></i>
+                    <span>급여관리</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" th:href="@{/erp/hr/salary/list}">
                     <i class="fas fa-fw fa-money-bill-wave"></i>
                     <span>급여명세서</span>
                 </a>
             </li>
             <li class="nav-item">
-
-                <a class="nav-link" th:href="@{/erp/hr/dept}">
-                    <i class="fas fa-fw fa-sitemap"></i>
-                    <span>부서관리</span>
-
                 <a class="nav-link" th:href="@{/erp/hr/chit}">
                     <i class="fas fa-fw fa-cubes"></i>
                     <span>전표관리</span>
-
                 </a>
             </li>
-			</div>
+            </div>
 			
 			
 			
@@ -346,7 +342,7 @@
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 <!-- Header -->
-                <div th:replace="common/fragments/header :: HeaderFragment"></div>
+                <div th:replace="~{common/fragments/header :: HeaderFragment}"></div>
 
                 <!-- Main Content -->
                 <!-- 채팅방 생성 슬라이드 -->
@@ -381,7 +377,7 @@
                 </main>
             </div>
             <!-- Footer -->
-            <div th:replace="common/fragments/footer :: FooterFragment"></div>
+            <div th:replace="~{common/fragments/footer :: FooterFragment}"></div>
         </div>
     </div>
 	

@@ -39,27 +39,38 @@
   </resultMap>
  <!-- empUser구독정보조히 -->
 <select id="erpUserList" resultMap="erpUserResultMap">
-	SELECT  e.com_id,
-    	    name,
-       		e.com_name,
-      		subs_start,
-       		subs_expiration,
-       		FLOOR(subs_expiration-sysdate) AS remaining,
-       		tel,
-       		email,
-       		address,
-       		bus_tel,
-       		const_image,
-       		subs_expiration,
-       		subs_type,
-       		subs_term,
-       		option_code
-	FROM erpUser e LEFT JOIN erpSubs s ON(e.com_id = s.com_id)
-	WHERE subs_expiration = (
-                         SELECT max(s2.subs_expiration)
-                         FROM erpSubs s2
-                         WHERE s2.com_id = e.com_id)
-	OR subs_expiration IS NULL
+			SELECT  
+			    e.com_id,
+			    name,
+			    e.com_name,
+			    subs_start,
+			    subs_expiration,
+			    FLOOR(subs_expiration - sysdate) AS remaining,
+			    tel,
+			    email,
+			    address,
+			    bus_tel,
+			    subs_expiration,
+			    (
+			        SELECT const_image
+			        FROM erpSubs
+			        WHERE subs_code = (
+			            SELECT MIN(subs_code)
+			            FROM erpSubs
+			            WHERE com_id = e.com_id
+			        )
+			    ) AS const_image,
+			    subs_type,
+			    subs_term,
+			    option_code
+			FROM erpUser e
+			LEFT JOIN erpSubs s ON (e.com_id = s.com_id)
+			WHERE subs_expiration = (
+		    							SELECT MAX(s2.subs_expiration)
+		    							FROM erpSubs s2
+		    							WHERE s2.com_id = e.com_id
+									)
+			OR subs_expiration IS NULL
 </select>
 <select id="subsInfo" resultType="SubsListVO">
 	SELECT SUBS_CODE,
@@ -76,6 +87,7 @@
       	   CONST_IMAGE
 	FROM erpSubs
 	WHERE com_id =#{comId}
+	ORDER BY subs_code DESC
 </select>
 
 <insert id="subsManagerAdd">

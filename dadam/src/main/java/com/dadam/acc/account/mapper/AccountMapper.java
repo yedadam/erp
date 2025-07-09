@@ -1,6 +1,7 @@
 package com.dadam.acc.account.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -23,4 +24,6 @@ public interface AccountMapper {
 	
 	public void update(AccountVO acct);
 	public void delete(String acctCode);
+	
+	public List<AccountVO> accountSearch(Map<String, Object> params);
 }

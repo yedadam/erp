@@ -5,6 +5,7 @@
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<style name="han_font" fontName="훈민정음"/>
 	<parameter name="p_subsCode" class="java.lang.String"/>
+	<parameter name="REPORT_DIR" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[SELECT bill_code,
        com_name,
@@ -55,7 +56,7 @@ WHERE t.subs_code =  $P{p_subsCode}]]>
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
-				<imageExpression><![CDATA["C:/Users/admin/Downloads/taxinvoice.jpg"]]></imageExpression>
+				<imageExpression><![CDATA[$P{REPORT_DIR} + "taxinvoice.jpg"]]></imageExpression>
 			</image>
 			<textField>
 				<reportElement style="han_font" x="21" y="478" width="101" height="19" uuid="90461ec4-1138-479a-9948-47c45f470bb1">

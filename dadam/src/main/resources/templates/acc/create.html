@@ -5,7 +5,21 @@
 	layout:fragment="Content">
 <head>
 <style>
-
+/* 상태 span 스타일 (chit.html 참고) */
+.status-action {
+  display: inline-block;
+  min-width: 60px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.95em;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+}
+.status-sugum { background: #198754; }      /* 수금 - 초록 */
+.status-sugum-ing { background: #0d6efd; }  /* 수금중 - 파랑 */
+.status-none { background: #6c757d; }       /* 거래없음 - 회색 */
+.status-block { background: #dc3545; }      /* 외상불가 - 빨강 */
 </style>
 </head>
 <body class="bg-light">
@@ -32,18 +46,6 @@
           <ul id="ledgerAutoList" class="list-group position-absolute w-100 shadow-sm"
             style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
           </ul>
-        </div>
-
-        <!-- 날짜 시작 -->
-        <div class="col-md-2">
-          <label class="form-label">시작일자</label>
-          <input type="date" id="startDate" class="form-control">
-        </div>
-
-        <!-- 날짜 종료 -->
-        <div class="col-md-2">
-          <label class="form-label">종료일자</label>
-          <input type="date" id="endDate" class="form-control">
         </div>
 
         <!-- 상태 필터 -->
@@ -136,7 +138,20 @@ creGrid = new tui.Grid({
 		{header: '미수개월',name:'creditPeriod',align:'center', 
 			formatter: ({value}) => value === null ? '여신없음' :
 									value + '개월'},
-		{header: '상태',name:'status',align:'center'},
+		{header: '상태',name:'status',align:'center',
+			formatter: ({ value }) => {
+				if (value === '수금') {
+				  return '<span class="badge bg-success">수금</span>';
+				} else if (value === '수금중') {
+				  return '<span class="badge bg-primary">수금중</span>';
+				} else if (value === '거래없음') {
+				  return '<span class="badge bg-secondary">거래없음</span>';
+				} else if (value === '외상불가') {
+				  return '<span class="badge bg-danger">외상불가</span>';
+				}
+				return '';
+			}
+		},
 		{header: '최근거래일자',name:'createdDate',align:'center'},
 	]
 })

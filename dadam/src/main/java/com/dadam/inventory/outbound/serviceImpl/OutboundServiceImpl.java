@@ -50,7 +50,7 @@ public class OutboundServiceImpl implements OutboundService{
 		int result = 0;
 		for(OutboundVO vo : list) {
 			System.out.println(vo);
-			result = outboundmapper.insertOutbound(vo);
+			//result = outboundmapper.insertOutbound(vo);
 		}
 		return result;
 	}
