@@ -10,8 +10,30 @@ SELECT
   c.chit_title AS chitTitle,
   '' AS parent,
   c.chit_code AS chitCode,
-  getVdrName((SELECT vdr_code FROM orders WHERE ord_code = article_code)) AS vdrCode,
-  article_code,
+
+    <!-- 수금일때 -->
+CASE 
+  WHEN c.article_code LIKE 'txh-%' THEN 
+    getVdrName((
+      SELECT v.vdr_code 
+      FROM vender v 
+      WHERE v.acct_no = (
+        SELECT t.acct_no 
+        FROM transaction t 
+        WHERE t.txn_hist_code = c.article_code
+      )
+    ))
+    <!-- 매출일때 -->
+  WHEN c.article_code LIKE 'ord-%' THEN 
+    getVdrName((
+      SELECT o.vdr_code 
+      FROM orders o 
+      WHERE o.ord_code = c.article_code
+    ))
+  ELSE '' 
+END AS vdrCode,
+  
+  c.article_code,
   c.supply_price AS supplyPrice,
   c.vat_price AS vatPrice,
   c.tot_price AS totPrice,
@@ -106,6 +128,13 @@ ORDER BY sort_order ASC, createdDate DESC
      AND com_id= #{comId}
 </select>
 
+<update id="updateChitStatus">
+    UPDATE chit
+    SET status = #{status}
+    WHERE chit_code = #{chitCode}
+      AND com_id = #{comId}
+</update>
+
 
 	<insert id="insert" parameterType="ChitVO"  >
   <selectKey resultType="string" keyProperty="chitDtId" order="BEFORE">
@@ -181,6 +210,25 @@ UPDATE chit
      AND com_id= #{comId}
 </select>
 
+
+<!-- 전표 검색 -->
+<select id="chitSearch" resultType="com.dadam.acc.account.service.ChitVO">
+  SELECT * FROM chit
+  WHERE com_id = #{comId}
+  <if test="chitCode != null and chitCode != ''">
+    AND chit_code LIKE '%'||#{chitCode}||'%'
+  </if>
+  <if test="chitTitle != null and chitTitle != ''">
+    AND chit_title LIKE '%'||#{chitTitle}||'%'
+  </if>
+  <if test="vdrName != null and vdrName != ''">
+    AND vdr_name LIKE '%'||#{vdrName}||'%'
+  </if>
+  <if test="status != null and status != ''">
+    AND status = #{status}
+  </if>
+  ORDER BY chit_code DESC
+</select>
 
 <!-- 전체 조회 -->
 <select id="selectAutoChitRules" parameterType="string" resultType="ChitVO">

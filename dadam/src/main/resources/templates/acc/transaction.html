@@ -1,0 +1,46 @@
+<!-- 검색 조건 영역 추가 -->
+<div class="card mb-3 shadow-sm" style="background-color:#f0f8f0">
+  <div class="card-body">
+    <div class="row g-3 align-items-center">
+      <div class="col-md-4">
+        <label for="txnSelect" class="form-label">검색 조건</label>
+        <div class="input-group">
+          <select class="form-select" id="txnSelect">
+            <option value="txnDate">거래일자</option>
+            <option value="acctNo">계좌번호</option>
+            <option value="vdrName">거래처명</option>
+          </select>
+          <input type="text" class="form-control" id="txnInput" placeholder="검색어 입력">
+          <button class="btn btn-primary" id="txnSearchBtn">검색</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 통장거래내역 검색 기능
+$('#txnSearchBtn').on('click', function() {
+  const searchType = $('#txnSelect').val();
+  const searchValue = $('#txnInput').val();
+  let params = {};
+  if (searchType === 'txnDate') params.txnDate = searchValue;
+  else if (searchType === 'acctNo') params.acctNo = searchValue;
+  else if (searchType === 'vdrName') params.vdrName = searchValue;
+  $.ajax({
+    url: '/erp/accounting/txnSearch',
+    method: 'GET',
+    data: params,
+    success: function(result) {
+      txnGrid.resetData(result);
+    },
+    error: function(xhr, status, error) {
+      alert('검색 실패: ' + error);
+    }
+  });
+});
+// 엔터키로도 검색
+$('#txnInput').on('keydown', function(e) {
+  if (e.keyCode === 13) $('#txnSearchBtn').click();
+});
+</script> 

@@ -130,9 +130,9 @@
   </li>
 </ul>
     <!-- 그리드 영역 -->
-    <div class="col-12">
-      <div id="accGrid" class="mx-3"></div>
-    </div>
+
+      <div id="accGrid" ></div>
+
 
   </div>
 </body>
@@ -181,11 +181,11 @@ function filterAcctTab(button) {
   let currentMode = 'read';
 
   const columnsBase = [
-    { header: '계정코드', name: 'acctCode', align: 'center', width: 150 },
-    { header: '대분류',name:'acctType',align:'center', editor: { type: TypeEditor }, width:150 },
-    { header: '중분류',name:'acctClass',align:'center',editor: { type: ClassEditor }, width:150 },
-    { header: '소분류',name:'acctSubclass',align:'center',editor: { type: SubclassEditor }, width:150 },
-    { header: '계정명', name: 'name', align: 'center', width: 200 },
+    { header: '계정코드', name: 'acctCode', align: 'center' },
+    { header: '대분류',name:'acctType',align:'center', editor: { type: TypeEditor } },
+    { header: '중분류',name:'acctClass',align:'center',editor: { type: ClassEditor } },
+    { header: '소분류',name:'acctSubclass',align:'center',editor: { type: SubclassEditor } },
+    { header: '계정명', name: 'name', align: 'center' },
     {
       header: '사용유무',
       name: 'acctYn',
@@ -409,10 +409,66 @@ $('#saveBtn').on('click', function () {
      reader.readAsBinaryString(file);
   })
   
-  
+  // 엔터 키 눌렀을 때 검색 실행
+$('#acctInput').on('keydown', function(e) {
+  if (e.keyCode === 13) { // 또는 e.which === 13
+    $('#acctSearchBtn').click(); // 버튼 클릭 이벤트 강제 호출
+  }
+});
+
+// 계정명/내용 자동완성 (검색어 2글자 이상 입력 시 동작)
+$('#acctInput').on('keyup', function(ev) {
+  const type = $('#acctSelect option:selected').val();
+  const keyword = $(this).val().trim();
+  if (keyword.length < 2) {
+    $('#acctAutoList').empty().hide();
+    return;
+  }
+  $.ajax({
+    url: '/erp/accounting/accountSearch',
+    method: 'GET',
+    data: type === 'ordCode'
+      ? { name: keyword }
+      : { note: keyword },
+    success: function (data) {
+      let html = '';
+      if (data.length < 1) {
+        html += `<li class="list-group-item autocomplete-item no-result">
+                   <i class="fas fa-search-minus text-muted me-2"></i>조회된 값이 없습니다.
+                 </li>`;
+      }
+      data.forEach(item => {
+        const displayText = item.name || '';
+        const safeKeyword = keyword.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const keywordRegex = new RegExp(`(${safeKeyword})`, 'gi');
+        const highlighted = displayText.replace(keywordRegex, `<span class="text-danger fw-bold">$1</span>`);
+        html += `<li class="list-group-item autocomplete-item d-flex align-items-center" style="cursor: pointer;">
+                   <i class="fas fa-search text-secondary me-2"></i> ${highlighted}
+                 </li>`;
+      });
+      $('#acctAutoList').html(html).show();
+    }
+  });
+});
+
+// 자동완성 항목 클릭 시 입력창에 값 반영 및 리스트 닫기
+$(document).on('click', '#acctAutoList .autocomplete-item', function () {
+  if ($(this).hasClass('no-result')) return;
+  const text = $(this).text().trim();
+  $('#acctInput').val(text);
+  $('#acctAutoList').hide().empty();
+});
+
+// 바깥 클릭 시 자동완성 닫기
+$(document).on('click', function (e) {
+  if (!$(e.target).closest('#acctInput, #acctAutoList').length) {
+    $('#acctAutoList').hide().empty();
+  }
+});
 
 // 계정과목 다중검색 (계정명, 내용, 사용유무)
 $('#acctSearchBtn').on('click', function() {
+	
   // 검색조건 수집
   const searchType = $('#acctSelect').val();
   const searchValue = $('#acctInput').val();
@@ -440,6 +496,7 @@ $('#acctSearchBtn').on('click', function() {
     }
   });
 });
+
 
 </script>
 

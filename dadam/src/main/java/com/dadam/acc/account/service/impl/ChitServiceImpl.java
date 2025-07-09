@@ -54,7 +54,12 @@ public class ChitServiceImpl implements ChitService{
 		return chitMapper.chtTypeFindByCode(keyword, comId);
 	}
 
-	
+	@Override
+	public List<ChitVO> chitSearch(Map<String, Object> params) {
+	    String comId = this.comId;
+	    params.put("comId", comId);
+	    return chitMapper.chitSearch(params);
+	}
 	
 	@Override
 	@Transactional
