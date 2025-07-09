@@ -29,23 +29,24 @@
 	
 	<!-- 거래처별 여신 상세 목록 -->
 	<select id="creditFindCode" resultType="com.dadam.acc.credit.service.CreditVO">
-	SELECT c.article_code 
-		 , v.credit_price
-		 , c.tot_price
-		 , v.credit_bal_price
-		 , v.bank
-		 , v.acct_no
-		 , getSubCode(c.type) type
-		 , getEmpName(v.emp_id, #{comId}) as emp_id 
-		 , c.created_date
-		 , getEmpName(c.phy_emp_id, #{comId}) as phy_emp_id 
-		 , c.chit_code
-	  FROM chit c
-	  JOIN orders o ON ord_code = article_code
-	  JOIN vender v ON o.vdr_code = v.vdr_code
-	 WHERE o.vdr_code = #{vdrCode}
-	   AND c.com_id = #{comId}
-	   AND c.status = 'cst04'
+SELECT
+  vtl.article_code AS articleCode,               
+  vtl.change_amt AS totPrice,                   
+  CASE 
+    WHEN vtl.change_type = 'cht02' THEN '매출'   
+    WHEN vtl.change_type = 'cht03' THEN '수금'
+    ELSE '기타'
+  END AS type,
+  vtl.after_amt AS creditBalPrice,               
+  vtl.changed_at AS createdDate,                
+  vtl.chit_code AS chitCode                     
+FROM vender_trade_log vtl
+LEFT JOIN chit c 
+  ON vtl.chit_code = c.chit_code AND vtl.com_id = c.com_id
+WHERE vtl.vdr_code = #{vdrCode}
+  AND vtl.com_id = #{comId}
+ORDER BY vtl.changed_at DESC
+
 	</select>
 
 

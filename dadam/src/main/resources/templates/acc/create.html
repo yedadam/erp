@@ -242,7 +242,7 @@ detailGrid = new tui.Grid({
 		{header: '매출',name:'debit',align:'right',
 			formatter: ({row}) => row.type === '매출' ? (row.totPrice?.toLocaleString() + '원') : ''},
 		{header: '수금', name: 'credit', align: 'right',
-			formatter: ({row}) => row.type === '수금' ? (row.totPrice?.toLocaleString() + '원') : ''},
+			formatter: ({row}) => row.type === ' 수금' ? (row.totPrice?.toLocaleString() + '원') : ''},
 		{header: '잔액', name: 'creditBalPrice', align: 'right',
 			formatter: ({value}) => value?.toLocaleString() + '원' || ''},
 		{header: '담당자', name: 'empId', align: 'center'},

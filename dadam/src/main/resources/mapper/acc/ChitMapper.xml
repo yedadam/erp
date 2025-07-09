@@ -197,12 +197,16 @@ UPDATE chit
        SET credit_bal_price = credit_bal_price + #{totPrice}
      WHERE com_id= #{comId}
        AND vdr_code = (
-           SELECT vdr_code
-             FROM orders
-            WHERE ord_code = #{articleCode}
-     		)
+      SELECT v.vdr_code 
+      FROM vender v 
+      WHERE v.acct_no = (
+        SELECT t.acct_no 
+        FROM transaction t 
+        WHERE t.txn_hist_code =  #{articleCode}
+      )
+    )
 </update>
- 
+
 <select id="getTtypeByChitCode" resultType="String">
   SELECT type 
     FROM chit 

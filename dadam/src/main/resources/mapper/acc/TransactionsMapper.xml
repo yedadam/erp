@@ -4,9 +4,8 @@
 	namespace="com.dadam.acc.credit.mapper.TransactionsMapper">
 	<!-- 목업용, 실제 쿼리 없음 -->
 	<select id="selectAll" resultType="TransactionsVO">
-		SELECT * , v.acct_no
+		SELECT * 
 		FROM transaction t
-		JOIN vender v ON t.acct_no = v.acct_no
 		WHERE com_id = #{comId}
 	</select>
 
