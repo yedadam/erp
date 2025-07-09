@@ -82,26 +82,32 @@
 	</insert>
 	<!-- 출고등록시 출하의뢰 상태값 변경, 출고일자 등록 -->
 	<update id="updateOutboundShipRequestDetail" parameterType="OutboundVO">
-		UPDATE INTO shiprequestdetail
+		UPDATE shiprequestdetail
 		SET status = #{shipstatus}
 			, dlive_date = sysdate
 		WHERE ship_req_dtl_code = #{code} AND com_id = #{comId}
 	</update>
-	<!-- 출고 재고 반영 -->
+	<!-- 홀드 상태 반영 -->
 	<update id="updateOutboundHoldStatus" parameterType="OutboundVO">
-		UPDATE INTO hold
+		UPDATE hold
 		SET status = #{holdstatus}
 		WHERE hold_code = #{holdCode} AND com_id = #{comId}
 	</update>
-	<!-- 홀드수량 반영 -->
+	<!-- 홀드상세 수량 반영 (미출고량) curr_qty가 없는 컬럼임 집에서 수정하자...-->
 	<update id="updateOutboundHOldDetail" parameterType="OutboundVO">
-		UPDATE INTO holddetail
-		SET curr_qty = #{qty}
-		WHERE com_id = #{comId} AND holdDtlCode = #{holdDtlCode}
+		UPDATE holddetail
+		SET curr_qty = #{holdQty}
+		WHERE com_id = #{comId} AND hold_dtl_code = #{holdDtlCode}
 	</update>
+	<!-- 출고 후 재고 수량 조회 수량제대로넣어야함.-->
+	<select id="selectOutboundStock" parameterType="OutboundVO" resultType="OutboundVO">
+		SELECT hold_qty, quantity, com_id, lot
+		FROM stock
+		WHERE com_id = #{comId} AND lot = #{lot}
+	</select>
 	<!-- 출고 후 재고 수량 변경 수량제대로넣어야함.-->
-	<update id="updateOutboundStock" parameterType="OutboundVO">
-		UPDATE INTO stock
+	<update id="updateOutboundStock" parameterType="HoldVO">
+		UPDATE stock
 		SET	   	hold_qty = #{holdQty},
 				quantity = #{qty}
 		WHERE com_id = #{comId} AND lot = #{lot}

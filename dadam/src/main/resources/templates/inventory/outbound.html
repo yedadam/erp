@@ -211,7 +211,7 @@ function selectGrid(){
 	    rowHeaders: ['checkbox'],
 	    //페이지네이션
 	    pageOptions: {
-	        perPage: 10,
+	        perPage: 15,
 	        useClient: true,
 	    },
 	    //필드값 구성
@@ -366,8 +366,7 @@ function insertGrid(){
 	// 출고 모달 저장이벤트
 	$('#registerBtn').on('click', ()=>{
 		let data = outboundGrid.getData();
-		console.log(data)
-		// 벨리데이션 체크 + 등록을 위한 변수처리
+		// 벨리데이션 체크 + 등록을 위한 변수처리s
 		for(let value of data){
 			// 입력한 값이 number타입으로 변환
 			value.qty = Number(value.qty);
@@ -397,7 +396,7 @@ function insertGrid(){
 					});
 				return;
 			}
-			// 상태값 처리
+			// 상태값 처리 출고 상태값
 			// ht01 == 재고이동 ht02 == 출하의뢰
 			if(value.type === 'ht02'){
 				value.type = 'obt01';
@@ -411,15 +410,11 @@ function insertGrid(){
 					value.status = 'obs02';
 					value.statusName = '부분출고';
 				}
-				
-				
-				
 				// 재고이동일떄
 			}else{
 				value.type = 'obt02';
 				value.type = '공장';
 			}
-			
 		} // for문 종료
 		console.log(data);
 		  $.ajax({
@@ -428,7 +423,6 @@ function insertGrid(){
 			contentType: 'application/json',
 			data: JSON.stringify(data),
 			success:(result)=>{
-			console.log(result)
 			if(result > 0){
 			Swal.fire({
 				  icon: "success",
@@ -463,9 +457,9 @@ function insertGrid(){
 		data= [];
 		let param = {};
 		  let rowCheck = mainGrid.getCheckedRows();
-			console.log(rowCheck)
 		  rowCheck.filter(item =>{
 			  ee = {
+				  lot: item.lot,
 				  holdDtlCode: item.holdDtlCode,
 				  holdCode: item.holdCode,
 				  code: item.code,
