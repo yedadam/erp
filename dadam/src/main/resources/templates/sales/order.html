@@ -419,7 +419,7 @@ $('#orderSearchBtn').on('click',function(){
 		//필드값 구성
 		columns: [
 			{header: '주문번호',name: 'ordCode',	align: 'center',width: 100,	},
-			{header: '등록일자',name: 'createdDate',align: 'center',	editor: 'datePicker'},
+			{header: '등록일자',name: 'createdDate',align: 'center'},
 			{header: '거래처이름',name: 'vdrName',	align: 'center'},
 			{header: '거래처코드',name: 'vdrCode',align: 'center'},
 			{header: '납기일자',name: 'reqDlvDate',align: 'center',editor: 'datePicker'},
@@ -710,7 +710,11 @@ $('#orderSearchBtn').on('click',function(){
 		//orderGrid 수정체크 
 		if(orderGrid.getModifiedRows().createdRows.length>0 ||ordDtlGrid.getModifiedRows().createdRows.length>=1){
 			let insert=confirm('주문등록을 완료 하지 않았습니다 정말 나가시겠습니까?'); 
-			if(!insert) return; 
+			if(!insert) {return} else if(insert){
+				 orderList();  //메인화면으로 다시 돌아감 
+				 pageStatus='search'; 
+				 return;
+			} ; 
 		}
 
 		console.log(orderGrid.getData()[0].ordCode); //ordCode ord-122 이런꼴로 나옴 
@@ -799,7 +803,7 @@ $('#orderSearchBtn').on('click',function(){
 			return;
 		}
 		//여신잔액이 없는경우
-		if (regHeader.creditBalPrice <= 0) {
+		if (regHeader.creditBalPrice <= regHeader.totPrice) {
 			Swal.fire({
 				icon: "error",
 				title: "error",
@@ -866,6 +870,15 @@ $('#orderSearchBtn').on('click',function(){
 				return false;
 			}
 		})
+		if(orderGrid.getCheckedRows()[0].status=='ost03'){
+			Swal.fire({
+					title: "이미 출하완료 된 건입니다",
+					icon: "error",
+					draggable: true
+				});
+				return false;
+		}
+
 		dtlObj=ordDtlGrid.getModifiedRows(); //{createdRows:[{ },{ },{ }],        }
 		for(let i=0; i<dtlObj.createdRows.length;i++){
 			dtlObj.createdRows[i].ordCode=
@@ -892,6 +905,7 @@ $('#orderSearchBtn').on('click',function(){
 				});
 			}
 		})	
+		orderList();
 	})
 	//주문 수정
 	$('#ordupd').on('click', function () {
@@ -986,7 +1000,7 @@ $('#orderSearchBtn').on('click',function(){
 		if (ev.changes[0].columnName == 'quantity') { //바뀐행의 열이 quantity 일때  
 			ordDtlGrid.setValue(ev.changes[0].rowKey, "supPrice", supPrice); //공급가액의 가격을 (수량*가격) 으로 바꿈
 			ordDtlGrid.setValue(ev.changes[0].rowKey, "vatPrice", supPrice / 10); //부가세를 넘김
-			ordDtlGrid.setValue(ev.changes[0].rowKey, "totPrice", (supPrice + supPrice / 10) - discPrice); //총가격  
+			ordDtlGrid.setValue(ev.changes[0].rowKey, "totPrice",  Math.floor((supPrice + supPrice / 10) - discPrice)); //총가격  
 			ordDtlGrid.setValue(ev.changes[0].rowKey, "discPrice", Math.floor(discPrice)); //할인금액
 			orderTotprice.set(ev.changes[0].rowKey, Math.floor((supPrice + supPrice / 10) - discPrice));
 			console.log('ordDtlGrid.getData()', ordDtlGrid.getData());
