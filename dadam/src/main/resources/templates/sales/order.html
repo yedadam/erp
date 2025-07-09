@@ -1032,8 +1032,8 @@ $('#orderSearchBtn').on('click',function(){
 		let discPrice = (supPrice + supPrice / 10) * vdrdiscount; //할인가격 거래처정보 불러온뒤 계산 반영	
 		if (ev.changes[0].columnName == 'quantity') { //바뀐행의 열이 quantity 일때  
 			ordDtlGrid.setValue(ev.changes[0].rowKey, "supPrice", supPrice); //공급가액의 가격을 (수량*가격) 으로 바꿈
-			ordDtlGrid.setValue(ev.changes[0].rowKey, "vatPrice", supPrice / 10); //부가세를 넘김
-			ordDtlGrid.setValue(ev.changes[0].rowKey, "totPrice", (supPrice + supPrice / 10) - discPrice); //총가격  
+			ordDtlGrid.setValue(ev.changes[0].rowKey, "vatPrice", Math.floor(supPrice / 10)); //부가세를 넘김
+			ordDtlGrid.setValue(ev.changes[0].rowKey, "totPrice", Math.floor((supPrice + supPrice / 10) - discPrice)); //총가격  
 			ordDtlGrid.setValue(ev.changes[0].rowKey, "discPrice", Math.floor(discPrice)); //할인금액
 			orderTotprice.set(ev.changes[0].rowKey, Math.floor((supPrice + supPrice / 10) - discPrice));
 			console.log('ordDtlGrid.getData()', ordDtlGrid.getData());
