@@ -6,6 +6,7 @@
 		SELECT    out_code
 				, code
 				, emp_id
+				, quantity
 				, getempname(emp_id, #{comId}) empName
 				, created_date
 				, type
@@ -14,20 +15,8 @@
 				, getsubcode(status) statusName
 				, note
 		FROM outbound
-		WHERE com_id = #{comId}
-	</select>
-	<!-- 출고 상세 조회 -->
-	<select id="selectOutBoundDetailList" resultType="OutboundVO" parameterType="OutboundVO">
-		SELECT  out_dtl_code
-				,hold_code
-				,out_code
-				,item_code
-				,getitemName(item_code) item_Name
-				,quantity
-				,lot
-				,note
-		FROM outbounddetail
-		WHERE com_id = #{comId} AND OUT_CODE = #{outCode}
+		WHERE com_id = #{comId} AND status NOT IN('obs03')
+		ORDER BY out_code DESC
 	</select>
 	<!-- 등록할떄 사용하는 홀드리스트 -->
 	<select id="selectHoldOutboundList" resultType="HoldVO" parameterType="HoldVO">
@@ -45,20 +34,10 @@
 		        ho.status,
 		        ho.note,
 		        ho.created_date,
-                nvl((select sum(curr_qty)
-                from holddetail
-                where com_id = #{comId} AND hold_code = hod.hold_code),0) curr_qty
+                hod.curr_qty
 		FROM holddetail hod left join hold ho
                         on(ho.com_id = hod.com_id AND hod.hold_code = ho.hold_code)
 		WHERE ho.com_id = #{comId} AND ho.status NOT IN('hs02')
-	</select>
-    <!-- 홀드 상세 조회 -->
-	<select id="selectOutboundHoldDetailList" resultType="LotVO" parameterType="LotVO">
-		SELECT    hold_dtl_code
-				, lot
-				, quantity
-		FROM holdDetail
-		WHERE hold_code = #{holdCode} AND com_id = #{comId}
 	</select>
 	<!-- 출고 등록 -->
 	<insert id="insertOutbound" parameterType="OutboundVO">
@@ -76,9 +55,8 @@
         note,
         com_id,
         item_code,
-		quantity,
-		curr_qty)
-		VALUES(#{outCode}, #{code}, #{empId}, sysdate, #{type}, #{status}, #{note}, #{comId},#{itemCode}, #{qty}, #{currQty})
+		quantity)
+		VALUES(#{outCode}, #{code}, #{empId}, sysdate, #{type}, #{status}, #{note}, #{comId},#{itemCode}, #{qty})
 	</insert>
 	<!-- 출고등록시 출하의뢰 상태값 변경, 출고일자 등록 -->
 	<update id="updateOutboundShipRequestDetail" parameterType="OutboundVO">
@@ -93,23 +71,23 @@
 		SET status = #{holdstatus}
 		WHERE hold_code = #{holdCode} AND com_id = #{comId}
 	</update>
-	<!-- 홀드상세 수량 반영 (미출고량) curr_qty가 없는 컬럼임 집에서 수정하자...-->
+	<!-- 홀드상세 수량 반영 (미출고량)-->
 	<update id="updateOutboundHOldDetail" parameterType="OutboundVO">
 		UPDATE holddetail
 		SET curr_qty = #{holdQty}
 		WHERE com_id = #{comId} AND hold_dtl_code = #{holdDtlCode}
 	</update>
 	<!-- 출고 후 재고 수량 조회 수량제대로넣어야함.-->
-	<select id="selectOutboundStock" parameterType="OutboundVO" resultType="OutboundVO">
+	<select id="selectOutboundStock" parameterType="OutboundVO" resultType="HoldVO">
 		SELECT hold_qty, quantity, com_id, lot
 		FROM stock
 		WHERE com_id = #{comId} AND lot = #{lot}
 	</select>
 	<!-- 출고 후 재고 수량 변경 수량제대로넣어야함.-->
-	<update id="updateOutboundStock" parameterType="HoldVO">
+	<update id="updateOutboundStock" parameterType="OutboundVO">
 		UPDATE stock
 		SET	   	hold_qty = #{holdQty},
-				quantity = #{qty}
+				quantity = #{quantity}
 		WHERE com_id = #{comId} AND lot = #{lot}
 	</update>
 	<!-- 출고상세 등록 없어짐 -->
