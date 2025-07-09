@@ -79,6 +79,10 @@
           </select>
           <input type="text" class="form-control" id="orderInput" placeholder="검색어 입력">
         </div>
+		<ul id="autoOrderList"
+          class="list-group position-absolute w-100 shadow-sm"
+          style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+        </ul>
       </div>
 
       <!-- 날짜 시작 -->
@@ -206,6 +210,7 @@
 
         <!-- 결과 리스트 영역 -->
         <div id="itemList"></div>
+
       </div>
 
       <!-- 모달 푸터 -->
@@ -236,7 +241,6 @@
 						            <i class="fas fa-search"></i>
 						        </button>
 						    </div>
-						
 						    <!-- 자동완성 리스트 -->
 						    <ul id="autoVdrList"
 						        class="list-group position-absolute w-100 shadow-sm"
@@ -333,8 +337,15 @@
 
 let map=new Map(); 
 
-$('#orderSearchBtn').on('click',function(){
-//	console.log('돋보기가 클릭됨');
+$('#orderSearchBtn').on('click',function(){		
+		if(pageStatus=='register'){
+			let check=confirm('아직등록 중입니다 나가시겠습니까?'); //확인 -> 조회
+			if(!check){ //취소 -> 등록상태 유지 
+				pageStatus='register';
+				return;
+			}		
+		}
+
 		let reqDlvStartDate=document.getElementById('reqDlvStartDate').value;
 		let reqDlvEndDate=document.getElementById('reqDlvEndDate').value; 
 		let type=$('#orderSelect  option:selected').val();
@@ -344,15 +355,15 @@ $('#orderSearchBtn').on('click',function(){
 		const status = document.querySelector('input[name="orderStatus"]:checked').value;
 		commonSearchObject({type,value,reqDlvStartDate ,reqDlvEndDate,status},url,orderGrid);
 
+		pageStatus='search'; 
 })
-
 		//자동완성기능
 	$('#vdrInput').on('keyup',ev => {
 		 setupAutocomplete({
 			    inputSelector: '#vdrInput',                              //인풋에 겁색값
 			    selectSelector: $('#vdrSelect  option:selected').val(),  //selected 결과값
 			    listSelector: '#autoVdrList',                            //자동완성 되는값 
-			    ajaxUrl: '/erp/standard/venderAll'                     //ajaxurl
+			    ajaxUrl: '/erp/sales/venderAll'                     //ajaxurl
 		 });
 	});
 	$('#vdrInput').on('keyup',ev => {
@@ -365,8 +376,7 @@ $('#orderSearchBtn').on('click',function(){
 		}
 	})
 	
-
-		//아이템 검색 자동완성
+	//아이템 검색 자동완성
 	$('#itemInput').on('keyup',ev => {
 		 setupAutocomplete({
 			    inputSelector: '#itemInput',                              //인풋에 겁색값
@@ -457,12 +467,7 @@ $('#orderSearchBtn').on('click',function(){
 
 	let  selectedRowKey; 
 	orderGrid.on('click', (ev) => {
-	//	if(ordDtlGrid.isModified()){
-	//		let insert=confirm('상세 변경중입니다 정말 나가시겠습니까?'); 
-	//		if(!insert) return; 
-	//	}
-
-
+	
 		//이 전에 선택한 행 색깔이 원래대로 돌아옴 
 		orderGrid.removeRowClassName(selectedRowKey,'row-selected'); 
 		selectedRowKey=ev.rowKey; 
@@ -481,7 +486,27 @@ $('#orderSearchBtn').on('click',function(){
 
 		if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
 				orderGrid.uncheckAll(); // 전체 해제
-				orderGrid.check(ev.rowKey); // 현재 행만 체크
+			if(pageStatus=='search'){
+				orderGrid.check(ev.rowKey);// 현재 행만 체크
+			}
+			else if(pageStatus=='register'){
+				if(ev.rowKey!=orderGrid.getModifiedRows().createdRows[0].rowKey){
+				 let  checkk=confirm('주문등록이 완료되지 않았습니다 중단하시겠습니까?'); 
+					if(!checkk){
+						pageStatus='register';
+						orderGrid.check(ev.rowKey);
+						return;  
+					} else{ 
+						pageStatus='search';
+					//	orderGrid.check(ev.rowKey);
+						
+						console.log(orderGrid.getModifiedRows().createdRows[0]); 
+						orderGrid.removeRow(orderGrid.getModifiedRows().createdRows[0].rowKey);
+						orderGrid.uncheckAll();
+						ordDtlGrid.resetData();
+					}
+			}  
+		  }
 		}
 		if (ev.columnName == "vdrCode" || ev.columnName == "vdrName") {
 			openVdrmodal();
@@ -616,6 +641,8 @@ $('#orderSearchBtn').on('click',function(){
 		if (vdrModalInstance) {
 			vdrModalInstance.hide();
 		}
+		vdrGrid.uncheckAll(); 
+		vdrList(); 
 
 	})
 	//item 항목 선택 했을때 항목 적용 newItemInfoList 에 추가할 품목과 해당 행의 번호가 모두 저장됨 
@@ -646,6 +673,7 @@ $('#orderSearchBtn').on('click',function(){
 		if (itemModalInstance) {
 			itemModalInstance.hide();
 		}
+		itemGrid.uncheckAll(); 
 	});
 	//데이터 불러오는 함수
 	function orderList() {
@@ -706,7 +734,8 @@ $('#orderSearchBtn').on('click',function(){
 	}
 	let ordDtlForm;
 	$('#addRow').on('click', function () {
-		orderGrid.uncheckAll();
+		orderGrid.uncheckAll(); 
+	
 		//orderGrid 수정체크 
 		if(orderGrid.getModifiedRows().createdRows.length>0 ||ordDtlGrid.getModifiedRows().createdRows.length>=1){
 			let insert=confirm('주문등록을 완료 하지 않았습니다 정말 나가시겠습니까?'); 
@@ -715,8 +744,10 @@ $('#orderSearchBtn').on('click',function(){
 
 		console.log(orderGrid.getData()[0].ordCode); //ordCode ord-122 이런꼴로 나옴 
 		let nextordCode = orderGrid.getData()[0].ordCode;  // 예: "ord-122"
-		let numberOnly = String(Number(nextordCode.substr(4))+1);     
+		let numberOnly = String(Number(nextordCode.substr(4))+1); 
+
 		pageStatus='register'; //등록상태
+
 	  	nextordCode='ord-'+numberOnly; //ord-123    
 
 		//행추가할 데이터 생성
@@ -844,8 +875,7 @@ $('#orderSearchBtn').on('click',function(){
 					draggable: true
 				});
 				
-				orderList(); //주문등록하고 다시 주문리스트 
-				pageStatus='search'; //page상태 조회 상태로 되돌리기 
+				mainList();
 				orderGrid.uncheckAll();
 				ordDtlGrid.resetData(); 
 			}
@@ -892,6 +922,7 @@ $('#orderSearchBtn').on('click',function(){
 				});
 			}
 		})	
+		mainList();
 	})
 	//주문 수정
 	$('#ordupd').on('click', function () {
@@ -922,6 +953,8 @@ $('#orderSearchBtn').on('click',function(){
 		for(let i=0; i<ordDtlGrid.getCheckedRows().length;i++){
 			ordDtlGrid.removeRow(ordDtlGrid.getCheckedRowKeys()[i]);
 		}
+
+		if(pageStatus=='search'){
 			$.ajax({
 				url: '/erp/sales/ord/delOrdDtl', 
 				type: 'DELETE',
@@ -939,6 +972,7 @@ $('#orderSearchBtn').on('click',function(){
 					console.error('에러 발생', err);
 				}
 			})
+		}
 	});
 	//주문dtl 수정하기 
 	// $('#modRowdtl').on('click', function () {
@@ -985,8 +1019,8 @@ $('#orderSearchBtn').on('click',function(){
 		let discPrice = (supPrice + supPrice / 10) * vdrdiscount; //할인가격 거래처정보 불러온뒤 계산 반영	
 		if (ev.changes[0].columnName == 'quantity') { //바뀐행의 열이 quantity 일때  
 			ordDtlGrid.setValue(ev.changes[0].rowKey, "supPrice", supPrice); //공급가액의 가격을 (수량*가격) 으로 바꿈
-			ordDtlGrid.setValue(ev.changes[0].rowKey, "vatPrice", supPrice / 10); //부가세를 넘김
-			ordDtlGrid.setValue(ev.changes[0].rowKey, "totPrice", (supPrice + supPrice / 10) - discPrice); //총가격  
+			ordDtlGrid.setValue(ev.changes[0].rowKey, "vatPrice", Math.floor(supPrice / 10)); //부가세를 넘김
+			ordDtlGrid.setValue(ev.changes[0].rowKey, "totPrice", Math.floor((supPrice + supPrice / 10) - discPrice)); //총가격  
 			ordDtlGrid.setValue(ev.changes[0].rowKey, "discPrice", Math.floor(discPrice)); //할인금액
 			orderTotprice.set(ev.changes[0].rowKey, Math.floor((supPrice + supPrice / 10) - discPrice));
 			console.log('ordDtlGrid.getData()', ordDtlGrid.getData());
