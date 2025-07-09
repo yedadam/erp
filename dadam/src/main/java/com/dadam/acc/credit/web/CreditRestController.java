@@ -1,6 +1,7 @@
 package com.dadam.acc.credit.web;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,5 +33,9 @@ public class CreditRestController {
 		return result;
 	}
 	
+	@GetMapping("/creditSearch")
+	public List<CreditVO> creditSearch(@RequestParam Map<String, Object> params) {
+		return creditServic.creditSearch(params);
+	}
 
 }

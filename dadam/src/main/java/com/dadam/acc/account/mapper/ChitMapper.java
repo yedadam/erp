@@ -13,6 +13,7 @@ public interface ChitMapper {
 	public List<Map<String, String>> acctCodeFindByCode(String keyword, String comId);
 	public List<Map<String, String>> indTypeFindByCode(String keyword, String comId);
 	public List<Map<String, String>> chtTypeFindByCode(String keyword, String comId);
+	public List<ChitVO> chitSearch(Map<String, Object> params);
 
 	
 	
@@ -41,5 +42,7 @@ public interface ChitMapper {
 	public String getNextRuleId(String comId);
 	
 	public List<Map<String, Object>> selectAutoRules(@Param("chitType") String chitType, @Param("comId") String comId);
-
+	public void updateChitStatus(@Param("chitCode") String chitCode,
+            @Param("comId") String comId,
+            @Param("status") String status);
 }

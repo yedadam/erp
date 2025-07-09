@@ -84,9 +84,8 @@
     </div>
 
     <!-- 그리드 영역 -->
-    <div class="col-12">
-      <div id="balanceGrid" class="mx-3" style="height: 600px;"></div>
-    </div>
+
+      <div id="balanceGrid" ></div>
 
   </div>
 
@@ -124,14 +123,9 @@ pageOptions: {
 },
 columns: [
  { header: '구분', name: 'acctTypeName', align: 'center', // 합계 행이면 굵게 표시, 아니면 일반 텍스트
-   formatter: ({ row }) => {
-	   return row.isSummary
-       ? `<strong>${row.acctTypeName}</strong>`
-       : row.acctTypeName;
-   }
- },
- { header: '계정명', name: 'name', align: 'left'
- },
+   formatter: ({ row }) => { return row.isSummary ? `<strong>${row.acctTypeName}</strong>`
+       										      : row.acctTypeName; } },
+ { header: '계정명', name: 'name', align: 'left'},
  { header: '금액', name: 'balance', align: 'right', // 금액 형식 변환 및 합계 행에 스타일 적용
    formatter: ({ row }) => {
      const amount = Number(row.balance || 0);

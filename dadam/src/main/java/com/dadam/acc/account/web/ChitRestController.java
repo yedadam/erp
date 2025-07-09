@@ -130,4 +130,11 @@ public class ChitRestController {
         }
         return result;
     }
+    
+    
+
+    @GetMapping("/chitSearch")
+    public List<ChitVO> chitSearch(@RequestParam Map<String, Object> params) {
+        return chitService.chitSearch(params);
+    }
 }

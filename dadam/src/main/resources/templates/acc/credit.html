@@ -1,0 +1,48 @@
+<!-- 검색 조건 영역 추가 -->
+<div class="card mb-3 shadow-sm" style="background-color:#f0f8f0">
+  <div class="card-body">
+    <div class="row g-3 align-items-center">
+      <div class="col-md-4">
+        <label for="creditSelect" class="form-label">검색 조건</label>
+        <div class="input-group">
+          <select class="form-select" id="creditSelect">
+            <option value="vdrName">거래처명</option>
+            <option value="vdrCode">거래처코드</option>
+            <option value="arrears">미수금</option>
+            <option value="empId">담당자</option>
+          </select>
+          <input type="text" class="form-control" id="creditInput" placeholder="검색어 입력">
+          <button class="btn btn-primary" id="creditSearchBtn">검색</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 거래처원장 검색 기능
+$('#creditSearchBtn').on('click', function() {
+  const searchType = $('#creditSelect').val();
+  const searchValue = $('#creditInput').val();
+  let params = {};
+  if (searchType === 'vdrName') params.vdrName = searchValue;
+  else if (searchType === 'vdrCode') params.vdrCode = searchValue;
+  else if (searchType === 'arrears') params.arrears = searchValue;
+  else if (searchType === 'empId') params.empId = searchValue;
+  $.ajax({
+    url: '/erp/accounting/creditSearch',
+    method: 'GET',
+    data: params,
+    success: function(result) {
+      creditGrid.resetData(result);
+    },
+    error: function(xhr, status, error) {
+      alert('검색 실패: ' + error);
+    }
+  });
+});
+// 엔터키로도 검색
+$('#creditInput').on('keydown', function(e) {
+  if (e.keyCode === 13) $('#creditSearchBtn').click();
+});
+</script> 

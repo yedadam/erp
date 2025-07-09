@@ -31,8 +31,6 @@
 	<select id="creditFindCode" resultType="com.dadam.acc.credit.service.CreditVO">
 	SELECT c.article_code 
 		 , v.credit_price
-		 , i.type iType
-		 , i.price 
 		 , c.tot_price
 		 , v.credit_bal_price
 		 , v.bank
@@ -45,10 +43,42 @@
 	  FROM chit c
 	  JOIN orders o ON ord_code = article_code
 	  JOIN vender v ON o.vdr_code = v.vdr_code
-	  JOIN indignation I ON c.chit_code = i.chit_code
 	 WHERE o.vdr_code = #{vdrCode}
 	   AND c.com_id = #{comId}
 	   AND c.status = 'cst04'
+	</select>
+
+
+<!-- 
+
+CASE
+WHEN c.article_code LIKE 'txh-%' THEN
+getVdrName((SELECT vdr_code FROM vender WHERE acct_no = 
+		 (SELECT acct_no FROM transaction WHERE txn_hist_code = 
+		 (c.article_code ))))
+WHEN c.article_code LIKE 'ord-%' THEN
+getVdrName(SELECT) 
+  ELSE ''
+END AS vdrCode,
+
+ -->
+	<!-- 거래처원장 검색 -->
+	<select id="creditSearch" resultType="com.dadam.acc.credit.service.CreditVO">
+	  SELECT * FROM credit
+	  WHERE com_id = #{comId}
+	  <if test="vdrName != null and vdrName != ''">
+	    AND vdr_name LIKE '%'||#{vdrName}||'%'
+	  </if>
+	  <if test="vdrCode != null and vdrCode != ''">
+	    AND vdr_code LIKE '%'||#{vdrCode}||'%'
+	  </if>
+	  <if test="arrears != null and arrears != ''">
+	    AND arrears LIKE '%'||#{arrears}||'%'
+	  </if>
+	  <if test="empId != null and empId != ''">
+	    AND emp_id LIKE '%'||#{empId}||'%'
+	  </if>
+	  ORDER BY vdr_code DESC
 	</select>
 
 </mapper>
