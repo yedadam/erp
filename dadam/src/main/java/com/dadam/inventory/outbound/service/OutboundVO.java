@@ -25,10 +25,13 @@ public class OutboundVO {
 	private String statusName;
 	private String shipstatus;
 	private String holdstatus;
+	private String holdDtlCode;
 	private String typeName;
 	private String type;
 	private String note;
 	private int quantity;
+	private int holdQty;
+	private int currQty;
 	private int qty;
 	private int totPrice;
 	private int price;
