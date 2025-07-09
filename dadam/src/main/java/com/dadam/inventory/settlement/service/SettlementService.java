@@ -1,8 +1,7 @@
 package com.dadam.inventory.settlement.service;
 
 import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
+import java.util.Map;
 
 import com.dadam.security.service.EmployeesVO;
 
@@ -15,7 +14,7 @@ public interface SettlementService {
 	
 	public int eleAdd(List<SettlementVO> vo);
 	
-	public List<SettlementVO> settleList(String type,String value);
+	public List<SettlementVO> settleList(Map<String,Object> map);
 	
 	public List<SettlementVO> mineEle();
 	

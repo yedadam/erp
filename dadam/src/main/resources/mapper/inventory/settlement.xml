@@ -130,13 +130,24 @@
 	FROM settlement s JOIN electronic e ON (s.set_code = e.pk_code)
 	WHERE s.com_id =#{comId}
 	<choose>
-            <when test="type.equals('setCode')">
+            <when test="'setCode'.equals(type)">
                 AND set_code LIKE '%'||#{value}||'%'
             </when>
-            <when test="type.equals('empName')">
+            <when test="'empName'.equals(type)">
             	 AND getEmpName(EMP_ID,#{comId}) LIKE '%'||#{value}||'%'
             </when>
    </choose>
+    <if test="createdStartDate != null and createdStartDate != '' ">
+			AND trunc(s.created_date) >=TO_DATE(#{createdStartDate},'yyyy-MM-dd')
+	</if>
+	<if test="createdEndDate != null and createdEndDate!='' ">
+		  <![CDATA[
+			AND trunc(s.created_date) <= TO_DATE(#{createdEndDate!=},'yyyy-MM-dd')
+		    ]]>
+	</if>
+	<if test="status != null and status !=  ''">
+	    AND s.status=#{status}		
+	</if>
 	GROUP BY set_code,
        s.emp_id,  
        s.created_date,
