@@ -26,13 +26,5 @@ public class OrgController {
         return deptService.getOrgTree();
     }
 
-    /**
-     * 조직도 화면 반환
-     * @return 조직도 뷰
-     */
-    @GetMapping("/org-tree")
-    public String orgTreeView() {
-        // 실제 구현 내용 또는 return 값 필요
-        return "org-tree";
-    }
+    // 화면 반환 메서드(/org-tree)는 OrgViewController로 분리
 } 

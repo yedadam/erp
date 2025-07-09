@@ -6,5 +6,5 @@ import java.util.Map;
 
 @Mapper
 public interface AuthMapper {
-    List<Map<String, String>> getAuthList();
+    public List<Map<String, String>> getAuthList();
 } 

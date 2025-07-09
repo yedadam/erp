@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.HashMap;
 
 /**
  * 연차 자동 갱신 스케줄러
@@ -24,7 +25,7 @@ public class AnnualLeaveScheduler {
      */
     @Scheduled(cron = "0 0 0 1 1 *")
     public void updateAnnualLeaveForAllEmployees() {
-        List<EmpVO> employees = empMapper.selectEmpList(null, null, null); // 전체 사원 조회
+        List<EmpVO> employees = empMapper.findEmpList(new HashMap<>()); // 전체 사원 조회
         for (EmpVO emp : employees) {
             int totalLeave = AnnualLeaveUtil.calculateAnnualLeaveTotal(emp.getHireDate().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate(), LocalDate.now());
             emp.setAnnualLeaveTotal(totalLeave);

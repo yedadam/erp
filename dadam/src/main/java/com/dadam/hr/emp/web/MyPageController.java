@@ -105,7 +105,7 @@ public class MyPageController {
                 model.addAttribute("isAdmin", true);
             } else {
                 // 일반 사용자 정보 조회
-                EmpVO user = empService.getEmpDetail(empId);
+                EmpVO user = empService.getEmpDetail(empId, userInfo.get("comId"));
                 if (user != null) {
                     model.addAttribute("user", user);
                 } else {
@@ -168,7 +168,7 @@ public class MyPageController {
             }
 
             // 사용자 정보 조회
-            EmpVO user = empService.getEmpDetail(empId);
+            EmpVO user = empService.getEmpDetail(empId, userInfo.get("comId"));
             if (user == null) {
                 response.put("success", false);
                 response.put("message", "사용자 정보를 찾을 수 없습니다.");
@@ -270,7 +270,7 @@ public class MyPageController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            EmpVO user = empService.getEmpDetail(empId);
+            EmpVO user = empService.getEmpDetail(empId, userInfo.get("comId"));
             if (user != null) {
                 response.put("success", true);
                 response.put("user", user);

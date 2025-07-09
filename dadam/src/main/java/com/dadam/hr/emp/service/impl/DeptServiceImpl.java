@@ -87,7 +87,7 @@ public class DeptServiceImpl implements DeptService {
     @Override
     public OrgNode getOrgTree() {
         List<DeptVO> allDepts = deptMapper.getDeptList();
-        List<EmpVO> allEmps = empMapper.selectEmpList(null, null, null); // 전체 사원
+        List<EmpVO> allEmps = empMapper.findEmpList(new HashMap<>()); // 전체 사원
         Map<String, DeptVO> deptMap = allDepts.stream().collect(Collectors.toMap(DeptVO::getDeptCode, d -> d));
         Map<String, List<EmpVO>> empMap = allEmps.stream()
             .filter(e -> e.getDeptCode() != null)

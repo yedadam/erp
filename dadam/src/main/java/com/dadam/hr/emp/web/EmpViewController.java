@@ -25,21 +25,18 @@ public class EmpViewController {
      * 사원 전체 목록 화면 반환
      * @return 사원 목록 뷰
      */
-    @GetMapping("/emp")
+    @GetMapping("/empList")
     public String empPage(Model model) {
-        // 화면 진입 시 필요한 데이터만 전달
         model.addAttribute("departments", deptService.getDeptList());
         model.addAttribute("positions", codeService.getCodeMap("pos"));
         model.addAttribute("workTypes", codeService.getCodeMap("emp"));
         model.addAttribute("empStatuses", codeService.getCodeMap("stt"));
-        // 권한/부서 정보 등은 JS에서 Ajax로 별도 조회 권장
         return "hr/emplist";
     }
-    
 
-    
-    @GetMapping({"/deptList", "/deptlist"})
-    public String deptListPage() {
-        return "hr/deptlist";
+    @GetMapping("/emp-all")
+    public String empAllPage(Model model) {
+        model.addAttribute("empStatuses", codeService.getCodeMap("stt"));
+        return "hr/emp-all";
     }
 } 

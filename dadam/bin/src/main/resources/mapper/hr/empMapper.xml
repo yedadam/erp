@@ -108,8 +108,8 @@
 	</update>
 
 	<!-- 사원 삭제 -->
-	<delete id="deleteEmp" parameterType="string">
-		DELETE FROM employees WHERE emp_id = #{empId}
+	<delete id="deleteEmp" parameterType="map">
+		DELETE FROM employees WHERE emp_id = #{empId} AND com_id = #{comId}
 	</delete>
 
 	<select id="getMaxEmpId" resultType="string">
