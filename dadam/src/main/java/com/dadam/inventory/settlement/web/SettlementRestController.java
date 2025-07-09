@@ -82,8 +82,8 @@ public class SettlementRestController {
 	
 	//재고 결산 List 조회
 	@GetMapping("/setlleList")
-	public List<SettlementVO> settleList (@RequestParam (defaultValue = "",required = false) String type,@RequestParam (defaultValue = "",required = false) String value){
-		List<SettlementVO> result = service.settleList(type, value);
+	public List<SettlementVO> settleList (@RequestParam Map<String,Object> map){
+		List<SettlementVO> result = service.settleList(map);
 		return result;
 	}
 	

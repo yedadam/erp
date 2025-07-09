@@ -1,6 +1,7 @@
 package com.dadam.inventory.settlement.serviceImpl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -99,9 +100,11 @@ public class SettlementServiceImpl implements SettlementService{
     
     //결재목록 조회
     @Override
-    public  List<SettlementVO> settleList(String type, String value) {
+    public  List<SettlementVO> settleList(Map<String,Object> map) {
     	initAuthInfo();
-    	List<SettlementVO> result = mapper.settleList(type, value, comId);
+    	map.put("comId", comId);
+    	map.put("empId", empId);
+    	List<SettlementVO> result = mapper.settleList(map);
     	return result;
     }
     

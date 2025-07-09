@@ -160,32 +160,82 @@
   <h3 class="mb-4 text-secondary fw-bold border-bottom border-secondary pb-2">재고 결산 관리</h3>
 
   
-  <div class="row mb-3 align-items-center">
-      <div class="col-md-6 position-relative">
+    <!-- 검색 및 버튼 영역 -->
+    <div class="card mb-3 shadow-sm">
+	  <div class="card-body">
+	    <div class="row g-3 align-items-center">
+
+      <!-- 검색 조건 -->
+      <div class="col-md-3">
+        <label for="orderSelect" class="form-label">검색 조건</label>
         <div class="input-group">
-          <select class="form-select" id="purSelect" style="max-width: 30%;">
-            <option value="purOrdCode" selected>발주코드</option>
+           <select class="form-select" id="setSelect" style="max-width: 30%;">
+            <option value="setCode" selected>발주코드</option>
             <option value="empName">담당자</option>
-            <option value="vdrName">거래처이름</option>
           </select>
-          <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="purInput" autocomplete="off">
-          <button class="btn btn-outline-secondary" type="button" id="reqSearchBtn">
-            <i class="fas fa-search"></i>
-          </button>
+          <input type="text" class="form-control" id="setInput" placeholder="검색어 입력">
         </div>
-        <ul id="purReqList"
-            class="list-group position-absolute w-100 shadow"
-            style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
-        </ul>
+        <ul id="setList"
+		            class="list-group position-absolute w-100 shadow-sm"
+		            style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+		</ul>
       </div>
-     <!-- 버튼 영역 -->
-	  <div class="text-end col-md-6 mb-3">
-	    <button class="btn btn-secondary me-2" id="newBtn">
-	      <i class="fas fa-pen"></i> 재고결산등록
-	    </button>
-	  </div>
+		
+      <!-- 날짜 시작 -->
+      <div class="col-md-2">
+        <label for="createdStartDate" class="form-label">결제일자</label>
+        <input type="date" id="createdStartDate" class="form-control">
+      </div>
+					
+      <!-- 날짜 종료 -->
+      <div class="col-md-2">
+                <label for="createdEndDate" class="form-label"></label>
+        <input type="date" id="createdEndDate" class="form-control">
+      </div>
+
+      <!-- 상태 -->
+      <div class="col-md-3">
+        <label class="form-label d-block">진행 상태</label>
+        <div class="d-flex gap-2 flex-wrap">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="setStatus" id="statusAll" value="" checked>
+            <label class="form-check-label" for="statusAll">전체</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="setStatus" id="status1" value="st001">
+            <label class="form-check-label" for="status1">결재중</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="setStatus" id="status2" value="st002">
+            <label class="form-check-label" for="status2">결재완료</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="setStatus" id="status3" value="st003">
+            <label class="form-check-label" for="status3">결재반려</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 검색 버튼 -->
+      <div class="col-md-2 d-flex align-items-end">
+        <button class="btn btn-primary w-100" id="setSearchBtn">
+          <i class="fas fa-search"></i> 검색
+        </button>
+      </div>
+
     </div>
+   </div>
+  </div>
 </div>
+<!-- 버튼 영역 -->
+	<div class="d-flex justify-content-end align-items-center mb-1 mt-2">
+			<div class="d-flex flex-wrap gap-2">
+			     <button class="btn btn-secondary me-2" id="newBtn">
+			      <i class="fas fa-pen"></i> 재고결산등록
+			    </button>
+			</div>
+	</div>
+
  <div id="mainGridWrapper" class="position-relative border rounded p-3 bg-white shadow-sm">
  	<div id="mainGrid"></div>
  </div>
@@ -257,9 +307,29 @@
 	</div>
 <!-- 스크립트 -->
 <script>
-//샘플 결재자 데이터
-	let approverData = [
-	];
+	
+	$('#setInput').on('keyup', ev => {
+		  setupAutocomplete({
+			    inputSelector: '#setInput',
+			    selectSelector: $('#setSelect  option:selected').val(),
+			    listSelector: '#setList',
+			    ajaxUrl: '/erp/inventory/setlleList'
+		 });
+	})
+	
+	$('#setSearchBtn').on('click',ev => {
+        	 let value = $('#setInput').val();
+			 let type = $("#setSelect option:selected").val();
+			 let url = '/erp/inventory/setlleList';
+			 let expDlvStartDate = $('#createdStartDate').val();
+			 let expDlvEndDate = $('#createdEndDate').val();
+			 let grid = mainGrid;
+			 let status = $('input[name="setStatus"]:checked').val();
+			 commonSearchObject({type,value,expDlvStartDate,expDlvEndDate,status},url,grid);
+        })
+	    
+   //결재자 초기 데이터
+	let approverData = [];
 	
 	//이름 첫 글자 추출
 	function getInitial(name) {
