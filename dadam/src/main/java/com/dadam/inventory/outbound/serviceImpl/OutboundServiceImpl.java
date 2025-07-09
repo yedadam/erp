@@ -77,14 +77,19 @@ public class OutboundServiceImpl implements OutboundService{
 			}else {
 				vo.setShipstatus("srd02");
 			}
-			// 홀드 수량 반영(미출고량)
+			// 홀드 수량 반영(미출고량) quantity = 의뢰수량 qty= 입력수량
 			vo.setHoldQty(vo.getQuantity() - vo.getQty());
 			outboundmapper.updateOutboundHOldDetail(vo);
-			
+
 			// 값 조회
-			HoldVO ho = outboundmapper.selectOutboundStock(vo);
+			HoldVO ho = new HoldVO();
+			ho = outboundmapper.selectOutboundStock(vo);
+			System.out.println("ho:" + ho);
+			System.out.println("vo:" + vo);
 			ho.setHoldQty(ho.getHoldQty() - vo.getQty());
 			ho.setQuantity(ho.getQuantity() - vo.getQty());
+			System.out.println("holdQty:" + ho.getHoldQty());
+			System.out.println("quantity:" + ho.getQuantity());
 			
 			// 출고 후 lot 재고수량 홀드수량 반영
 			outboundmapper.updateOutboundStock(ho);
