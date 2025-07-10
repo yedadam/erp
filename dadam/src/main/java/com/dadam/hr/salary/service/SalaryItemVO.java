@@ -27,4 +27,10 @@ public class SalaryItemVO {
     private String note;
     /** 회사ID (com_id) */
     private String comId;
+    /** 계산방식 (calc_type) */
+    private String calcType;
+    /** 적용대상 (work_types, 콤마구분, 공통코드와 매핑) */
+    private String workTypes;
+    /** 적용대상 한글명 (work_type_names, 콤마구분) */
+    private String workTypeNames;
 } 
