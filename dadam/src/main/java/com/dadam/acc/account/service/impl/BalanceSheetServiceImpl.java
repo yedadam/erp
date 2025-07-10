@@ -41,5 +41,40 @@ public class BalanceSheetServiceImpl implements BalanceSheetService{
 		params.put("comId", comId); 
 		return balanceSheetMapper.selectBalanceSheet(params);
 	}
+
+
+
+	@Override
+	public Map<String, Object> getNetIncome(Map<String, Object> param) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
+//	@Override
+//	public Map<String, Object> getNetIncome(Map<String, Object> param) {
+//	    Map<String, Object> incomeParam = new HashMap<>(param);
+//	    incomeParam.put("acctType", "4,5"); // 수익(4), 비용(5)
+//
+//	    List<BalanceSheetDTO> incomeList = balanceSheetMapper.selectBalanceSheet(incomeParam);
+//
+//	    int revenue = incomeList.stream()
+//	        .filter(d -> "4".equals(d.getAcctType()))
+//	        .mapToInt(BalanceSheetDTO::getBalance)
+//	        .sum();
+//
+//	    int expense = incomeList.stream()
+//	        .filter(d -> "5".equals(d.getAcctType()))
+//	        .mapToInt(BalanceSheetDTO::getBalance)
+//	        .sum();
+//
+//	    int netIncome = revenue - expense;
+//
+//	    Map<String, Object> result = new HashMap<>();
+//	    result.put("revenue", revenue);
+//	    result.put("expense", expense);
+//	    result.put("netIncome", netIncome);
+//
+//	    return result;
+//	}
+
 }

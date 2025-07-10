@@ -22,6 +22,7 @@ public class CreditVO {
 	private Double creditPrice; 	// 여신 총 금액
 	private Double creditBalPrice;	// 여신 잔액
 	private String status;		// 상태
+	private String typeName;
 	
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date createdDate;	// 등록일자

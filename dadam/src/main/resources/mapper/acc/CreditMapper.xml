@@ -1,85 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.acc.credit.mapper.CreditMapper">
-	
+
 
 	<!-- 거래처 여신 리스트 -->
-	<!-- 가지고 올 수 있는 거래처 테이블 정보 :  거래처명/ 거래처코드/ 여신금액/ 수금금액/ 여신총액-수금금액 = 미수금/ 미수금 >=0 상태 / 
-			전표 테이블 / 최근수금일자(전표) -->
-	<select id="creditFindAll" resultType="com.dadam.acc.credit.service.CreditVO">
-	SELECT v.vdr_name
-	     , v.vdr_code
-	     , v.biz_no
-	     , (SELECT emp_name 
-	          FROM employees e 
-	         WHERE e.emp_id = v.emp_id) emp_id
-    	 , v.credit_price
-    	 , v.credit_bal_price
-    	 , v.credit_period
-    	 , get_credit_status(credit_bal_price, credit_price ) status
-    	 , (SELECT MAX(c.update_date)
-         	  FROM chit c
-         	  JOIN orders o ON ord_code = article_code
-             WHERE o.vdr_code = v.vdr_code
-               AND c.status = 'cst04') AS createdDate
-	  FROM vender v
-	 WHERE v.com_id = #{comId}
-	 ORDER BY v.vdr_code
+	<!-- 가지고 올 수 있는 거래처 테이블 정보 : 거래처명/ 거래처코드/ 여신금액/ 수금금액/ 여신총액-수금금액 = 미수금/ 미수금 
+		>=0 상태 / 전표 테이블 / 최근수금일자(전표) -->
+	<select id="creditFindAll"
+		resultType="com.dadam.acc.credit.service.CreditVO">
+		SELECT v.vdr_name
+		, v.vdr_code
+		, v.biz_no
+		, (SELECT emp_name
+		FROM employees e
+		WHERE e.emp_id = v.emp_id) emp_id
+		, v.credit_price
+		, v.credit_bal_price
+		, v.credit_period
+		, get_credit_status(credit_bal_price, credit_price ) status
+		, (SELECT MAX(c.update_date)
+		FROM chit c
+		JOIN orders o ON ord_code = article_code
+		WHERE o.vdr_code = v.vdr_code
+		AND c.status = 'cst04') AS createdDate
+		FROM vender v
+		WHERE v.com_id = #{comId}
+		ORDER BY v.vdr_code
 	</select>
-	
+
 	<!-- 거래처별 여신 상세 목록 -->
-	<select id="creditFindCode" resultType="com.dadam.acc.credit.service.CreditVO">
-SELECT
-  vtl.article_code AS articleCode,               
-  vtl.change_amt AS totPrice,                   
-  CASE 
-    WHEN vtl.change_type = 'cht02' THEN '매출'   
-    WHEN vtl.change_type = 'cht03' THEN '수금'
-    ELSE '기타'
-  END AS type,
-  vtl.after_amt AS creditBalPrice,               
-  vtl.changed_at AS createdDate,                
-  vtl.chit_code AS chitCode                     
-FROM vender_trade_log vtl
-LEFT JOIN chit c 
-  ON vtl.chit_code = c.chit_code AND vtl.com_id = c.com_id
-WHERE vtl.vdr_code = #{vdrCode}
-  AND vtl.com_id = #{comId}
-ORDER BY vtl.changed_at DESC
-
+	<select id="creditFindCode"
+		resultType="com.dadam.acc.credit.service.CreditVO">
+	SELECT 
+		   l.article_code articleCode	<!-- 각 항목 PK -->
+		 , l.chit_code		<!-- 전표코드 -->
+		 , l.change_type type		<!-- 차/대변 -->
+		 , getSubCode(l.change_type) AS typeName
+		 , l.before_amt		<!-- 전표결제 전 금액 -->
+		 , l.after_amt	creditBalPrice	<!-- 전표결제 후 금액 -->
+		 , l.change_amt	totPrice	<!-- 변동금액 -->
+		 , l.changed_at	createdDate	<!-- 결제 일자 -->
+		 , l.note				<!-- 비고 -->
+		 , l.com_id			<!-- comId-->
+		 , getEmpName(v.emp_id, #{comId}) as emp_id 
+		 , getEmpName(c.phy_emp_id, #{comId}) as phy_emp_id 
+	  FROM chit c
+	  JOIN VENDER_TRADE_LOG l ON c.chit_code = l.chit_code
+	  JOIN VENDER v ON l.vdr_code = v.vdr_code
+	 WHERE l.vdr_code = #{vdrCode}
+	   AND l.com_id = #{comId}
 	</select>
-
-
 <!-- 
 
-CASE
-WHEN c.article_code LIKE 'txh-%' THEN
-getVdrName((SELECT vdr_code FROM vender WHERE acct_no = 
-		 (SELECT acct_no FROM transaction WHERE txn_hist_code = 
-		 (c.article_code ))))
-WHEN c.article_code LIKE 'ord-%' THEN
-getVdrName(SELECT) 
-  ELSE ''
-END AS vdrCode,
+		SELECT
+		vtl.article_code AS articleCode,
+		vtl.change_amt AS totPrice,
+		CASE
+		WHEN vtl.change_type = 'cht02' THEN '매출'
+		WHEN vtl.change_type = 'cht03' THEN '수금'
+		ELSE '기타'
+		END AS type,
+		vtl.after_amt AS creditBalPrice,
+		vtl.changed_at AS createdDate,
+		vtl.chit_code AS chitCode
+		FROM vender_trade_log vtl
+		LEFT JOIN chit c
+		ON vtl.chit_code = c.chit_code AND vtl.com_id = c.com_id
+		WHERE vtl.vdr_code = #{vdrCode}
+		AND vtl.com_id = #{comId}
+		ORDER BY vtl.changed_at DESC
+		
+		 -->
 
- -->
+	<!-- CASE WHEN c.article_code LIKE 'txh-%' THEN getVdrName((SELECT vdr_code 
+		FROM vender WHERE acct_no = (SELECT acct_no FROM transaction WHERE txn_hist_code 
+		= (c.article_code )))) WHEN c.article_code LIKE 'ord-%' THEN getVdrName(SELECT) 
+		ELSE '' END AS vdrCode, -->
 	<!-- 거래처원장 검색 -->
-	<select id="creditSearch" resultType="com.dadam.acc.credit.service.CreditVO">
-	  SELECT * FROM credit
-	  WHERE com_id = #{comId}
-	  <if test="vdrName != null and vdrName != ''">
-	    AND vdr_name LIKE '%'||#{vdrName}||'%'
-	  </if>
-	  <if test="vdrCode != null and vdrCode != ''">
-	    AND vdr_code LIKE '%'||#{vdrCode}||'%'
-	  </if>
-	  <if test="arrears != null and arrears != ''">
-	    AND arrears LIKE '%'||#{arrears}||'%'
-	  </if>
-	  <if test="empId != null and empId != ''">
-	    AND emp_id LIKE '%'||#{empId}||'%'
-	  </if>
-	  ORDER BY vdr_code DESC
+	<select id="creditSearch"
+		resultType="com.dadam.acc.credit.service.CreditVO">
+		SELECT * FROM credit
+		WHERE com_id = #{comId}
+		<if test="vdrName != null and vdrName != ''">
+			AND vdr_name LIKE '%'||#{vdrName}||'%'
+		</if>
+		<if test="vdrCode != null and vdrCode != ''">
+			AND vdr_code LIKE '%'||#{vdrCode}||'%'
+		</if>
+		<if test="arrears != null and arrears != ''">
+			AND arrears LIKE '%'||#{arrears}||'%'
+		</if>
+		<if test="empId != null and empId != ''">
+			AND emp_id LIKE '%'||#{empId}||'%'
+		</if>
+		ORDER BY vdr_code DESC
 	</select>
 
 </mapper>

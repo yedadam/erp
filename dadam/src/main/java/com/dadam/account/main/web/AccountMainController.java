@@ -10,7 +10,7 @@ public class AccountMainController {
 	
 	@GetMapping("/accounting")
 	public String test() {
-		return "/acc/accountMain";
+		return "acc/accountMain";
 	}
 	
 
