@@ -18,34 +18,34 @@
 
 				<li class="nav-item mx-2"><a
 					th:class="${activeMenu == 'standard'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
-					href="erp/standard">기준정보</a></li>
+					th:href="@{/erp/standard}">기준정보</a></li>
 
 				<li class="nav-item mx-2"
 					th:if="${#authentication.principal.optionCode == 'oc-102' or #authentication.principal.optionCode == 'oc-103'}">
 					<a
 					th:class="${activeMenu == 'sales'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
-					href="erp/sales">영업</a>
+					th:href="@{/erp/sales}">영업</a>
 				</li>
 
 				<li class="nav-item mx-2"
 					th:if="${#authentication.principal.optionCode == 'oc-102' or #authentication.principal.optionCode == 'oc-103'}">
 					<a
 					th:class="${activeMenu == 'inventory'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
-					href="erp/inventory">재고</a>
+					th:href="@{erp/inventory}">재고</a>
 				</li>
 
 				<li class="nav-item mx-2"
 					th:if="${#authentication.principal.optionCode == 'oc-101' or #authentication.principal.optionCode == 'oc-103'}">
 					<a
 					th:class="${activeMenu == 'hr'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
-					href="erp/hr">인사</a>
+					th:href="@{erp/hr}">인사</a>
 				</li>
 
 				<li class="nav-item mx-2"
 					th:if="${#authentication.principal.optionCode == 'oc-101' or #authentication.principal.optionCode == 'oc-103'}">
 					<a
 					th:class="${activeMenu == 'accounting'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
-					href="erp/accounting">회계</a>
+					th:href="@{erp/accounting}">회계</a>
 				</li>
 
 			</ul>
