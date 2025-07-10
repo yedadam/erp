@@ -38,18 +38,18 @@ public class ChitStandardFormComtroller {
 	public String accountionChitListForm(Model model) {
 		initAuthInfo();
 		model.addAttribute("deptId",deptCode);
-		return "/standard/chit";
+		return "standard/chit";
 	}
 	@GetMapping("/hr/chit")
 	public String hrChitListForm(Model model) {
 		initAuthInfo();
 		model.addAttribute("deptId",deptCode);
-		return "/standard/chit";
+		return "standard/chit";
 	}
 	@GetMapping("/inventory/chit")
 	public String inventoryChitListForm(Model model) {
 		initAuthInfo();
 		model.addAttribute("deptId",deptCode);
-		return "/standard/chit";
+		return "standard/chit";
 	}
 }

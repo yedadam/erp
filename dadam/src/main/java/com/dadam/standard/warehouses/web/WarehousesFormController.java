@@ -10,6 +10,6 @@ public class WarehousesFormController {
 	
 	@GetMapping("/warehouses")
 	public String warehouses() {
-		return "/standard/warehouses";
+		return "standard/warehouses";
 	}
 }

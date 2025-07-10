@@ -12,17 +12,17 @@ public class SettlementController {
 	
 	@GetMapping("/settlementForm")
 	public String settlementForm() {
-		return "/inventory/settlement";
+		return "inventory/settlement";
 	}
 	
 	@GetMapping("/setTest")
 	public String setTest() {
-		return "/settlementEle/settlement_1751784710304.html";
+		return "settlementEle/settlement_1751784710304.html";
 	}
 	
 	@GetMapping("/preview")
 	public String preview(@RequestParam String setImage) {
 		System.out.println(setImage);
-		return "/settlementEle/"+setImage;
+		return "settlementEle/"+setImage;
 	}
 }

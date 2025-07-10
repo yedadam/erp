@@ -46,7 +46,7 @@ public class SubscribeController {
     public String subCribeForm(Model model) {
         List<SubscribeVO> result = service.menuList();
         model.addAttribute("list", result);
-        return "/subscribe/subscribe";
+        return "subscribe/subscribe";
     }
 
     /**

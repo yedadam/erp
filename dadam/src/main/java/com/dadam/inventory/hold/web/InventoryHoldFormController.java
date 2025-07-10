@@ -10,6 +10,6 @@ public class InventoryHoldFormController {
 	
 	@GetMapping("/hold")
 	public String warehouse() {
-		return "/inventory/hold";
+		return "inventory/hold";
 	}
 }
