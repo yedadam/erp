@@ -47,11 +47,13 @@ public class OutboundServiceImpl implements OutboundService{
 	// 출고등록 
 	/*
 	 * 출고테이블 등록
-	 * 발주서 상태값 변경
+	 * 출하의뢰상세 상태값 변경
 	 * 홀드 테이블 상태값 변경
+	 * 홀드상세 조회
 	 * 홀드상세테이블 홀드수량, 상태값 변경
 	 * 재고테이블 수량 조회
 	 * 재고테이블 수량 변경
+	 * 출하의뢰 상태값 변경 프로시저
 	 * */
 	@Override
 	public int insertOutbound(List<OutboundVO> list) {
@@ -63,28 +65,6 @@ public class OutboundServiceImpl implements OutboundService{
 			// 메인 출고 등록
 			vo.setQuantity(vo.getHdqty());
 			result = outboundmapper.insertOutbound(vo);
-			/*
-			출하의뢰 status
-			srd01	출하의뢰
-			srd02	부분출고 
-			srd03	출하완료
-			srd04	홀드중
-			srd05	홀드완료
-			출고 type
-			obt01	거래처
-			obt02	공장
-			출고 status
-			obs01	대기    안필요함 하지만 놔둔다
-			obs02	부분출고
-			obs03	출고완료
-			홀드 status
-			hs01	부분홀드
-			hs02	처리완료
-			hs03	출고보류
-			홀드상세 status
-			hds01	홀드중
-			hds02	홀드종료
-			 */
 			// 홀드 수량 반영(미출고량) quantity = 의뢰수량 qty= 입력수량
 			ho = outboundmapper.selectOutboundHoldDetailCurrQty(vo);
 			// 출하의뢰 상태값 변경
@@ -101,18 +81,13 @@ public class OutboundServiceImpl implements OutboundService{
 				vo.setShipstatus("srd02");
 				ho.setHdstatus("hds01");
 			}
-			System.out.println("ho:" + ho);
-			System.out.println("vo:" + vo);
-			System.out.println("CurrQty:" + ho.getCurrQty());
-			System.out.println("Qty:" + vo.getQty());
-			System.out.println("HoldQty:" + ho.getHoldQty());
-			// HoldQty = 현재입력량 + 현재 출고된 홀드수량
+			// HoldQty = 현재입력량 + 출고된 홀드수량
 			ho.setHoldQty(ho.getCurrQty() + vo.getQty());
 			// 홀드 수량 조회 후 값 비교
-			if(ho.getHoldQty() == ho.getHoldQty()) {
+			if(ho.getHoldQty() == vo.getHdqty()) {
 				ho.setHdstatus("hds02");
 			}
-			
+			// 홀드상세 수량, 상태값 변경 쿼리
 			outboundmapper.updateOutboundHOldDetail(ho);
 
 			// 값 조회
@@ -120,11 +95,10 @@ public class OutboundServiceImpl implements OutboundService{
 			
 			ho.setHoldQty(ho.getHoldQty() - vo.getQty());
 			ho.setQuantity(ho.getQuantity() - vo.getQty());
-			System.out.println("holdQty:" + ho.getHoldQty());
-			System.out.println("quantity:" + ho.getQuantity());
 			
 			// 출고 후 lot 재고수량 홀드수량 반영
 			outboundmapper.updateOutboundStock(ho);
+			outboundmapper.prcShipRequestStatus(vo);
 		}
 		return result;
 	}

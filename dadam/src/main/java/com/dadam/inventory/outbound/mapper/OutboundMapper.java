@@ -35,4 +35,6 @@ public interface OutboundMapper {
 	public HoldVO selectOutboundStock(OutboundVO vo);
 	// 재고 수량 변경
 	public int updateOutboundStock(HoldVO ho);
+	// 출하의뢰 상태값 변경 프로시저
+	public int prcShipRequestStatus(OutboundVO ho);
 }
