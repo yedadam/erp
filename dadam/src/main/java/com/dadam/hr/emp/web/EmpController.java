@@ -326,7 +326,7 @@ public class EmpController {
             String fileName = System.currentTimeMillis() + "_" + profileImg.getOriginalFilename();
             File dest = new File(dir, fileName);
             profileImg.transferTo(dest);
-            return "/uploads/profile/" + fileName;
+            return "uploads/profile/" + fileName;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

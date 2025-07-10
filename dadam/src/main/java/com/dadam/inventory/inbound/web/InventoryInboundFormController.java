@@ -16,6 +16,6 @@ public class InventoryInboundFormController {
 	 */
 	@GetMapping("/inbound")
 	public String warehouse() {
-		return "/inventory/inbound";
+		return "inventory/inbound";
 	}
 }

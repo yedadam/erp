@@ -31,7 +31,7 @@ public class SubsManagerFormController {
      */
     @GetMapping("/subManager")
     public String subManagerForm() {
-        return "/subscribe/manager";
+        return "subscribe/manager";
     }
 
     /**

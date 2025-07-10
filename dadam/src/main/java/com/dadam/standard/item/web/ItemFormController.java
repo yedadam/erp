@@ -21,13 +21,13 @@ public class ItemFormController {
 	
 	@GetMapping("/item")
 	public String item() {
-		return "/standard/item";
+		return "standard/item";
 	}
 	@GetMapping("/vender")
 	public String vender(Model model) {
 		model.addAttribute("type",codeService.getCodeMap("vt"));
 		model.addAttribute("venderMaxno",venderService.findVenderMaxno()); 
 	//	System.out.println("ddddd");
-		return "/standard/vender"; 
+		return "standard/vender"; 
 	}
 }
