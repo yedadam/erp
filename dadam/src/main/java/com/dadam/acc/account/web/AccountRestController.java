@@ -25,6 +25,8 @@ import com.dadam.acc.account.service.AccountVO;
 @RequestMapping("/erp/accounting")  
 public class AccountRestController {
 	
+	
+	
 	@Autowired
 	AccountService accountService;
 	
@@ -58,18 +60,18 @@ public class AccountRestController {
     }
 
     // 자동완성 관련: comId 없이 처리 가능
-    @GetMapping("/api/account/type")
+    @GetMapping("/type")
     public List<String> getAcctTypes() {
         return accountService.getAcctTypes();
     }
 
-    @GetMapping("/api/account/class")
+    @GetMapping("/class")
     public List<String> getAcctClasses(@RequestParam String typeCode) {
         System.out.println("중분류 전달값: " + typeCode);
         return accountService.getAcctClasses(typeCode);
     }
 
-    @GetMapping("/api/account/subclass")
+    @GetMapping("/subclass")
     public List<String> getAcctSubClasses(@RequestParam String classCode) {
         System.out.println("소분류 전달값: " + classCode);
         return accountService.getAcctSubClasses(classCode);
@@ -78,5 +80,16 @@ public class AccountRestController {
     @GetMapping("/accountSearch")
     public List<AccountVO> accountSearch(@RequestParam Map<String, Object> params) {
         return accountService.accountSearch(params);
+    }
+
+    // 계정명/비고 자동완성
+    @GetMapping("/accountAutoComplete")
+    @ResponseBody
+    public List<Map<String, String>> accountAutoComplete(@RequestParam String type, @RequestParam String value) {
+        if (value == null || value.trim().length() < 2) {
+            return List.of();
+        }
+        // comId는 인증에서 추출
+        return accountService.accountAutoComplete(type, value);
     }
 }

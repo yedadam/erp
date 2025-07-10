@@ -14,16 +14,17 @@ public interface AccountMapper {
 	public String codeFind(AccountCodeVO accountCode);
 	
 	public void insert(AccountVO acct);
-	public String findTypeCodeByName(String typeName);
-	public String findClassCodeByName(String className);
-	public String findSubclassCodeByName(String subclassName);
+	public String findTypeCodeByName(@Param("typeName") String typeName, @Param("comId") String comId);
+	public String findClassCodeByName(@Param("className") String className, @Param("comId") String comId);
+	public String findSubclassCodeByName(@Param("subclassName") String subclassName, @Param("comId") String comId);
 	
-	public List<String> selectAcctTypes();
-	public List<String> selectAcctClasses(@Param("acctType") String typeCode );
-	public List<String> selectAcctSubClasses(@Param("acctClass") String classCode);
+	public List<String> selectAcctTypes(@Param("comId") String comId);
+	public List<String> selectAcctClasses(@Param("acctType") String typeCode, @Param("comId") String comId);
+	public List<String> selectAcctSubClasses(@Param("acctClass") String classCode, @Param("comId") String comId);
 	
 	public void update(AccountVO acct);
 	public void delete(String acctCode);
 	
 	public List<AccountVO> accountSearch(Map<String, Object> params);
+	public List<Map<String, String>> accountAutoComplete(@Param("type") String type, @Param("value") String value, @Param("comId") String comId);
 }

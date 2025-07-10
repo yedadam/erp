@@ -260,4 +260,10 @@ public class ChitServiceImpl implements ChitService{
         }
     }
 
+    @Override
+    public List<Map<String, String>> chitAutoComplete(String type, String value) {
+        initAuthInfo();
+        return chitMapper.chitAutoComplete(type, value, comId);
+    }
+
 }	

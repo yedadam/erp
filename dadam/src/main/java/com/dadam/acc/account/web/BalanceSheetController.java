@@ -26,7 +26,6 @@ public class BalanceSheetController {
 	
 	@GetMapping("/balance")
 	public String getBalanceSheet(@RequestParam Map<String, Object> param, Model model, HttpSession session) {
-	    System.out.println("param" + param);
 
 	    // comId 세션에서 가져오기
 	    String comId = (String) session.getAttribute("comId");

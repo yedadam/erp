@@ -45,4 +45,6 @@ public interface ChitMapper {
 	public void updateChitStatus(@Param("chitCode") String chitCode,
             @Param("comId") String comId,
             @Param("status") String status);
+
+    List<Map<String, String>> chitAutoComplete(@Param("type") String type, @Param("value") String value, @Param("comId") String comId);
 }

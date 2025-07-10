@@ -17,73 +17,82 @@ import com.dadam.security.service.LoginUserAuthority;
 @Service
 public class AccountServiceImpl implements AccountService {
 
+	
+    //comName 가져오기
+    String comId = "com-101";
+    public void initAuthInfo() {
+        //로그인 객체값 연결
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //로그인 객체 가져오기
+        Object principal = auth.getPrincipal();
+
+        if (principal instanceof LoginUserAuthority) {
+        	LoginUserAuthority user = (LoginUserAuthority) principal;
+            comId = user.getComId();
+            System.out.println("회사명: " + comId);
+        }
+    }
+	
+	
     @Autowired
     private AccountMapper accountMapper;
 
-
-
-    private String initAuthInfo() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = auth.getPrincipal();
-        if (principal instanceof LoginUserAuthority) {
-            String comId = ((LoginUserAuthority) principal).getComId();
-            return comId;
-        }
-        return "com-101";
-    }
-
     @Override
     public List<AccountVO> accFindAll() {
-        String comId = initAuthInfo();
+        initAuthInfo();
         return accountMapper.accFindAll(comId);
     }
 
     @Override
     public List<AccountVO> accFindByType(String acctType, String unused) {
-        String comId = initAuthInfo();
+        initAuthInfo();
         return accountMapper.accFindByType(acctType, comId);
     }
 
     @Override
     public String codeFind(AccountCodeVO accountCode) {
+    	initAuthInfo();
         return accountMapper.codeFind(accountCode);
     }
 
     @Override
     public List<String> getAcctTypes() {
-        return accountMapper.selectAcctTypes();
+    	initAuthInfo();
+        return accountMapper.selectAcctTypes(comId);
     }
 
     @Override
-    public List<String> getAcctClasses(String acctCode) {
-        return accountMapper.selectAcctClasses(acctCode);
+    public List<String> getAcctClasses(String acctType) {
+    	initAuthInfo();
+        return accountMapper.selectAcctClasses(acctType, comId);
     }
 
     @Override
     public List<String> getAcctSubClasses(String classCode) {
-        return accountMapper.selectAcctSubClasses(classCode);
+    	initAuthInfo();
+        return accountMapper.selectAcctSubClasses(classCode, comId);
     }
 
     @Override
     public void insert(AccountVO acct) {
-        String comId = initAuthInfo();
+        initAuthInfo();
         acct.setComId(comId);
         accountMapper.insert(acct);
     }
 
     @Override
     public void saveAll(AccountVO account) {
-        String comId = initAuthInfo();
+        initAuthInfo();
 
         List<AccountVO> rows = account.getCreatedRows();
         if (rows != null) {
             for (AccountVO acct : rows) {
-                String typeCode = accountMapper.findTypeCodeByName(acct.getAcctType());
+                String typeCode = accountMapper.findTypeCodeByName(acct.getAcctType(), comId);
                 if (typeCode == null) {
                     throw new IllegalArgumentException("대분류 '" + acct.getAcctType() + "'에 해당하는 코드가 없습니다.");
                 }
 
-                String classCode = accountMapper.findClassCodeByName(acct.getAcctClass());
+                String classCode = accountMapper.findClassCodeByName(acct.getAcctClass(), comId);
                 if (classCode == null) {
                     throw new IllegalArgumentException("중분류 '" + acct.getAcctClass() + "'에 해당하는 코드가 없습니다.");
                 }
@@ -91,7 +100,7 @@ public class AccountServiceImpl implements AccountService {
                 String subclassCode = null;
                 String subclassName = acct.getAcctSubclass();
                 if (subclassName != null && !subclassName.isBlank()) {
-                    subclassCode = accountMapper.findSubclassCodeByName(subclassName);
+                    subclassCode = accountMapper.findSubclassCodeByName(subclassName, comId);
                     if (subclassCode == null) {
                         throw new IllegalArgumentException("소분류 '" + subclassName + "'에 해당하는 코드가 없습니다.");
                     }
@@ -117,14 +126,14 @@ public class AccountServiceImpl implements AccountService {
 
         if (account.getUpdatedRows() != null) {
             for (AccountVO acct : account.getUpdatedRows()) {
-                acct.setComId(comId);
+            	initAuthInfo();
                 accountMapper.update(acct);
             }
         }
 
         if (account.getDeletedRows() != null) {
             for (AccountVO acct : account.getDeletedRows()) {
-                acct.setComId(comId);
+            	initAuthInfo();
                 accountMapper.delete(acct.getAcctCode());
             }
         }
@@ -132,8 +141,14 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<AccountVO> accountSearch(Map<String, Object> params) {
-        String comId = initAuthInfo();
+        initAuthInfo();
         params.put("comId", comId);
         return accountMapper.accountSearch(params);
+    }
+
+    @Override
+    public List<Map<String, String>> accountAutoComplete(String type, String value) {
+        initAuthInfo();
+        return accountMapper.accountAutoComplete(type, value, comId);
     }
 }

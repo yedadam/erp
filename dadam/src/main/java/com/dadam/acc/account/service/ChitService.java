@@ -8,6 +8,7 @@ public interface ChitService {
 	public List<Map<String, String>> acctCodeFindByCode(String keyword);
 	public List<Map<String, String>> indTypeFindByCode(String keyword);
 	public List<Map<String, String>> chtTypeFindByCode(String keyword);
+	public List<Map<String, String>> chitAutoComplete(String type, String value);
 	
 	public void saveAll(ChitVO chit);
 	

@@ -285,6 +285,24 @@ function groupAndAddSubtotals(data, acctType = '') {
   return result;
 }
 
+// 손익계산서(4,5) 합산 후 당기손이익 행 추가
+function addNetIncomeRow(data) {
+  let totalRevenue = 0, totalExpense = 0;
+  data.forEach(row => {
+    if (row.acctType === '4') totalRevenue += Number(row.balance || 0);
+    if (row.acctType === '5') totalExpense += Number(row.balance || 0);
+  });
+  const netIncome = totalRevenue - totalExpense;
+  return [
+    ...data,
+    {
+      acctTypeName: '당기손이익',
+      name: '',
+      balance: netIncome,
+      isSummary: true
+    }
+  ];
+}
 
 
 //자산/부채/자본 탭 클릭 시 실행되는 함수
@@ -316,7 +334,8 @@ $.ajax({
  method: "GET",
  data: { year, half, quarter, ym, acctType },
  success: function (result) {
-   const finalData = groupAndAddSubtotals(result, acctType); // 합계 행 추가
+   const withNetIncome = addNetIncomeRow(result);
+   const finalData = groupAndAddSubtotals(withNetIncome, acctType); // 합계 행 추가
    balGrid.resetData(finalData);                   // 그리드 데이터 갱신
    calculateAndRenderSummary(result); 
  }
