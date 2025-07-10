@@ -17,10 +17,6 @@ public class SalaryItemVO {
     private String allowName;
     /** 카테고리 (type) */
     private String type;
-    /** 계산방식 (calc_type) */
-    private String calcType;
-    /** 적용대상 (target_type) */
-    private String targetType;
     /** 기본값 (default_amount) */
     private java.math.BigDecimal defaultAmount;
     /** 상태 (acct_yn) */

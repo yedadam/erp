@@ -87,12 +87,12 @@ public class SalaryItemRestController {
     }
 
     /** 급여항목 수정 (관리자만) */
-    @PostMapping("/modify")
+    @PostMapping("/salaryitem/modify")
     public String modifySalaryItem(@RequestBody SalaryItemVO vo) {
         // 관리자 권한 확인
-        if (!isAdmin()) {
-            return "unauthorized";
-        }
+//        if (!isAdmin()) {
+//            return "unauthorized";
+//        }
         
         Map<String, String> userInfo = getCurrentUserInfo();
         vo.setComId(userInfo.get("comId"));
@@ -105,9 +105,9 @@ public class SalaryItemRestController {
     @DeleteMapping("/delete")
     public String removeSalaryItem(@RequestParam String comId, @RequestParam String allowCode) {
         // 관리자 권한 확인
-        if (!isAdmin()) {
-            return "unauthorized";
-        }
+//        if (!isAdmin()) {
+//            return "unauthorized";
+//        }
         
         int result = salaryItemService.removeSalaryItem(comId, allowCode);
         return result > 0 ? "ok" : "fail";
