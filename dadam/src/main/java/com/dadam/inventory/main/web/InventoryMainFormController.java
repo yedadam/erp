@@ -10,6 +10,6 @@ public class InventoryMainFormController {
 	
 	@GetMapping("/inventory")
 	public String test() {
-		return "/inventory/inventoryMain";
+		return "inventory/inventoryMain";
 	}
 }
