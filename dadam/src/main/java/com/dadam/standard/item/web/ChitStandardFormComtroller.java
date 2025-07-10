@@ -32,7 +32,7 @@ public class ChitStandardFormComtroller {
 	public String salesChitListForm(Model model) {
 		initAuthInfo();
 		model.addAttribute("deptId",deptCode);
-		return "/standard/chit";
+		return "standard/chit";
 	}
 	@GetMapping("/accounting/chitList")
 	public String accountionChitListForm(Model model) {
