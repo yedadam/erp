@@ -10,6 +10,6 @@ public class OutboundFormController {
 
 	@GetMapping("/outbound")
 	public String outbound() {
-		return "/inventory/outbound";
+		return "inventory/outbound";
 	}
 }

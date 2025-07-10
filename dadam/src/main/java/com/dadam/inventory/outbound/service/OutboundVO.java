@@ -24,7 +24,8 @@ public class OutboundVO {
 	private String status;
 	private String statusName;
 	private String shipstatus;
-	private String holdstatus;
+	private String hstatus;
+	private String hdstatus;
 	private String holdDtlCode;
 	private String typeName;
 	private String type;
@@ -38,14 +39,16 @@ public class OutboundVO {
 	private String vdrCode;
 	private String vdrName;
 	private String shipReqCode;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date createdDate;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date shipExpDate;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date dliveDate;
 	private String empId;
 	private String empName;
 	private String comId;
 	private String lot;
+	private int hqty;   // 출하의뢰수량
+	private int hdqty;   // 홀드상세수량
 }

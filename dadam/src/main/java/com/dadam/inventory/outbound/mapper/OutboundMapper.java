@@ -27,8 +27,10 @@ public interface OutboundMapper {
 	public int updateOutboundShipRequestDetail(OutboundVO vo);
 	// 홀드 상태변경
 	public int updateOutboundHoldStatus(OutboundVO vo);
+	// 홀드상세 수량 조회
+	public HoldVO selectOutboundHoldDetailCurrQty(OutboundVO vo);
 	// 홀드상세 수량변경
-	public int updateOutboundHOldDetail(OutboundVO vo);
+	public int updateOutboundHOldDetail(HoldVO ho);
 	// 재고 수량 변경 위한 조회
 	public HoldVO selectOutboundStock(OutboundVO vo);
 	// 재고 수량 변경

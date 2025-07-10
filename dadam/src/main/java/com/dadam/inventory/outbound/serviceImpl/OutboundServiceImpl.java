@@ -45,12 +45,23 @@ public class OutboundServiceImpl implements OutboundService{
 		return list;
 	}
 	// 출고등록 
+	/*
+	 * 출고테이블 등록
+	 * 발주서 상태값 변경
+	 * 홀드 테이블 상태값 변경
+	 * 홀드상세테이블 홀드수량, 상태값 변경
+	 * 재고테이블 수량 조회
+	 * 재고테이블 수량 변경
+	 * */
 	@Override
 	public int insertOutbound(List<OutboundVO> list) {
 		int result = 0;
+		
 		for(OutboundVO vo : list) {
-			String status = vo.getStatus(); 
+			String status = vo.getStatus();
+			HoldVO ho = new HoldVO();
 			// 메인 출고 등록
+			vo.setQuantity(vo.getHdqty());
 			result = outboundmapper.insertOutbound(vo);
 			/*
 			출하의뢰 status
@@ -58,34 +69,58 @@ public class OutboundServiceImpl implements OutboundService{
 			srd02	부분출고 
 			srd03	출하완료
 			srd04	홀드중
-			srd05	홀드완료 필요한가..?
+			srd05	홀드완료
 			출고 type
 			obt01	거래처
 			obt02	공장
 			출고 status
-			obs01	대기 필요한가..?
+			obs01	대기    안필요함 하지만 놔둔다
 			obs02	부분출고
-			obs03	출고완료 */
+			obs03	출고완료
+			홀드 status
+			hs01	부분홀드
+			hs02	처리완료
+			hs03	출고보류
+			홀드상세 status
+			hds01	홀드중
+			hds02	홀드종료
+			 */
+			// 홀드 수량 반영(미출고량) quantity = 의뢰수량 qty= 입력수량
+			ho = outboundmapper.selectOutboundHoldDetailCurrQty(vo);
 			// 출하의뢰 상태값 변경
 			// 출고상태값이 출고완료라면.. 전부 완료처리
 			if(status == "obs03"){
 				vo.setShipstatus("srd03");
-				vo.setHoldstatus("hs02");
+				// 홀드테이블 상태값 변경
+				vo.setHstatus("hs02");
+				ho.setHdstatus("hds02");
 				outboundmapper.updateOutboundShipRequestDetail(vo);
 				outboundmapper.updateOutboundHoldStatus(vo);
 			// 출고 상태값이 부분출고라면..
 			}else {
 				vo.setShipstatus("srd02");
+				ho.setHdstatus("hds01");
 			}
-			// 홀드 수량 반영(미출고량) quantity = 의뢰수량 qty= 입력수량
-			vo.setHoldQty(vo.getQuantity() - vo.getQty());
-			outboundmapper.updateOutboundHOldDetail(vo);
-
-			// 값 조회
-			HoldVO ho = new HoldVO();
-			ho = outboundmapper.selectOutboundStock(vo);
 			System.out.println("ho:" + ho);
 			System.out.println("vo:" + vo);
+			System.out.println("CurrQty:" + ho.getCurrQty());
+			System.out.println("Qty:" + vo.getQty());
+			// HoldQty = 현재입력량 + 현재 출고된 홀드수량
+			ho.setHoldQty(ho.getCurrQty() + vo.getQty());
+			System.out.println("HoldQty:" + ho.getHoldQty());
+			int qqt = 0;
+			qqt = ho.getCurrQty() + vo.getQty();
+			System.out.println("qqt: " + qqt);
+			// 홀드 수량 조회 후 값 비교
+			if(ho.getHoldQty() == qqt) {
+				ho.setHdstatus("hds02");
+			}
+			
+			outboundmapper.updateOutboundHOldDetail(ho);
+
+			// 값 조회
+			ho = outboundmapper.selectOutboundStock(vo);
+			
 			ho.setHoldQty(ho.getHoldQty() - vo.getQty());
 			ho.setQuantity(ho.getQuantity() - vo.getQty());
 			System.out.println("holdQty:" + ho.getHoldQty());

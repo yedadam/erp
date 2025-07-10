@@ -18,7 +18,7 @@ public class PurchaseVO {
 	private String comId;  // 회사id
 	private String lot;
 	private int price;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date createDate;
 	private String locCode;
 	private String stkCode;
@@ -26,12 +26,12 @@ public class PurchaseVO {
 	// 발주서
 	private String purOrdCode;
 	private String vdrCode;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date purOrdDate;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date expDlvDate;
 	private String purOrdReqCode;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date purOrdUdtDate;
 	private String status;
 	private String statusName;
@@ -52,7 +52,7 @@ public class PurchaseVO {
 	private int supPrice;
 	private int vatPrice;
 	private int totPrice;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date reccvDate;
 
 }
