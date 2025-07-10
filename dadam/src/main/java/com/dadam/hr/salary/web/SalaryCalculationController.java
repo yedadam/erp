@@ -30,7 +30,7 @@ import com.dadam.hr.salary.service.SalaryCalculationVO;
  */
 @Slf4j
 @RestController
-@RequestMapping("/erp/salary/calculation")
+@RequestMapping("/erp/hr")
 public class SalaryCalculationController {
 
     @Autowired
@@ -79,7 +79,7 @@ public class SalaryCalculationController {
      * @param payMonth - 지급년월
      * @return 계산된 급여 정보
      */
-    @PostMapping("/calculate")
+    @PostMapping("/salary/calculate")
     public SalaryStatementVO calculateSalary(@RequestParam String empId, @RequestParam String payMonth) {
         Map<String, String> userInfo = getCurrentUserInfo();
         
@@ -96,7 +96,7 @@ public class SalaryCalculationController {
      * @param statementId - 급여명세서 ID
      * @return 지급 결과
      */
-    @PostMapping("/payment")
+    @PostMapping("/salary/payment")
     public String processSalaryPayment(@RequestParam Long statementId) {
         // 관리자 권한 확인
         if (!isAdmin()) {
@@ -114,7 +114,7 @@ public class SalaryCalculationController {
      * @param rejectReason - 반려사유 (반려시 필수)
      * @return 처리 결과
      */
-    @PostMapping("/approve")
+    @PostMapping("/salary/approve")
     public String approveSalaryPayment(@RequestParam Long paymentId, 
                                       @RequestParam String status,
                                       @RequestParam(required = false) String rejectReason) {
@@ -139,7 +139,7 @@ public class SalaryCalculationController {
      * @param payMonth - 지급년월
      * @return 통계 정보
      */
-    @GetMapping("/statistics")
+    @GetMapping("/salary/statistics")
     public Map<String, Object> getSalaryStatistics(@RequestParam(required = false) String deptCode,
                                                    @RequestParam String payMonth) {
         // 관리자 권한 확인
@@ -158,7 +158,7 @@ public class SalaryCalculationController {
      * @param toMonth - 종료년월
      * @return 지급 이력
      */
-    @GetMapping("/history")
+    @GetMapping("/salary/history")
     public List<Map<String, Object>> getSalaryPaymentHistory(@RequestParam(required = false) String empId,
                                                              @RequestParam String fromMonth,
                                                              @RequestParam String toMonth) {
@@ -177,7 +177,7 @@ public class SalaryCalculationController {
      * @param empId - 사원번호
      * @return 기본급
      */
-    @GetMapping("/baseSalary")
+    @GetMapping("/salary/baseSalary")
     public double getBaseSalary(@RequestParam String empId) {
         Map<String, String> userInfo = getCurrentUserInfo();
         
@@ -195,7 +195,7 @@ public class SalaryCalculationController {
      * @param payMonth - 지급년월
      * @return 근무일수 정보
      */
-    @GetMapping("/workDays")
+    @GetMapping("/salary/workDays")
     public Map<String, Object> getWorkDays(@RequestParam String empId, @RequestParam String payMonth) {
         Map<String, String> userInfo = getCurrentUserInfo();
         
@@ -213,7 +213,7 @@ public class SalaryCalculationController {
      * @param payMonth - 지급년월
      * @return 공제 정보
      */
-    @GetMapping("/lateEarlyDeduction")
+    @GetMapping("/salary/lateEarlyDeduction")
     public Map<String, Object> getLateEarlyDeduction(@RequestParam String empId, @RequestParam String payMonth) {
         Map<String, String> userInfo = getCurrentUserInfo();
         
@@ -231,7 +231,7 @@ public class SalaryCalculationController {
      * @param payMonth - 지급년월
      * @return 연차수당
      */
-    @GetMapping("/annualLeavePay")
+    @GetMapping("/salary/annualLeavePay")
     public double getAnnualLeavePay(@RequestParam String empId, @RequestParam String payMonth) {
         Map<String, String> userInfo = getCurrentUserInfo();
         
@@ -249,7 +249,7 @@ public class SalaryCalculationController {
      * @param payMonth - 지급년월
      * @return 연장근무수당
      */
-    @GetMapping("/overtimePay")
+    @GetMapping("/salary/overtimePay")
     public double getOvertimePay(@RequestParam String empId, @RequestParam String payMonth) {
         Map<String, String> userInfo = getCurrentUserInfo();
         
@@ -267,7 +267,7 @@ public class SalaryCalculationController {
      * @param request 계산 요청 정보
      * @return 계산 결과
      */
-    @PostMapping("/monthly")
+    @PostMapping("/salary/monthly")
     public ResponseEntity<Map<String, Object>> calculateMonthlySalary(@RequestBody Map<String, Object> request) {
         log.info("월별 급여 일괄 계산 요청 - 회사ID: {}, 년월: {}", 
                 request.get("companyId"), request.get("yearMonth"));
@@ -307,7 +307,7 @@ public class SalaryCalculationController {
      * @param request 계산 요청 정보
      * @return 계산 결과
      */
-    @PostMapping("/employee")
+    @PostMapping("/salary/employee")
     public ResponseEntity<Map<String, Object>> calculateEmployeeSalary(@RequestBody Map<String, Object> request) {
         log.info("개별 사원 급여 계산 요청 - 사원ID: {}, 년월: {}", 
                 request.get("employeeId"), request.get("yearMonth"));

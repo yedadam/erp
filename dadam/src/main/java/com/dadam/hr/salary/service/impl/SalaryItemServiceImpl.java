@@ -6,6 +6,7 @@ import com.dadam.hr.salary.service.SalaryItemVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 급여항목 마스터 Service 구현체
@@ -16,9 +17,18 @@ public class SalaryItemServiceImpl implements SalaryItemService {
     private SalaryItemMapper salaryItemMapper;
 
     @Override
-    public List<SalaryItemVO> getSalaryItemList(String comId) {
-        return salaryItemMapper.selectSalaryItemList(comId);
+    public List<SalaryItemVO> getSalaryItemList(Map<String, Object> map) {
+        List<SalaryItemVO> list = salaryItemMapper.selectSalaryItemList(map);
+        for (SalaryItemVO vo : list) {
+            // note 등 필요시 가공
+            if (vo.getNote() == null) {
+                vo.setNote("");
+            }
+        }
+        return list;
     }
+    
+
     @Override
     public SalaryItemVO getSalaryItem(String comId, String allowCode) {
         return salaryItemMapper.selectSalaryItem(comId, allowCode);

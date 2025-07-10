@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/default_layout}"
+      layout:fragment="Content">
+<head>
+    <title>급여항목 관리</title>
+    <link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.min.css">
+    <style>
+        .grid-action {
+            display: inline-block;
+            padding: 3px 8px;
+            font-size: 12px;
+            border-radius: 12px;
+            border: 1px solid lightgray;
+            background-color: aliceblue;
+            color: darkslategray;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .grid-action:hover {
+            background-color: lightsteelblue;
+            border-color: silver;
+            color: midnightblue;
+        }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .status-active { background-color: #dcfce7; color: #166534; }
+        .status-inactive { background-color: #fee2e2; color: #991b1b; }
+        #salaryItemGrid {
+            width: 100%;
+            min-width: 0;
+            overflow-x: auto;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+  <div class="container-fluid px-4">
+    <!-- 페이지 타이틀 -->
+    <h3 class="mb-3 text-secondary fw-bold border-bottom border-secondary pb-2">급여항목 관리</h3>
+
+    <!-- 검색/필터 영역 -->
+    <div class="card mb-3 rounded shadow-sm">
+      <div class="card-body">
+        <div class="row g-3 align-items-center">
+          <!-- 카테고리 -->
+          <div class="col-md-3">
+            <label for="categoryFilter" class="form-label">카테고리</label>
+            <select class="form-select" id="categoryFilter">
+              <option value="">전체</option>
+              <option value="기본급">기본급</option>
+              <option value="수당">수당</option>
+              <option value="공제">공제</option>
+            </select>
+          </div>
+          <!-- 검색어 -->
+          <div class="col-md-4">
+            <label for="searchInput" class="form-label">검색어</label>
+            <input type="text" class="form-control" id="searchInput" placeholder="항목명 또는 코드 입력">
+          </div>
+          <!-- 진행상태 -->
+          <div class="col-md-3">
+            <label class="form-label d-block">진행 상태</label>
+            <div class="d-flex gap-2 flex-wrap">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="salaryStatus" id="statusAll" value="" checked>
+                <label class="form-check-label" for="statusAll">전체</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="salaryStatus" id="statusActive" value="활성">
+                <label class="form-check-label" for="statusActive">활성</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="salaryStatus" id="statusInactive" value="비활성">
+                <label class="form-check-label" for="statusInactive">비활성</label>
+              </div>
+            </div>
+          </div>
+          <!-- 검색 버튼 -->
+          <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-primary w-100" id="searchBtn"><i class="fas fa-search"></i> 검색</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 버튼 영역 -->
+    <div class="d-flex align-items-center gap-2 mb-2" style="min-height:40px;">
+      <button class="btn btn-outline-success" id="excelBtn" data-bs-toggle="tooltip" title="급여항목 목록 다운로드">
+        <i class="fas fa-file-excel"></i>
+      </button>
+      <button class="btn btn-outline-secondary" id="filterBtn" data-bs-toggle="tooltip" title="필터 열기">
+        <i class="fas fa-cog"></i>
+      </button>
+      <div class="ms-auto"></div>
+      <button class="btn btn-info" id="addBtn" style="min-width:110px;">
+        <i class="fas fa-plus"></i> 추가
+      </button>
+      <button class="btn btn-danger" id="deleteBtn" disabled>
+        <i class="fas fa-trash"></i> 삭제
+      </button>
+      <button class="btn btn-success" id="saveBtn" disabled>
+        <i class="fas fa-save"></i> 저장
+      </button>
+      <span class="ms-3 text-secondary" id="resultCount"></span>
+    </div>
+
+    <!-- TOAST UI Grid -->
+    <div id="salaryItemGrid"></div>
+    <!-- 검색 결과 없음 메시지 -->
+    <div id="noResultMsg" class="text-center text-muted my-4" style="display:none;">
+      🔍 검색 조건에 맞는 항목이 없습니다.
+    </div>
+  </div>
+
+  <!-- 항목 등록/수정 모달 -->
+  <div id="salaryItemModal" style="display:none;">
+    <!-- 모달 폼 구조 (항목코드, 항목명, 카테고리, 유형, 기본값, 상태, 설명 등) -->
+  </div>
+
+  <script src="https://uicdn.toast.com/grid/latest/tui-grid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // TOAST UI Grid 컬럼 정의 (sortable, 설명 툴팁 적용)
+    const columns = [
+      { header: '항목코드', name: 'allowCode', align: 'center', editor: 'text' },
+      { header: '항목명', name: 'allowName', editor: 'text' },
+      { header: '카테고리', name: 'type', align: 'center', editor: { type: 'select', options: { listItems: [
+        { text: '기본급', value: '기본급' }, { text: '수당', value: '수당' }, { text: '공제', value: '공제' }
+      ]}}},
+      { header: '금액', name: 'defaultAmount', align: 'right', editor: { type: 'text', options: { inputType: 'number' } },
+        formatter: ({value}) => value ? value.toLocaleString() + '원' : '-', sortable: true },
+      { header: '계산방식', name: 'calcType', align: 'center', editor: { type: 'select', options: { listItems: [
+        { text: '고정액', value: '고정액' }, { text: '비율', value: '비율' }, { text: '근무시간 비례', value: '근무시간 비례' }, { text: '성과 연동', value: '성과 연동' }
+      ]}}},
+      { header: '적용대상', name: 'targetType', align: 'center', editor: { type: 'select', options: { listItems: [
+        { text: '전체', value: '전체' }, { text: '정규직', value: '정규직' }, { text: '계약직', value: '계약직' }
+      ]}}},
+      { header: '상태', name: 'acctYn', width: 80, align: 'center', editor: { type: 'select', options: { listItems: [
+        { text: 'Y', value: 'Y' }, { text: 'N', value: 'N' }
+      ]}}, formatter: ({value}) => value === 'Y' ? '<span class="status-badge status-active">활성</span>' : '<span class="status-badge status-inactive">비활성</span>', sortable: true },
+      { header: '생성일', name: 'createdDate', align: 'center', formatter: ({value}) => value || '-', sortable: true },
+      { header: '설명', name: 'note', width: 300, editor: 'text', formatter: ({ value }) => `<span title="${value || ''}">${value || ''}</span>` }
+    ];
+    // 숨김 컬럼 예시 (실제 DB용, 필요시 추가)
+    // { name: 'companyId', hidden: true },
+
+    // 그리드 생성 (전표관리와 동일한 옵션, 체크박스 rowHeaders 추가)
+    const grid = new tui.Grid({
+      el: document.getElementById('salaryItemGrid'),
+      data: [], // 하드코딩 데이터 완전 삭제, ajax로만 데이터 표시
+      scrollX: false,
+      scrollY: true,
+      bodyHeight: 400,
+      rowHeaders: ['checkbox', 'rowNum'],
+      columns: columns
+    });
+    // 부모 div에 width:100% 스타일 적용(혹시라도 누락 시)
+    document.getElementById('salaryItemGrid').style.width = '100%';
+
+    // SweetAlert2 기본 설정
+    const swal = Swal.mixin({ confirmButtonColor: '#3085d6', cancelButtonColor: '#d33' });
+
+    // 공통 ajax 함수
+    function commonSearchObject(paramObj, url, grid) {
+      $.ajax({
+        url: '/erp/hr/salaryitem/list', // 경로를 항상 API로 고정
+        method: 'GET',
+        data: paramObj,
+        success: function(result) {
+          console.log('API 응답:', result); // 디버깅용
+          grid.resetData(result);
+          $('#resultCount').text(`총 ${result.length}건`);
+          $('#noResultMsg').toggle(result.length === 0);
+        },
+        error: function(xhr, status, error) {
+          console.error('API 오류:', xhr, status, error); // 디버깅용
+          swal.fire('❌ 오류', '데이터 조회 중 오류가 발생했습니다.', 'error');
+        }
+      });
+    }
+
+    // 필터/검색
+    function filterSalaryItems() {
+      const paramObj = {
+        comId: 'com-101',
+        category: $('#categoryFilter').val(),
+        status: $('input[name="salaryStatus"]:checked').val(),
+        keyword: $('#searchInput').val()
+      };
+      commonSearchObject(paramObj, '/erp/hr/salaryitem/list', grid);
+    }
+    // 카테고리/진행상태는 즉시 필터링
+    $('#categoryFilter').on('change', filterSalaryItems);
+    document.querySelectorAll('input[name="salaryStatus"]').forEach(radio => {
+      radio.addEventListener('change', filterSalaryItems);
+    });
+    // 검색어는 검색 버튼/엔터로만
+    $('#searchBtn').on('click', filterSalaryItems);
+    $('#searchInput').on('keydown', function(e) {
+      if (e.keyCode === 13) filterSalaryItems();
+    });
+    // 페이지 로딩 시 전체 리스트 자동 조회
+    window.addEventListener('DOMContentLoaded', filterSalaryItems);
+
+    // 추가 버튼 클릭 시 오늘 날짜, 활성 상태 자동 세팅
+    $('#addBtn').on('click', function() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const todayStr = `${yyyy}-${mm}-${dd}`;
+      grid.appendRow({ createdDate: todayStr, acctYn: 'Y', calcType: '고정액', targetType: '전체' }, { focus: true });
+      setTimeout(() => grid.focusAt(0, 'allowCode'), 100); // 첫 입력 셀로 포커스
+      $('#saveBtn').prop('disabled', false);
+    });
+
+    // 저장 버튼 클릭 시 신규/수정 분기 및 필수값 체크 + 실제 DB 저장 ajax
+    $('#saveBtn').on('click', function() {
+      const { createdRows, updatedRows } = grid.getModifiedRows();
+      if (createdRows.length === 0 && updatedRows.length === 0) {
+        swal.fire('알림', '변경된 내용이 없습니다.', 'info');
+        return;
+      }
+      // 필수값 체크(신규)
+      for (const row of createdRows) {
+        if (!row.allowCode || !row.allowName || !row.type || !row.calcType || !row.targetType) {
+          swal.fire('⚠ 필수 입력', '항목코드, 항목명, 카테고리, 계산방식, 적용대상은 필수입니다.', 'warning');
+          return;
+        }
+      }
+      // 분기: 신규/수정
+      let msg = '';
+      if (createdRows.length > 0 && updatedRows.length === 0) {
+        msg = '새 항목을 추가하시겠습니까?';
+      } else if (createdRows.length === 0 && updatedRows.length > 0) {
+        msg = '변경한 내용을 저장하시겠습니까?';
+      } else {
+        msg = '신규 추가 및 변경 내용을 저장하시겠습니까?';
+      }
+      swal.fire({
+        title: msg,
+        text: '저장 후에는 되돌릴 수 없습니다.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '저장',
+        cancelButtonText: '취소'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // 실제 DB 저장 ajax (신규)
+          let ajaxCount = 0;
+          let ajaxFail = 0;
+          if (createdRows.length > 0) {
+            createdRows.forEach(row => {
+              // undefined/null 값 key는 아예 제거
+              const cleanRow = {};
+              Object.keys(row).forEach(k => {
+                if (row[k] !== undefined && row[k] !== null && row[k] !== '') {
+                  cleanRow[k] = row[k];
+                }
+              });
+              // 필수값 누락 방지: allowCode, allowName, type, calcType, targetType, defaultAmount, acctYn, comId
+              if (!cleanRow.comId) cleanRow.comId = 'com-101';
+              $.ajax({
+                url: '/erp/hr/salaryitem/register',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(cleanRow),
+                success: function(res) {
+                  ajaxCount++;
+                  if (res !== 'ok') ajaxFail++;
+                  if (ajaxCount === createdRows.length) {
+                    if (ajaxFail === 0) {
+                      swal.fire('✔ 저장 완료', '신규 항목이 성공적으로 저장되었습니다.', 'success');
+                      filterSalaryItems();
+                    } else {
+                      swal.fire('❌ 오류', '일부 항목 저장에 실패했습니다.', 'error');
+                    }
+                    $('#saveBtn').prop('disabled', true);
+                  }
+                },
+                error: function() {
+                  ajaxCount++;
+                  ajaxFail++;
+                  if (ajaxCount === createdRows.length) {
+                    swal.fire('❌ 오류', '일부 항목 저장에 실패했습니다.', 'error');
+                    $('#saveBtn').prop('disabled', true);
+                  }
+                }
+              });
+            });
+          }
+          // TODO: 수정(업데이트)도 필요하면 여기에 추가
+        }
+      });
+    });
+
+    $('#deleteBtn').on('click', function() {
+      const checked = grid.getCheckedRowKeys();
+      if (checked.length === 0) {
+        swal.fire('⚠ 삭제할 항목을 선택해주세요.', '', 'warning');
+        return;
+      }
+      swal.fire({
+        title: '선택한 급여 항목을 삭제하시겠습니까?',
+        text: '삭제된 항목은 복구할 수 없습니다.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          checked.forEach(rowKey => grid.removeRow(rowKey));
+          swal.fire('✔ 삭제 완료', '선택한 항목이 삭제되었습니다.', 'success');
+          $('#deleteBtn').prop('disabled', true);
+        }
+      });
+    });
+
+    $('#excelBtn').on('click', function() {
+      swal.fire({
+        title: '다운로드 확인',
+        text: '현재 표시된 데이터만 다운로드됩니다. 다운로드 하시겠습니까?',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: '다운로드',
+        cancelButtonText: '취소'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          grid.export && grid.export('xlsx', '급여항목관리.xlsx');
+          swal.fire('✔ 다운로드 완료', '급여 항목 목록이 Excel 파일로 다운로드되었습니다.', 'success');
+        }
+      });
+    });
+
+    // 필터 버튼(추후 확장 가능)
+    $('#filterBtn').on('click', function() {
+      swal.fire('필터', '필터 기능은 추후 확장 예정입니다.', 'info');
+    });
+
+    // 그리드 변경 감지 → 저장/삭제 버튼 활성화
+    grid.on('afterChange', function(ev) {
+      $('#saveBtn').prop('disabled', false);
+    });
+    grid.on('check', function(ev) {
+      $('#deleteBtn').prop('disabled', grid.getCheckedRowKeys().length === 0);
+    });
+
+    // 초기화
+    $(function() {
+      filterSalaryItems();
+      $('[data-bs-toggle="tooltip"]').tooltip();
+    });
+  </script>
+</body>
+</html> 
