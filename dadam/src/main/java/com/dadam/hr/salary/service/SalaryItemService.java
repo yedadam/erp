@@ -7,7 +7,12 @@ import java.util.Map;
  * 급여항목 마스터 Service
  */
 public interface SalaryItemService {
-    /** 전체 급여항목 목록 조회 (동적 조건) */
+    /**
+     * 전체 급여항목 목록 조회
+     * @param map 검색 조건 (회사ID 등)
+     * @return 급여항목 리스트
+     * 적용대상(사원유형) 처리는 employees.work_type 기준으로 별도 쿼리/로직에서 처리
+     */
     List<SalaryItemVO> getSalaryItemList(Map<String, Object> map);
     /** 단일 급여항목 조회 */
     SalaryItemVO getSalaryItem(String comId, String allowCode);

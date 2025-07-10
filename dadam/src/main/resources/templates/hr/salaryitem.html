@@ -146,7 +146,7 @@
           </div>
           <div class="mb-2">
             <label class="form-label">적용대상(사원유형)</label>
-            <select class="form-select" name="workTypes" multiple required></select>
+            <select class="form-select" name="workTypes" required></select>
             <div class="form-text">여러 유형 선택 가능</div>
           </div>
           <div class="mb-2">
@@ -178,6 +178,22 @@
       'emp01': '정규직', 'emp02': '계약직', 'emp03': '임시직',
       'emp04': '파견직', 'emp05': '위촉직', 'emp06': '일용직'
     };
+    // 계산방식 코드 → 한글명 매핑
+    const calcTypeMap = {
+      'FIXED': '고정액',
+      'RATE_TAX': '비율',
+      'OT_HOUR': '연장근무수당(시간당)',
+      'WEEKEND_PAY': '주말근무수당'
+    };
+    // 사원유형 코드 → 한글명 매핑
+    const empTypeMap = {
+      'emp01': '정규직',
+      'emp02': '계약직',
+      'emp03': '임시직',
+      'emp04': '파견직',
+      'emp05': '위촉직',
+      'emp06': '일용직'
+    };
     const calcTypeOptions = [
       { text: '고정액', value: '고정액' },
       { text: '비율', value: '비율' },
@@ -190,23 +206,39 @@
       { header: '카테고리', name: 'type', align: 'center', editor: { type: 'select', options: { listItems: [
         { text: '기본급', value: '기본급' }, { text: '수당', value: '수당' }, { text: '공제', value: '공제' }
       ]}}},
-      { header: '계산방식', name: 'calcType', align: 'center', editor: { type: 'select', options: { listItems: calcTypeOptions } } },
-      { header: '적용대상', name: 'workTypes', align: 'center',
-        editor: { type: 'select', options: { listItems: [], multiple: true } },
-        formatter: ({value}) => {
-          if (!value) return '';
-          return value.split(',').map(code =>
-            `<span class="badge bg-${workTypeColors[code]||'dark'} me-1">${workTypeLabels[code]||code}</span>`
-          ).join('');
-        }
-      },
       { header: '금액', name: 'defaultAmount', align: 'right', editor: { type: 'text', options: { inputType: 'number' } },
         formatter: ({value}) => value ? value.toLocaleString() + '원' : '-', sortable: true },
-      { header: '상태', name: 'acctYn', width: 80, align: 'center', editor: { type: 'select', options: { listItems: [
+      { header: '계산방식', name: 'calcType', align: 'center',
+        editor: { type: 'select', options: { listItems: [
+          { text: '고정액', value: 'FIXED' },
+          { text: '비율', value: 'RATE_TAX' },
+          { text: '연장근무수당(시간당)', value: 'OT_HOUR' },
+          { text: '주말근무수당', value: 'WEEKEND_PAY' }
+        ]}},
+        formatter: ({value}) => calcTypeMap[value] || value
+      },
+      { header: '적용대상', name: 'workTypes', align: 'center',
+        editor: {
+          type: 'select',
+          options: {
+            listItems: [
+              { text: '정규직', value: 'emp01' },
+              { text: '계약직', value: 'emp02' },
+              { text: '임시직', value: 'emp03' },
+              { text: '파견직', value: 'emp04' },
+              { text: '위촉직', value: 'emp05' },
+              { text: '일용직', value: 'emp06' }
+            ]
+          }
+        },
+        formatter: ({ value }) => value ? empTypeMap[value] || value : '-'
+      },
+      { header: '상태', name: 'acctYn', align: 'center', editor: { type: 'select', options: { listItems: [
         { text: 'Y', value: 'Y' }, { text: 'N', value: 'N' }
       ]}}, formatter: ({value}) => value === 'Y' ? '<span class="status-badge status-active">활성</span>' : '<span class="status-badge status-inactive">비활성</span>', sortable: true },
-      { header: '생성일', name: 'createdDate', align: 'center', formatter: ({value}) => value || '-', sortable: true },
-      { header: '설명', name: 'note', width: 300, editor: 'text', formatter: ({ value }) => `<span title="${value || ''}">${value || ''}</span>` }
+      { header: '설명', name: 'note', editor: 'text',
+        formatter: ({ value }) => `<span title="${value || ''}">${value || ''}</span>` },
+      { header: '생성일', name: 'createdDate', align: 'center', formatter: ({value}) => value || '-', sortable: true }
     ];
     // 숨김 컬럼 예시 (실제 DB용, 필요시 추가)
     // { name: 'companyId', hidden: true },
@@ -286,7 +318,12 @@
         createdDate: todayStr,
         note: ''
       }, { focus: true });
-      setTimeout(() => grid.focusAt(0, 'allowCode'), 100); // 첫 입력 셀로 포커스
+      setTimeout(() => {
+        grid.focusAt(0, 'allowCode'); // 첫 입력 셀로 포커스
+        // 스크롤을 맨 위로 이동
+        const gridBody = document.querySelector('.tui-grid-body-area');
+        if (gridBody) gridBody.scrollTop = 0;
+      }, 100);
       $('#saveBtn').prop('disabled', false);
     });
 
@@ -348,6 +385,10 @@
                     if (ajaxFail === 0) {
                       swal.fire('✔ 저장 완료', '신규/수정 항목이 성공적으로 저장되었습니다.', 'success');
                       filterSalaryItems();
+                      setTimeout(() => {
+                        const gridBody = document.querySelector('.tui-grid-body-area');
+                        if (gridBody) gridBody.scrollTop = 0;
+                      }, 200);
                     } else {
                       swal.fire('❌ 오류', '일부 항목 저장에 실패했습니다.', 'error');
                     }
@@ -387,6 +428,10 @@
                     if (ajaxFail === 0) {
                       swal.fire('✔ 저장 완료', '신규/수정 항목이 성공적으로 저장되었습니다.', 'success');
                       filterSalaryItems();
+                      setTimeout(() => {
+                        const gridBody = document.querySelector('.tui-grid-body-area');
+                        if (gridBody) gridBody.scrollTop = 0;
+                      }, 200);
                     } else {
                       swal.fire('❌ 오류', '일부 항목 저장에 실패했습니다.', 'error');
                     }
@@ -501,7 +546,7 @@
           gridOptions.push({ text: item.subName, value: item.subCode });
         });
         // 그리드 적용대상 컬럼에도 옵션 동적 반영
-        const workTypesCol = columns.find(col => col.name === 'workTypes');
+        const workTypesCol = columns.find(col => col.name === 'workTypes'); // Changed from 'workTypes' to 'workTypeNames'
         if (workTypesCol && workTypesCol.editor) {
           workTypesCol.editor.options.listItems = gridOptions;
         }
