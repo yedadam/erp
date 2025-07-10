@@ -30,9 +30,9 @@ public class AccountFormController {
 	}
 	
 
-	@GetMapping("/create")
-	public String getCreate() {
-		return "acc/create";
+	@GetMapping("/credit")
+	public String getCredit() {
+		return "acc/credit";
 	}
 	
 

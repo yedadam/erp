@@ -13,4 +13,5 @@ public interface AccountService {
 	public List<String> getAcctClasses(String typeCode);
 	public List<String> getAcctSubClasses(String classCode);
 	public List<AccountVO> accountSearch(Map<String, Object> params);
+	public List<Map<String, String>> accountAutoComplete(String type, String value);
 }

@@ -9,6 +9,12 @@
 	background-color: #e6f2ff !important;
 }
 
+.tui-grid-row.no-edit td {
+	pointer-events: none !important; /* 클릭/포커스 모두 차단 */
+	background-color: #f9f9f9 !important;
+	color: #bbb !important;
+}
+
 .grid-action {
 	display: inline-block;
 	padding: 3px 8px;
@@ -80,132 +86,146 @@ dialog {
 }
 </style>
 <body class="bg-light">
-  <div class="container-fluid mt-4 p-4 rounded shadow-sm">
+	<div class="container-fluid mt-4 p-4 rounded shadow-sm">
+	<p>할일.. 매입전표 처리. </p>
 
-    <!-- 페이지 타이틀 -->
-    <h3 class="mb-4 text-secondary fw-bold border-bottom">전표관리</h3>
+		<!-- 페이지 타이틀 -->
+		<h3 class="mb-4 text-secondary fw-bold border-bottom">전표관리</h3>
 
-    <!-- 상단 안내 및 설정버튼 -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <small class="text-muted">※ 자동분개 설정 및 메뉴설정은 오른쪽 버튼을 이용하세요</small>
-      <div class="d-flex gap-2 flex-wrap">
-        <button class="btn btn-outline-secondary " onclick="openAutoRuleModal()">자동분개 설정 ⚙️</button>
-        <button class="btn btn-outline-secondary " id="columnToggleBtn">메뉴설정 ⚙️</button>
-      </div>
-    </div>
+		<!-- 상단 안내 및 설정버튼 -->
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<small class="text-muted">※ 자동분개 설정 및 메뉴설정은 오른쪽 버튼을 이용하세요</small>
+			<div class="d-flex gap-2 flex-wrap">
+				<button class="btn btn-outline-secondary "
+					onclick="openAutoRuleModal()">자동분개 설정 ⚙️</button>
+				<button class="btn btn-outline-secondary " id="columnToggleBtn">메뉴설정
+					⚙️</button>
+			</div>
+		</div>
 
-    <!-- 상단 버튼 -->
-    <div class="d-flex justify-content-end gap-2 mb-3">
-      <button class="btn btn-primary" id="saveBtn">
-        <i class="fas fa-save"></i> 등록
-      </button>
-      <button class="btn btn-success" id="patBtn">
-        <i class="fas fa-credit-card"></i> 결제
-      </button>
-    </div>
+		<!-- 상단 버튼 -->
+		<div class="d-flex justify-content-end gap-2 mb-3">
+			<button class="btn btn-primary" id="saveBtn">
+				<i class="fas fa-save"></i> 등록
+			</button>
+			<button class="btn btn-success" id="patBtn">
+				<i class="fas fa-credit-card"></i> 결제
+			</button>
+		</div>
 
-    <!-- 검색 조건 영역 -->
-    <div class="card mb-3 shadow-sm" style="background-color:#f0f8f0">
-      <div class="card-body">
-        <div class="row g-3 align-items-center">
+		<!-- 검색 조건 영역 -->
+		<div class="card mb-3 shadow-sm" style="background-color: #f0f8f0">
+			<div class="card-body">
+				<div class="row g-3 align-items-center">
 
-          <!-- 검색 조건 -->
-          <div class="col-md-3">
-            <label for="acctSelect" class="form-label">검색 조건</label>
-            <div class="input-group">
-              <select class="form-select" id="acctSelect">
-                <option value="chitCode">전표코드</option>
-                <option value="chitName">전표명</option>
-                <option value="vdrName">거래처</option>
-              </select>
-              <input type="text" class="form-control" id="acctInput" placeholder="검색어 입력">
-            </div>
-          </div>
+					<!-- 검색 조건 -->
+					<div class="col-md-3">
+						<label for="acctSelect" class="form-label">검색 조건</label>
+						<div class="input-group">
+							<select class="form-select" id="acctSelect">
+								<option value="chitCode">전표코드</option>
+								<option value="chitName">전표명</option>
+								<option value="vdrName">거래처</option>
+							</select> <input type="text" class="form-control" id="acctInput"
+								placeholder="검색어 입력">
+						</div>
+					</div>
 
-          <!-- 거래유형 -->
-          <div class="col-md-3">
-            <label class="form-label d-block">거래유형</label>
-            <div class="d-flex gap-2 flex-wrap">
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="tradeType" id="type1" value="매입" checked>
-                <label class="form-check-label" for="type1">매입</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="tradeType" id="type2" value="매출">
-                <label class="form-check-label" for="type2">매출</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="tradeType" id="type3" value="수금">
-                <label class="form-check-label" for="type3">수금</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="tradeType" id="type4" value="재고조정">
-                <label class="form-check-label" for="type4">재고조정</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="tradeType" id="type5" value="급여처리">
-                <label class="form-check-label" for="type5">급여처리</label>
-              </div>
-            </div>
-          </div>
+					<!-- 거래유형 -->
+					<div class="col-md-3">
+						<label class="form-label d-block">거래유형</label>
+						<div class="d-flex gap-2 flex-wrap">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="tradeType"
+									id="type1" value="매입" checked> <label
+									class="form-check-label" for="type1">매입</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="tradeType"
+									id="type2" value="매출"> <label class="form-check-label"
+									for="type2">매출</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="tradeType"
+									id="type3" value="수금"> <label class="form-check-label"
+									for="type3">수금</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="tradeType"
+									id="type4" value="재고조정"> <label
+									class="form-check-label" for="type4">재고조정</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="tradeType"
+									id="type5" value="급여처리"> <label
+									class="form-check-label" for="type5">급여처리</label>
+							</div>
+						</div>
+					</div>
 
-          <!-- 상태 -->
-          <div class="col-md-3">
-            <label class="form-label d-block">진행 상태</label>
-            <div class="d-flex gap-2 flex-wrap">
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="status" id="status1" value="" checked>
-                <label class="form-check-label" for="status1">등록</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="status" id="status2" value="결제">
-                <label class="form-check-label" for="status2">결제</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="status" id="status3" value="반려">
-                <label class="form-check-label" for="status3">반려</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="status" id="status4" value="결제완료">
-                <label class="form-check-label" for="status4">결제완료</label>
-              </div>
-            </div>
-          </div>
+					<!-- 상태 -->
+					<div class="col-md-3">
+						<label class="form-label d-block">진행 상태</label>
+						<div class="d-flex gap-2 flex-wrap">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="status"
+									id="status1" value="" checked> <label
+									class="form-check-label" for="status1">등록</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="status"
+									id="status2" value="결제"> <label
+									class="form-check-label" for="status2">결제</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="status"
+									id="status3" value="반려"> <label
+									class="form-check-label" for="status3">반려</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="status"
+									id="status4" value="결제완료"> <label
+									class="form-check-label" for="status4">결제완료</label>
+							</div>
+						</div>
+					</div>
 
-          <!-- 검색 버튼 -->
-          <div class="col-md-2 d-flex align-items-end">
-            <button class="btn btn-primary w-100" id="acctSearchBtn">
-              <i class="fas fa-search"></i> 검색
-            </button>
-          </div>
+					<!-- 검색 버튼 -->
+					<div class="col-md-2 d-flex align-items-end">
+						<button class="btn btn-primary w-100" id="acctSearchBtn">
+							<i class="fas fa-search"></i> 검색
+						</button>
+					</div>
 
-        </div>
-      </div>
-    </div>
+				</div>
+			</div>
+		</div>
 
-    <!-- 전표 그리드 -->
+		<!-- 전표 그리드 -->
 
-      <div id="chitGrid" ></div>
+		<div id="chitGrid"></div>
 
-  </div>
+	</div>
 
-  <!-- 컬럼 설정 다이얼로그 -->
-  <dialog id="columnDialog">
-    <div id="columnOptions"></div>
-  </dialog>
+	<!-- 컬럼 설정 다이얼로그 -->
+	<dialog id="columnDialog">
+	<div id="columnOptions"></div>
+	</dialog>
 
-  <!-- 자동분개 설정 모달 (정중앙 고정) -->
-  <div id="autoRuleModal">
-    <h4 class="mb-3">자동분개 설정</h4>
-    <div class="d-flex justify-content-end mb-2">
-      <button class="btn btn-outline-primary btn-sm" onclick="addAutoRuleRow()">행추가</button>
-    </div>
-    <div id="autoRuleGrid" style="width:100%; height:300px;"></div>
-    <div class="d-flex justify-content-end gap-2 mt-3">
-      <button class="btn btn-primary btn-sm" onclick="saveAutoRules()">저장</button>
-      <button class="btn btn-secondary btn-sm" onclick="hideAutoRuleModal()">닫기</button>
-    </div>
-  </div>
+	<!-- 자동분개 설정 모달 (정중앙 고정) -->
+	<div id="autoRuleModal">
+		<h4 class="mb-3">자동분개 설정</h4>
+		<div class="d-flex justify-content-end mb-2">
+			<button class="btn btn-outline-primary btn-sm"
+				onclick="addAutoRuleRow()">행추가</button>
+		</div>
+		<div id="autoRuleGrid" style="width: 100%; height: 300px;"></div>
+		<div class="d-flex justify-content-end gap-2 mt-3">
+			<button class="btn btn-primary btn-sm" onclick="saveAutoRules()">저장</button>
+			<button class="btn btn-secondary btn-sm"
+				onclick="hideAutoRuleModal()">닫기</button>
+		</div>
+	</div>
 </body>
 
 
@@ -300,7 +320,10 @@ const chitGrid = new tui.Grid({
  scrollX: false,
  scrollY: false,
  editingEvent: 'click',
- treeColumnOptions: { name: 'chitTitle', useIcon: true },
+ treeColumnOptions: { name: 'chitTitle', useIcon: false },
+ 
+
+	
  columns: [
    { header: '등록일자', name: 'createdDate', align: 'center' },
    { header: '전표명', name: 'chitTitle', align: 'left' },
@@ -318,9 +341,9 @@ const chitGrid = new tui.Grid({
      						    : value === '결제완료' ? '<span class="grid-acction">결제완료</span>' 
      						    : value === '변려' ? '<button class="btn grid-action reject-btn">반려</button>' 
      						    :''},			    
-   { header: '계정과목', name: 'acctCode', align: 'center', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.aname || row.ANAME },
-   { header: '전표구분', name: 'iType', align: 'center', editor: { type: indTypeEditor }, formatter: ({ row }) =>  row.iname || row.INAME  },
-   { header: '금액', name: 'iPrice', align: 'center', editor 	: { type: 'text', options: { inputType: 'number' } } },
+   { header: '계정과목', name: 'acctCode', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.aname || row.ANAME },
+   { header: '전표구분', name: 'iType', editor: { type: indTypeEditor }, formatter: ({ row }) => row.iname || row.INAME },
+   { header: '금액', name: 'iPrice', editor: { type: 'text' } },
    { name: 'ANAME', hidden: true  },
    { name: 'INAME', hidden: true  },
    { header: '담당부서', name: 'deptCode', hidden: true },
@@ -348,6 +371,22 @@ const chitGrid = new tui.Grid({
  ]
 });
 
+
+/* 그리드 검사
+chitGrid.on('click', (ev) => {
+	  const { rowKey } = ev;
+	  const row = chitGrid.getRow(rowKey);
+
+	  const treeAttr = row?._attributes?.tree;
+	  const isParent = treeAttr?.parent === undefined;
+	  const isChild = typeof treeAttr?.parent === 'number';
+
+	  console.log('▶ 클릭한 rowKey:', rowKey);
+	  console.log('▶ row:', row);
+	  console.log('▶ _attributes.tree:', treeAttr);
+	  console.log('▶ isParent:', isParent);
+	  console.log('▶ isChild:', isChild);
+	}); */
 /** ------------------------- 데이터 처리 ------------------------- */
  
 function convertToGridTree(data) {
@@ -496,73 +535,135 @@ function highlightParentsWithChildren() {
 
 /** ------------------------- 이벤트 바인딩 ------------------------- */
 $('#saveBtn').on('click', function () {
- const { createdRows, updatedRows, deletedRows } = chitGrid.getModifiedRows();
- const payload = {
-   createdRows: extractOnlyChildren(createdRows),
-   updatedRows: extractOnlyChildren(updatedRows),
-   deletedRows: extractOnlyChildren(deletedRows)
- };
- for (const row of payload.createdRows) {
-   if (!row.acctCode || !row.iType || !row.iPrice) return alert("계정과목, 전표구분, 금액을 모두 입력해야 합니다.");
- }
- $.ajax({
-   url: "/erp/accounting/chitSaveAll",
-   method: "POST",
-   contentType: "application/json",
-   data: JSON.stringify(payload),
-   success(res) {
-     if (res.result === "success") {
-       alert(res.message);
-       chitGrid.resetData([]);
-       chitList();
-     } else alert("실패: " + res.message);
-   },
-   error(xhr, status, error) {
-     alert("서버 오류 발생: " + error);
-   }
- });
+  $('#saveBtn').prop('disabled', true); // 클릭 시 비활성화
+  const { createdRows, updatedRows, deletedRows } = chitGrid.getModifiedRows();
+  const payload = {
+    createdRows: extractOnlyChildren(createdRows),
+    updatedRows: extractOnlyChildren(updatedRows),
+    deletedRows: extractOnlyChildren(deletedRows)
+  };
+
+  // 부모-자식 유효성 검사 (불일치하는 첫 전표만 안내)
+  const data = chitGrid.getData();
+  for (let i = 0; i < data.length; i++) {
+    const parent = data[i];
+    if (!Array.isArray(parent._children) || parent._children.length === 0) continue;
+    let debit = 0, credit = 0;
+    parent._children.forEach(child => {
+      const amt = Number(child.iPrice) || 0;
+      if (child.iType === 'itp01') debit += amt;
+      if (child.iType === 'itp02') credit += amt;
+    });
+    const totPrice = Number(parent.totPrice) || 0;
+    if (!(debit > 0 && credit > 0 && debit === credit && debit === totPrice)) {
+      Swal.fire(
+        '분개 유효성 오류',
+        `총 금액과 차변, 대변의 금액이 같아야 합니다.<br><br>` +
+        `<b>전표명:</b> ${parent.chitTitle || ''}<br>` +
+        `<b>총금액:</b> ${totPrice.toLocaleString()}원<br>` +
+        `<b>차변:</b> ${debit.toLocaleString()}원<br>` +
+        `<b>대변:</b> ${credit.toLocaleString()}원`,
+        'warning'
+      ).then(() => {
+        $('#saveBtn').prop('disabled', false); // 경고창 닫히면 다시 활성화
+      });
+      return;
+    }
+  }
+
+  for (const row of payload.createdRows) {
+    if (!row.acctCode || !row.iType || !row.iPrice) {
+      Swal.fire('경고', '계정과목, 전표구분, 금액을 모두 입력해야 합니다.', 'warning').then(() => {
+        $('#saveBtn').prop('disabled', false);
+      });
+      return;
+    }
+  }
+  $.ajax({
+    url: "/erp/accounting/chitSaveAll",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify(payload),
+    success(res) {
+      $('#saveBtn').prop('disabled', false);
+      if (res.result === "success") {
+        // 분개가 완료된 첫 전표명 안내
+        const data = chitGrid.getData();
+        let firstTitle = '';
+        for (let i = 0; i < data.length; i++) {
+          if (Array.isArray(data[i]._children) && data[i]._children.length > 0) {
+            firstTitle = data[i].chitTitle || '';
+            break;
+          }
+        }
+        Swal.fire(
+          '분개가 완료되었습니다.',
+          `전표명 : ${firstTitle}`,
+          'success'
+        );
+        chitGrid.resetData([]);
+        chitList();
+      } else swalWarn('실패', res.message);
+    },
+    error(xhr, status, error) {
+      $('#saveBtn').prop('disabled', false);
+      swalWarn('서버 오류', error);
+    }
+  });
 });
 
 
-$('#patBtn').on('click', function () {
-	  const selectedRowKeys = chitGrid.getCheckedRowKeys();
-	  if (selectedRowKeys.length === 0) {
-	    return alert("선택된 전표가 없습니다.");
-	  }
+$('#patBtn').on('click', async function () {
+  const selectedRowKeys = chitGrid.getCheckedRowKeys();
+  if (selectedRowKeys.length === 0) {
+    await Swal.fire('경고', '선택된 전표가 없습니다.', 'warning');
+    return;
+  }
 
-	  const rows = selectedRowKeys
-	    .map(rowKey => chitGrid.getRow(rowKey))
-	    .filter(row => row.status === '결제'); // '결제' 상태만 처리
+  const rows = selectedRowKeys
+    .map(rowKey => chitGrid.getRow(rowKey))
+    .filter(row => row.status === '결제'); // '결제' 상태만 처리
 
-	  if (rows.length === 0) return alert("결제 가능한 상태의 전표가 없습니다.");
+  if (rows.length === 0) {
+    await Swal.fire('경고', '결제 가능한 상태의 전표가 없습니다.', 'warning');
+    return;
+  }
 
-	  if (!confirm(`${rows.length}건의 전표를 결제 처리하시겠습니까?`)) return;
+  const result = await Swal.fire({
+    title: `${rows.length}건의 전표를 결제 처리하시겠습니까?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: '예, 결제',
+    cancelButtonText: '아니오'
+  });
+  if (!result.isConfirmed) return;
 
-	  const payload = rows.map(row => ({
-	    chitCode: row.chitCode,
-	    articleCode: row.articleCode,
-	    totPrice: row.totPrice,
-	    comId: comId ,
-	  }));
+  const payload = rows.map(row => ({
+    chitCode: row.chitCode,
+    articleCode: row.articleCode,
+    totPrice: row.totPrice,
+    comId: comId ,
+  }));
 
-	  $.ajax({
-	    url: "/erp/accounting/modifyChitPay",
-	    method: "POST",
-	    contentType: "application/json",
-	    data: JSON.stringify(payload),
-	    success(res) {
-	      if (res.result === "success") {
-	        alert("결제 완료되었습니다.");
-	        chitList(); // 다시 불러오기
-	      } else {
-	        alert("결제 실패: " + res.message);
-	      }
-	    },
-	    error(xhr, status, error) {
-	      alert("서버 오류: " + error);
-	    }
-	  });
-	});
+  $.ajax({
+    url: "/erp/accounting/modifyChitPay",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify(payload),
+    success(res) {
+      if (res.result === "success") {
+        Swal.fire('성공', '결제 완료되었습니다.', 'success').then(() => {
+          chitList(); // 다시 불러오기
+        });
+      } else {
+        Swal.fire('실패', '결제 실패: ' + res.message, 'error');
+      }
+    },
+    error(xhr, status, error) {
+      Swal.fire('서버 오류', error, 'error');
+    }
+  });
+});
 
 
 
@@ -681,6 +782,20 @@ chitGrid.on('click', (ev) => {
 	}
 
 
+});
+
+chitGrid.on('beforeEdit', ev => {
+  const { rowKey } = ev;
+  const row = chitGrid.getRow(rowKey);
+  console.log('==== beforeEdit 진단 ====');
+  console.log('row:', row);
+  console.log('row._attributes:', row._attributes);
+  console.log('row._attributes.tree:', row._attributes?.tree);
+  console.log('row._attributes.tree.parent:', row._attributes?.tree?.parent);
+  // 기존 차단 로직(임시 주석)
+  // if (!row._attributes?.tree?.parent) {
+  //   ev.stop();
+  // }
 });
 
 chitGrid.on('afterChange', ev => {
@@ -873,27 +988,46 @@ function openAutoRuleModal() {
     	}
 
     function saveAutoRules() {
-    	  const changes = autoRuleGrid.getModifiedRows();
-    	  const payload = {
-    	    createdRows: changes.createdRows,
-    	    updatedRows: changes.updatedRows,
-    	    deletedRows: changes.deletedRows
-    	  };
-    	  fetch("/erp/accounting/ruleSaveAll", {
-    	    method: "POST",
-    	    headers: { "Content-Type": "application/json" },
-    	    body: JSON.stringify(payload)
-    	  })
-    	  .then(res => res.json())
-    	  .then(data => {
-    	    if (data.result === "success") {
-    	      alert(data.message);
-    	      hideAutoRuleModal();
-    	    } else {
-    	      alert("실패: " + data.message);
-    	    }
-    	  });
-    	}
+  const changes = autoRuleGrid.getModifiedRows();
+  // 모든 필수 컬럼 누락 체크
+  const allRows = [...changes.createdRows, ...changes.updatedRows];
+  const requiredFields = [
+    { key: 'chitType', label: '거래유형' },
+    { key: 'itpType', label: '차/대' },
+    { key: 'acctCode', label: '계정코드' },
+    { key: 'vatYn', label: '부가세유무' }
+  ];
+  let missingFields = new Set();
+  allRows.forEach(row => {
+    requiredFields.forEach(field => {
+      if (!row[field.key]) missingFields.add(field.label);
+    });
+  });
+  if (missingFields.size > 0) {
+    Swal.fire('경고', '입력되지 않은 항목: ' + Array.from(missingFields).join(', '), 'warning');
+    return;
+  }
+  const payload = {
+    createdRows: changes.createdRows,
+    updatedRows: changes.updatedRows,
+    deletedRows: changes.deletedRows
+  };
+  fetch("/erp/accounting/ruleSaveAll", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.result === "success") {
+        Swal.fire('저장되었습니다.', '', 'success').then(() => {
+          hideAutoRuleModal();
+        });
+      } else {
+        Swal.fire('실패', data.message, 'error');
+      }
+    });
+}
 
 
     function hideAutoRuleModal() {

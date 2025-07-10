@@ -51,16 +51,16 @@
     <div class="card mb-3 shadow-sm" style="background-color:#f0f8f0">
       <div class="card-body">
         <div class="row g-3 align-items-center">
-
-          <div class="col-md-3">
+          <div class="col-md-4 position-relative">
             <label for="acctSelect" class="form-label">검색 조건</label>
-            <div class="input-group">
+            <div class="input-group position-relative">
               <select class="form-select" id="acctSelect">
-                <option value="ordCode">계정명</option>
-                <option value="vdrCode">내용</option>
+                <option value="name">계정명</option>
+                <option value="note">내용</option>
               </select>
               <input type="text" class="form-control" id="acctInput" placeholder="검색어 입력">
             </div>
+            <ul id="autocompleteList" class="list-group position-absolute w-100" style="z-index:1000; display:none;"></ul>
           </div>
 
           <div class="col-md-3">
@@ -137,6 +137,7 @@
   </div>
 </body>
 
+<script src="/js/autoCompleteSearch.js"></script>
 <script>
 function filterAcctTab(button) {
 	  const acctType = $(button).data('type') || '';
@@ -158,21 +159,21 @@ function filterAcctTab(button) {
 
 	// 대분류 조회 
 	const TypeEditor = window.createAutoCompleteEditor({
-	  urlBuilder: () => "/erp/accounting/api/account/type",  // API URL 만드는 함수
+	  urlBuilder: () => "/erp/accounting/type",  // API URL 만드는 함수
 	  deps: [],												 // 의존 필드 (상위 값들) -> 필드 명으로 적기
 	  onSelectClear: ['acctClass', 'acctSubclass']			 // 값 선택 시 초기화할 필드들 -> 필드 명으로 적기
 	});
 
 	// 중분류 조회 
 	const ClassEditor = window.createAutoCompleteEditor({
-	  urlBuilder: (acctType) => `/erp/accounting/api/account/class?typeCode=${acctType}`,
+	  urlBuilder: (acctType) => `/erp/accounting/class?typeCode=${acctType}`,
 	  deps: ['acctType'], 
 	  onSelectClear: ['acctSubclass']
 	});
 
 	// 소분류 조회 
 	const SubclassEditor = window.createAutoCompleteEditor({
-	  urlBuilder: (acctClass) => `/erp/accounting/api/account/subclass?&classCode=${acctClass}`,
+	  urlBuilder: (acctClass) => `/erp/accounting/subclass?&classCode=${acctClass}`,
 	  deps: ['acctClass']
 	});
 	
@@ -283,14 +284,50 @@ function filterAcctTab(button) {
     });
   });
 
-  // 저장
-$('#saveBtn').on('click', function () {
-    const changes = accGrid.getModifiedRows();
+  // 저장 버튼 클릭 이벤트
+$('#saveBtn').off('click').on('click', function() {
+  const createdRows = accGrid.getModifiedRows().createdRows || [];
+  const updatedRows = accGrid.getModifiedRows().updatedRows || [];
+  const allRows = [...createdRows, ...updatedRows];
+  const allData = accGrid.getData();
 
-    const payload = {
-        createdRows: changes.createdRows,
-        updatedRows: changes.updatedRows,
-        deletedRows: changes.deletedRows
+  // 변경된 행이 하나도 없으면 저장 중단 및 안내
+  if (allRows.length === 0) {
+    Swal.fire({
+      icon: 'info',
+      title: '변경된 내용이 없습니다',
+      confirmButtonText: '확인'
+    });
+    return;
+  }
+
+  for (let row of allRows) {
+    // 1. 계정명 미입력 체크
+    if (!row.name || row.name.trim() === "") {
+      Swal.fire({
+        icon: 'warning',
+        title: '계정명을 입력하세요',
+        confirmButtonText: '확인'
+      });
+      return;
+    }
+    // 2. 계정명 중복 체크 (동일 이름이 2개 이상이면 중복)
+    const nameCount = allData.filter(r => r.name === row.name).length;
+    if (nameCount > 1) {
+      Swal.fire({
+        icon: 'error',
+        title: '중복된 이름입니다',
+        confirmButtonText: '확인'
+      });
+      return;
+    }
+  }
+
+  // 저장 진행(기존 ajax 등)
+  const payload = {
+        createdRows: accGrid.getModifiedRows().createdRows,
+        updatedRows: accGrid.getModifiedRows().updatedRows,
+        deletedRows: accGrid.getModifiedRows().deletedRows
     };
 
     fetch("/erp/accounting/saveAll", {
@@ -301,10 +338,18 @@ $('#saveBtn').on('click', function () {
     .then(res => res.json())
     .then(data => {
         if (data.result === "success") {
-            alert(data.message);
+            Swal.fire({
+                icon: 'success',
+                title: '저장되었습니다',
+                confirmButtonText: '확인'
+            });
             accountList(); // 새로고침
         } else {
-            alert("실패: " + data.message);
+            Swal.fire({
+                icon: 'error',
+                title: '저장 실패',
+                confirmButtonText: '확인'
+            });
         }
     })
 });
@@ -416,6 +461,15 @@ $('#acctInput').on('keydown', function(e) {
   }
 });
 
+$('#acctInput').on('input', function() {
+  setupAutocomplete({
+    inputSelector: '#acctInput',
+    selectSelector: $('#acctSelect').val(),
+    listSelector: '#autocompleteList',
+    ajaxUrl: '/erp/accounting/accountAutoComplete'
+  });
+});
+
 // 계정명/내용 자동완성 (검색어 2글자 이상 입력 시 동작)
 $('#acctInput').on('keyup', function(ev) {
   const type = $('#acctSelect option:selected').val();
@@ -427,7 +481,7 @@ $('#acctInput').on('keyup', function(ev) {
   $.ajax({
     url: '/erp/accounting/accountSearch',
     method: 'GET',
-    data: type === 'ordCode'
+    data: type === 'name'
       ? { name: keyword }
       : { note: keyword },
     success: function (data) {
@@ -446,23 +500,23 @@ $('#acctInput').on('keyup', function(ev) {
                    <i class="fas fa-search text-secondary me-2"></i> ${highlighted}
                  </li>`;
       });
-      $('#acctAutoList').html(html).show();
+      $('#autocompleteList').html(html).show();
     }
   });
 });
 
 // 자동완성 항목 클릭 시 입력창에 값 반영 및 리스트 닫기
-$(document).on('click', '#acctAutoList .autocomplete-item', function () {
+$(document).on('click', '#autocompleteList .autocomplete-item', function () {
   if ($(this).hasClass('no-result')) return;
   const text = $(this).text().trim();
   $('#acctInput').val(text);
-  $('#acctAutoList').hide().empty();
+  $('#autocompleteList').hide().empty();
 });
 
 // 바깥 클릭 시 자동완성 닫기
 $(document).on('click', function (e) {
-  if (!$(e.target).closest('#acctInput, #acctAutoList').length) {
-    $('#acctAutoList').hide().empty();
+  if (!$(e.target).closest('#acctInput, #autocompleteList').length) {
+    $('#autocompleteList').hide().empty();
   }
 });
 
@@ -476,9 +530,9 @@ $('#acctSearchBtn').on('click', function() {
 
   // 파라미터 구성
   let params = {};
-  if (searchType === 'ordCode') {
+  if (searchType === 'name') {
     params.name = searchValue;
-  } else if (searchType === 'vdrCode') {
+  } else if (searchType === 'note') {
     params.note = searchValue;
   }
   params.acctYn = acctYn;

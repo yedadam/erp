@@ -137,4 +137,12 @@ public class ChitRestController {
     public List<ChitVO> chitSearch(@RequestParam Map<String, Object> params) {
         return chitService.chitSearch(params);
     }
+
+    // 전표코드/거래처/전표명 자동완성
+    @GetMapping("/chitAutoComplete")
+    @ResponseBody
+    public List<Map<String, String>> chitAutoComplete(@RequestParam String type, @RequestParam String value) {
+        // comId는 인증에서 추출
+        return chitService.chitAutoComplete(type, value);
+    }
 }
