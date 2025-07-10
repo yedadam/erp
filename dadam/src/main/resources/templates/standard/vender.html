@@ -231,7 +231,7 @@
         let type = $("#vdrSelect option:selected").val();
         let value = $("#vdrInput").val();
         let url ='/erp/standard/venderAll';
-        let grid = vdrGrid
+        let grid = mainGrid
         commonSearch(type,value,url,grid);
       }
 	})
@@ -245,7 +245,7 @@
     let mainGrid = new tui.Grid({
       // toastui 아이디 가져오기
       el: document.getElementById('mainGrid'),
-      scrollX: false,
+      scrollX: true,
       scrollY: false,
       // checkbox 부여
       rowHeaders: ['checkbox'],
@@ -259,7 +259,8 @@
         {header: 'No.',name: 'vdrCode',align: 'center',width: 80,customHeader: getName('No.')},
         {header: '거래처명',name: 'vdrName',align: 'center', resizable: true ,editor: 'text',customHeader: getName('거래처명')},
         {header: '구분',name: 'type',align: 'center' ,formatter: 'listItemText',editor: 
-          {type: 'select',options: {listItems: type}},
+          {type: 'select',options: {listItems: type}
+        },
            customHeader: getName('구분')},
         {header: '대표자명',name: 'ceoName',editor: 'text',align: 'center'},
         {header: '연락처',name: 'tel',align: 'center',editor: 'text'},
@@ -283,8 +284,8 @@
         {header: '여신기간',name: 'creditPeriod',align: 'center',editor: 'text'},
         {header: '여신금액',name: 'creditPrice',align: 'right',editor: 'text',
             formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
-         {header: '여신잔량', name: 'creditBalPrice',align: 'right',editor: 'text',
-             formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'}
+         {header: '여신잔량', name: 'creditBalPrice',align: 'right',
+             formatter: ({value}) => (value == null || value === 0) ? '0' : value.toLocaleString() + '원'}
       ],
     });
     // 상세그리드
@@ -340,12 +341,17 @@
           mainGrid.resetData(result);
               
           //디테일 그리드 초기화
-          detailGrid.resetData([]);
+       
         },
         error: function (xhr, status, error) {
           console.log("실패:", xhr.status, error);
         }
       });
+
+       mainGrid.showColumn("creditPeriod"); 
+       mainGrid.showColumn("creditPrice");
+       mainGrid.showColumn("creditBalPrice"); 
+
     }
     //금액 포맷 함수('#,###')
     function priceFormat(price) {
@@ -370,14 +376,12 @@
       newBtn.prop('disabled', true);
       let data = mainGrid.getData();
       //그리드 초기화ㅣ
-      mainGrid.resetData([{
-        vdrCode:venderMaxno,
+      mainGrid.resetData([{ 
         empId: empId,
         empName: empName
       }])
-      console.log('키번호', mainGrid.getData()[0].rowKey);
-  
-      detailGrid.resetData([{}]);
+
+      mainGrid.hideColumn("creditBalPrice");
      
     });
     //메인그리드 클릭 RowKey
@@ -411,29 +415,30 @@
       }
       mainRowKey = ev.rowKey;
     })
-   
-    detailGrid.on('afterChange',ev=>{
 
-    })
+   mainGrid.on('afterChange',ev=>{
+      console.log(ev);
+      console.log(ev[0]);
+      console.log(ev.changes[0].columnName=='type');
+ if(pageStatus=='add'){
+     if(ev.changes[0].columnName=='type' &&ev.changes[0].value=='vt02' ){
+        mainGrid.hideColumn("creditPeriod"); 
+        mainGrid.hideColumn("creditPrice");
+        mainGrid.hideColumn("creditBalPrice"); 
+     }
+    }
+
+       if(ev.changes[0].columnName=='type' && (ev.changes[0].value=='vt01' ||ev.changes[0].value=='vt03') ){
+        mainGrid.showColumn("creditPeriod"); 
+        mainGrid.showColumn("creditPrice");
+        mainGrid.showColumn("creditBalPrice"); 
+     }
+
+   })
+
     //모달 그리드 클릭시 발동
     
-    //상세그리드 행추가
-    $('#rowAddBtn').on('click', ev => {
-      let mainRowIndex = mainGrid.getCheckedRowKeys()[0];
-      console.log(mainRowIndex)
-      if (pageStatus == 'search' && mainRowIndex == undefined) {
-        Swal.fire('에러', '메인그리드에 해당행을 클릭하세요', 'error')
-        return;
-      }
-      if (pageStatus == 'search') {
-        detailGrid.appendRow({
-          purOrdCode: mainGrid.getRow(mainRowIndex).purOrdCode
-        });
-      } else if (pageStatus == 'add') {
-        detailGrid.appendRow({});
-      }
-    })
-    //상세그리드 행삭제
+
     $('#delBtn').on('click', ev => {
       const head = mainGrid.getCheckedRows()[0].vdrCode; //{}
 
@@ -467,45 +472,21 @@
     //디테일 클릭 인덱스
     let detailRowKey = null;
     //디테일그리드 클릭시 발동
-    detailGrid.on('click', ev => {
-      detailRowKey = ev.rowKey;
-     if(pageStatus=="add"&&ev.columnName=="addr"&&ev.targetType=="cell"){
-    //      $('#addrModal').modal('show');       
-   // 주소 검색 버튼 클릭 시 카카오 주소 API
-    new daum.Postcode({
-        oncomplete: function (data) {
-          const row = detailGrid.getRow(0);
-          if (row) {
-
-            detailGrid.setValue(0, "addr", data.address);
-          } else {
-            console.warn("0번 row 없음. 주소 설정 실패");
-          }
-         }
-       }).open();
-     } 
-      //아이템리스트 가져오기 
-      console.log(detailGrid.getCheckedRows());
-    
-    })
+  
    
     //등록함수
     function venderAdd() {
       let mainGridInfo = mainGrid.getData(); //[{},{},{}]
-      let detailGridInfo = detailGrid.getData(); //[{}]
+     // let detailGridInfo = detailGrid.getData(); //[{}]
       //메인 그리드 해당 값이 기입했는지 체크
       let mainResult = mainGridInfo.every(item => {
         return item.vdrName &&
-                item.vdrCode &&
                 item.type&&
                 item.discount;
       })
-      //디테일 값 있는지 체크
-      let detailResult = detailGridInfo.some(item => {
-        return !item.bank || !item.acctNo  ||
-          !item.creditPeriod  || !item.creditPrice;
-      })
-      console.log(detailResult)
+      
+ 
+   //   console.log(detailResult)
       //값 체크
       if (!mainResult) {
         Swal.fire('실패', '메인 그리드에 입력란들을 기입하세요', 'error');
@@ -515,7 +496,7 @@
 
       //등록데이터 정리
       let mainData = mainGrid.getModifiedRows(); // [{},{},{}]
-      let detailData = detailGrid.getData(); //[{},{},{}]
+    //  let detailData = detailGrid.getData(); //[{},{},{}]
       console.log('mainData',mainData);
       let dataToSend = front; 
       console.log('front verder add로 넘어옴!!!',front)
@@ -529,7 +510,7 @@
       	success: function(res) {
       		console.log('전송 성공', res);
       					Swal.fire({
-      			title: "서버넘기기 성공",
+      			title: "등록 성공",
       			icon: "success",
       			draggable: true
       		});
@@ -598,10 +579,11 @@
     //조회버튼
     $('#searchBtn').on('click', ev => {
       mainList();
+      
     })
     //상세조회
     mainGrid.on('check', ev => {
-      console.log('detailGrid.getData()',detailGrid.getData()); 
+    
 
     //   if(pageStatus=='search'){
     //    if(detailGrid.getData().length==0){
@@ -716,6 +698,8 @@
 //     height: '100%'
 //   }).embed(document.getElementById('daumPostcode'));
 // });
+
+
 
 
   </script>
