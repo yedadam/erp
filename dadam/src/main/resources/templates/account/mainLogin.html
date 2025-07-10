@@ -68,6 +68,10 @@
 							<p hidden id="idSameCheck"></p>
 						</div>
 						<div class="field half">
+							<label for="userName">이름</label> <input type="text"
+								name="userName" id="userName" required />
+						</div>
+						<div class="field half">
 							<label for="addPwd">비밀번호</label> <input type="password"
 								name="pwd" id="addPwd" required />
 						</div>
@@ -77,10 +81,6 @@
 							<p hidden id="pwdSameCheck"></p>
 						</div>
 
-						<div class="field half">
-							<label for="userName">이름</label> <input type="text"
-								name="userName" id="userName" required />
-						</div>
 						<div class="field half">
 							<label for="phone">전화번호</label> <input type="text" name="phone"
 								id="phone" placeholder="010-1234-5678" required />
@@ -302,8 +302,7 @@
 	    		 contentType: "application/json",
 	    		 data:JSON.stringify(info),
 	    		 success : result => {
-	    			     resetVal()
-	                     Swal.fire('저장','저장이 정상적으로 완료되었습니다.','success')
+						location.href = '/main/login'	    			     
 	                     
 	             },
 	             error: function(xhr, status, error) {

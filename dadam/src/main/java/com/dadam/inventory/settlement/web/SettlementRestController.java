@@ -64,7 +64,7 @@ public class SettlementRestController {
 		String fileName = payload.get("fileName");
 		
 		try {
-			Path outputPath = Paths.get("src/main/resources/templates/settlementEle",fileName);
+			Path outputPath = Paths.get(System.getProperty("user.dir"), "settlementEle", fileName);
 			Files.createDirectories(outputPath.getParent());
 			Files.write(outputPath, html.getBytes(StandardCharsets.UTF_8));
 			return ResponseEntity.ok("결재서 저장 성공");
@@ -95,11 +95,6 @@ public class SettlementRestController {
 	
 	@PostMapping("/insertSign")
 	public ResponseEntity<String> insertSignature(@RequestBody SettlementVO vo) {
-	    System.out.println("=== 받은 데이터 ===");
-	    System.out.println("elecCode: " + vo.getElecCode());
-	    System.out.println("fileImage: " + vo.getFileImage());
-	    System.out.println("signImage: " + (vo.getSignImage() != null ? "존재함" : "null"));
-	    System.out.println("appId: " + vo.getAppId());
 
 	    try {
 	        // 기본값 체크
@@ -108,7 +103,7 @@ public class SettlementRestController {
 	        }
 
 	        // 실제 경로 지정
-	        Path path = Paths.get("src/main/resources/templates/settlementEle", vo.getFileImage());
+	        Path path = Paths.get(System.getProperty("user.dir"), "settlementEle", vo.getFileImage());
 
 	        // 파일 존재 확인
 	        if (!Files.exists(path)) {

@@ -171,20 +171,22 @@
 			</div>
 		</div>
 	</div>
-	<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 <script th:inline="javascript">
 	let empId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'e1018'}]];
 	let empName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.username : '김지현'}]];
 	let comId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'}]];
 	let deptCode = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.deptCode : 'de1001'}]];
+	let profileImgPath = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.profileImgPath: 'de1001'}]];
+	
 	//채팅방 목록 가져오기
 	function loadChatRooms() {
 		 const $list = $('#chatRoomList');
 		  $list.html('<div class="text-center text-muted small">로딩 중...</div>');
 
 		  $.ajax({
-		    url: '/erp/chatList',
+		    url: '/erp/chat/chatList',
 		    method: 'GET',
 		    data: { empId: empId },
 		    dataType: 'json',
@@ -234,7 +236,7 @@
 	    let empList= null;
 	    
 	    await $.ajax({
-	    	url:'/erp/memberList',
+	    	url:'/erp/chat/memberList',
 	    	method : 'GET',
 	    	
 	    	data : {chatId : id},
@@ -250,7 +252,7 @@
 	    // 메시지 입력창 포커스
 	    $('#chatInput').focus();
 	   await $.ajax({
-		        url: '/erp/history',
+		        url: '/erp/chat/history',
 		        method: 'GET',
 		        data: { roomId: id },
 		        success: function(messages) {

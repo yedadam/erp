@@ -142,7 +142,7 @@
 	</if>
 	<if test="createdEndDate != null and createdEndDate!='' ">
 		  <![CDATA[
-			AND trunc(s.created_date) <= TO_DATE(#{createdEndDate!=},'yyyy-MM-dd')
+			AND trunc(s.created_date) <= TO_DATE(#{createdEndDate},'yyyy-MM-dd')
 		    ]]>
 	</if>
 	<if test="status != null and status !=  ''">

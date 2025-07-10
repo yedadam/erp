@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+		 <html lang="ko">
+		 <head>
+		   <meta charset="UTF-8" />
+		   <meta name="viewport" content="width=device-width, initial-scale=1" />
+		   <title>재고 현황 결재서</title>
+		   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+		   <style>
+		     body {
+		       font-family: 'Malgun Gothic', sans-serif;
+		       background-color: #f8f9fa;
+		     }
+		     .document-container {
+		       background: white;
+		       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+		       border-radius: 8px;
+		       padding: 20px;
+		       margin: 20px auto;
+		       max-width: 1200px;
+		     }
+		     .title {
+		       font-size: 28px;
+		       font-weight: bold;
+		       border-bottom: 2px solid #333;
+		       padding-bottom: 15px;
+		       margin-bottom: 30px;
+		     }
+		     .approval-section {
+		       font-size: 12px;
+		     }
+		     .approval-content {
+		       height: 80px;
+		       display: flex;
+		       align-items: center;
+		       justify-content: center;
+		       color: #666;
+		       font-size: 10px;
+		     }
+		     @media print {
+		       body {
+		         background-color: white;
+		       }
+		       .document-container {
+		         box-shadow: none;
+		         margin: 0;
+		         border-radius: 0;
+		       }
+		     }
+		   </style>
+		 </head>
+		 <body>
+		   <div class="document-container">
+		     <!-- 타이틀 -->
+		     <h1 class="title text-center">재고 현황 보고서</h1>
+
+		     <!-- 결재란 -->
+		     <div class="d-flex justify-content-end mb-3">
+		       <div class="col-md-4">
+		         <div class="approval-section">
+		           <div class="card">
+		             <div class="card-header text-center py-1">
+		               <small class="fw-bold">결재</small>
+		             </div>
+		             <div class="card-body p-0">
+		               <div class="row g-0">
+		                 <div class="col-3 border-end">
+		                   <div class="bg-light text-center py-1 border-bottom">
+		                     <small class="fw-bold">담당자</small>
+		                   </div>
+		                   <div class="approval-content">
+		                     <!-- 서명란 또는 이름 -->
+		                   </div>
+		                 </div>
+		                 <div class="col-3 border-end">
+		                   <div class="bg-light text-center py-1 border-bottom">
+		                     <small class="fw-bold">팀장</small>
+		                   </div>
+		                   <div class="approval-content">
+		                   </div>
+		                 </div>
+		                 <div class="col-3 border-end">
+		                   <div class="bg-light text-center py-1 border-bottom">
+		                     <small class="fw-bold">부장</small>
+		                   </div>
+		                   <div class="approval-content">
+		                   </div>
+		                 </div>
+		                 <div class="col-3">
+		                   <div class="bg-light text-center py-1 border-bottom">
+		                     <small class="fw-bold">이사</small>
+		                   </div>
+		                   <div class="approval-content">
+		                   </div>
+		                 </div>
+		               </div>
+		             </div>
+		           </div>
+		         </div>
+		       </div>
+		     </div>
+
+		     <!-- 문서 정보 -->
+		     <!-- 문서 정보 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="row g-0">
+                                <div class="col-4 bg-light border-end border-bottom d-flex align-items-center justify-content-center">
+                                    <span class="fw-bold">문서번호</span>
+                                </div>
+                                <div class="col-8 border-bottom d-flex align-items-center ps-3">
+                                    <span id="docNumber">INV-2025-001</span>
+                                </div>
+                            </div>
+                            <div class="row g-0">
+                                <div class="col-4 bg-light border-end d-flex align-items-center justify-content-center">
+                                    <span class="fw-bold">작성일자</span>
+                                </div>
+                                <div class="col-8 d-flex align-items-center ps-3">
+                                    <span id="createDate">2025-07-06</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="row g-0">
+                                <div class="col-4 bg-light border-end border-bottom d-flex align-items-center justify-content-center">
+                                    <span class="fw-bold">작성자</span>
+                                </div>
+                                <div class="col-8 border-bottom d-flex align-items-center ps-3">
+                                    <span id="creator">홍길동</span>
+                                </div>
+                            </div>
+                            <div class="row g-0">
+                                <div class="col-4 bg-light border-end d-flex align-items-center justify-content-center">
+                                    <span class="fw-bold">부서</span>
+                                </div>
+                                <div class="col-8 d-flex align-items-center ps-3">
+                                    <span id="department">물류팀</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+		     <!-- 재고 테이블 -->
+		     <div class="table-responsive">
+		       <table class="table table-bordered table-hover" id="inventoryTable">
+		         <thead class="table-light">
+		           <tr class="text-center">
+		             <th>품목코드</th>
+		             <th>품목명</th>
+		             <th>전월수량</th>
+		             <th>전월평가액</th>
+		             <th>입고수량</th>
+		             <th>출고수량</th>
+		             <th>조정수량</th>
+		             <th>기말수량</th>
+		             <th>기말평가액</th>
+		           </tr>
+		         </thead>
+		         <tbody>
+		           
+		             <tr>
+		               <td>item-101</td>
+		               <td>연필</td>
+		               <td class="text-end">100</td>
+		               <td class="text-end">50000</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">100</td>
+		               <td class="text-end">50000</td>
+		             </tr>
+		           
+		             <tr>
+		               <td>item-102</td>
+		               <td>지우개</td>
+		               <td class="text-end">1922</td>
+		               <td class="text-end">576600</td>
+		               <td class="text-end">738</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">2660</td>
+		               <td class="text-end">798000</td>
+		             </tr>
+		           
+		             <tr>
+		               <td>item-103</td>
+		               <td>이름이법이될때</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		             </tr>
+		           
+		             <tr>
+		               <td>item-104</td>
+		               <td>좋은이름의비밀</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		             </tr>
+		           
+		             <tr>
+		               <td>item-105</td>
+		               <td>자연에이름붙이기</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		             </tr>
+		           
+		             <tr>
+		               <td>item-106</td>
+		               <td>종이</td>
+		               <td class="text-end">25</td>
+		               <td class="text-end">250</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">0</td>
+		               <td class="text-end">25</td>
+		               <td class="text-end">250</td>
+		             </tr>
+		           
+		         </tbody>
+		         <tfoot class="table-info">
+		           <tr class="fw-bold text-center">
+		             <td colspan="2">합계</td>
+		             <td class="text-end">2047</td>
+		             <td class="text-end">626850</td>
+		             <td class="text-end">738</td>
+		             <td class="text-end">0</td>
+		             <td class="text-end">0</td>
+		             <td class="text-end">2785</td>
+		             <td class="text-end">848250</td>
+		           </tr>
+		         </tfoot>
+		       </table>
+		     </div>
+		   </div>
+		 </body>
+		 </html>

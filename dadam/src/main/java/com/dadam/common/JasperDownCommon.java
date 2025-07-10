@@ -25,33 +25,18 @@ public class JasperDownCommon extends AbstractView{
 	DataSource datasource;   
 	@Override
 	protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		 // DB 연결
-        Connection conn = datasource.getConnection();
-
-        // .jrxml 경로 받기
-        String jrxmlPath = (String) model.get("filename");
-
-        // 파라미터 맵 받기
-        @SuppressWarnings("unchecked")
-        Map<String, Object> paramMap = (Map<String, Object>) model.get("param");
-
-        // .jrxml 파일을 InputStream으로 읽음
-        InputStream jrxmlStream = getClass().getResourceAsStream(jrxmlPath);
-        if (jrxmlStream == null) {
-            throw new RuntimeException("jrxml 파일을 찾을 수 없습니다: " + jrxmlPath);
-        }
-
-        // .jrxml → 컴파일
-        JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
-
-        // 데이터 채움
-        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, paramMap, conn);
-
-        // PDF 응답 설정
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=\"세금계산서.pdf\"");
-        JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());
-
-        conn.close(); 
+		//db연결
+		Connection conn = datasource.getConnection();
+		String reportFile = (String)model.get("filename");
+		@SuppressWarnings("unchecked")
+		Map<String, Object> map = (Map<String, Object>) model.get("param");
+		System.out.println(map);
+		InputStream jasperStream = getClass().getResourceAsStream(reportFile);
+		JasperReport jasperReport = (JasperReport) JRLoader.loadObject(jasperStream);
+		JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, map, conn);
+		// 다운로드용 응답 설정
+		response.setContentType("application/pdf");
+		response.setHeader("Content-Disposition", "attachment; filename=\"taxinvoice.pdf\"");
+		JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());  
 	}
 }

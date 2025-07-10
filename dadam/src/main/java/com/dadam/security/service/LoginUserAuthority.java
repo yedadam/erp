@@ -75,6 +75,9 @@ public class LoginUserAuthority implements UserDetails {
     public String getAuthority() {
     	return "";
     }
+    public String getProfileImgPath() {
+    	return userVO.getProfileImgPath();
+    }
     //계정 만료
     @Override
     public boolean isAccountNonExpired() {
