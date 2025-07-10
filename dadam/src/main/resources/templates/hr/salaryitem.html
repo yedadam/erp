@@ -86,17 +86,18 @@
 
     <!-- 버튼 영역 -->
     <div class="d-flex align-items-center gap-2 mb-2" style="min-height:40px;">
-      <button class="btn btn-primary" id="addBtn" style="min-width:90px;">
+      <button class="btn btn-outline-success" id="excelBtn" data-bs-toggle="tooltip" title="급여항목 목록 다운로드">
+        <i class="fas fa-file-excel"></i>
+      </button>
+      <div class="ms-auto"></div>
+      <button class="btn btn-info" id="addBtn" style="min-width:100px;">
         <i class="fas fa-plus"></i> 추가
       </button>
-      <button class="btn btn-success" id="saveBtn" disabled style="min-width:90px;">
-        <i class="fas fa-save"></i> 저장
-      </button>
-      <button class="btn btn-secondary" id="excelBtn" data-bs-toggle="tooltip" title="엑셀 다운로드" style="min-width:120px;">
-        <i class="fas fa-file-excel"></i> 엑셀 다운로드
-      </button>
-      <button class="btn btn-danger" id="deleteBtn" disabled style="min-width:90px;">
+      <button class="btn btn-danger" id="deleteBtn" style="min-width:100px;" disabled>
         <i class="fas fa-trash"></i> 삭제
+      </button>
+      <button class="btn btn-success" id="saveBtn" style="min-width:100px;" disabled>
+        <i class="fas fa-save"></i> 저장
       </button>
       <span class="ms-3 text-secondary" id="resultCount"></span>
     </div>
@@ -110,28 +111,97 @@
   </div>
 
   <!-- 항목 등록/수정 모달 -->
-  <div id="salaryItemModal" style="display:none;">
-    <!-- 모달 폼 구조 (항목코드, 항목명, 카테고리, 유형, 기본값, 상태, 설명 등) -->
+  <div class="modal fade" id="salaryItemModal" tabindex="-1">
+    <div class="modal-dialog">
+      <form id="salaryItemForm" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">급여항목 등록/수정</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-2">
+            <label class="form-label">항목명</label>
+            <input type="text" class="form-control" name="allowName" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">항목코드</label>
+            <input type="text" class="form-control" name="allowCode" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">카테고리</label>
+            <select class="form-select" name="type" required>
+              <option value="기본급">기본급</option>
+              <option value="수당">수당</option>
+              <option value="공제">공제</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">계산방식</label>
+            <select class="form-select" name="calcType" required>
+              <option value="고정액">고정액</option>
+              <option value="비율">비율</option>
+              <option value="근무시간 비례">근무시간 비례</option>
+              <option value="성과 연동">성과 연동</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">적용대상(사원유형)</label>
+            <select class="form-select" name="workTypes" multiple required></select>
+            <div class="form-text">여러 유형 선택 가능</div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">설명</label>
+            <input type="text" class="form-control" name="note">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">저장</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="https://uicdn.toast.com/grid/latest/tui-grid.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     // TOAST UI Grid 컬럼 정의 (sortable, 설명 툴팁 적용)
+    const workTypeColors = {
+      'emp01': 'primary',   // 정규직
+      'emp02': 'success',   // 계약직
+      'emp03': 'warning',   // 임시직
+      'emp04': 'info',      // 파견직
+      'emp05': 'secondary', // 위촉직
+      'emp06': 'danger'     // 일용직
+    };
+    const workTypeLabels = {
+      'emp01': '정규직', 'emp02': '계약직', 'emp03': '임시직',
+      'emp04': '파견직', 'emp05': '위촉직', 'emp06': '일용직'
+    };
+    const calcTypeOptions = [
+      { text: '고정액', value: '고정액' },
+      { text: '비율', value: '비율' },
+      { text: '근무시간 비례', value: '근무시간 비례' },
+      { text: '성과 연동', value: '성과 연동' }
+    ];
     const columns = [
       { header: '항목코드', name: 'allowCode', align: 'center', editor: 'text' },
       { header: '항목명', name: 'allowName', editor: 'text' },
       { header: '카테고리', name: 'type', align: 'center', editor: { type: 'select', options: { listItems: [
         { text: '기본급', value: '기본급' }, { text: '수당', value: '수당' }, { text: '공제', value: '공제' }
       ]}}},
+      { header: '계산방식', name: 'calcType', align: 'center', editor: { type: 'select', options: { listItems: calcTypeOptions } } },
+      { header: '적용대상', name: 'workTypes', align: 'center',
+        editor: { type: 'select', options: { listItems: [], multiple: true } },
+        formatter: ({value}) => {
+          if (!value) return '';
+          return value.split(',').map(code =>
+            `<span class="badge bg-${workTypeColors[code]||'dark'} me-1">${workTypeLabels[code]||code}</span>`
+          ).join('');
+        }
+      },
       { header: '금액', name: 'defaultAmount', align: 'right', editor: { type: 'text', options: { inputType: 'number' } },
         formatter: ({value}) => value ? value.toLocaleString() + '원' : '-', sortable: true },
-      { header: '계산방식', name: 'calcType', align: 'center', editor: { type: 'select', options: { listItems: [
-        { text: '고정액', value: '고정액' }, { text: '비율', value: '비율' }, { text: '근무시간 비례', value: '근무시간 비례' }, { text: '성과 연동', value: '성과 연동' }
-      ]}}},
-      { header: '적용대상', name: 'targetType', align: 'center', editor: { type: 'select', options: { listItems: [
-        { text: '전체', value: '전체' }, { text: '정규직', value: '정규직' }, { text: '계약직', value: '계약직' }
-      ]}}},
       { header: '상태', name: 'acctYn', width: 80, align: 'center', editor: { type: 'select', options: { listItems: [
         { text: 'Y', value: 'Y' }, { text: 'N', value: 'N' }
       ]}}, formatter: ({value}) => value === 'Y' ? '<span class="status-badge status-active">활성</span>' : '<span class="status-badge status-inactive">비활성</span>', sortable: true },
@@ -207,7 +277,15 @@
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
       const todayStr = `${yyyy}-${mm}-${dd}`;
-      grid.prependRow({ createdDate: todayStr, acctYn: 'Y', calcType: '고정액', targetType: '전체' }, { focus: true });
+      grid.prependRow({
+        allowCode: '',
+        allowName: '',
+        type: '',
+        defaultAmount: '',
+        acctYn: 'Y',
+        createdDate: todayStr,
+        note: ''
+      }, { focus: true });
       setTimeout(() => grid.focusAt(0, 'allowCode'), 100); // 첫 입력 셀로 포커스
       $('#saveBtn').prop('disabled', false);
     });
@@ -221,8 +299,8 @@
       }
       // 필수값 체크(신규)
       for (const row of createdRows) {
-        if (!row.allowCode || !row.allowName || !row.type || !row.calcType || !row.targetType) {
-          swal.fire('⚠ 필수 입력', '항목코드, 항목명, 카테고리, 계산방식, 적용대상은 필수입니다.', 'warning');
+        if (!row.allowCode || !row.allowName || !row.type || !row.defaultAmount || !row.acctYn) {
+          swal.fire('⚠ 필수 입력', '항목코드, 항목명, 카테고리, 금액, 상태는 필수입니다.', 'warning');
           return;
         }
       }
@@ -256,7 +334,7 @@
                   cleanRow[k] = row[k];
                 }
               });
-              // 필수값 누락 방지: allowCode, allowName, type, calcType, targetType, defaultAmount, acctYn, comId
+              // 필수값 누락 방지: allowCode, allowName, type, defaultAmount, acctYn, comId
               if (!cleanRow.comId) cleanRow.comId = 'com-101';
               $.ajax({
                 url: '/erp/hr/salaryitem/register',
@@ -266,9 +344,9 @@
                 success: function(res) {
                   ajaxCount++;
                   if (res !== 'ok') ajaxFail++;
-                  if (ajaxCount === createdRows.length) {
+                  if (ajaxCount === createdRows.length + updatedRows.length) {
                     if (ajaxFail === 0) {
-                      swal.fire('✔ 저장 완료', '신규 항목이 성공적으로 저장되었습니다.', 'success');
+                      swal.fire('✔ 저장 완료', '신규/수정 항목이 성공적으로 저장되었습니다.', 'success');
                       filterSalaryItems();
                     } else {
                       swal.fire('❌ 오류', '일부 항목 저장에 실패했습니다.', 'error');
@@ -279,7 +357,7 @@
                 error: function() {
                   ajaxCount++;
                   ajaxFail++;
-                  if (ajaxCount === createdRows.length) {
+                  if (ajaxCount === createdRows.length + updatedRows.length) {
                     swal.fire('❌ 오류', '일부 항목 저장에 실패했습니다.', 'error');
                     $('#saveBtn').prop('disabled', true);
                   }
@@ -287,7 +365,45 @@
               });
             });
           }
-          // TODO: 수정(업데이트)도 필요하면 여기에 추가
+          // 수정(업데이트)도 DB 저장 ajax 추가
+          if (updatedRows.length > 0) {
+            updatedRows.forEach(row => {
+              const cleanRow = {};
+              Object.keys(row).forEach(k => {
+                if (row[k] !== undefined && row[k] !== null && row[k] !== '') {
+                  cleanRow[k] = row[k];
+                }
+              });
+              if (!cleanRow.comId) cleanRow.comId = 'com-101';
+              $.ajax({
+                url: '/erp/hr/salaryitem/modify', // 실제 수정 API 경로
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(cleanRow),
+                success: function(res) {
+                  ajaxCount++;
+                  if (res !== 'ok') ajaxFail++;
+                  if (ajaxCount === createdRows.length + updatedRows.length) {
+                    if (ajaxFail === 0) {
+                      swal.fire('✔ 저장 완료', '신규/수정 항목이 성공적으로 저장되었습니다.', 'success');
+                      filterSalaryItems();
+                    } else {
+                      swal.fire('❌ 오류', '일부 항목 저장에 실패했습니다.', 'error');
+                    }
+                    $('#saveBtn').prop('disabled', true);
+                  }
+                },
+                error: function() {
+                  ajaxCount++;
+                  ajaxFail++;
+                  if (ajaxCount === createdRows.length + updatedRows.length) {
+                    swal.fire('❌ 오류', '일부 항목 저장에 실패했습니다.', 'error');
+                    $('#saveBtn').prop('disabled', true);
+                  }
+                }
+              });
+            });
+          }
         }
       });
     });
@@ -375,6 +491,52 @@
     $(function() {
       filterSalaryItems();
       $('[data-bs-toggle="tooltip"]').tooltip();
+      // 공통코드 API로 사원유형 옵션 동적 생성 및 그리드에도 적용
+      $.get('/common/codes', { mainCode: 'emp' }, function(data) {
+        const $select = $('select[name="workTypes"]');
+        $select.empty();
+        const gridOptions = [];
+        data.forEach(item => {
+          $select.append(`<option value="${item.subCode}">${item.subName}</option>`);
+          gridOptions.push({ text: item.subName, value: item.subCode });
+        });
+        // 그리드 적용대상 컬럼에도 옵션 동적 반영
+        const workTypesCol = columns.find(col => col.name === 'workTypes');
+        if (workTypesCol && workTypesCol.editor) {
+          workTypesCol.editor.options.listItems = gridOptions;
+        }
+        grid.setColumns(columns);
+      });
+    });
+
+    // 저장/수정 시 calcType, workTypes 값 처리
+    $('#salaryItemForm').on('submit', function(e) {
+      e.preventDefault();
+      const formData = $(this).serializeArray();
+      const workTypes = $('select[name="workTypes"]').val();
+      const calcType = $('select[name="calcType"]').val();
+      const data = {};
+      formData.forEach(f => data[f.name] = f.value);
+      data.workTypes = workTypes ? workTypes.join(',') : '';
+      data.calcType = calcType;
+      $.ajax({
+        url: '/erp/hr/salaryitem/register', // 또는 /modify
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(res) {
+          if (res === 'ok') {
+            Swal.fire('✔ 저장 완료', '급여항목이 저장되었습니다.', 'success');
+            $('#salaryItemModal').modal('hide');
+            // 그리드 새로고침 등
+          } else {
+            Swal.fire('❌ 오류', '저장에 실패했습니다.', 'error');
+          }
+        },
+        error: function() {
+          Swal.fire('❌ 오류', '저장 중 오류가 발생했습니다.', 'error');
+        }
+      });
     });
   </script>
 </body>

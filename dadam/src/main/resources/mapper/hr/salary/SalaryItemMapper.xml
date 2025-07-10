@@ -6,8 +6,6 @@
       <result property="allowCode" column="allow_code"/>
       <result property="allowName" column="allow_name"/>
       <result property="type" column="type"/>
-      <result property="calcType" column="calc_type"/>
-      <result property="targetType" column="target_type"/>
       <result property="defaultAmount" column="default_amount"/>
       <result property="acctYn" column="acct_yn"/>
       <result property="createdDate" column="created_date"/>
@@ -21,8 +19,6 @@
         allow_code,
         allow_name,
         type,
-        calc_type,
-        target_type,
         default_amount,
         acct_yn,
         TO_CHAR(created_date, 'YYYY-MM-DD') as created_date,
@@ -55,9 +51,9 @@
             SELECT NVL(MAX(id), 1000) + 1 FROM salaryitem
         </selectKey>
         INSERT INTO salaryitem (
-            id, com_id, allow_code, allow_name, type, calc_type, target_type, default_amount, acct_yn, note, created_date, updated_date
+            id, com_id, allow_code, allow_name, type, default_amount, acct_yn, note, created_date, updated_date
         ) VALUES (
-            #{id}, #{comId}, #{allowCode}, #{allowName}, #{type}, #{calcType}, #{targetType}, #{defaultAmount}, #{acctYn}, #{note}, SYSDATE, SYSDATE
+            #{id}, #{comId}, #{allowCode}, #{allowName}, #{type}, #{defaultAmount}, #{acctYn}, #{note}, SYSDATE, SYSDATE
         )
     </insert>
 
@@ -66,8 +62,6 @@
         UPDATE salaryitem
         SET allow_name = #{allowName},
             type = #{type},
-            calc_type = #{calcType},
-            target_type = #{targetType},
             default_amount = #{defaultAmount},
             acct_yn = #{acctYn},
             note = #{note},

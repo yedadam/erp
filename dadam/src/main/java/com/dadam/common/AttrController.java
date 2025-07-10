@@ -3,6 +3,14 @@ package com.dadam.common;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import com.dadam.common.mapper.CodeMapper;
+import com.dadam.common.service.CodeVO;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
 
 import com.dadam.inventory.settlement.service.SettlementService;
 
@@ -10,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 //모든 컨트롤러에 모델을 주입하기 위해 설정
 @ControllerAdvice
+@RestController
 public class AttrController {
 	  @Autowired
 	  SettlementService service;
@@ -36,4 +45,16 @@ public class AttrController {
 		  }
 		  return 0;
 	  }
+
+    @Autowired
+    private CodeMapper codeMapper;
+
+    /**
+     * 공통코드 조회 API
+     * 예: /common/codes?mainCode=emp
+     */
+    @GetMapping("/common/codes")
+    public List<CodeVO> getCodes(@RequestParam String mainCode) {
+        return codeMapper.selectCode(mainCode);
+    }
 }
