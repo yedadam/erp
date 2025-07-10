@@ -64,7 +64,7 @@
 			SELECT 'hold-' || (NVL(MAX(TO_NUMBER(SUBSTR(hold_code,6))),100)+1) lot
 			FROM hold
 		</selectKey>
-	INSERT INTO hold(hold_code, item_code, quantity, type, status, note, com_id, created_date, code)
+	INSERT INTO hold(hold_code, item_code, quantity, type, status, note, com_id, created_date, code, status)
 	values(
 			#{holdCode},
 			#{itemCode},
@@ -74,7 +74,8 @@
 			#{note},
 			#{comId},
 			sysdate,
-			#{code}
+			#{code},
+			#{hstatus}
 			)
 	</insert>
 	<!-- 홀드디테일 등록 -->
@@ -83,13 +84,14 @@
 			SELECT 'holddt-' || (NVL(MAX(TO_NUMBER(SUBSTR(hold_dtl_code,8))),100)+1) lot
 			FROM holddetail
 		</selectKey>
-	INSERT INTO holddetail(hold_dtl_code, hold_code, lot, quantity, com_id)
+	INSERT INTO holddetail(hold_dtl_code, hold_code, lot, quantity, com_id, status)
 	values(
 			#{holdDtlCode},
 			#{holdCode},
 			#{lot},
 			#{quantity},
-			#{comId}
+			#{comId},
+			'hds01'
 			)
 	</insert>
 	<!-- 홀드등록할때 상태값 변경 -->

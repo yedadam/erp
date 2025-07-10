@@ -22,9 +22,12 @@ public class HoldVO {
 	private int holdQty;   // 예약수량
 	private int price;   // 단가
 	private int currQty;   // 현수량
+	private int hqty;   // 출하의뢰수량
+	private int hdqty;   // 홀드상세수량
 	private String type;   // 홀드구분
 	private String typeName;
 	private String status; 
+	private String hdstatus; 
 	private String shipstatus; // 발주서상태
 	private String statusName;
 	private String note;   // 메모
@@ -33,7 +36,7 @@ public class HoldVO {
 	private String comId;  // 회사id 혹시몰라서
 	private String lot;
 	private List<LotVO> lotList;
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date createdDate;  // 등록일자
 	private String holdDtlCode;
 	private String code;

@@ -51,6 +51,9 @@ public class HoldServiceImpl implements HoldService{
 				vo.setShipReqDtlCode(vo.getCode());
 				// 넘어온값이 출고보류라면 부분홀드상태로 변경
 				// 홀드중으로 넘어온다면 홀드완료 상태로 변경
+				/*
+				 * hs01 홀드중 hs02 처리완료 hs03 부분홀드
+				 */
 				if(vo.getStatus() == "hs03") {
 					vo.setShipstatus("srd04");
 				}else if(vo.getStatus() == "hs01") {

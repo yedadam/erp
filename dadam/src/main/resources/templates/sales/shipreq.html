@@ -512,7 +512,7 @@
                 success: function(result) {
                     console.log('출하의뢰정보 불러오기', result);
                     mainGrid.resetData(result);
-										maxShipReqNO='sr-'+String(Number(mainGrid.getData()[0].shipReqCode.substr(3))+1); 
+										maxShipReqNO ?'sr-'+String(Number(mainGrid.getData()[0].shipReqCode.substr(3))+1):'sr-101'; 
 										console.log('출하번호 가장큰거=>',maxShipReqNO);
                     //디테일 그리드 초기화
                     detailGrid.resetData([]);

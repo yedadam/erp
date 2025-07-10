@@ -579,6 +579,7 @@ function insertGrid(){
 				  text: "수량을 확인해주세요!"
 				});
 			return;
+		// sum = 각lot의 수량 quantity 나중에하자
 		}else if(sum < rowData.quantity){
 			holdGrid.setValue(rowKey, 'status', 'hs03')
 			holdGrid.setValue(rowKey, 'statusName', '출고보류')
@@ -672,8 +673,8 @@ function insertGrid(){
 				}
 				param.push(saveData)
 			}
-			// 등록
-		/* $.ajax({
+			// 등록 홀드
+		 $.ajax({
 				url:"/erp/inventory/inserthold",
 				method:"POST",
 				contentType: "application/json",
@@ -686,7 +687,7 @@ function insertGrid(){
 						});
 					changeView('조회');
 				}
-			}) */
+			})
 		}else{
 			Swal.fire({
 				  icon: "error",

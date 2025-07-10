@@ -21,7 +21,7 @@ public class InboundVO {
 	private String purOrdDtlCode;	// 발주서코드
 	private String empId;  // 담당자
 	private String empName;  // 담당자
-	@JsonFormat(pattern = "yyyy/MM/dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date createdDate; // 입고 일자
 	private int quantity; // 입고수량
 	private int currQty;// 입고수량

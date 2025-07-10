@@ -198,7 +198,7 @@ function outboundList(){
 	   } // ajax호출 끝
 	})
  };
-// 출고 그리드
+// 출고 조회그리드
 function selectGrid(){
 	// 출고 버튼 삭제
 	$('#saveBtn').remove();
@@ -218,6 +218,7 @@ function selectGrid(){
 	    columns:[
 	    	{ header: '출고코드',name:'outCode',align:'center'},
 	        { header: '참조코드',name:'code',align:'center'},
+	        { header: 'LOT',name:'lot',align:'center'},
 	        { header: '출고수량',name:'quantity',align:'center'},
 	        { header: '구분',name:'typeName',align:'center',
 	        	filter: 'select'
@@ -238,9 +239,9 @@ function holdList(){
 		url:"/erp/inventory/outboundHoldList",
 		method:"GET"
 		,data: {comId}
-	   ,success:function(result) {
+	   ,success:function(result) {	
 		   result.forEach((item)=>{
-			 item.reqQty = item.quantity - item.currQty;
+			 item.reqQty = item.hdqty - item.currQty;
 		   })
 		   mainGrid.resetData(result);
 	   } // ajax호출 끝
@@ -281,7 +282,8 @@ function insertGrid(){
 	    	{ header: '홀드상세코드',name:'holdDtlCode',align:'center'},
 	    	{ header: 'LOT',name:'lot',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
-	        { header: '의뢰수량',name:'quantity',align:'center'},
+	        { header: '발주서수량',name:'hqty',align:'center'},
+	        { header: '홀드수량',name:'hdqty',align:'center'},
 	        { header: '기출고량',name:'currQty',align:'center'},
 	        { header: '미출고량',name:'reqQty',align:'center'},
 	    	{ header: '항목코드',name:'code',align:'center'},
@@ -382,7 +384,7 @@ function insertGrid(){
 					});
 				return;
 			// 의뢰 수량보다 높게 입력한경우
-			}else if(value.qty > value.quantity){
+			}else if(value.qty > value.hqty){
 				Swal.fire({
 					  icon: "error",
 					  title: "의뢰 수량보다 많습니다!",
@@ -404,7 +406,8 @@ function insertGrid(){
 				value.typeName = '거래처';
 				// obs01 = 대기 02 = 부분출고 03 = 출고완료 reqQty=미출고량
 				// hs01 = 부분홀드 02 = 처리완료 03 = 출고보류
-				if(value.status == 'hs02' && value.qty == value.reqQty){
+				// hds01 = 홀드중 02 = 홀드종료
+				if(value.status == 'hds01' && value.qty == value.reqQty){
 					value.status = 'obs03';
 					value.statusName = '출고완료';
 				}else{
@@ -417,7 +420,7 @@ function insertGrid(){
 				value.type = '공장';
 			}
 		} // for문 종료
-		console.log(data);
+		
 		  $.ajax({
 			url:"/erp/inventory/insertoutbound",
 			method:"POST",
@@ -437,7 +440,10 @@ function insertGrid(){
 					  text: "출고가 실패했습니다."
 					});
 			}
+			// 모달닫기
 			$('#outboundModal').modal('hide');
+			// 메인그리드 새로고침
+			holdList();
 			mainGrid.uncheckAll();
 			outboundGrid.refreshLayout();
 			mainGrid.refreshLayout();
