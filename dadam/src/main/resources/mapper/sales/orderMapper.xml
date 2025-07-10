@@ -172,7 +172,7 @@
 		and   com_id=#{comId}
 	</delete>
 	<delete id="deleteOrdersDtl">
-		delete from orders
+		delete from ordersdetail
 		where ord_code=#{ordCode}
 		AND com_id=#{comId}
 	</delete>

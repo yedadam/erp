@@ -63,7 +63,7 @@ public class OrderController {
 		model.addAttribute("payMethod",codeService.getCodeMap("opm"));
 		model.addAttribute("status",codeService.getCodeMap("ost")); 
 		model.addAttribute("itemType",codeService.getCodeList("it")); 
-
+		model.addAttribute("ordStatus",codeService.getCodeList("ost"));
 		return "sales/order";
 	}
 	
