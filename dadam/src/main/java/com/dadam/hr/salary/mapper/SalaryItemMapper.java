@@ -10,8 +10,8 @@ import java.util.List;
  */
 @Mapper
 public interface SalaryItemMapper {
-    /** 전체 급여항목 목록 조회 */
-    public List<SalaryItemVO> selectSalaryItemList(@Param("comId") String comId);
+    /** 전체 급여항목 목록 조회 (동적 조건) */
+    public List<SalaryItemVO> selectSalaryItemList(java.util.Map<String, Object> map);
     /** 단일 급여항목 조회 */
     public SalaryItemVO selectSalaryItem(@Param("comId") String comId, @Param("allowCode") String allowCode);
     /** 급여항목 등록 */

@@ -9,28 +9,24 @@ import java.time.LocalDateTime;
  */
 @Data
 public class SalaryItemVO {
-    /** 항목 고유번호 */
-    private Long id;
-    /** 회사ID */
-    private String comId;
-    /** 급여항목코드 */
+    /** 항목코드 (allow_code) */
     private String allowCode;
-    /** 급여항목명 */
+    /** 항목명 (allow_name) */
     private String allowName;
-    /** 항목구분(지급/공제 등) */
+    /** 카테고리 (type) */
     private String type;
-    /** 계산방식(FIXED/RATE/HOUR 등) */
+    /** 계산방식 (calc_type) */
     private String calcType;
-    /** 기본금액 */
-    private BigDecimal defaultAmount;
-    /** 비과세여부(Y/N) */
-    private String taxFreeYn;
-    /** 사용여부(Y/N) */
+    /** 적용대상 (target_type) */
+    private String targetType;
+    /** 기본값 (default_amount) */
+    private java.math.BigDecimal defaultAmount;
+    /** 상태 (acct_yn) */
     private String acctYn;
-    /** 정렬순서 */
-    private Integer sortOrder;
-    /** 생성일 */
-    private LocalDateTime createdDate;
-    /** 수정일 */
-    private LocalDateTime updatedDate;
+    /** 생성일 (created_date) */
+    private String createdDate;
+    /** 비고 (note) */
+    private String note;
+    /** 회사ID (com_id) */
+    private String comId;
 } 

@@ -1,13 +1,14 @@
 package com.dadam.hr.salary.service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 급여항목 마스터 Service
  */
 public interface SalaryItemService {
-    /** 전체 급여항목 목록 조회 */
-    List<SalaryItemVO> getSalaryItemList(String comId);
+    /** 전체 급여항목 목록 조회 (동적 조건) */
+    List<SalaryItemVO> getSalaryItemList(Map<String, Object> map);
     /** 단일 급여항목 조회 */
     SalaryItemVO getSalaryItem(String comId, String allowCode);
     /** 급여항목 등록 */

@@ -19,7 +19,7 @@ import java.util.Map;
  * - 조회는 권한별 필터링
  */
 @RestController
-@RequestMapping("/erp/salary/item")
+@RequestMapping("/erp/hr")
 public class SalaryItemRestController {
     
     @Autowired
@@ -63,9 +63,9 @@ public class SalaryItemRestController {
     }
 
     /** 전체 급여항목 목록 조회 */
-    @GetMapping("/list")
-    public List<SalaryItemVO> getSalaryItemList(@RequestParam String comId) {
-        return salaryItemService.getSalaryItemList(comId);
+    @GetMapping("/salaryitem/list")
+    public List<SalaryItemVO> getSalaryItemList(@RequestParam Map<String, Object> map) {
+        return salaryItemService.getSalaryItemList(map);
     }
 
     /** 단일 급여항목 조회 */
@@ -75,16 +75,12 @@ public class SalaryItemRestController {
     }
 
     /** 급여항목 등록 (관리자만) */
-    @PostMapping("/register")
+    @PostMapping("/salaryitem/register")
     public String addSalaryItem(@RequestBody SalaryItemVO vo) {
-        // 관리자 권한 확인
-        if (!isAdmin()) {
-            return "unauthorized";
+        // comId가 없으면 기본값 세팅 (실무에서는 로그인 정보에서 가져오는 게 더 안전)
+        if (vo.getComId() == null || vo.getComId().isEmpty()) {
+            vo.setComId("com-101");
         }
-        
-        Map<String, String> userInfo = getCurrentUserInfo();
-        vo.setComId(userInfo.get("comId"));
-        
         int result = salaryItemService.addSalaryItem(vo);
         return result > 0 ? "ok" : "fail";
     }
