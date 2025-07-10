@@ -1,5 +1,10 @@
 package com.dadam.subscribe.web;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.dadam.common.JasperDownCommon;
 
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -41,8 +47,24 @@ public class SubsManagerFormController {
      * @implNote ".html" 확장자 제거해서 thymeleaf 뷰로 인식하게 처리함
      */
     @GetMapping("/preview")
-    public String constPreview(@RequestParam String constImage) {
-        return "contracts/" + constImage.replace(".html", "");
+    public void constPreview(@RequestParam String constImage, HttpServletResponse response) throws IOException {
+        //파일 경로 설정 (운영서버의 실제 경로)
+    	Path filePath = Paths.get(System.getProperty("user.dir"), "contracts", constImage);
+
+        if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        System.out.println(constImage+"컨스트");
+
+        //컨텐츠 타입 설정
+        response.setContentType("text/html;charset=UTF-8");
+
+        // 파일 내용을 스트림으로 복사해서 응답에 씀
+        try (InputStream in = Files.newInputStream(filePath);
+             ServletOutputStream out = response.getOutputStream()) {
+            in.transferTo(out);
+        }
     }
 
     @Autowired
@@ -63,12 +85,10 @@ public class SubsManagerFormController {
         mv.setView(jasperDownCommon);
 
         // 보고서 템플릿경로 지정
-        mv.addObject("filename", "/report/taxinvoice.jrxml");
+        mv.addObject("filename", "/report/taxinvoice.jasper");
 
         // 보고서 파라미터 넣기
         HashMap<String, Object> map = new HashMap<>();
-        String reportDirPath = getClass().getResource("/report/").getPath(); 
-        map.put("REPORT_DIR", reportDirPath);
         map.put("p_subsCode", subsCode);
         mv.addObject("param", map);
 

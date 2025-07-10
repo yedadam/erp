@@ -1,0 +1,246 @@
+
+			<!DOCTYPE html>
+			<html lang="ko">
+			<head>
+			  <meta charset="UTF-8" />
+			  <meta name="viewport" content="width=device-width, initial-scale=1" />
+			  <title>재고 현황 결재서</title>
+			  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+			  <style>
+			    body {
+			      font-family: 'Malgun Gothic', sans-serif;
+			      background-color: #f8f9fa;
+			    }
+			    .document-container {
+			      background: white;
+			      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+			      border-radius: 8px;
+			      padding: 20px;
+			      margin: 20px auto;
+			      max-width: 1200px;
+			    }
+			    .title {
+			      font-size: 28px;
+			      font-weight: bold;
+			      border-bottom: 2px solid #333;
+			      padding-bottom: 15px;
+			      margin-bottom: 30px;
+			    }
+			    .approval-section {
+			      font-size: 12px;
+			    }
+			    .approval-content {
+			      height: 80px;
+			      display: flex;
+			      align-items: center;
+			      justify-content: center;
+			      color: #666;
+			      font-size: 10px;
+			    }
+			    @media print {
+			      body {
+			        background-color: white;
+			      }
+			      .document-container {
+			        box-shadow: none;
+			        margin: 0;
+			        border-radius: 0;
+			      }
+			    }
+			  </style>
+			</head>
+			<body>
+			  <div class="document-container">
+			    <h1 class="title text-center">재고 현황 보고서</h1>
+			
+			    <div class="d-flex justify-content-end mb-3">
+			      <div class="col-md-4">
+			        <div class="approval-section">
+			          <div class="card">
+			            <div class="card-header text-center py-1">
+			              <small class="fw-bold">결재</small>
+			            </div>
+			            <div class="card-body p-0">
+			              <div class="row g-0">
+			                
+		  <div class="col border-end">
+		    <div class="bg-light text-center py-1 border-bottom">
+		      <small class="fw-bold">주임 정유환</small>
+		    </div>
+		    <div class="approval-content">
+		      <img src='data:image/png;base64,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' style='width: 100px; height: auto;'>
+		    </div>
+		  </div>
+		
+		  <div class="col border-end">
+		    <div class="bg-light text-center py-1 border-bottom">
+		      <small class="fw-bold">사원 정유휴</small>
+		    </div>
+		    <div class="approval-content">
+		      <img src='data:image/png;base64,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' style='width: 100px; height: auto;'>
+		    </div>
+		  </div>
+		
+			              </div>
+			            </div>
+			          </div>
+			        </div>
+			      </div>
+			    </div>
+			
+			    <!-- 문서 정보 -->
+			    <div class="row mb-4">
+			      <div class="col-md-6">
+			        <div class="card">
+			          <div class="card-body p-0">
+			            <div class="row g-0">
+			              <div class="col-4 bg-light border-end border-bottom d-flex align-items-center justify-content-center">
+			                <span class="fw-bold">문서번호</span>
+			              </div>
+			              <div class="col-8 border-bottom d-flex align-items-center ps-3">
+			                <span id="docNumber">set-101</span>
+			              </div>
+			            </div>
+			            <div class="row g-0">
+			              <div class="col-4 bg-light border-end d-flex align-items-center justify-content-center">
+			                <span class="fw-bold">작성일자</span>
+			              </div>
+			              <div class="col-8 d-flex align-items-center ps-3">
+			                <span id="createDate">2025-07-07</span>
+			              </div>
+			            </div>
+			          </div>
+			        </div>
+			      </div>
+			      <div class="col-md-6">
+			        <div class="card">
+			          <div class="card-body p-0">
+			            <div class="row g-0">
+			              <div class="col-4 bg-light border-end border-bottom d-flex align-items-center justify-content-center">
+			                <span class="fw-bold">작성자</span>
+			              </div>
+			              <div class="col-8 border-bottom d-flex align-items-center ps-3">
+			                <span id="creator">신현욱</span>
+			              </div>
+			            </div>
+			            <div class="row g-0">
+			              <div class="col-4 bg-light border-end d-flex align-items-center justify-content-center">
+			                <span class="fw-bold">부서</span>
+			              </div>
+			              <div class="col-8 d-flex align-items-center ps-3">
+			                <span id="department">재고팀</span>
+			              </div>
+			            </div>
+			          </div>
+			        </div>
+			      </div>
+			    </div>
+			
+			    <!-- 재고 테이블 -->
+			    <div class="table-responsive">
+			      <table class="table table-bordered table-hover" id="inventoryTable">
+			        <thead class="table-light">
+			          <tr class="text-center">
+			            <th>품목코드</th>
+			            <th>품목명</th>
+			            <th>전월수량</th>
+			            <th>전월평가액</th>
+			            <th>입고수량</th>
+			            <th>출고수량</th>
+			            <th>조정수량</th>
+			            <th>기말수량</th>
+			            <th>기말평가액</th>
+			          </tr>
+			        </thead>
+			        <tbody>
+			          
+			            <tr>
+			              <td>item-101</td>
+			              <td>연필</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">100</td>
+			              <td class="text-end">100</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			            </tr>
+			          
+			            <tr>
+			              <td>item-102</td>
+			              <td>지우개</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">75</td>
+			              <td class="text-end">50</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">25</td>
+			              <td class="text-end">7500</td>
+			            </tr>
+			          
+			            <tr>
+			              <td>item-103</td>
+			              <td>이름이법이될때</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">75</td>
+			              <td class="text-end">50</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">25</td>
+			              <td class="text-end">500000</td>
+			            </tr>
+			          
+			            <tr>
+			              <td>item-104</td>
+			              <td>좋은이름의비밀</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">50</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">-50</td>
+			              <td class="text-end">-750000</td>
+			            </tr>
+			          
+			            <tr>
+			              <td>item-105</td>
+			              <td>자연에이름붙이기</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">80</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">80</td>
+			              <td class="text-end">960000</td>
+			            </tr>
+			          
+			            <tr>
+			              <td>item-106</td>
+			              <td>종이</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			            </tr>
+			          
+			        </tbody>
+			        <tfoot class="table-info">
+			          <tr class="fw-bold text-center">
+			            <td colspan="2">합계</td>
+			            <td class="text-end">0</td>
+			            <td class="text-end">0</td>
+			            <td class="text-end">330</td>
+			            <td class="text-end">250</td>
+			            <td class="text-end">0</td>
+			            <td class="text-end">80</td>
+			            <td class="text-end">717500</td>
+			          </tr>
+			        </tfoot>
+			      </table>
+			    </div>
+			  </div>
+			</body>
+			</html>

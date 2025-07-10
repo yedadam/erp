@@ -25,6 +25,7 @@
             option_code,
             master,
             e.dept_code,
+            profile_img_path,
             CASE   WHEN master IS NOT NULL
     		THEN 'master' ELSE auth_code
     		END auth_code 

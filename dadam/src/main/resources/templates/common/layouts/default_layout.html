@@ -426,7 +426,7 @@
 	 //사원목록 조회
 	  async function loadEmployeeList() {
 		  $.ajax({
-			    url: '/erp/chatEmpList',
+			    url: '/erp/chat/chatEmpList',
 			    method: 'GET',
 			    dataType: 'json',
 			    success: function (employees) {
@@ -436,12 +436,12 @@
 			      employees.forEach(function (emp) {
 			    	//나의 프로필은 안보여주기
 			    	if(emp.empId != empId){
-			        const profileUrl = emp.profileImgPath || '/default.png';
+			        profileUrl = emp.profileImgPath || '/default.png';
 			        const item = `
 			        
 			          <label class="list-group-item d-flex align-items-center">
 				            <input class="form-check-input me-2" type="checkbox" value="${emp.empId}" name="selectedEmployees">
-				            <img src="/uploads/profile/${profileUrl}" class="rounded-circle me-3" width="40" height="40">
+				            <img src="${profileUrl}" class="rounded-circle me-3" width="40" height="40">
 				            <div>
 				              <div>${emp.empName}</div>
 				              <small class="text-muted">${emp.deptName}</small>
@@ -492,7 +492,7 @@
 		    
 		    $.ajax({
 		      type: 'POST',
-		      url: '/erp/chatDtlAdd',
+		      url: '/erp/chat/chatDtlAdd',
 		      contentType: 'application/json',
 		      data: JSON.stringify(paramList),
 		      success: function(result) {
@@ -564,13 +564,13 @@
 				        alert('채팅방을 선택하세요.');
 				        return;
 				    }
-				
 				    const chatMessage = {
 				        roomId: roomId,
 				        empId: empId, // 로그인된 사용자 정보로 변경 필요
 				        message: message,
 				        empName : empName,
-				        comId : comId
+				        comId : comId,
+				        profileImgPath : profileImgPath
 				    };
 				
 				    stompClient.send(`/app/chat.${roomId}`, {}, JSON.stringify(chatMessage));
@@ -585,7 +585,7 @@
 		    const bubbleColor = isMine ? 'bg-primary text-white' : 'bg-secondary text-white';
 		    const senderName = isMine ? '' : msg.empName;
 		    
-		    const profileUrl = msg.profileImgPath || '/default.png';
+		    profileUrl = msg.profileImgPath || '/default.png';
 		    let html;
 		    
 		    if (isMine) {
@@ -604,7 +604,7 @@
 		        <div class="${alignClass} mb-2">
 		            <div class="d-flex align-items-start">
 		                <div class="me-2">
-		                    <img src="/uploads/profile/${profileUrl}" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
+		                    <img src="${profileUrl}" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
 		                </div>
 		                <div>
 		                    <div class="fw-bold">

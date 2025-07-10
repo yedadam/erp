@@ -69,7 +69,7 @@ public class SubscribeController {
             if (signatureImage != null && signatureImage.startsWith("data:image/png;base64,")) {
                 String base64Image = signatureImage.split(",")[1];
                 byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-                Path imagePath = Paths.get("src/main/resources/static/signatures", signatureImageName);
+                Path imagePath = Paths.get(System.getProperty("user.dir"), "signatures", signatureImageName);
                 Files.createDirectories(imagePath.getParent());
                 Files.write(imagePath, imageBytes);
 
@@ -84,7 +84,7 @@ public class SubscribeController {
 
         // 계약서 html 파일 저장
         try {
-            Path outputPath = Paths.get("src/main/resources/templates/contracts", fileName);
+        	Path outputPath = Paths.get(System.getProperty("user.dir"), "contracts", fileName);
             Files.createDirectories(outputPath.getParent());
             Files.write(outputPath, html.getBytes(StandardCharsets.UTF_8));
             return ResponseEntity.ok("계약서 저장 성공");

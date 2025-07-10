@@ -1,12 +1,12 @@
 package com.dadam.subscribe.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.dadam.security.service.ErpUserVO;
 import com.dadam.subscribe.mapper.SubsManagerMapper;
 import com.dadam.subscribe.service.ErpUsersVO;
 import com.dadam.subscribe.service.SubsListVO;
@@ -31,8 +31,8 @@ public class SubsManagerServiceImpl implements SubsManagerService {
 	 * @return List<ErpUsersVO> 구독 대상 ERP 유저 리스트
 	 */
 	@Override
-	public List<ErpUsersVO> erpUserList() {
-        List<ErpUsersVO> result = managerMapper.erpUserList();	  
+	public List<ErpUsersVO> erpUserList(Map<String,Object> map) {
+        List<ErpUsersVO> result = managerMapper.erpUserList(map);	  
 		return result;
 	}
 	

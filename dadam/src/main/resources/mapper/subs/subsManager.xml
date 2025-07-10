@@ -65,12 +65,24 @@
 			    option_code
 			FROM erpUser e
 			LEFT JOIN erpSubs s ON (e.com_id = s.com_id)
-			WHERE subs_expiration = (
+			WHERE (subs_expiration = (
 		    							SELECT MAX(s2.subs_expiration)
 		    							FROM erpSubs s2
 		    							WHERE s2.com_id = e.com_id
 									)
-			OR subs_expiration IS NULL
+			OR subs_expiration IS NULL)
+			<if test="'address'.equals(address)">
+			  AND address LIKE '%'||#{addressVal}||'%' 
+			</if>
+			<if test="'comName'.equals(comName)">
+			  AND com_name LIKE '%'||#{comNameVal}||'%' 
+			</if>
+			<if test="'tel'.equals(tel)">
+			  AND tel LIKE '%'||#{telVal}||'%' 
+			</if>
+			<if test="'name'.equals(name)">
+			  AND name LIKE '%'||#{nameVal}||'%' 
+			</if>
 </select>
 <select id="subsInfo" resultType="SubsListVO">
 	SELECT SUBS_CODE,

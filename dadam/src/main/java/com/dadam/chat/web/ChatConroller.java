@@ -31,28 +31,28 @@ public class ChatConroller {
 	 @Autowired
 	 private SimpMessagingTemplate messagingTemplate;
 	
-	@GetMapping("/chatEmpList")
+	@GetMapping("/chat/chatEmpList")
 	@ResponseBody
 	public List<ChatVO> chatEmpList(){
 		List<ChatVO> result= service.empList();
 		return result;
 	}
 	//상세등록
-	@PostMapping("/chatDtlAdd")
+	@PostMapping("/chat/chatDtlAdd")
 	@ResponseBody
 	public String chatDtlAdd(@RequestBody List<ChatVO> vo) {
 		String result = service.chatRoomAdd(vo);
 		return result;
 	}
 	//채팅목록조회
-	@GetMapping("/chatList")
+	@GetMapping("/chat/chatList")
 	@ResponseBody
 	public List<ChatVO> chatList(String empId){
 		List<ChatVO> result = service.chatList(empId);
 		return result;
 	}
 	
-    @GetMapping("/history")
+    @GetMapping("/chat/history")
     @ResponseBody
     public List<ChatVO> getChatHistory(@RequestParam String roomId) {
         return service.selectChatMessages(roomId);
@@ -64,7 +64,6 @@ public class ChatConroller {
     	chatMessage.setCreatedDate(new Date());
         messagingTemplate.convertAndSend("/topic/chat." + roomId, chatMessage);
         // 사용자 이름을 세션에 저장
-        System.out.println(chatMessage.getEmpId());
         chatMessage.setChatId(roomId);
         //DB저장
         service.insertChatMessage(chatMessage);
@@ -72,7 +71,7 @@ public class ChatConroller {
     }
     
     //멤버 리스트
-    @GetMapping("/memberList")
+    @GetMapping("/chat/memberList")
     @ResponseBody
     public List<ChatVO> memberList(@RequestParam Map<String,Object> map){
     	List<ChatVO> result = service.memberList(map);

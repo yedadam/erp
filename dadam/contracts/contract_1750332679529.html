@@ -1,7 +1,9 @@
-
-	  <head>
-	   <link th:href="@{/main_css/subscribe.css}" rel="stylesheet">
-	</head>
+<head>
+  <meta charset="UTF-8">
+  <title>요금제</title>
+   <link href="/contracts/subscribe.css" rel="stylesheet">
+   
+</head>
   <div class="contract-title">ERP 시스템 이용계약서 (Lite 요금제)</div>
     <div class="contract-subtitle">Enterprise Resource Planning System Service Agreement</div>
 
@@ -29,11 +31,11 @@
         </tr>
         <tr>
           <td>요금제</td>
-          <td>Lite</td>
+          <td>Standard</td>
         </tr>
         <tr>
           <td>월 이용료</td>
-          <td>30,000원</td>
+          <td>40,000원</td>
         </tr>
         <tr>
           <td>기간</td>
@@ -41,7 +43,7 @@
         </tr>
         <tr>
           <td>구독타입</td>
-          <td>기간구독</td>
+          <td>정기구독</td>
         </tr>
         <tr>
           <td>이용자 수</td>
@@ -49,7 +51,7 @@
         </tr>
         <tr>
           <td>제공 기능</td>
-          <td>기본적인 기능만 제공되는 최소형 요금제입니다.</td>
+          <td>중간 규모 기업을 위한 재고/영업 포함 요금제</td>
         </tr>
       </table>
     </div>
@@ -86,7 +88,7 @@
     </div>
   </div>
 
-  <div class="contract-date">계약 체결일: 2025. 7. 1.</div>
+  <div class="contract-date">계약 체결일: 2025. 6. 19.</div>
 
   <div class="contract-signature">
     <div class="signature-box">
@@ -95,8 +97,8 @@
     </div>
     <div class="signature-box">
         <div>서비스 이용자 (전자서명)</div>
-        <img src="/signatures/contract_1751380858986.png" alt="서명 이미지" style="width: 200px; height: auto;">
-        
+        <canvas id="canvas" width="400" height="200"></canvas>
+        <button class="clear-signature-btn" type="button">서명 초기화</button>
     </div>
   </div>
   

@@ -85,7 +85,7 @@
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #2196f3 0%, #9c27b0 100%);
+      background: linear-gradient(135deg, #9c27b0 100%, #9c27b0 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -183,7 +183,7 @@
 		
       <!-- 날짜 시작 -->
       <div class="col-md-2">
-        <label for="createdStartDate" class="form-label">결제일자</label>
+        <label for="createdStartDate" class="form-label">결재일자</label>
         <input type="date" id="createdStartDate" class="form-control">
       </div>
 					
@@ -226,7 +226,7 @@
     </div>
    </div>
   </div>
-</div>
+
 <!-- 버튼 영역 -->
 	<div class="d-flex justify-content-end align-items-center mb-1 mt-2">
 			<div class="d-flex flex-wrap gap-2">
@@ -286,6 +286,7 @@
       </div>
     </div>
   </div>
+ </div>
 </div>
 <div id="toastPopup"
 	style="
@@ -321,11 +322,11 @@
         	 let value = $('#setInput').val();
 			 let type = $("#setSelect option:selected").val();
 			 let url = '/erp/inventory/setlleList';
-			 let expDlvStartDate = $('#createdStartDate').val();
-			 let expDlvEndDate = $('#createdEndDate').val();
+			 let createdStartDate = $('#createdStartDate').val();
+			 let createdEndDate = $('#createdEndDate').val();
 			 let grid = mainGrid;
 			 let status = $('input[name="setStatus"]:checked').val();
-			 commonSearchObject({type,value,expDlvStartDate,expDlvEndDate,status},url,grid);
+			 commonSearchObject({type,value,createdStartDate,createdEndDate,status},url,grid);
         })
 	    
    //결재자 초기 데이터
@@ -601,6 +602,7 @@
 	        	if(result > 0){
 	        		Swal.fire('완료','등록이 성공적으로 완료 되었습니다','success')
  					$('#stockModal').modal('hide');
+	        		mainList();
 	        	}
 	          },
 	          error: function (xhr, status, error) {

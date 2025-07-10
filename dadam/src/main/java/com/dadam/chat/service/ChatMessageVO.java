@@ -16,4 +16,5 @@ public class ChatMessageVO {
 	private String empId;
 	private String empName;
 	private String comId;
+	private String profileImgPath;
 }

@@ -1,6 +1,7 @@
 package com.dadam.subscribe.web;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,8 +36,8 @@ public class SubsManagerRestController {
      * @return List<ErpUsersVO> ERP 유저 리스트 리턴함
      */
     @GetMapping("/userList")
-    public List<ErpUsersVO> userList() {
-        List<ErpUsersVO> result = service.erpUserList();
+    public List<ErpUsersVO> userList(@RequestParam Map<String,Object> map) {
+        List<ErpUsersVO> result = service.erpUserList(map);
         return result;
     }
 
