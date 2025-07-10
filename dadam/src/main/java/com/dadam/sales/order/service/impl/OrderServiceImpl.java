@@ -68,6 +68,7 @@ public class OrderServiceImpl implements OrderService {
 		
 		ord.getDtl().getUpdatedRows().get(0).setComId(comId);
 		ord.getDtl().getUpdatedRows().get(0).setOrdCode(ordCode);     //ordCode세팅 해주기
+		System.out.println("프론트에서받아온값ord==>>"+ord.getDtl());
 		orderMapper.odtlInsert(ord.getDtl().getUpdatedRows().get(0)); //등록할때 상세의 제일 첫번째행 
 		for(int i=0; i<ord.getDtl().getCreatedRows().size();i++) {
 			ord.getDtl().getCreatedRows().get(i).setComId(comId);
