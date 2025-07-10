@@ -105,14 +105,11 @@ public class OutboundServiceImpl implements OutboundService{
 			System.out.println("vo:" + vo);
 			System.out.println("CurrQty:" + ho.getCurrQty());
 			System.out.println("Qty:" + vo.getQty());
+			System.out.println("HoldQty:" + ho.getHoldQty());
 			// HoldQty = 현재입력량 + 현재 출고된 홀드수량
 			ho.setHoldQty(ho.getCurrQty() + vo.getQty());
-			System.out.println("HoldQty:" + ho.getHoldQty());
-			int qqt = 0;
-			qqt = ho.getCurrQty() + vo.getQty();
-			System.out.println("qqt: " + qqt);
 			// 홀드 수량 조회 후 값 비교
-			if(ho.getHoldQty() == qqt) {
+			if(ho.getHoldQty() == ho.getHoldQty()) {
 				ho.setHdstatus("hds02");
 			}
 			
