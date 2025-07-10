@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
  */
 @Data
 public class SalaryItemVO {
+    /** 급여항목 PK (id) */
+    private Long id;
     /** 항목코드 (allow_code) */
     private String allowCode;
     /** 항목명 (allow_name) */
