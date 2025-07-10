@@ -59,6 +59,7 @@ public class SalaryItemRestController {
     private boolean isAdmin() {
         Map<String, String> userInfo = getCurrentUserInfo();
         String authority = userInfo.get("authority");
+        System.out.println("[급여항목 삭제] 현재 로그인 계정 권한: " + authority);
         return "admin".equals(authority) || "master".equals(authority);
     }
 

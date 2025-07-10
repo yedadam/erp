@@ -67,11 +67,11 @@
                 <label class="form-check-label" for="statusAll">전체</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="salaryStatus" id="statusActive" value="활성">
+                <input class="form-check-input" type="radio" name="salaryStatus" id="statusActive" value="Y">
                 <label class="form-check-label" for="statusActive">활성</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="salaryStatus" id="statusInactive" value="비활성">
+                <input class="form-check-input" type="radio" name="salaryStatus" id="statusInactive" value="N">
                 <label class="form-check-label" for="statusInactive">비활성</label>
               </div>
             </div>
@@ -86,21 +86,17 @@
 
     <!-- 버튼 영역 -->
     <div class="d-flex align-items-center gap-2 mb-2" style="min-height:40px;">
-      <button class="btn btn-outline-success" id="excelBtn" data-bs-toggle="tooltip" title="급여항목 목록 다운로드">
-        <i class="fas fa-file-excel"></i>
-      </button>
-      <button class="btn btn-outline-secondary" id="filterBtn" data-bs-toggle="tooltip" title="필터 열기">
-        <i class="fas fa-cog"></i>
-      </button>
-      <div class="ms-auto"></div>
-      <button class="btn btn-info" id="addBtn" style="min-width:110px;">
+      <button class="btn btn-primary" id="addBtn" style="min-width:90px;">
         <i class="fas fa-plus"></i> 추가
       </button>
-      <button class="btn btn-danger" id="deleteBtn" disabled>
-        <i class="fas fa-trash"></i> 삭제
-      </button>
-      <button class="btn btn-success" id="saveBtn" disabled>
+      <button class="btn btn-success" id="saveBtn" disabled style="min-width:90px;">
         <i class="fas fa-save"></i> 저장
+      </button>
+      <button class="btn btn-secondary" id="excelBtn" data-bs-toggle="tooltip" title="엑셀 다운로드" style="min-width:120px;">
+        <i class="fas fa-file-excel"></i> 엑셀 다운로드
+      </button>
+      <button class="btn btn-danger" id="deleteBtn" disabled style="min-width:90px;">
+        <i class="fas fa-trash"></i> 삭제
       </button>
       <span class="ms-3 text-secondary" id="resultCount"></span>
     </div>
@@ -184,10 +180,11 @@
     function filterSalaryItems() {
       const paramObj = {
         comId: 'com-101',
-        category: $('#categoryFilter').val(),
-        status: $('input[name="salaryStatus"]:checked').val(),
+        type: $('#categoryFilter').val(), // category → type
+        acctYn: $('input[name="salaryStatus"]:checked').val(), // status → acctYn
         keyword: $('#searchInput').val()
       };
+      console.log('필터 파라미터:', paramObj); // 값 확인용
       commonSearchObject(paramObj, '/erp/hr/salaryitem/list', grid);
     }
     // 카테고리/진행상태는 즉시 필터링
@@ -210,7 +207,7 @@
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
       const todayStr = `${yyyy}-${mm}-${dd}`;
-      grid.appendRow({ createdDate: todayStr, acctYn: 'Y', calcType: '고정액', targetType: '전체' }, { focus: true });
+      grid.prependRow({ createdDate: todayStr, acctYn: 'Y', calcType: '고정액', targetType: '전체' }, { focus: true });
       setTimeout(() => grid.focusAt(0, 'allowCode'), 100); // 첫 입력 셀로 포커스
       $('#saveBtn').prop('disabled', false);
     });
@@ -310,9 +307,37 @@
         cancelButtonText: '취소'
       }).then((result) => {
         if (result.isConfirmed) {
-          checked.forEach(rowKey => grid.removeRow(rowKey));
-          swal.fire('✔ 삭제 완료', '선택한 항목이 삭제되었습니다.', 'success');
-          $('#deleteBtn').prop('disabled', true);
+          let ajaxCount = 0, ajaxFail = 0;
+          checked.forEach(rowKey => {
+            const row = grid.getRow(rowKey);
+            // 삭제 요청 값 콘솔 출력
+            console.log('삭제 요청:', row.comId, row.allowCode);
+            $.ajax({
+              url: '/erp/hr/delete',
+              method: 'DELETE',
+              data: { comId: row.comId, allowCode: row.allowCode },
+              success: function(res) {
+                ajaxCount++;
+                if (res !== 'ok') ajaxFail++;
+                if (ajaxCount === checked.length) {
+                  if (ajaxFail === 0) {
+                    swal.fire('✔ 삭제 완료', '선택한 항목이 삭제되었습니다.', 'success');
+                    filterSalaryItems(); // 목록 새로고침
+                  } else {
+                    swal.fire('❌ 오류', '일부 항목 삭제에 실패했습니다.', 'error');
+                  }
+                  $('#deleteBtn').prop('disabled', true);
+                }
+              },
+              error: function() {
+                ajaxCount++; ajaxFail++;
+                if (ajaxCount === checked.length) {
+                  swal.fire('❌ 오류', '일부 항목 삭제에 실패했습니다.', 'error');
+                  $('#deleteBtn').prop('disabled', true);
+                }
+              }
+            });
+          });
         }
       });
     });
