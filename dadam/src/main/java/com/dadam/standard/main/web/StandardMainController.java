@@ -10,6 +10,6 @@ public class StandardMainController {
 	
 	@GetMapping("/standard")
 	public String test() {
-		return "/standard/standardMain";
+		return "standard/standardMain";
 	}
 }

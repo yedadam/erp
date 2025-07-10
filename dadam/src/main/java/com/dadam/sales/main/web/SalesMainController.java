@@ -10,7 +10,7 @@ public class SalesMainController {
 	
 	@GetMapping("/sales")
 	public String test() {
-		return "/sales/salesMain";
+		return "sales/salesMain";
 	}
 	//@GetMapping("/quote")
 	//public String quote() {
