@@ -237,12 +237,13 @@ detailGrid = new tui.Grid({
 	
 	columns:[
 		{header: '주문번호',name:'articleCode',align:'center'},
-		{header: '유형', name: 'totPrice', align: 'center', hidden: true   },
-		{header: '거래유형', name: 'type', align:'center'},
+		{header: '거래금액', name: 'totPrice', align: 'center', hidden: true   },
+		{header: '거래유형', name: 'type', align:'center', hidden: true },
+		{header: '거래유형', name: 'typeName', align:'center'},
 		{header: '매출',name:'debit',align:'right',
-			formatter: ({row}) => row.type === '매출' ? (row.totPrice?.toLocaleString() + '원') : ''},
+			formatter: ({row}) => row.type === 'cht02' ? (row.totPrice?.toLocaleString() + '원') : ''},
 		{header: '수금', name: 'credit', align: 'right',
-			formatter: ({row}) => row.type === ' 수금' ? (row.totPrice?.toLocaleString() + '원') : ''},
+			formatter: ({row}) => row.type === 'cht03' ? (row.totPrice?.toLocaleString() + '원') : ''},
 		{header: '잔액', name: 'creditBalPrice', align: 'right',
 			formatter: ({value}) => value?.toLocaleString() + '원' || ''},
 		{header: '담당자', name: 'empId', align: 'center'},

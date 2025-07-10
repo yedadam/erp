@@ -70,5 +70,15 @@ public class BalanceSheetController {
         
         return balanceSheetService.selectBalanceSheet(param);
     }
+    
+    
+    @GetMapping("/netIncome")
+    @ResponseBody
+    public Map<String, Object> getNetIncome(@RequestParam Map<String, Object> param, HttpSession session) {
+        String comId = (String) session.getAttribute("comId");
+        param.put("comId", comId);
+
+        return balanceSheetService.getNetIncome(param);
+    }
 
 }
