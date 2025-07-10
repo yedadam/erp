@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.inventory.hold.mapper.HoldMapper">
+	<!--실사 조회 -->
+	<select id="selectPhysicalList" resultType="HoldVO" parameterType="HoldVO">
+		SELECT  
+				phy_code,
+				wh_code,
+				phy_date,
+				phy_emp_id,
+				appr_emp_id,
+				note,
+				created_date,
+				com_id
+		FROM physical
+		ORDER BY phy_code DESC
+	</select>
+	
+</mapper>
