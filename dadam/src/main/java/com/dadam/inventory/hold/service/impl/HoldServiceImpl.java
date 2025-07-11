@@ -1,6 +1,8 @@
 package com.dadam.inventory.hold.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,16 +49,12 @@ public class HoldServiceImpl implements HoldService{
 			holdMapper.insertHoldList(vo);
 			// ht01 = 재고이동 ht02 = 출하의뢰
 			if(vo.getType() == "ht01") {
-				//if(vo.getStatus() == )
 				vo.setShipReqDtlCode(vo.getCode());
-				// 넘어온값이 출고보류라면 부분홀드상태로 변경
-				// 홀드중으로 넘어온다면 홀드완료 상태로 변경
-				/*
-				 * hs01 홀드중 hs02 처리완료 hs03 부분홀드
-				 */
-				if(vo.getStatus() == "hs03") {
+				// 홀드 중
+				if(vo.getStatus() == "hs01") {
 					vo.setShipstatus("srd04");
-				}else if(vo.getStatus() == "hs01") {
+				// 홀드 완료
+				}else if(vo.getStatus() == "hs02") {
 					vo.setShipstatus("srd05");
 				}
 				holdMapper.updateHoldShipRequestDetail(vo);

@@ -1,19 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dadam.inventory.hold.mapper.HoldMapper">
+<mapper namespace="com.dadam.inventory.physical.mapper.PhysicalMapper">
 	<!--실사 조회 -->
-	<select id="selectPhysicalList" resultType="HoldVO" parameterType="HoldVO">
+	<select id="selectPhysicalList" resultType="PhysicalVO" parameterType="String">
 		SELECT  
 				phy_code,
 				wh_code,
-				phy_date,
+				getwarehouseName(wh_code) wh_Name,
+				wh_code,
 				phy_emp_id,
+				getempName(phy_emp_id, #{comId}) phyEmpName,
 				appr_emp_id,
+				getempName(appr_emp_id, #{comId}) apprEmpName,
 				note,
 				created_date,
+				appr_date,
 				com_id
 		FROM physical
+		WHERE com_id = #{comId}
 		ORDER BY phy_code DESC
 	</select>
-	
+	<!--실사상세 조회 -->
+	<select id="selectPhysicalDetailList" resultType="PhysicalVO" parameterType="PhysicalVO">
+		SELECT  
+				phy_dtl_code,
+				phy_code,
+				item_code,
+				getitemName(item_code) itemName,
+				quantity,
+				lot,
+				note,
+				com_id
+		FROM physicaldetail
+		WHERE com_id=#{comId} AND phy_code = #{phyCode}
+		ORDER BY phy_dtl_code DESC
+	</select>
+	<!-- insert physical -->
+	<insert id="insertPhysical" parameterType="PhysicalVO">
+		<selectKey resultType="string" keyProperty="phyCode" order="BEFORE">
+			SELECT 'psc-' || (NVL(MAX(TO_NUMBER(SUBSTR(phy_code,4))),100)+1) phyCode
+			FROM physical
+		</selectKey>
+	INSERT INTO physical(
+						phy_code,
+	                    wh_code,
+	                    phy_emp_id,
+	                    created_date,
+	                    note,
+	                    com_id)
+	VALUES(         
+						#{phyCode},
+	                    #{whCode},
+	                    #{phyEmpId},
+	                    sysdate,
+	                    #{note},
+	                    #{comId})
+	</insert>
+	<!-- insert physicalDetail -->
+	<insert id="insertPhysicalDetail" parameterType="PhysicalVO">
+		<selectKey resultType="string" keyProperty="phyCode" order="BEFORE">
+			SELECT 'pscd-' || (NVL(MAX(TO_NUMBER(SUBSTR(phy_dtl_code,5))),100)+1) phyDtlCode
+			FROM physicaldetail
+		</selectKey>
+	INSERT INTO physical(
+						phy_dtl_code,
+                        phy_code,
+                        lot,
+                        item_code,
+                        quantity,
+                        note,
+                        loc_code,
+                        com_id)
+	VALUES(         
+						#{phyDtlCode},
+	                    #{phyCode},
+	                    #{lot},
+	                    #{itemCode},
+	                    #{quantity},
+	                    #{note},
+	                    #{locCode},
+	                    #{comId})
+	</insert>
 </mapper>

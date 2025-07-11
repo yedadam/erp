@@ -8,5 +8,8 @@ import com.dadam.inventory.physical.service.PhysicalVO;
 
 @Mapper
 public interface PhysicalMapper {
-	public List<PhysicalVO> selectPhysicalList(PhysicalVO list);
+	// 실사 조회
+	public List<PhysicalVO> selectPhysicalList(String comId);
+	// 실사 상세 조회
+	public List<PhysicalVO> selectPhysicalDetailList(PhysicalVO list);
 }

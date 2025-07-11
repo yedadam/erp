@@ -579,13 +579,13 @@ function insertGrid(){
 				  text: "수량을 확인해주세요!"
 				});
 			return;
-		// sum = 각lot의 수량 quantity 나중에하자
+		// sum = 각lot의 수량
 		}else if(sum < rowData.quantity){
-			holdGrid.setValue(rowKey, 'status', 'hs03')
-			holdGrid.setValue(rowKey, 'statusName', '출고보류')
-		}else{
-			holdGrid.setValue(rowKey, 'status', 'hs01')
+			holdGrid.setValue(rowKey, 'status', 'hs1')
 			holdGrid.setValue(rowKey, 'statusName', '홀드중')
+		}else{
+			holdGrid.setValue(rowKey, 'status', 'hs02')
+			holdGrid.setValue(rowKey, 'statusName', '홀드완료')
 		}
 		// 파라메타 담기
 		checkData = check.map((item)=> ({
