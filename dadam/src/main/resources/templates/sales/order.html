@@ -739,11 +739,8 @@ if(pageStatus=='register'){
 		}
 		//$('#saveRowdtl').prop('disabled', true); //상세저장버튼 비활성화 
 	
-		console.log(orderGrid.getData()[0].ordCode); //ordCode ord-122 이런꼴로 나옴 
-		let nextordCode = orderGrid.getData()[0].ordCode;  // 예: "ord-122"
-		let numberOnly = String(Number(nextordCode.substr(4))+1);     
-		pageStatus='register'; //등록상태
-	  	nextordCode='ord-'+numberOnly; //ord-123    
+	
+	
 
 		//행추가할 데이터 생성
 		let addRow = {}
