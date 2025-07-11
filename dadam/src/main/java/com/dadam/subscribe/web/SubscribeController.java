@@ -74,7 +74,7 @@ public class SubscribeController {
                 Files.write(imagePath, imageBytes);
 
                 // 이미지 태그 만들어서 html 끝부분에 넣기
-                String imageTag = "<img src=\"/signatures/" + signatureImageName + "\" style=\"width:200px;height:auto;\">";
+                String imageTag = "<img src=\"/uplods/signatures/" + signatureImageName + "\" style=\"width:200px;height:auto;\">";
                 html = html.replace("</div></div></div>", imageTag + "</div></div></div>");
             }
         } catch (IOException e) {
