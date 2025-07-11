@@ -44,7 +44,9 @@ public class SubsManagerFormController {
      * @desc 계약서 html 미리보기 기능
      * @param constImage : 계약서 파일명 (예: contract1.html)
      * @return String : contracts 폴더 안에 html 뷰 이름 리턴
-     * @implNote ".html" 확장자 제거해서 thymeleaf 뷰로 인식하게 처리함
+     * @implNote ".html" 확장자 제거해서 thymeleaf 뷰로 인식하게 처리함contracts
+settlementEle
+signatures
      */
     @GetMapping("/preview")
     public void constPreview(@RequestParam String constImage, HttpServletResponse response) throws IOException {
