@@ -105,7 +105,7 @@ public class SpringSecurityConfig {
     public SecurityFilterChain userFilterChain(HttpSecurity http) throws Exception {
         http
             //erp에서만 적용
-        	.securityMatcher("/erp/**") 
+        	.securityMatcher("/erp/**", "/uploads/**") 
             .authorizeHttpRequests(auth -> auth
                 // 정적 리소스와 로그인 페이지는 모든 사용자에게 허용
                 .requestMatchers(//"/erp/**",
