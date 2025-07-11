@@ -100,7 +100,6 @@
 		SET status = #{shipstatus}
 		WHERE com_id = #{comId} AND ship_req_dtl_code = #{shipReqDtlCode}
 	</update>
-	
 	<!-- 현재 입력된값 가져오기 -->
 	<select id="selectHoldStockHoldQty" parameterType="LotVO" resultType="int">
 	SELECT nvl(hold_qty,0) hold_qty

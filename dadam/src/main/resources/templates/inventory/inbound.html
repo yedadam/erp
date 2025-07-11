@@ -115,6 +115,9 @@
 			</div>
 			<div class="modal-body">
 					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
+						<button class="btn btn-danger" id="autoModal">
+						<i class="fas fa-square-minus"></i> 모든 값 넣기
+						</button>
 						<button class="btn btn-danger" id="resetModal">
 						<i class="fas fa-square-minus"></i> 초기화
 						</button>
@@ -343,8 +346,8 @@ function insertGrid(){
 					    	{ header: '품목코드', name: 'itemCode', align:'center'},
 					    	{ header: '품목명', name: 'itemName', align:'center'},
 					    	{ header: '발주량', name: 'quantity', align:'center'},
-					    	{ header: '기입고량', name: 'currQty', align:'center'},
-					    	{ header: '미입고량', name: 'reqQty', align:'center'},
+					    	{ header: '기입고량', name: 'currQty', align:'center', dataType: 'number'},
+					    	{ header: '미입고량', name: 'reqQty', align:'center', dataType: 'number'},
 					    	{ header: '위치', name: 'loc', align:'center', width: 200
 					    		, formatter:'listItemText'
 					    		,  editor: {
@@ -353,7 +356,7 @@ function insertGrid(){
 					    		      listItems: warehouse
 					    		    }
 					    		  }},
-					    	{ header: '입고수량', name: 'qty', align:'center', editor: 'text'},
+					    	{ header: '입고수량', name: 'qty', align:'center', editor: 'text', dataType: 'number'},
 					    	{ header: '비고', name: 'note', align:'center', editor: 'text'},
 					    	{ header: '추가/삭제', name: 'origin', align:'center'
 					    		/* , renderer: CustomButton} */
@@ -424,6 +427,13 @@ function insertGrid(){
 								  text: "수량을 입력해주세요!"
 								});
 							return;
+						}else if(item.qty <= 0){
+							Swal.fire({
+								  icon: "error",
+								  title: "수량수정 필요!",
+								  text: "수량을 올바르게 기입해주세요!"
+								});
+							return;
 						}
 					}
 					
@@ -492,7 +502,6 @@ function insertGrid(){
 							contentType: 'application/json',
 							data: JSON.stringify(param),
 							success:(result)=>{
-								console.log(result)
 							if(result > 0){
 							Swal.fire({
 								  icon: "success",
@@ -544,8 +553,6 @@ function insertGrid(){
 						});
 					}
 				})
-				
-				
 				//행삭제
 			inboundGrid.on('click', (ev)=>{
 					let { rowKey, columnName } = ev;
@@ -559,6 +566,20 @@ function insertGrid(){
 				$('#inboundModal').on('shown.bs.modal',function(){
 					inboundGrid.refreshLayout();
 				})
+				
+				// 값 자동입력
+				/* $('#autoModal').on('click', ()=>{
+					let auto = inboundGrid.getData();
+					auto.forEach((item)=>{
+						let rowKey = item.rowKey;
+						let column = item.column;
+						inboundGrid.getValue(rowKey, column);
+						inboundGrid.setValue(rowKey, column, value);
+						
+						
+					})
+					
+				}) */
 			
 	    } // ajax호출 끝
 	  });
