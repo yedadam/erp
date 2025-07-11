@@ -117,6 +117,7 @@ public class SpringSecurityConfig {
                         		 "/erp/standard/updateChit",
                         		 "/erp/standard/moneyList",
                         		 "/erp/standard/adjList",
+                        		 "/uploads/**",
                         		 "/erp/standard/itemAll").permitAll()
                 .requestMatchers("/erp").hasAnyAuthority("master","ac-101","ac-102","ac-103","ac-104","ac-105")
                 .requestMatchers("/erp/standard/**").hasAnyAuthority("master","ac-101")
