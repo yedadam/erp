@@ -4,9 +4,20 @@
 	namespace="com.dadam.acc.credit.mapper.TransactionsMapper">
 	<!-- 목업용, 실제 쿼리 없음 -->
 	<select id="selectAll" resultType="TransactionsVO">
-		SELECT * 
+		SELECT t.txn_hist_code  
+			 , t.txn_date  
+			 , t.txn_type  
+			 , t.txn_memo  
+			 , t.price  
+			 , v.balance  
+			 , t.bank  
+			 , t.acct_no  
+			 , t.com_id  
+			 , t.txn_name  
 		FROM transaction t
-		WHERE com_id = #{comId}
+		JOIN VW_TRANSACTION_LEDGER v ON t.txn_hist_code = v.txn_hist_code
+		WHERE t.com_id = #{comId}
+		ORDER BY t.txn_date DESC, t.txn_hist_code DESC
 	</select>
 
 
@@ -23,7 +34,6 @@
 		, txn_name
 		, txn_memo
 		, price
-		, balance
 		, bank
 		, acct_no
 		, com_id
@@ -34,7 +44,6 @@
 		, #{txnName}
 		, #{txnMemo}
 		, #{price}
-		, #{balance}
 		, #{bank}
 		, #{acctNo}
 		, #{comId}

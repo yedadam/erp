@@ -49,7 +49,7 @@
 	  JOIN VENDER v ON l.vdr_code = v.vdr_code
 	 WHERE l.vdr_code = #{vdrCode}
 	   AND l.com_id = #{comId}
-	 ORDER BY c.update_date
+	 ORDER BY l.changed_at DESC
 	</select>
 <!-- 
 
