@@ -52,10 +52,10 @@ public class SubsManagerFormController {
     	Path filePath = Paths.get(System.getProperty("user.dir"), "contracts", constImage);
 
         if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
+        	System.out.println(constImage+"컨스트");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        System.out.println(constImage+"컨스트");
 
         //컨텐츠 타입 설정
         response.setContentType("text/html;charset=UTF-8");
