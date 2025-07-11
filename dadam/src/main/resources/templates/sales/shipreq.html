@@ -374,7 +374,7 @@
                 {header: '총금액합계', name: 'totPrice', align: 'right', 
                 		formatter: function(price){return priceFormat(price.value)+'원';},},
                 {header: '상태', name: 'status', align: 'center',
-						formatter:function(status){return headstatus(status.value)}
+										formatter:function(status){return headstatus(status.value)}
 				},
 				{header: '주문번호', name: 'ordCode', align: 'center'},
 				{header: '등록일자', name: 'createdDate', align: 'center'}
@@ -393,7 +393,7 @@
                 {header:'출하의뢰상세코드', name: 'shipReqDtlCode', align: 'center', width: 120},
                 {header:'품목코드', name: 'itemCode', align: 'center', width: 120},
                 {header:'품목이름', name: 'name', align: 'left',customHeader:getName('품목이름')},
-                {header:'수량', name: 'quantity', align: 'center',customHeader:getName('수량'),
+                {header:'수량', name: 'quantity', align: 'center', customHeader:getName('수량'),
                 	formatter: function(quantity){
 					 	if(quantity.value==null){
 							return 0+'개';
@@ -729,15 +729,19 @@
 		$('#rowDelBtn').on('click', ev => {
 			//클릭된 정보 가져오기
 			const checkedRows = detailGrid.getCheckedRows();
-			
-				let dataToSend = {
-	    				head : mainGrid.getCheckedRows()[0], //{}   
-	    				dtl : checkedRows    //[{},{}]
-	    		};	
-					if( mainGrid.getCheckedRows()[0].status=='srq03'){
-						 Swal.fire('실패','이미 출하완료된 건입니다','error');
-							 return; 
-					}	
+	
+			let dataToSend = {
+	    			head : mainGrid.getCheckedRows()[0], //{}   
+	    			dtl : checkedRows    //[{},{}]
+	    };	
+			if( mainGrid.getCheckedRows()[0].status=='srq03'){
+					Swal.fire('실패','이미 출하완료된 건입니다','error');
+						return; 
+			}
+
+	
+					
+
 				$.ajax({
 				url: '/erp/sales/shipReqDelDtl',
 				type:'DELETE',
