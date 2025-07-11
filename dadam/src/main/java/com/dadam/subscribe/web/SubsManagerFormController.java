@@ -50,7 +50,8 @@ public class SubsManagerFormController {
     public void constPreview(@RequestParam String constImage, HttpServletResponse response) throws IOException {
         //파일 경로 설정 (운영서버의 실제 경로)
     	Path filePath = Paths.get(System.getProperty("user.dir"), "contracts", constImage);
-
+    	String fileCheck =  System.getProperty("user.dir");
+    	System.out.println("경로"+fileCheck);
         if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
         	System.out.println(constImage+"컨스트");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
