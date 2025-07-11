@@ -142,4 +142,44 @@ public interface SalaryMapper {
      * @return 엑셀 내보내기 데이터
      */
     public List<Map<String, Object>> selectSalaryExportData(Map<String, Object> params);
+
+    /**
+     * 회사별 사원 목록 조회 (급여계산용)
+     * 
+     * @param companyId 회사 ID
+     * @return 사원 목록
+     */
+    public List<Map<String, Object>> getEmployeesByCompany(@Param("companyId") Long companyId);
+
+    /**
+     * 사원 기본 정보 조회 (급여계산용)
+     * 
+     * @param params 사원ID, 회사ID
+     * @return 사원 기본 정보
+     */
+    public Map<String, Object> getEmployeeInfo(Map<String, Object> params);
+
+    /**
+     * 급여 항목 설정 조회 (급여계산용)
+     * 
+     * @param companyId 회사 ID
+     * @return 급여 항목 설정
+     */
+    public Map<String, Object> getSalaryItems(@Param("companyId") Long companyId);
+
+    /**
+     * 급여 명세서 조회 (사원별, 년월별)
+     * 
+     * @param params 사원ID, 년월
+     * @return 급여 명세서 정보
+     */
+    public Map<String, Object> selectSalaryDetailByEmployeeAndMonth(Map<String, Object> params);
+
+    /**
+     * 기본급 조회
+     * 
+     * @param params 사원ID, 회사ID
+     * @return 기본급
+     */
+    public double getBaseSalary(Map<String, Object> params);
 } 

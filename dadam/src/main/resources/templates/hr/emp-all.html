@@ -276,7 +276,7 @@ body {
     // [Ajax] 사원 데이터 조회 및 그리드 세팅
     function loadEmpData() {
       $.ajax({
-        url: '/erp/hr/empList',
+        url: '/erp/hr/empListAjax',
         method: 'GET',
         dataType: 'json',
         success: function(data) {
@@ -302,9 +302,9 @@ body {
       const dept = $('#filterDept').val();
       const status = $('#filterStatus').val();
       $.ajax({
-        url: '/erp/hr/empList',
+        url: '/erp/hr/empListAjax',
         method: 'GET',
-        data: { keyword, dept, status },
+        data: { comId: 'com-101', keyword, dept, status },
         dataType: 'json',
         success: function(data) {
           empAllGrid.resetData(data);

@@ -12,4 +12,5 @@ public interface SalaryStatementService {
     int modifySalaryStatement(SalaryStatementVO vo);
     int removeSalaryStatement(java.util.Map<String, Object> param);
     List<SalaryStatementVO> getSalaryStatementList(String empId, String comId);
+    List<SalaryStatementVO> getSalaryStatementList(java.util.Map<String, Object> param);
 } 

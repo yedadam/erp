@@ -87,4 +87,11 @@ public interface AttendanceStatsMapper {
      * @return 업데이트 결과
      */
     int updateMonthlyStats(AttendanceStatsVO vo);
+
+    /**
+     * 급여계산용 근태 통계 조회
+     * @param params - 사원ID, 년월, 회사ID
+     * @return 근태 통계 정보
+     */
+    com.dadam.hr.attendance.service.AttendanceStatisticsVO getAttendanceStatistics(java.util.Map<String, Object> params);
 } 

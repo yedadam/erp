@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -19,6 +20,8 @@ import com.dadam.hr.emp.mapper.EmpMapper;
 import com.dadam.hr.salary.service.SalaryCalculationVO;
 import com.dadam.hr.salary.service.SalaryDetailVO;
 import com.dadam.hr.attendance.service.AttendanceStatisticsVO;
+import com.dadam.hr.attendance.mapper.AttendanceStatsMapper;
+import com.dadam.hr.salary.service.SalaryStatementVO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +41,7 @@ public class SalaryCalculationService {
     private SalaryMapper salaryMapper;
     
     @Autowired
-    private AttendanceManageMapper attendanceMapper;
+    private AttendanceStatsMapper attendanceMapper;
     
     @Autowired
     private EmpMapper employeeMapper;
@@ -53,9 +56,33 @@ public class SalaryCalculationService {
     public int calculateMonthlySalary(Long companyId, String yearMonth) {
         log.info("급여 자동계산 시작 - 회사ID: {}, 년월: {}", companyId, yearMonth);
         
-        // TODO: 실제 구현 필요
-        log.warn("급여 자동계산 기능이 아직 구현되지 않았습니다.");
-        return 0;
+        try {
+            // 1. 해당 회사의 모든 사원 조회
+            List<Map<String, Object>> employees = salaryMapper.getEmployeesByCompany(companyId);
+            int calculatedCount = 0;
+            
+            // 2. 각 사원별로 급여 계산
+            for (Map<String, Object> employee : employees) {
+                String empId = (String) employee.get("emp_id");
+                
+                // 3. 개별 사원 급여 계산
+                SalaryCalculationVO calculation = calculateEmployeeSalary(companyId, Long.valueOf(empId), yearMonth);
+                
+                if (calculation != null) {
+                    // 4. 계산 결과 저장
+                    saveSalaryCalculation(calculation);
+                    calculatedCount++;
+                    log.debug("사원 {} 급여 계산 완료", empId);
+                }
+            }
+            
+            log.info("급여 자동계산 완료 - 총 {}건 계산됨", calculatedCount);
+            return calculatedCount;
+            
+        } catch (Exception e) {
+            log.error("급여 자동계산 중 오류 발생: {}", e.getMessage(), e);
+            return 0;
+        }
     }
 
     /**
@@ -69,9 +96,41 @@ public class SalaryCalculationService {
     public SalaryCalculationVO calculateEmployeeSalary(Long companyId, Long employeeId, String yearMonth) {
         log.debug("사원 급여 계산 시작 - 사원ID: {}, 년월: {}", employeeId, yearMonth);
         
-        // TODO: 실제 구현 필요
-        log.warn("사원 급여 계산 기능이 아직 구현되지 않았습니다.");
-        return null;
+        try {
+            // 1. 사원 기본 정보 조회
+            Map<String, Object> employeeParams = new HashMap<>();
+            employeeParams.put("employeeId", employeeId);
+            employeeParams.put("companyId", companyId);
+            Map<String, Object> employeeInfo = salaryMapper.getEmployeeInfo(employeeParams);
+            if (employeeInfo == null) {
+                log.warn("사원 정보를 찾을 수 없습니다: {}", employeeId);
+                return null;
+            }
+            
+            // 2. 근태 통계 조회
+            Map<String, Object> attendanceParams = new HashMap<>();
+            attendanceParams.put("empId", employeeId.toString());
+            attendanceParams.put("yearMonth", yearMonth);
+            attendanceParams.put("comId", companyId);
+            AttendanceStatisticsVO attendanceStats = attendanceMapper.getAttendanceStatistics(attendanceParams);
+            if (attendanceStats == null) {
+                log.warn("근태 통계를 찾을 수 없습니다: 사원ID={}, 년월={}", employeeId, yearMonth);
+                return null;
+            }
+            
+            // 3. 급여 항목 설정 조회
+            Map<String, Object> salaryItems = salaryMapper.getSalaryItems(companyId);
+            
+            // 4. 급여 계산 실행
+            SalaryCalculationVO calculation = performSalaryCalculation(employeeInfo, attendanceStats, salaryItems, yearMonth);
+            
+            log.debug("사원 {} 급여 계산 완료 - 총액: {}", employeeId, calculation.getTotalSalary());
+            return calculation;
+            
+        } catch (Exception e) {
+            log.error("사원 급여 계산 중 오류 발생: {}", e.getMessage(), e);
+            return null;
+        }
     }
 
     /**
@@ -628,9 +687,72 @@ public class SalaryCalculationService {
     public SalaryStatementVO getSalaryStatement(String empId, String payMonth) {
         log.debug("급여 명세서 조회 - 사원ID: {}, 지급년월: {}", empId, payMonth);
         
-        // TODO: 실제 구현 필요
-        log.warn("급여 명세서 조회 기능이 아직 구현되지 않았습니다.");
-        return null;
+        try {
+            // 1. 급여 마스터 정보 조회
+            Map<String, Object> params = new HashMap<>();
+            params.put("empId", empId);
+            params.put("payMonth", payMonth);
+            Map<String, Object> salaryMaster = salaryMapper.selectSalaryDetailByEmployeeAndMonth(params);
+            
+            if (salaryMaster == null) {
+                log.warn("급여 명세서를 찾을 수 없습니다: 사원ID={}, 년월={}", empId, payMonth);
+                return null;
+            }
+            
+            // 2. 급여 상세 항목 조회
+            Long salaryId = (Long) salaryMaster.get("salary_id");
+            List<Map<String, Object>> salaryDetails = salaryMapper.selectSalaryDetailItems(salaryId);
+            
+            // 3. SalaryStatementVO 객체 생성
+            SalaryStatementVO statement = new SalaryStatementVO();
+            statement.setId(salaryId);
+            statement.setEmpId(empId);
+            statement.setPayMonth(payMonth);
+            statement.setBaseSalary((BigDecimal) salaryMaster.get("base_salary"));
+            statement.setNetPay((BigDecimal) salaryMaster.get("net_salary"));
+            statement.setCreatedDate(LocalDateTime.now());
+            statement.setUpdatedDate(LocalDateTime.now());
+            
+            // 4. 수당/공제 항목 설정 (별도 필드로 저장)
+            BigDecimal allowanceTotal = BigDecimal.ZERO;
+            BigDecimal deductionTotal = BigDecimal.ZERO;
+            
+            for (Map<String, Object> detail : salaryDetails) {
+                String itemType = (String) detail.get("item_type");
+                String itemName = (String) detail.get("item_name");
+                BigDecimal amount = (BigDecimal) detail.get("amount");
+                
+                if ("ALLOWANCE".equals(itemType)) {
+                    allowanceTotal = allowanceTotal.add(amount);
+                    // 특정 수당 항목 설정
+                    if ("overtime".equals(itemName)) {
+                        statement.setOvertimePay(amount);
+                    } else if ("annualLeave".equals(itemName)) {
+                        statement.setAnnualLeavePay(amount);
+                    }
+                } else if ("DEDUCTION".equals(itemType)) {
+                    deductionTotal = deductionTotal.add(amount);
+                    // 특정 공제 항목 설정
+                    if ("late".equals(itemName)) {
+                        statement.setLateDeduction(amount);
+                    } else if ("earlyLeave".equals(itemName)) {
+                        statement.setEarlyLeaveDeduction(amount);
+                    } else if ("absent".equals(itemName)) {
+                        statement.setAbsentDeduction(amount);
+                    }
+                }
+            }
+            
+            statement.setAllowanceTotal(allowanceTotal);
+            statement.setDeductionTotal(deductionTotal);
+            
+            log.debug("급여 명세서 조회 완료 - 급여ID: {}", salaryId);
+            return statement;
+            
+        } catch (Exception e) {
+            log.error("급여 명세서 조회 중 오류 발생: {}", e.getMessage(), e);
+            return null;
+        }
     }
 
     /**
@@ -703,9 +825,112 @@ public class SalaryCalculationService {
     public double getBaseSalary(String empId) {
         log.debug("기본급 조회 - 사원ID: {}", empId);
         
-        // TODO: 실제 구현 필요
-        log.warn("기본급 조회 기능이 아직 구현되지 않았습니다.");
-        return 0.0;
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("empId", empId);
+            params.put("comId", "com-101"); // 기본 회사ID
+            
+            return salaryMapper.getBaseSalary(params);
+            
+        } catch (Exception e) {
+            log.error("기본급 조회 중 오류 발생: {}", e.getMessage(), e);
+            return 0.0;
+        }
+    }
+
+    /**
+     * 급여 목록 조회 (관리자용)
+     * 
+     * @param comId 회사ID
+     * @param yearMonth 지급년월
+     * @param status 상태
+     * @param employeeName 사원명
+     * @return 급여 목록
+     */
+    public List<Map<String, Object>> getSalaryList(String comId, String yearMonth, String status, String employeeName) {
+        log.debug("급여 목록 조회 - 회사ID: {}, 년월: {}, 상태: {}, 사원명: {}", comId, yearMonth, status, employeeName);
+        
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("companyId", comId);
+            if (yearMonth != null && !yearMonth.isEmpty()) {
+                params.put("yearMonth", yearMonth);
+            }
+            if (status != null && !status.isEmpty()) {
+                params.put("status", status);
+            }
+            if (employeeName != null && !employeeName.isEmpty()) {
+                params.put("employeeName", employeeName);
+            }
+            
+            return salaryMapper.selectSalaryList(params);
+            
+        } catch (Exception e) {
+            log.error("급여 목록 조회 중 오류 발생: {}", e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 급여 엑셀 다운로드
+     * 
+     * @param comId 회사ID
+     * @param yearMonth 지급년월
+     * @param status 상태
+     * @return 엑셀 파일 데이터
+     */
+    public byte[] exportSalaryExcel(String comId, String yearMonth, String status) {
+        log.debug("급여 엑셀 다운로드 - 회사ID: {}, 년월: {}, 상태: {}", comId, yearMonth, status);
+        
+        try {
+            // 급여 데이터 조회
+            List<Map<String, Object>> salaryData = getSalaryExportData(Long.valueOf(comId), yearMonth, status);
+            
+            // 엑셀 파일 생성
+            return createSalaryExcelFile(salaryData, yearMonth);
+            
+        } catch (Exception e) {
+            log.error("급여 엑셀 다운로드 중 오류 발생: {}", e.getMessage(), e);
+            return new byte[0];
+        }
+    }
+
+    /**
+     * 급여 엑셀 파일 생성
+     * 
+     * @param salaryData 급여 데이터
+     * @param yearMonth 년월
+     * @return 엑셀 파일 바이트 배열
+     */
+    private byte[] createSalaryExcelFile(List<Map<String, Object>> salaryData, String yearMonth) {
+        try {
+            // 간단한 CSV 형태로 엑셀 생성 (실제로는 Apache POI 사용 권장)
+            StringBuilder csv = new StringBuilder();
+            
+            // 헤더 추가
+            csv.append("사원번호,사원명,부서,직급,기본급,수당,공제,실수령액,상태\n");
+            
+            // 데이터 추가
+            for (Map<String, Object> salary : salaryData) {
+                csv.append(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+                    salary.get("employee_id"),
+                    salary.get("employee_name"),
+                    salary.get("dept_name"),
+                    salary.get("position"),
+                    salary.get("base_salary"),
+                    salary.get("total_allowance"),
+                    salary.get("total_deduction"),
+                    salary.get("net_salary"),
+                    salary.get("status")
+                ));
+            }
+            
+            return csv.toString().getBytes("UTF-8");
+            
+        } catch (Exception e) {
+            log.error("엑셀 파일 생성 중 오류 발생: {}", e.getMessage(), e);
+            return new byte[0];
+        }
     }
 
     /**

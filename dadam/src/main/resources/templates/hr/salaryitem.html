@@ -6,6 +6,8 @@
 <head>
     <title>급여항목 관리</title>
     <link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.min.css">
+    <!-- FontAwesome 아이콘 CDN 추가 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         .grid-action {
             display: inline-block;
@@ -84,7 +86,7 @@
       </div>
     </div>
 
-    <!-- 버튼 영역 -->
+    <!-- 버튼 영역 복원 -->
     <div class="d-flex align-items-center gap-2 mb-2" style="min-height:40px;">
       <button class="btn btn-outline-success" id="excelBtn" data-bs-toggle="tooltip" title="급여항목 목록 다운로드">
         <i class="fas fa-file-excel"></i>
@@ -453,7 +455,8 @@
       });
     });
 
-    $('#deleteBtn').on('click', function() {
+    // 삭제 버튼 클릭 원래대로 복원
+    $('#deleteBtn').off('click').on('click', function() {
       const checked = grid.getCheckedRowKeys();
       if (checked.length === 0) {
         swal.fire('⚠ 삭제할 항목을 선택해주세요.', '', 'warning');
@@ -502,8 +505,8 @@
         }
       });
     });
-
-    $('#excelBtn').on('click', function() {
+    // 엑셀 버튼 원래대로 복원
+    $('#excelBtn').off('click').on('click', function() {
       swal.fire({
         title: '다운로드 확인',
         text: '현재 표시된 데이터만 다운로드됩니다. 다운로드 하시겠습니까?',

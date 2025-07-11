@@ -178,53 +178,110 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tui-grid/4.21.17/tui-grid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-const payrollData = [
-  { no: 1, empName: '김현수', dept: '개발팀', position: '시니어 개발자', month: '2024-12', baseSalary: 4500000, allowance: 300000, deduction: 450000, netPay: 4350000, status: '지급완료', payDate: '2024-12-25' },
-  { no: 2, empName: '이영희', dept: '영업팀', position: '영업 팀장', month: '2024-12', baseSalary: 5000000, allowance: 500000, deduction: 550000, netPay: 4950000, status: '승인', payDate: '-' },
-  { no: 3, empName: '박민수', dept: '관리팀', position: '사원', month: '2024-12', baseSalary: 3000000, allowance: 200000, deduction: 320000, netPay: 2880000, status: '대기', payDate: '-' },
-  { no: 4, empName: '정수빈', dept: '개발팀', position: '주니어 개발자', month: '2024-12', baseSalary: 3500000, allowance: 150000, deduction: 350000, netPay: 3300000, status: '대기', payDate: '-' },
-  { no: 5, empName: '최영수', dept: '영업팀', position: '사원', month: '2024-12', baseSalary: 3200000, allowance: 250000, deduction: 345000, netPay: 3105000, status: '대기', payDate: '-' }
-];
+// ===================== 상단 대시보드/버튼 영역 (1/4) =====================
+// (기존 통계 카드, 주요 버튼 영역은 그대로 유지)
 
+// ===================== 하단 급여명세 목록 (3/4) =====================
+// ToastUI Grid - 실제 API 연동 구조로 리팩토링
+
+// 그리드 객체 전역 선언
+let grid;
+
+// 페이지 로드 시 초기화
+$(document).ready(function() {
+  // 그리드 생성
+  grid = new tui.Grid({
+    el: document.getElementById('payrollGrid'),
+    data: [], // 빈 배열로 초기화, 더미 데이터 완전 제거
+    rowHeaders: ['checkbox'],
+    scrollX: false,
+    scrollY: true,
+    minBodyHeight: 350,
+    columns: [
+      { header: 'No.', name: 'no', width: 50, align: 'center' },
+      { header: '직원명', name: 'empName', width: 100, align: 'center' },
+      { header: '부서', name: 'dept', width: 100, align: 'center' },
+      { header: '직급', name: 'position', width: 120, align: 'center' },
+      { header: '급여월', name: 'calcMonth', width: 90, align: 'center' },
+      { header: '기본급', name: 'baseSal', width: 110, align: 'right', formatter: ({value}) => value ? value.toLocaleString()+'원' : '' },
+      { header: '수당', name: 'allowance', width: 90, align: 'right',
+        formatter: ({row}) => {
+          // 수당 합계: BONUS + OT_ALLOW + HOLI_ALLOW + MEAL_ALLOW
+          const sum = (row.bonus||0)+(row.otAllow||0)+(row.holiAllow||0)+(row.mealAllow||0);
+          return sum ? sum.toLocaleString()+'원' : '';
+        }
+      },
+      { header: '공제액', name: 'deduction', width: 100, align: 'right',
+        formatter: ({row}) => {
+          // 공제 합계: INC_TAX + EMP_INSUR + HEALTH_INSUR + LTC_INSUR + NAT_PENSION
+          const sum = (row.incTax||0)+(row.empInsur||0)+(row.healthInsur||0)+(row.ltcInsur||0)+(row.natPension||0);
+          return sum ? sum.toLocaleString()+'원' : '';
+        }
+      },
+      { header: '실지급액', name: 'netSalary', width: 120, align: 'right', formatter: ({value}) => value ? '<b>'+value.toLocaleString()+'원</b>' : '' },
+      { header: '상태', name: 'status', width: 90, align: 'center', formatter: ({value}) => renderStatusBadge(value) },
+      { header: '지급일', name: 'payDate', width: 100, align: 'center' },
+      { header: '관리', name: 'actions', width: 120, align: 'center',
+        formatter: () => `<button class='btn btn-primary btn-sm' style='font-size:13px;padding:4px 12px;margin-right:4px;'>수정</button><button class='btn btn-secondary btn-sm' style='font-size:13px;padding:4px 12px;background:#f5f6fa;color:#333;border:none;'>삭제</button>`
+      }
+    ],
+    pageOptions: { useClient: true, perPage: 10 }
+  });
+
+  // 최초 로딩 시 데이터 조회
+  loadPayrollList();
+
+  // 검색 버튼 클릭 시
+  $('#searchBtn').on('click', function() {
+    loadPayrollList();
+  });
+
+  // 필터(기간/부서/상태/직원명) 변경 시 자동 조회(선택 적용)
+  $('#payroll-month, #department, #status').on('change', function() {
+    loadPayrollList();
+  });
+  $('#searchInput').on('keydown', function(e) {
+    if (e.keyCode === 13) loadPayrollList();
+  });
+});
+
+// 급여명세 목록 실제 API 연동 함수
+function loadPayrollList() {
+  const params = {
+    calcMonth: $('#payroll-month').val(),
+    keyword: $('#searchInput').val(),
+    // dept: $('#department').val(), // 추후 확장
+    // status: $('#status').val(),   // 추후 확장
+    // empId, comId 등은 필요시 추가
+  };
+  $.ajax({
+    url: '/erp/hr/salary/list-data', // 백엔드와 URL/방식 통일 (GET)
+    type: 'GET',
+    data: params,
+    success: function(res) {
+      // res가 배열이면 바로 바인딩, 아니면 빈 배열
+      if (Array.isArray(res)) {
+        grid.resetData(res);
+      } else if (Array.isArray(res.data)) {
+        grid.resetData(res.data);
+      } else {
+        grid.resetData([]);
+      }
+    },
+    error: function(xhr, status, error) {
+      grid.resetData([]);
+      Swal.fire('오류', '급여명세 목록 조회 중 오류가 발생했습니다.', 'error');
+    }
+  });
+}
+
+// 상태 뱃지 렌더링 함수(팀장 스타일)
 function renderStatusBadge(status) {
   if(status === '지급완료') return '<span style="background:#e6f4ea;color:#1a7f37;padding:4px 14px;border-radius:12px;font-size:13px;font-weight:600;">지급완료</span>';
   if(status === '승인') return '<span style="background:#e6f4fa;color:#1a7f37;padding:4px 14px;border-radius:12px;font-size:13px;font-weight:600;">승인</span>';
   if(status === '대기') return '<span style="background:#faeaea;color:#d93025;padding:4px 14px;border-radius:12px;font-size:13px;font-weight:600;">대기</span>';
   return status;
 }
-
-const grid = new tui.Grid({
-  el: document.getElementById('payrollGrid'),
-  data: payrollData,
-  rowHeaders: ['checkbox'],
-  scrollX: false,
-  scrollY: true,
-  minBodyHeight: 350,
-  columns: [
-    { header: 'No.', name: 'no', width: 50, align: 'center' },
-    { header: '직원명', name: 'empName', width: 100, align: 'center' },
-    { header: '부서', name: 'dept', width: 100, align: 'center' },
-    { header: '직급', name: 'position', width: 120, align: 'center' },
-    { header: '급여월', name: 'month', width: 90, align: 'center' },
-    { header: '기본급', name: 'baseSalary', width: 110, align: 'right', formatter: ({value}) => value.toLocaleString()+'원' },
-    { header: '수당', name: 'allowance', width: 90, align: 'right', formatter: ({value}) => value.toLocaleString()+'원' },
-    { header: '공제액', name: 'deduction', width: 100, align: 'right', formatter: ({value}) => value.toLocaleString()+'원' },
-    { header: '실지급액', name: 'netPay', width: 120, align: 'right', formatter: ({value}) => '<b>'+value.toLocaleString()+'원</b>' },
-    { header: '상태', name: 'status', width: 90, align: 'center', formatter: ({value}) => renderStatusBadge(value) },
-    { header: '지급일', name: 'payDate', width: 100, align: 'center' },
-    { header: '관리', name: 'actions', width: 120, align: 'center',
-      renderer: {
-        type: 'html',
-        options: {
-          html: (props) => {
-            return `<button class='btn btn-primary btn-sm' style='font-size:13px;padding:4px 12px;margin-right:4px;'>수정</button><button class='btn btn-secondary btn-sm' style='font-size:13px;padding:4px 12px;background:#f5f6fa;color:#333;border:none;'>삭제</button>`;
-          }
-        }
-      }
-    }
-  ],
-  pageOptions: { useClient: true, perPage: 10 }
-});
     </script>
 </body>
 </html> 

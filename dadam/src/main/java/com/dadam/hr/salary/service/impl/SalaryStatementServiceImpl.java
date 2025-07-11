@@ -20,6 +20,10 @@ public class SalaryStatementServiceImpl implements SalaryStatementService {
         return salaryStatementMapper.selectSalaryStatementList(empId, comId);
     }
     @Override
+    public List<SalaryStatementVO> getSalaryStatementList(java.util.Map<String, Object> param) {
+        return salaryStatementMapper.selectSalaryStatementList(param);
+    }
+    @Override
     public SalaryStatementVO getSalaryStatementById(java.util.Map<String, Object> param) {
         return salaryStatementMapper.selectSalaryStatementById(param);
     }

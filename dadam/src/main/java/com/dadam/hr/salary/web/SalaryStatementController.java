@@ -25,7 +25,7 @@ public class SalaryStatementController {
      * @param model - 뷰 모델
      * @return 급여명세서 리스트 뷰
      */
-    @GetMapping("/salary/list")
+    @GetMapping("/salary/view")
     public String list(Model model) {
         // 실제 데이터 바인딩은 필요시 추가
         return "hr/salary";
