@@ -132,7 +132,9 @@ public class OrderServiceImpl implements OrderService {
 		//새로추가된 주문행
 		String ordCode=req.getOrd().getOrdCode(); //주문코드헤더에서 받아옴 
 		System.out.println("주문번호"+ordCode);
-		
+		req.getOrd().setComId(comId);
+		//req.getOrd().setUpdateId();
+		orderMapper.updOrder(req.getOrd()); 
 		//새로 생긴행 
 		for (int i = 0; i < req.getDtl().getCreatedRows().size(); i++) {
 			req.getDtl().getCreatedRows().get(i).setComId(comId); //comId 확인하기 

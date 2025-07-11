@@ -184,8 +184,8 @@
 			update_id = #{updateId},
 			update_date = sysdate, 
 			tot_quantity=#{totQuantity},
-			tot_supPrice=#{totSupPrice}, 
-			tot_vatPrice=#{totVatPrice},
+			tot_sup_price=#{totSupPrice}, 
+			tot_vat_price=#{totVatPrice},
 			tot_disc=#{totDisc},
 			tot_price=#{totPrice} 
 		WHERE ord_code = #{ordCode}
