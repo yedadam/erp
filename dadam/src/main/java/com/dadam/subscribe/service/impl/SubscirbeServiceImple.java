@@ -111,7 +111,8 @@ public class SubscirbeServiceImple implements SubscribeService {
             comName = user.getMainName();
             System.out.println("회사명: " + comName);
         }
-
+        System.out.println("회사명"+ comName);
+        System.out.println("이미지"+ param.getConstImage());
         EmployeesVO info = new EmployeesVO();
         info.setComId(param.getComId());
         info.setEmpName(comName);
@@ -172,7 +173,7 @@ public class SubscirbeServiceImple implements SubscribeService {
             chargeSubscription(sub);
             sub.setSubsType("S01");
             // 만기일자 업데이트
-            //subsMapper.subsEnd(sub.getBillingKey());
+            subsMapper.subsEnd(sub.getBillingKey());
             // 다시 결제 진행
             subsMapper.subsAdd(sub);
             // 세금계산서 발행

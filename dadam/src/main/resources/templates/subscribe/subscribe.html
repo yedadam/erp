@@ -335,7 +335,7 @@ $('.pay-btn').on('click', async function () {
         //빌링키
         let custo;
         // canvas와 버튼을 <img>로 교체
-        let signatureImgTag = `<img src="/signatures/${fileName}.png" style="width: 200px; height: auto;">`;
+        let signatureImgTag = `<img src="/uploads/signatures/${fileName}.png" style="width: 200px; height: auto;">`;
         htmlContent = htmlContent
           .replace(/<canvas[^>]*>[\s\S]*?<\/canvas>/, signatureImgTag)
           .replace(/<button[^>]*class="clear-signature-btn"[^>]*>[\s\S]*?<\/button>/, '');

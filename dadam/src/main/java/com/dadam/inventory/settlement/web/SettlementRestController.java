@@ -64,7 +64,7 @@ public class SettlementRestController {
 		String fileName = payload.get("fileName");
 		
 		try {
-			Path outputPath = Paths.get(System.getProperty("user.dir"), "settlementEle", fileName);
+			Path outputPath = Paths.get(System.getProperty("user.dir"), "uploads/settlementEle", fileName);
 			Files.createDirectories(outputPath.getParent());
 			Files.write(outputPath, html.getBytes(StandardCharsets.UTF_8));
 			return ResponseEntity.ok("결재서 저장 성공");
