@@ -103,7 +103,7 @@ public class SettlementRestController {
 	        }
 
 	        // 실제 경로 지정
-	        Path path = Paths.get(System.getProperty("user.dir"), "settlementEle", vo.getFileImage());
+	        Path path = Paths.get(System.getProperty("user.dir"), "uploads/settlementEle", vo.getFileImage());
 
 	        // 파일 존재 확인
 	        if (!Files.exists(path)) {
