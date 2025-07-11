@@ -9,12 +9,6 @@
 	background-color: #e6f2ff !important;
 }
 
-.tui-grid-row.no-edit td {
-	pointer-events: none !important; /* 클릭/포커스 모두 차단 */
-	background-color: #f9f9f9 !important;
-	color: #bbb !important;
-}
-
 .grid-action {
 	display: inline-block;
 	padding: 3px 8px;
@@ -87,7 +81,6 @@ dialog {
 </style>
 <body class="bg-light">
 	<div class="container-fluid mt-4 p-4 rounded shadow-sm">
-	<p>할일.. 매입전표 처리. </p>
 
 		<!-- 페이지 타이틀 -->
 		<h3 class="mb-4 text-secondary fw-bold border-bottom">전표관리</h3>
@@ -321,8 +314,6 @@ const chitGrid = new tui.Grid({
  scrollY: false,
  editingEvent: 'click',
  treeColumnOptions: { name: 'chitTitle', useIcon: false },
- 
-
 	
  columns: [
    { header: '등록일자', name: 'createdDate', align: 'center' },
@@ -370,6 +361,12 @@ const chitGrid = new tui.Grid({
 	 }
  ]
 });
+
+chitGrid.on('beforeEdit', ev => {
+	  const row = chitGrid.getRow(ev.rowKey);
+	  const isParent = row._attributes?.tree?.parent === undefined;
+	  if (isParent) ev.stop(); // 부모 행은 편집 불가
+	});
 
 
 /* 그리드 검사
@@ -497,6 +494,8 @@ function checkBalanceAndMark() {
    chitGrid.setValue(Number(parentKey), 'isBalanced', isBalanced ? 'Y' : 'N'); // 그리드 내 상태 필드 값 설정
  });
 }
+
+
 // 차/대변의 값에 따라 행 표시.
 function highlightParentsWithChildren() {
   const data = chitGrid.getData();
@@ -534,83 +533,109 @@ function highlightParentsWithChildren() {
 }
 
 /** ------------------------- 이벤트 바인딩 ------------------------- */
-$('#saveBtn').on('click', function () {
-  $('#saveBtn').prop('disabled', true); // 클릭 시 비활성화
+// ✅ 이 코드부터 바로 추가해줄까?
+$('#saveBtn').on('click', async function () {
+  await chitGrid.finishEditing();
   const { createdRows, updatedRows, deletedRows } = chitGrid.getModifiedRows();
+  const allChangedRows = [...createdRows, ...updatedRows];
+  const childrenRows = extractOnlyChildren(allChangedRows);
+
+  const parentMap = {};
+  childrenRows.forEach(row => {
+    if (!parentMap[row.chitCode]) parentMap[row.chitCode] = [];
+    parentMap[row.chitCode].push(row);
+  });
+
+  for (const [chitCode, children] of Object.entries(parentMap)) {
+    let debit = 0, credit = 0, total = 0;
+    children.forEach(row => {
+      const amt = parseFloat(row.iPrice) || 0;
+      total += amt;
+      if (row.iType === 'itp01') debit += amt;
+      if (row.iType === 'itp02') credit += amt;
+    });
+
+    // 부모에서 총금액(totPrice) 추출
+    const parentRow = chitGrid.getData().find(r => r.chitCode === chitCode);
+    const parentTot = parseFloat(parentRow?.totPrice) || 0;
+
+    if (!(debit > 0 && credit > 0 && debit === credit && debit === parentTot)) {
+      await Swal.fire({
+        icon: 'warning',
+        title: '분개 유효성 오류',
+        html: `
+          <b>전표명:</b> ${parentRow?.chitTitle || ''}<br>
+          <b>총금액:</b> ${parentTot.toLocaleString()}원<br>
+          <b>차변:</b> ${debit.toLocaleString()}원<br>
+          <b>대변:</b> ${credit.toLocaleString()}원
+        `
+      });
+      return;
+    }
+  }
+
+  // 🟢 유효성 통과 → 저장
   const payload = {
     createdRows: extractOnlyChildren(createdRows),
     updatedRows: extractOnlyChildren(updatedRows),
     deletedRows: extractOnlyChildren(deletedRows)
   };
 
-  // 부모-자식 유효성 검사 (불일치하는 첫 전표만 안내)
-  const data = chitGrid.getData();
-  for (let i = 0; i < data.length; i++) {
-    const parent = data[i];
-    if (!Array.isArray(parent._children) || parent._children.length === 0) continue;
-    let debit = 0, credit = 0;
-    parent._children.forEach(child => {
-      const amt = Number(child.iPrice) || 0;
-      if (child.iType === 'itp01') debit += amt;
-      if (child.iType === 'itp02') credit += amt;
-    });
-    const totPrice = Number(parent.totPrice) || 0;
-    if (!(debit > 0 && credit > 0 && debit === credit && debit === totPrice)) {
-      Swal.fire(
-        '분개 유효성 오류',
-        `총 금액과 차변, 대변의 금액이 같아야 합니다.<br><br>` +
-        `<b>전표명:</b> ${parent.chitTitle || ''}<br>` +
-        `<b>총금액:</b> ${totPrice.toLocaleString()}원<br>` +
-        `<b>차변:</b> ${debit.toLocaleString()}원<br>` +
-        `<b>대변:</b> ${credit.toLocaleString()}원`,
-        'warning'
-      ).then(() => {
-        $('#saveBtn').prop('disabled', false); // 경고창 닫히면 다시 활성화
-      });
-      return;
-    }
-  }
-
-  for (const row of payload.createdRows) {
-    if (!row.acctCode || !row.iType || !row.iPrice) {
-      Swal.fire('경고', '계정과목, 전표구분, 금액을 모두 입력해야 합니다.', 'warning').then(() => {
-        $('#saveBtn').prop('disabled', false);
-      });
-      return;
-    }
-  }
   $.ajax({
     url: "/erp/accounting/chitSaveAll",
     method: "POST",
     contentType: "application/json",
     data: JSON.stringify(payload),
     success(res) {
-      $('#saveBtn').prop('disabled', false);
       if (res.result === "success") {
-        // 분개가 완료된 첫 전표명 안내
-        const data = chitGrid.getData();
-        let firstTitle = '';
-        for (let i = 0; i < data.length; i++) {
-          if (Array.isArray(data[i]._children) && data[i]._children.length > 0) {
-            firstTitle = data[i].chitTitle || '';
-            break;
-          }
-        }
-        Swal.fire(
-          '분개가 완료되었습니다.',
-          `전표명 : ${firstTitle}`,
-          'success'
-        );
+        Swal.fire('성공', res.message, 'success');
         chitGrid.resetData([]);
         chitList();
-      } else swalWarn('실패', res.message);
+      } else {
+        Swal.fire('실패', res.message, 'error');
+      }
     },
     error(xhr, status, error) {
-      $('#saveBtn').prop('disabled', false);
-      swalWarn('서버 오류', error);
+      Swal.fire('서버 오류', error, 'error');
     }
   });
 });
+
+
+
+
+
+
+
+/*
+ $('#saveBtn').on('click', function () {
+ const { createdRows, updatedRows, deletedRows } = chitGrid.getModifiedRows();
+ const payload = {
+   createdRows: extractOnlyChildren(createdRows),
+   updatedRows: extractOnlyChildren(updatedRows),
+   deletedRows: extractOnlyChildren(deletedRows)
+ };
+ for (const row of payload.createdRows) {
+   if (!row.acctCode || !row.iType || !row.iPrice) return alert("계정과목, 전표구분, 금액을 모두 입력해야 합니다.");
+ }
+ $.ajax({
+   url: "/erp/accounting/chitSaveAll",
+   method: "POST",
+   contentType: "application/json",
+   data: JSON.stringify(payload),
+   success(res) {
+     if (res.result === "success") {
+       alert(res.message);
+       chitGrid.resetData([]);
+       chitList();
+     } else alert("실패: " + res.message);
+   },
+   error(xhr, status, error) {
+     alert("서버 오류 발생: " + error);
+   }
+ });
+});
+ */
 
 
 $('#patBtn').on('click', async function () {
@@ -784,19 +809,6 @@ chitGrid.on('click', (ev) => {
 
 });
 
-chitGrid.on('beforeEdit', ev => {
-  const { rowKey } = ev;
-  const row = chitGrid.getRow(rowKey);
-  console.log('==== beforeEdit 진단 ====');
-  console.log('row:', row);
-  console.log('row._attributes:', row._attributes);
-  console.log('row._attributes.tree:', row._attributes?.tree);
-  console.log('row._attributes.tree.parent:', row._attributes?.tree?.parent);
-  // 기존 차단 로직(임시 주석)
-  // if (!row._attributes?.tree?.parent) {
-  //   ev.stop();
-  // }
-});
 
 chitGrid.on('afterChange', ev => {
  const { columnName, value, rowKey } = ev.changes[0];

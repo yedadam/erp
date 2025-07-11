@@ -31,6 +31,12 @@
 		FROM orders o
 		WHERE o.ord_code = c.article_code
 		))
+		WHEN c.article_code LIKE 'poc-%' THEN
+		getVdrName((
+		SELECT p.vdr_code
+		FROM purchaseOrder p
+		WHERE p.pur_ord_code = c.article_code
+		))
 		ELSE ''
 		END AS vdrCode,
 
