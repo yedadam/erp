@@ -84,7 +84,7 @@ public class SubscribeController {
 
         // 계약서 html 파일 저장
         try {
-        	Path outputPath = Paths.get(System.getProperty("user.dir"), "contracts", fileName);
+        	Path outputPath = Paths.get(System.getProperty("user.dir"), "uploads/contracts", fileName);
             Files.createDirectories(outputPath.getParent());
             Files.write(outputPath, html.getBytes(StandardCharsets.UTF_8));
             return ResponseEntity.ok("계약서 저장 성공");
