@@ -69,12 +69,12 @@ public class SubscribeController {
             if (signatureImage != null && signatureImage.startsWith("data:image/png;base64,")) {
                 String base64Image = signatureImage.split(",")[1];
                 byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-                Path imagePath = Paths.get(System.getProperty("user.dir"), "signatures", signatureImageName);
+                Path imagePath = Paths.get(System.getProperty("user.dir"), "uploads/signatures", signatureImageName);
                 Files.createDirectories(imagePath.getParent());
                 Files.write(imagePath, imageBytes);
 
                 // 이미지 태그 만들어서 html 끝부분에 넣기
-                String imageTag = "<img src=\"/uplods/signatures/" + signatureImageName + "\" style=\"width:200px;height:auto;\">";
+                String imageTag = "<img src=\"/uploads/signatures/" + signatureImageName + "\" style=\"width:200px;height:auto;\">";
                 html = html.replace("</div></div></div>", imageTag + "</div></div></div>");
             }
         } catch (IOException e) {

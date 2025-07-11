@@ -31,7 +31,7 @@ public class SettlementController {
 	
 	@GetMapping("/preview")
 	public void preview(@RequestParam String setImage, HttpServletResponse response) throws IOException {
-		Path filePath = Paths.get(System.getProperty("user.dir"), "settlementEle", setImage);
+		Path filePath = Paths.get(System.getProperty("user.dir"), "uploads/settlementEle", setImage);
 		System.out.println(setImage);
 		if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
