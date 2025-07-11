@@ -277,6 +277,10 @@ body {
 							</div>
 						</div>
 						<div class="mb-3">
+							<label class="form-label">기본급(원)</label>
+							<input type="number" id="sal" name="sal" class="form-control" min="0" step="10000" placeholder="예: 2500000">
+						</div>
+						<div class="mb-3">
 							<label class="form-label">적요</label> <input type="text" id="note"
 								name="note" class="form-control">
 						</div>
@@ -368,10 +372,11 @@ body {
       const keyword = $('#searchInput').val();
       let status = $('#statusFilter').val();
       if (status === '') status = undefined; // 전체 선택 시 파라미터 제거
+      const comId = $('#comId').val() || 'com-101'; // 회사ID 히든필드에서 가져오기
       $.ajax({
         url: '/erp/hr/empListAjax',
         method: 'GET',
-        data: { keyword, status },
+        data: { keyword, status, comId }, // comId도 함께 전송
         success: function (data) { empGrid.resetData(data); }
       });
     }
@@ -401,6 +406,7 @@ body {
       $('#resignReason').val(row.resignReason);
       $('#bank').val(row.bank);
       $('#acctNo').val(row.acctNo);
+      $('#sal').val(row.sal); // 기본급 채우기
       $('#note').val(row.note);
       $('#profilePreview').attr('src', row.profileImgPath || '');
     }

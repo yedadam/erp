@@ -204,6 +204,40 @@
           AND status = '지각'
     </select>
 
+    <!-- [급여계산용 근태 통계 조회] 사원별, 년월별 근태 통계 -->
+    <select id="getAttendanceStatistics" parameterType="map" resultType="AttendanceStatisticsVO">
+        SELECT 
+            #{empId} as empId,
+            #{yearMonth} as yearMonth,
+            COUNT(DISTINCT a.work_date) as totalWorkDays,
+            COUNT(CASE WHEN a.actual_start_time IS NOT NULL THEN 1 END) as actualWorkDays,
+            COUNT(CASE WHEN a.status = '정상' THEN 1 END) as normalDays,
+            COUNT(CASE WHEN a.status = '지각' THEN 1 END) as lateDays,
+            COUNT(CASE WHEN a.status = '조퇴' THEN 1 END) as earlyLeaveDays,
+            COUNT(CASE WHEN a.actual_start_time IS NULL THEN 1 END) as absentDays,
+            NVL(SUM(a.overtime_hrs), 0) as overtimeHours,
+            NVL(SUM(a.work_hours), 0) as totalWorkHours,
+            NVL(SUM(al.days), 0) as annualLeaveDays,
+            NVL(SUM(CASE WHEN al.leave_type = '반차' THEN al.days ELSE 0 END), 0) as halfLeaveDays,
+            CASE 
+                WHEN COUNT(DISTINCT a.work_date) > 0 
+                THEN ROUND(COUNT(CASE WHEN a.actual_start_time IS NOT NULL THEN 1 END) * 100.0 / COUNT(DISTINCT a.work_date), 2)
+                ELSE 0 
+            END as attendanceRate,
+            CASE 
+                WHEN COUNT(CASE WHEN a.actual_start_time IS NOT NULL THEN 1 END) > 0 
+                THEN ROUND(COUNT(CASE WHEN a.status = '지각' THEN 1 END) * 100.0 / COUNT(CASE WHEN a.actual_start_time IS NOT NULL THEN 1 END), 2)
+                ELSE 0 
+            END as lateRate
+        FROM attendance a
+        LEFT JOIN annualLeave al ON (a.emp_id = al.emp_id AND a.com_id = al.com_id 
+                                   AND TO_CHAR(al.start_date, 'YYYY-MM') = #{yearMonth}
+                                   AND al.status = '승인')
+        WHERE a.emp_id = #{empId}
+          AND a.com_id = #{comId}
+          AND TO_CHAR(a.work_date, 'YYYY-MM') = #{yearMonth}
+    </select>
+
     <!-- [오늘 결근자 수 조회] -->
     <select id="countTodayAbsent" resultType="int">
         SELECT COUNT(*)

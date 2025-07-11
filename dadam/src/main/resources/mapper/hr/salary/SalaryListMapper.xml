@@ -3,37 +3,29 @@
 
 <mapper namespace="com.dadam.hr.salary.mapper.SalaryListMapper">
 
-    <!-- 급여명세 목록 조회 -->
+    <!-- 급여명세 목록 조회 (DB 실구조 매핑) -->
     <select id="selectSalaryList" parameterType="com.dadam.hr.salary.service.SalaryListVO" resultType="com.dadam.hr.salary.service.SalaryListVO">
         SELECT 
-            SS.SALARY_ID as salaryId,
-            SS.EMP_NO as empNo,
+            SS.SAL_ID as salaryId,
+            SS.EMP_ID as empId,
             E.EMP_NAME as empName,
             D.DEPT_NAME as deptName,
-            P.POSITION_NAME as positionName,
-            SS.SALARY_YEAR as salaryYear,
-            SS.SALARY_MONTH as salaryMonth,
-            SS.BASE_SALARY as baseSalary,
+            E.POSITION as position, -- 직위명은 코드/조인으로 변환 필요
+            SS.CALC_MONTH as calcMonth,
+            SS.BASE_SAL as baseSalary,
             SS.NET_SALARY as netSalary,
             SS.STATUS as status,
-            SS.SLOT_LABEL_JSON as slotLabelJson,
-            SS.SLOT_VALUE_JSON as slotValueJson,
-            DATE_FORMAT(SS.CREATE_DATE, '%Y-%m-%d %H:%i:%s') as createDate,
-            SS.CREATE_USER as createUser,
-            DATE_FORMAT(SS.APPROVE_DATE, '%Y-%m-%d %H:%i:%s') as approveDate,
+            SS.CREATED_DATE as createdDate,
+            SS.APPROVE_DATE as approveDate,
             SS.APPROVE_USER as approveUser,
-            DATE_FORMAT(SS.PAY_DATE, '%Y-%m-%d %H:%i:%s') as payDate,
+            SS.PAY_DATE as payDate,
             SS.PAY_USER as payUser
         FROM SALARYSTATEMENT SS
-        LEFT JOIN EMPLOYEE E ON SS.EMP_NO = E.EMP_NO
-        LEFT JOIN DEPARTMENT D ON E.DEPT_CODE = D.DEPT_CODE
-        LEFT JOIN POSITION P ON E.POSITION_CODE = P.POSITION_CODE
+        LEFT JOIN EMPLOYEES E ON SS.EMP_ID = E.EMP_ID
+        LEFT JOIN DEPARTMENTS D ON E.DEPT_CODE = D.DEPT_CODE
         <where>
-            <if test="salaryYear != null and salaryYear != ''">
-                AND SS.SALARY_YEAR = #{salaryYear}
-            </if>
-            <if test="salaryMonth != null and salaryMonth != ''">
-                AND SS.SALARY_MONTH = #{salaryMonth}
+            <if test="calcMonth != null and calcMonth != ''">
+                AND SS.CALC_MONTH = #{calcMonth}
             </if>
             <if test="empName != null and empName != ''">
                 AND E.EMP_NAME LIKE CONCAT('%', #{empName}, '%')
@@ -42,31 +34,31 @@
                 AND SS.STATUS = #{status}
             </if>
         </where>
-        ORDER BY SS.SALARY_YEAR DESC, SS.SALARY_MONTH DESC, E.EMP_NAME ASC
+        ORDER BY SS.CALC_MONTH DESC, E.EMP_NAME ASC
     </select>
 
-    <!-- 급여명세 상태 업데이트 -->
+    <!-- 급여명세 상태 업데이트 (컬럼명 일치) -->
     <update id="updateSalaryStatus" parameterType="com.dadam.hr.salary.service.SalaryListVO">
         UPDATE SALARYSTATEMENT
         SET 
             STATUS = #{status}
             <if test="approveDate != null and approveDate != ''">
-                , APPROVE_DATE = STR_TO_DATE(#{approveDate}, '%Y-%m-%d %H:%i:%s')
+                , APPROVE_DATE = #{approveDate}
                 , APPROVE_USER = #{approveUser}
             </if>
             <if test="payDate != null and payDate != ''">
-                , PAY_DATE = STR_TO_DATE(#{payDate}, '%Y-%m-%d %H:%i:%s')
+                , PAY_DATE = #{payDate}
                 , PAY_USER = #{payUser}
             </if>
-            , UPDATE_DATE = NOW()
+            , UPDATED_DATE = SYSDATE
             , UPDATE_USER = #{approveUser}
-        WHERE SALARY_ID = #{salaryId}
+        WHERE SAL_ID = #{salaryId}
     </update>
 
-    <!-- 급여명세 삭제 -->
+    <!-- 급여명세 삭제 (컬럼명 일치) -->
     <delete id="deleteSalary" parameterType="string">
         DELETE FROM SALARYSTATEMENT
-        WHERE SALARY_ID = #{salaryId}
+        WHERE SAL_ID = #{salaryId}
     </delete>
 
 </mapper> 

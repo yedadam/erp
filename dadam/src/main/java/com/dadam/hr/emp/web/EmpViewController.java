@@ -34,6 +34,10 @@ public class EmpViewController {
         return "hr/emplist";
     }
 
+    /**
+     * 사원 전체 목록 화면 반환 (사원현황/대시보드)
+     * @return 사원 전체조회 뷰
+     */
     @GetMapping("/emp-all")
     public String empAllPage(Model model) {
         model.addAttribute("empStatuses", codeService.getCodeMap("stt"));

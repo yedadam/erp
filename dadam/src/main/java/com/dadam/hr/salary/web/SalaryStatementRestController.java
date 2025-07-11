@@ -20,17 +20,24 @@ public class SalaryStatementRestController {
     private SalaryStatementService salaryStatementService;
 
     /**
-     * 급여명세서 목록 조회
+     * 급여명세서 목록 조회 (DB 구조 일치)
      * @param keyword 검색어
-     * @param month 지급월
-     * @param empId 사원번호
+     * @param month 지급월(YYYYMM)
+     * @param empId 사원ID
+     * @param comId 회사ID
      * @return 급여명세서 리스트
      */
     @GetMapping("/salary/list-data")
     public List<SalaryStatementVO> getSalaryList(@RequestParam(required = false) String keyword,
                                                  @RequestParam(required = false) String month,
-                                                 @RequestParam(required = false) String empId) {
-        return salaryStatementService.getSalaryStatementList(empId, null);
+                                                 @RequestParam(required = false) String empId,
+                                                 @RequestParam(required = false) String comId) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("empId", empId);
+        param.put("comId", comId);
+        param.put("calcMonth", month);
+        param.put("keyword", keyword);
+        return salaryStatementService.getSalaryStatementList(param);
     }
 
     /**
@@ -64,16 +71,18 @@ public class SalaryStatementRestController {
     }
 
     /**
-     * 급여명세서 삭제
-     * @param id - 급여명세서 PK
+     * 급여명세서 삭제 (comId 인증정보 연동 필요)
+     * @param id - SAL_ID
+     * @param comId - 회사ID
      * @return 성공/실패 메시지
      */
     @PostMapping("/delete/{id}")
-    public Map<String, Object> delete(@PathVariable Long id) {
+    public Map<String, Object> delete(@PathVariable Long id,
+                                      @RequestParam(required = false) String comId) {
         Map<String, Object> result = new HashMap<>();
-        java.util.Map<String, Object> param = new java.util.HashMap<>();
-        param.put("id", id);
-        param.put("comId", "com-101"); // 실제 로그인 정보에서 추출 필요
+        Map<String, Object> param = new HashMap<>();
+        param.put("salId", id);
+        param.put("comId", comId); // TODO: 실제 로그인 정보에서 comId 추출 필요
         int deleteResult = salaryStatementService.removeSalaryStatement(param);
         boolean success = deleteResult > 0;
         result.put("success", success);

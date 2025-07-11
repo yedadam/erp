@@ -74,7 +74,8 @@ public class EmpController {
     }
 
     /**
-     * 사원 목록 조회 (권한별 필터링)
+     * 사원 전체 목록 조회 (사원관리/현황/대시보드 AJAX)
+     * @param comId - 회사ID(없으면 기본값)
      * @param keyword - 검색어
      * @param status - 재직상태
      * @param dept - 부서코드
@@ -82,27 +83,18 @@ public class EmpController {
      */
     @GetMapping("/empListAjax")
     @ResponseBody
-    public List<EmpVO> empList(@RequestParam(required = false) String keyword,
-                               @RequestParam(required = false) String status,
-                               @RequestParam(required = false) String dept) {
-        java.util.Map<String, String> userInfo = getCurrentUserInfo();
-        String comId = userInfo.get("comId");
-        // 관리자가 아닌 경우 본인 부서만 조회 가능
-        if (!isAdmin()) {
-            dept = userInfo.get("deptCode");
-        }
-        // 예시: 로그인 정보에서 comId 추출
-        // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        // LoginUserAuthority user = (LoginUserAuthority) auth.getPrincipal();
-        // String comId = user.getComId();
-        //
-        // 사원 목록 조회
+    public List<EmpVO> empListAjax(
+        @RequestParam(required = false) String comId,
+        @RequestParam(required = false) String keyword,
+        @RequestParam(required = false) String status,
+        @RequestParam(required = false) String dept
+    ) {
+        if (comId == null || comId.isEmpty()) comId = "com-101";
         java.util.Map<String, Object> param = new java.util.HashMap<>();
+        param.put("comId", comId);
         param.put("keyword", keyword);
         param.put("status", status);
         param.put("dept", dept);
-        param.put("comId", comId); // 회사별 전체 조회
-        // empId는 검색 조건 입력 시에만 param.put("empId", empId);
         return empService.findEmpList(param);
     }
 

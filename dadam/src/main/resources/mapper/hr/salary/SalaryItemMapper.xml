@@ -18,50 +18,49 @@
     <!-- 전체 급여항목 목록 조회 (동적 조건 처리) -->
     <select id="selectSalaryItemList" resultMap="SalaryItemMap">
       SELECT 
-        allow_code,
-        allow_name,
-        type,
-        default_amount,
-        acct_yn,
-        TO_CHAR(created_date, 'YYYY-MM-DD') as created_date,
-        NVL(note, '') as note,
-        com_id,
-        calc_type,
-        work_types,
-        -- 적용대상 한글명 콤마로
-        (SELECT LISTAGG(sub_name, ',') WITHIN GROUP (ORDER BY sub_code)
-           FROM subcodes
-          WHERE main_code = 'emp'
-            AND INSTR(',' || work_types || ',', ',' || sub_code || ',') > 0
-        ) AS work_type_names
-      FROM salaryitem
-      WHERE com_id = #{comId}
+        ALLOW_CODE,
+        ALLOW_NAME,
+        TYPE,
+        DEFAULT_AMOUNT,
+        ACCT_YN,
+        TO_CHAR(CREATED_DATE, 'YYYY-MM-DD') as CREATED_DATE,
+        NVL(NOTE, '') as NOTE,
+        COM_ID,
+        CALC_TYPE,
+        WORK_TYPES,
+        (SELECT LISTAGG(SUB_NAME, ',') WITHIN GROUP (ORDER BY SUB_CODE)
+           FROM SUBCODES
+          WHERE MAIN_CODE = 'emp'
+            AND INSTR(',' || WORK_TYPES || ',', ',' || SUB_CODE || ',') > 0
+        ) AS WORK_TYPE_NAMES
+      FROM SALARYITEM
+      WHERE COM_ID = #{comId}
       <if test="type != null and type != ''">
-        AND type = #{type}
+        AND TYPE = #{type}
       </if>
       <if test="acctYn != null and acctYn != ''">
-        AND acct_yn = #{acctYn}
+        AND ACCT_YN = #{acctYn}
       </if>
       <if test="keyword != null and keyword != ''">
-        AND (allow_name LIKE '%' || #{keyword} || '%' OR allow_code LIKE '%' || #{keyword} || '%')
+        AND (ALLOW_NAME LIKE '%' || #{keyword} || '%' OR ALLOW_CODE LIKE '%' || #{keyword} || '%')
       </if>
-      ORDER BY sort_order, allow_code
+      ORDER BY SORT_ORDER, ALLOW_CODE
     </select>
 
     <!-- 단일 급여항목 조회 -->
     <select id="selectSalaryItem" resultType="com.dadam.hr.salary.service.SalaryItemVO">
-        SELECT * FROM salaryitem
-        WHERE com_id = #{comId}
-          AND allow_code = #{allowCode}
+        SELECT * FROM SALARYITEM
+        WHERE COM_ID = #{comId}
+          AND ALLOW_CODE = #{allowCode}
     </select>
 
     <!-- 급여항목 등록 (work_types 컬럼 추가) -->
     <insert id="insertSalaryItem" parameterType="com.dadam.hr.salary.service.SalaryItemVO">
         <selectKey resultType="long" keyProperty="id" order="BEFORE">
-            SELECT NVL(MAX(id), 1000) + 1 FROM salaryitem
+            SELECT NVL(MAX(ID), 1000) + 1 FROM SALARYITEM
         </selectKey>
-        INSERT INTO salaryitem (
-            allow_code, allow_name, type, default_amount, acct_yn, created_date, note, com_id, calc_type, work_types
+        INSERT INTO SALARYITEM (
+            ALLOW_CODE, ALLOW_NAME, TYPE, DEFAULT_AMOUNT, ACCT_YN, CREATED_DATE, NOTE, COM_ID, CALC_TYPE, WORK_TYPES
         ) VALUES (
             #{allowCode}, #{allowName}, #{type}, #{defaultAmount}, #{acctYn}, SYSDATE, #{note}, #{comId}, #{calcType}, #{workTypes}
         )
@@ -69,23 +68,23 @@
 
     <!-- 급여항목 수정 (work_types 컬럼 추가) -->
     <update id="updateSalaryItem" parameterType="com.dadam.hr.salary.service.SalaryItemVO">
-        UPDATE salaryitem
-        SET allow_name = #{allowName},
-            type = #{type},
-            default_amount = #{defaultAmount},
-            acct_yn = #{acctYn},
-            note = #{note},
-            calc_type = #{calcType},
-            work_types = #{workTypes}
-        WHERE allow_code = #{allowCode}
-          AND com_id = #{comId}
+        UPDATE SALARYITEM
+        SET ALLOW_NAME = #{allowName},
+            TYPE = #{type},
+            DEFAULT_AMOUNT = #{defaultAmount},
+            ACCT_YN = #{acctYn},
+            NOTE = #{note},
+            CALC_TYPE = #{calcType},
+            WORK_TYPES = #{workTypes}
+        WHERE ALLOW_CODE = #{allowCode}
+          AND COM_ID = #{comId}
     </update>
 
     <!-- 급여항목 삭제 -->
     <delete id="deleteSalaryItem">
-        DELETE FROM salaryitem
-        WHERE com_id = #{comId}
-          AND allow_code = #{allowCode}
+        DELETE FROM SALARYITEM
+        WHERE COM_ID = #{comId}
+          AND ALLOW_CODE = #{allowCode}
     </delete>
 
     <!--

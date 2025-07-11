@@ -47,10 +47,10 @@
             e.annual_leave_used AS annualLeaveUsed,
             (e.annual_leave_total - e.annual_leave_used) AS annualLeaveRemain
         FROM employees e
-        WHERE e.com_id = #{comId}
         <where>
+            e.com_id = #{comId}
             <if test="keyword != null and keyword != ''">
-                (e.emp_id LIKE '%' || #{keyword} || '%'
+                AND (e.emp_id LIKE '%' || #{keyword} || '%'
                 OR getEmpName(e.emp_id,#{comId}) LIKE '%' || #{keyword} || '%'
                 OR getDeptName(e.dept_code) LIKE '%' || #{keyword} || '%')
             </if>
