@@ -50,7 +50,7 @@
 	</if>
 	<if test="createdEndDate != null and createdEndDate !='' ">
 		  <![CDATA[
-			AND trunc(created_date) <= TO_DATE(#{expDlvEndDate},'yyyy-MM-dd')
+			AND trunc(created_date) <= TO_DATE(#{createdEndDate},'yyyy-MM-dd')
 		    ]]>
 	</if>
    <if test="status != null and status !=  ''">

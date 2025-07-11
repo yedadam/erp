@@ -46,7 +46,7 @@
 
 					<!-- 날짜 종료 -->
 					<div class="col-md-2">
-						<label for="createdDate" class="form-label"></label> <input
+						<label for="createdEndDate" class="form-label"></label> <input
 							type="date" id="createdEndDate" class="form-control">
 					</div>
 
@@ -406,8 +406,24 @@
             {header: '담당자코드', name: 'phyEmpId', align: 'center'},
             {header: '이름', name: 'empName', align: 'center'},
             {header: '등록일자', name: 'createdDate', align: 'center'},
-            {header: '거래유형', name: 'type', align: 'center'},
-            {header: '처리상태', name: 'status', align: 'center', 
+            {header: '거래유형', name: 'type', align: 'center',
+            formatter:({ value }) => {
+			       if(value=='cht01'){
+				       return `<span class="start-action">매입</span>`;
+				    }else if(value=='cht02'){
+				       return `<span class="end-action">매출</span>`;
+				    }else if(value=='cht03'){
+				       return `<span class="del-action">수금</span>`;
+				    }else if(value=='cht04'){
+				       return `<span class="end-action">재고조정</span>`;
+				    }else if(value=='cht05'){
+				       return `<span class="end-action">생산입고</span>`;
+				    }else if(value=='cht06'){
+				       return `<span class="end-action">급여</span>`;
+				    }
+				    return '';
+				},},
+            {header: '진행상태', name: 'status', align: 'center', 
             	formatter:({ value }) => {
 				    if(value=='cst01'){
 				       return `<span class="start-action">등록</span>`;
@@ -421,11 +437,11 @@
 				    return '';
 				},
              },
-            {header: '총공급가액', name: 'supplyPrice', align: 'center', 
+            {header: '공급가액', name: 'supplyPrice', align: 'center', 
             	 formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : ''},
-            {header: '총부가세', name: 'vatPrice', align: 'center',
+            {header: '부가세', name: 'vatPrice', align: 'center',
             		 formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : ''},
-            {header: '총금액합계', name: 'totPrice', align: 'center', 
+            {header: '금액합계', name: 'totPrice', align: 'center', 
             	formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '' },
         ],
     });
