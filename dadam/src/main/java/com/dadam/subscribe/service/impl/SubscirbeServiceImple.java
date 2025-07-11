@@ -67,7 +67,7 @@ public class SubscirbeServiceImple implements SubscribeService {
     /**
      * @desc 구독 중복 체크 (사업자번호 등 중복 여부 판단)
      * @param param 중복 체크 대상 문자열
-     * @return int 중복 여부 (1: 중복 있음, 0: 중복 없음)
+     * @return int 중복 여부 (0<: 중복 있음, 0: 중복 없음)
      */
     @Override
     public int sameCheck(String param) {
