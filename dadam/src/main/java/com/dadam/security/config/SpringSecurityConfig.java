@@ -44,8 +44,7 @@ public class SpringSecurityConfig {
                         "/css/**", 
                         "/js/**", 
                         "/images/**", 
-                        "/webjars/**",
-                        "/uploads/**"
+                        "/webjars/**"
                         ).permitAll()
                 
                 // 나머지 모든 요청은 인증 필요
@@ -105,7 +104,7 @@ public class SpringSecurityConfig {
     public SecurityFilterChain userFilterChain(HttpSecurity http) throws Exception {
         http
             //erp에서만 적용
-        	.securityMatcher("/erp/**", "/uploads/**") 
+        	.securityMatcher("/erp/**") 
             .authorizeHttpRequests(auth -> auth
                 // 정적 리소스와 로그인 페이지는 모든 사용자에게 허용
                 .requestMatchers(//"/erp/**",
@@ -118,7 +117,6 @@ public class SpringSecurityConfig {
                         		 "/erp/standard/updateChit",
                         		 "/erp/standard/moneyList",
                         		 "/erp/standard/adjList",
-                        		 "/uploads/**",
                         		 "/erp/standard/itemAll").permitAll()
                 .requestMatchers("/erp").hasAnyAuthority("master","ac-101","ac-102","ac-103","ac-104","ac-105")
                 .requestMatchers("/erp/standard/**").hasAnyAuthority("master","ac-101")
