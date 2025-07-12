@@ -88,10 +88,11 @@ signatures
 
         // 보고서 템플릿경로 지정
         mv.addObject("filename", "/report/taxinvoice.jasper");
-
+        String reportDirPath = this.getClass().getResource("/report/").getPath();
         // 보고서 파라미터 넣기
         HashMap<String, Object> map = new HashMap<>();
         map.put("p_subsCode", subsCode);
+        map.put("REPORT_DIR", reportDirPath);
         mv.addObject("param", map);
 
         return mv;
