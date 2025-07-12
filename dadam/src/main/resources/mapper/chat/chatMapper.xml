@@ -46,7 +46,6 @@
 	  FROM chatRoom c JOIN chatDetail d ON (c.chat_id = d.chat_id)
 	  WHERE emp_id = #{empId}
 	  AND c.com_id = #{comId}
-      GROUP BY  c.chat_id,name,c.chat_id,c.created_date
    </select>
    
    
