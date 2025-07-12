@@ -21,12 +21,11 @@
 		  GROUP BY item_code
 		),
 		out_sum AS (
-		  SELECT od.item_code, SUM(od.quantity) AS del_quantity
-		  FROM outbound o
-		  JOIN outboundDetail od ON o.out_code = od.out_code
+		  SELECT item_code, SUM(o.quantity) AS del_quantity
+		  FROM outbound o 
 		  WHERE TO_CHAR(o.created_date, 'YYYY-MM') = TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYY-MM')
 		    AND o.com_id = #{comId}
-		  GROUP BY od.item_code
+		  GROUP BY item_code
 		),
 		adj_sum AS (
 		  SELECT item_code, SUM(ajd_qty) AS adj_quantity
