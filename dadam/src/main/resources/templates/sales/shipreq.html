@@ -347,6 +347,8 @@
 
 	//조회버튼 눌렀을때 main
 	$('#searchBtn').on('click',ev=>{
+			 mainGrid.showColumn("status"); 
+			 detailGrid.showColumn("status"); 
 			mainList();	
 	})
 
@@ -560,6 +562,10 @@
         mainList();
         // 신규버튼 이벤트 처리
         $('#newBtn').on('click', function(ev) {
+					//
+					mainGrid.hideColumn("status",true);
+					detailGrid.hideColumn("status",true);
+
           pageStatus="add"
           let searchBtn =$('#searchBtn');
       	  let newBtn = $('#newBtn'); 
@@ -572,7 +578,7 @@
           mainGrid.resetData([{empId: empId,empName : empName}])
 					console.log('키번호',mainGrid.getData()[0].rowKey); 
 				//	mainGrid.setValue(mainGrid.getData()[0].rowKey,"shipReqCode",maxShipReqNO); 
-          detailGrid.resetData([{}]);       		
+          detailGrid.resetData([]);       		
         });
 		//메인그리드 클릭 RowKey
 		let mainRowKey = null;
@@ -581,7 +587,13 @@
 		mainGrid.on('click',ev => {
 
 			if(pageStatus=='search'){
-			 	shipReqDtlList(mainGrid.getData()[ev.rowKey].shipReqCode); //상세정보조회
+				const row = mainGrid.getRow(ev.rowKey);
+				//에러방지
+				if(!row?.shipReqCode){
+					
+				}else{
+					shipReqDtlList(row.shipReqCode); //상세정보조회
+				}
 			}
 
 			//클릭하면 체크한 행색깔 바뀜 
@@ -600,7 +612,7 @@
 			    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
 			    return;
 			  }
-			if(ev.targetType=='cell' &&ev.columnName=='shipReqCode'&&ev.rowKey==0&&pageStatus=='add'){
+			if(ev.targetType=='cell' &&ev.columnName=='shipReqCode'){
 						requestModal(); //모달이열림
 			}
 			mainRowKey = ev.rowKey;
@@ -608,9 +620,6 @@
 			if(ev.columnName == 'shipReqCode'){
 					console.log(pageStatus)
 					console.log('shipReqCode 칼럼이 눌림');
-				if(pageStatus=='search'){
-					return;
-				}
 			
 				//리플래쉬
 			  $(requestModal).on('shown.bs.modal',e => {
@@ -620,7 +629,6 @@
 		
 		})
 
-		
 
 		//주문의뢰 모달창
 		function requestModal(){	
@@ -730,18 +738,77 @@
 			//클릭된 정보 가져오기
 			const checkedRows = detailGrid.getCheckedRows();
 	
-			let dataToSend = {
-	    			head : mainGrid.getCheckedRows()[0], //{}   
-	    			dtl : checkedRows    //[{},{}]
-	    };	
-			if( mainGrid.getCheckedRows()[0].status=='srq03'){
-					Swal.fire('실패','이미 출하완료된 건입니다','error');
-						return; 
-			}
+					let dataToSend = {
+								head : mainGrid.getCheckedRows()[0], //{}   
+								dtl : checkedRows    //[{},{}]
+					};	
+					if( mainGrid.getCheckedRows()[0].status=='srq03' ||mainGrid.getCheckedRows()[0].status=='srq02'){
+							Swal.fire('실패','이미 출고진행중인 건입니다','error');
+								return; 
+					}
 
-	
+					let stop;
+					for(let i=0;i<checkedRows.length;i++){
+								if(!checkedRows[i].status=='srd01'){
+										stop='y'; 
+								}			
+					}
 					
+					if(stop=='y'){
+							Swal.fire('실패','출고의뢰건만 삭제가능합니다 ','error');
+								return; 
+					}
 
+					Swal.fire({
+						title: "출하삭제?",
+						text: "출하 상세 삭제를 하시겠습니까?",
+						icon: "warning",
+						showCancelButton: true,
+						confirmButtonColor: "#3085d6",
+						cancelButtonColor: "#d33",
+						confirmButtonText: "출하삭제"
+					})
+					.then((result) => {
+						if (!result.isConfirmed) {
+							return;
+						}
+				
+						
+ 		 		// ↓ 여기 안에만 “삭제” 후속 로직을 넣으세요!
+				Swal.fire({
+					title: "Deleted!",
+					text: "출하상세 가 삭제 되었습니다",
+					icon: "success"
+				});
+
+				const length=detailGrid.getData().length;
+
+
+			//출하상세 내역을 모두 삭제할 경우 출하헤더,상세 모두삭제됨	
+			if(Number(checkedRows.length)==Number(length)){
+						
+							mainGrid.getCheckedRows()[0].shipReqCode
+
+							$.ajax({
+										url: '/erp/sales/shipReqDel',
+										type:'DELETE',
+										contentType: 'application/json',
+										data: JSON.stringify(dataToSend),
+										success: function(res) {
+											console.log('전송 성공', res);
+													mainList(); //새로고침 
+											},
+										error: function(xhr, status, error) {
+												console.log("실패:", xhr.status, error);
+										}
+								})
+
+				 mainGrid.showColumn("status"); 
+				 detailGrid.showColumn("status"); 	
+						return;   //출하헤더도 사라지며 여기서 중단
+				}
+			
+				//상세중 일부만 있을경우에 
 				$.ajax({
 				url: '/erp/sales/shipReqDelDtl',
 				type:'DELETE',
@@ -759,19 +826,46 @@
 				error: function(xhr, status, error) {
 	          console.log("실패:", xhr.status, error);
 	       }
-			})				
+			})
+
+				 mainGrid.showColumn("status"); 
+				 detailGrid.showColumn("status"); 
+			
 		})
+	})
+
+
 		$('#delBtn').on('click',ev =>{
 			const head=mainGrid.getCheckedRows()[0]; //{}
 			const detail=	detailGrid.getData(); //[{},{},{}]
-			if(head.status=='srq03'){
-			 Swal.fire('실패','이미 출하완료된 건입니다','error');
+			if(head.status=='srq03' ||head.status=='srq02'){
+			 Swal.fire('실패','출하가 진행중입니다','error');
 							return; 
 			}
-			let dataToSend = {
-	    			head :head, 		//{}   
-	    			dtl : detail    //[{},{}]
-	    		};
+
+		Swal.fire({
+				title: "출하삭제?",
+				text: "출하삭제를 하시겠습니까?",
+				icon: "warning",
+				showCancelButton: true,
+				confirmButtonColor: "#3085d6",
+				cancelButtonColor: "#d33",
+				confirmButtonText: "출하삭제"
+			})
+		.then((result) => {
+			if (!result.isConfirmed) {
+				return;
+			}
+ 		 // ↓ 여기 안에만 “삭제” 후속 로직을 넣으세요!
+			Swal.fire({
+				title: "Deleted!",
+				text: "출하가 삭제 되었습니다",
+				icon: "success"
+			});
+				let dataToSend = {
+							head :head, 		//{}   
+							dtl : detail    //[{},{}]
+						};
 				$.ajax({
 					url: '/erp/sales/shipReqDel',
 					type:'DELETE',
@@ -779,24 +873,18 @@
 					data: JSON.stringify(dataToSend),
 					success: function(res) {
 						console.log('전송 성공', res);
-						Swal.fire({
-									title: "출하삭제되었습니다",
-									icon: "success",
-									draggable: true
-								});
-								mainList();
+								mainList(); //새로고침 
 						},
 					error: function(xhr, status, error) {
 							console.log("실패:", xhr.status, error);
 					}
 				})
+
+				 mainGrid.showColumn("status"); 
+				 detailGrid.showColumn("status"); 	
+
 		})
-
-	
-
-
-
-
+})
 
 		//라디오버튼처럼 작동
 		mainGrid.on('click', ev => {		
@@ -891,12 +979,9 @@
 	    		   return;
 	    		}
 
-
-	    		
 	    		//등록데이터 정리
 	    		let mainData = mainGrid.getData()[0]; // [{},{},{}]
 	    		let detailData = detailGrid.getData(); //[{},{},{}]
-
 
 	    		let dataToSend = {
 	    				head : mainData, //{}   
@@ -931,7 +1016,7 @@
 	    		 //등록함수발동
 	    		 shipReqAdd();
 				 pageStatus='search'; //페이지 상태 다시 조회 상태로 바뀜
-				 newBtn.prop('disabled', false); //조회상태로 바뀌면서 다시 추가버튼이 활성화
+			
 	    	 }
 	    	 //조회버튼클릭시
 	    	 if(pageStatus=='search'){
@@ -939,21 +1024,39 @@
 					 mainList();
 	    	 }
 
-
+				 mainGrid.showColumn("status"); 
+				 detailGrid.showColumn("status"); 
 	     })
 
 			 //전체검색버튼 눌림 
-	      $('#searchButton').on('click',ev => {
-			if(pageStatus=='add'){
-			let check=confirm('출하의뢰 작성중입니다 나가시겠습니까?');
-				if(check){
-					pageStatus='search';
-					let newBtn = $('#newBtn'); 
-					newBtn.prop('disabled', false);    				
-				}else{
-					return;
-				}
+	  	$('#searchButton').on('click',ev => {
+
+						//등록 상태일 경우 검색가능
+						if(pageStatus=='add'){
+								Swal.fire({
+									title: "검색",
+									text: "등록을 중단하시겠습니까?",
+									icon: "warning",
+									showCancelButton: true,
+									confirmButtonColor: "#3085d6",
+									cancelButtonColor: "#d33",
+									confirmButtonText: "출하검색"
+								})
+								.then((result) => {
+									if (!result.isConfirmed) {
+										return;
+									}else if(result.isConfirmed){
+													mainGrid.showColumn("status"); 
+													detailGrid.showColumn("status"); 
+													pageStatus='search';
+													let newBtn = $('#newBtn'); 
+													detailGrid.resetData([]);
+													newBtn.prop('disabled', false);    			
+									}
+							}
+					)
 			}
+		
 			console.log('pageStatus==>>',pageStatus);
 			// 	//map으로 넘길값 
 			 	let shipExpStartDate=document.getElementById('shipExpStartDate').value;

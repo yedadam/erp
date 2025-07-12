@@ -66,8 +66,11 @@
 		o.vdr_code=v.vdr_code
 		WHERE od.ord_code=#{ordCode}
 	</select>
-	<insert id="orderInsert"
-		parameterType="com.dadam.sales.order.service.OrdersVO">
+	<insert id="orderInsert" parameterType="com.dadam.sales.order.service.OrdersVO">
+		<selectKey resultType="string" keyProperty="ordCode" order="BEFORE">
+				SELECT 'ord-' || (NVL(MAX(TO_NUMBER(SUBSTR(ord_code,5))),100)+1)
+				FROM orders
+		</selectKey>
 		INSERT INTO orders(ORD_CODE,
 		VDR_CODE,
 		STATUS,
@@ -83,7 +86,7 @@
 		DISCOUNT,
 		TOT_PRICE,
 		QUO_CODE)
-		values(getNextOrdCode(),
+		values(#{ordCode},
 		#{vdrCode},
 		#{status},
 		#{createdDate},
@@ -101,9 +104,9 @@
 	</insert>
 	<!-- 주문등록할때 odtl insert하는 sql -->
 	<insert id="odtlInsert" parameterType="com.dadam.sales.order.service.OrdDtlVO">
-		<selectKey resultType="string" keyProperty="ordCode" order="BEFORE">
-			SELECT MAX(ord_code)
-	    	FROM orders
+		<selectKey resultType="string" keyProperty="ordDtlCode" order="BEFORE">
+			SELECT 'odtl-' || (NVL(MAX(TO_NUMBER(SUBSTR(ord_dtl_code,6))),100)+1)
+			FROM ordersdetail
 		</selectKey>
 		INSERT INTO ordersdetail (
 		ORD_DTL_CODE,
@@ -116,7 +119,7 @@
 		COM_ID,
 		ORD_CODE)
 		VALUES (
-		getNextOrdDtlCode(),
+		#{ordDtlCode},
 		#{itemCode},
 		#{quantity},
 		#{supPrice},
@@ -232,7 +235,11 @@
 											   #{total,jdbcType=NUMERIC})}
 	]]>
 	</update>	
-
+	<select id="findMaxOrdNo" resultType="String">
+	select Max(ord_code)
+    from orders
+    where com_id=#{comId}
+	</select>
 
 
 

@@ -756,10 +756,10 @@ gridEl.addEventListener('keydown', e => {
     // 2) 팝업 띄우기
     new daum.Postcode({
       oncomplete: data => {
-        // 3) 콜백 안에서 setValue
-        mainGrid.setValue(rowKey, 'addr', data.address);
         // (필요하면) 에디팅 모드 완전히 끝내기
         mainGrid.finishEditing();
+        // 3) 콜백 안에서 setValue
+        mainGrid.setValue(rowKey, 'addr', data.address);
       }
     }).open();
   }
