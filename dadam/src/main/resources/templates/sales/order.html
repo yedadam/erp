@@ -69,7 +69,7 @@
     <div class="row g-3 align-items-center">
 
       <!-- 검색 조건 -->
-      <div class="col-md-3">
+      <div class="col-md-4">
         <label for="orderSelect" class="form-label">검색 조건</label>
         <div class="input-group">
           <select class="form-select" id="orderSelect">
@@ -79,19 +79,21 @@
           </select>
           <input type="text" class="form-control" id="orderInput" placeholder="검색어 입력">
         </div>
+				<ul id="autoOrderList"
+											class="list-group position-absolute w-100 shadow-sm"
+											style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+				</ul>
       </div>
 
-      <!-- 날짜 시작 -->
-      <div class="col-md-2">
-        <label for="reqDlvStartDate" class="form-label">납기일자</label>
-        <input type="date" id="reqDlvStartDate" class="form-control">
+			  <div class="col-md-3">
+        <label class="form-label">납기일자</label>
+        <div class="d-flex gap-2">
+          <input type="date" id="reqDlvStartDate" class="form-control">
+          <input type="date" id="reqDlvEndDate " class="form-control">
+        </div>
       </div>
-					
-      <!-- 날짜 종료 -->
-      <div class="col-md-2">
-                <label for="reqDlvStartDate" class="form-label"></label>
-        <input type="date" id="reqDlvEndDate" class="form-control">
-      </div>
+
+     
 
       <!-- 상태 -->
       <div class="col-md-3">
@@ -415,8 +417,6 @@ if(pageStatus=='register'){
 		if(ev.keyCode ==13){
 			let type = $("#orderSelect option:selected").val();
 			let value = $("#orderInput").val();
-
-
 			let url ='/erp/sales/orderList';
 			let grid = orderGrid
 		//	commonSearchObject({type,value, , },url,grid);
@@ -511,9 +511,9 @@ if(pageStatus=='register'){
 		let headTotPrice = 0;
 		//null값 방지 
 		for (let i = 0; i < ordDtlGrid.getData().length; i++) {
-				if (ordDtlGrid.getData()[i].ordCode == null) {
-					ordDtlGrid.setValue(i, "ordCode", orderGrid.getRow(ev.rowKey).ordCode);
-				}
+				// if (ordDtlGrid.getData()[i].ordCode == null) {
+				// 	ordDtlGrid.setValue(i, "ordCode", orderGrid.getRow(ev.rowKey).ordCode);
+				// }
 				if (ordDtlGrid.getData()[i].quantity == null) {
 					ordDtlGrid.setValue(i, "quantity", 1); //수량null값 이면 default 1로 부여하기로함   
 				}
@@ -616,8 +616,7 @@ if(pageStatus=='register'){
 		}
 		const rowData = vdrGrid.getRow(ev.rowKey); //행
 		const rowNo = orderGrid.getCheckedRowKeys()
-		console.log('rowNo', rowNo[0]);
-		console.log(rowData);
+
 		orderGrid.setValue(rowNo[0], 'discount', rowData.discount);
 		orderGrid.setValue(rowNo[0], 'creditPrice', rowData.creditPrice);
 		orderGrid.setValue(rowNo[0], "creditBalPrice", rowData.creditBalPrice);
@@ -726,8 +725,9 @@ if(pageStatus=='register'){
 	}
 	let ordDtlForm;
 	$('#addRow').on('click', function () {
+		
 		orderGrid.uncheckAll();
-			$('#ordreg2').prop('disabled',false);
+		$('#ordreg2').prop('disabled',false);
 		//orderGrid 수정체크 
 		if(pageStatus=='register'){
 				Swal.fire({
@@ -736,12 +736,8 @@ if(pageStatus=='register'){
 				text: "주문 등록을 완료해주세요"
 			})
 			return;
-		}
-		//$('#saveRowdtl').prop('disabled', true); //상세저장버튼 비활성화 
-	
-	
-	
-
+		}	
+		pageStatus='register';
 		//행추가할 데이터 생성
 		let addRow = {}
 		let addDtlRow={}
@@ -796,7 +792,7 @@ if(pageStatus=='register'){
 			} 
 		})
 
-		ordDtlGrid.refreshLayout();
+		ordDtlGrid.resetData([]);
 	})
 	//주문상세 행추가 반영 
 	$('#addRowdtl').on('click', function () {
@@ -841,14 +837,6 @@ if(pageStatus=='register'){
 			});
 			return;
 		}
-		// if(!ordDtlGrid.getModifiedRows().updatedRows[0].itemCode  ){
-		// 	Swal.fire({
-		// 		icon: "error",
-		// 		title: "error",
-		// 		text: "주문할 상품을 선택하시오"
-		// 	});
-		// 	return;
-		// }	
 		let itemNull; 
 		if(ordDtlGrid.getData().length>0){ //ordDtlGrid getData 
 				for(let i=0;i<ordDtlGrid.getData().length;i++){
@@ -857,7 +845,6 @@ if(pageStatus=='register'){
 						}
 				}		
 		}
-	
 		if(itemNull=='y'){
 			Swal.fire({
 				icon: "error",
@@ -886,10 +873,8 @@ if(pageStatus=='register'){
 				});
 				return;
 			}
-
 }
-		regHeader.empId = userID;
-		regHeader.comId = userComId;
+
 		const dtlObj = ordDtlGrid.getModifiedRows(); 
 		let totSup=0; 
 		let totVat=0; 
@@ -931,27 +916,28 @@ if(pageStatus=='register'){
 					icon: "success",
 					draggable: true
 				});
-
+				mainList();
+				ordDtlGrid.resetData([]); 
 			}
 		})
 
-		orderGrid.removeRow(orderGrid.getModifiedRows().createdRows[0].rowKey); 
-		regHeader.ordCode='ord-'+String(Number(orderGrid.getData()[0].ordCode.substr(4))+1); //ord-125
-		orderGrid.prependRow(regHeader);
-		
-		console.log('prepenrow완료');
 		pageStatus='search';
-		orderGrid.uncheckAll();
-		ordDtlGrid.resetData([]);
-		//$('#saveRowdtl').prop('disabled', false);  //상세저장 버튼 비활성화가 풀림
+
 
 	})
 	//주문 상세 저장
 	$('#saveRowdtl').on('click', function(){
 		//validation 체크 
 		let test = ordDtlGrid.getData();
-
-
+		let updHeader = orderGrid.getCheckedRows()[0]; //납기일자,지불방식 {ordCode:"ord-129",payMethod:"opm01"}
+		if(updHeader.status=='ost02' ||updHeader.status=='ost03'){
+  	Swal.fire({
+				icon: "error",
+				title: "error",
+				text: "출고진행 중이므로 수정이 불가능합니다"
+			})
+			return; 
+}
 		//유효성 체크 
 		$.each(test, (idx, item) => {
 			if (item.itemCode == null || item.quantity == null) {
@@ -978,7 +964,7 @@ if(pageStatus=='register'){
 			orderGrid.getCheckedRows()[0].ordCode;
 		}
 		regHeader =orderGrid.getCheckedRows()[0]; 
-		console.log('dtlObj ordCode 확인 : ',dtlObj); 	
+	
 		const dataToSend = {
 			ord: regHeader, // 일반 객체
 			dtl: dtlObj
@@ -1005,16 +991,17 @@ if(pageStatus=='register'){
 	})
 	//주문 수정
 	$('#ordupd').on('click', function () {
-		console.log(orderGrid.getCheckedRows());
-		let updHeader = orderGrid.getCheckedRows()[0]; //납기일자,지불방식 {ordCode:"ord-129",payMethod:"opm01"}
-		updHeader.updateId = userID; //update
+
+	
+
+		//updHeader.updateId = userID; //update
 		$.ajax({
 			url: '/erp/sales/ord/update',
 			type: 'PUT',
 			contentType: 'application/json',
 			data: JSON.stringify(updHeader),
 			success: function (res) {
-				console.log('전송 성공', res);
+			
 				Swal.fire({
 					title: "주문수정성공!",
 					icon: "success",
@@ -1026,14 +1013,23 @@ if(pageStatus=='register'){
 			}
 		})
 	})
+
+
 	$('#delRowdtl').on('click', function () {
-		let info = ordDtlGrid.getCheckedRows(); // [ ]
-		
-			const checkedRows = detailGrid.getCheckedRows();
+			let info = ordDtlGrid.getCheckedRows(); // [ ]
+			let header=orderGrid.getCheckedRows()[0]; 
+			if(header.status=='ost02' ||header.status=='ost03'){
+					Swal.fire({
+				icon: "error",
+				title: "error",
+				text: "출고가 진행중입니다"
+			})
+			return; 
+			}
+			const checkedRows = ordDtlGrid.getCheckedRows();
 			//행삭제
 			checkedRows.forEach(item => {
-		    console.log(item)
-		    detailGrid.removeRow(item.rowKey)
+		    ordDtlGrid.removeRow(item.rowKey)
 		  })
 			if(pageStatus=='search'){
 			$.ajax({
@@ -1042,7 +1038,7 @@ if(pageStatus=='register'){
 				contentType: 'application/json',
 				data: JSON.stringify(info),
 				success: function (res) {
-						console.log('삭제 성공', res);
+					
 						Swal.fire({
 							title: "주문삭제성공!",
 							icon: "success",
@@ -1069,7 +1065,7 @@ if(pageStatus=='register'){
 	// 									ordDtlGrid.getCheckedRows()[0].vatPrice
 	// 									-ordDtlGrid.getCheckedRows()[0].discPrice;
 		
-	// 	console.log('updDtl', updDtl);
+	
 	
 	// 	ordDtlGrid.setValue(updDtl.rowkey, "ordCode", orderGrid.getCheckedRows()[0].ordCode);
 	// 	console.log('updDtl=>', updDtl);
@@ -1080,7 +1076,7 @@ if(pageStatus=='register'){
 	// 		contentType: 'application/json',
 	// 		data: JSON.stringify(updDtl),
 	// 		success: function (res) {
-	// 			console.log('전송 성공', res);
+
 	// 			Swal.fire({
 	// 				title: "주문수정성공!",
 	// 				icon: "success",
@@ -1096,12 +1092,13 @@ if(pageStatus=='register'){
 	//[1:{}] 
 	//ordDtlRow의 수량 입력시 총금액,공급가액,부가세 계산되어 자동입력됨 
 	ordDtlGrid.on('afterChange', ev => {
-		console.log(ev);
+	
 		console.log('ev.changes[0].rowKey',ev.changes[0].rowKey);
 		if(pageStatus=='register'){
 				vdrdiscount=(orderGrid.getModifiedRows().createdRows[0].discount)/100
 		} //0.12
 		else if(pageStatus=='search'){
+			//
 			vdrdiscount=(orderGrid.getCheckedRows()[0].discount)/100;
 		}
 
@@ -1226,9 +1223,9 @@ if(pageStatus=='register'){
 
 	//주문등록 할때 이거 주석처리 하면 안넘어감;; 
 
-	 const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1005'}]];
-	 const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '정은애'	}]];
-	 const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'	}]];
+	//  const userID = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.userId : 'c1005'}]];
+	//  const userName = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.empName : '정은애'	}]];
+	//  const userComId = [[${#authentication.principal != 'anonymousUser' ? #authentication.principal.comId : 'com-101'	}]];
 //	console.log(userID, userName, userComId);
 </script>
 </html>

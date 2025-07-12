@@ -57,18 +57,22 @@ public class OrderServiceImpl implements OrderService {
 		initAuthInfo(); 
 		ord.getOrd().setComId(comId);
 		
-		String ordCode=ord.getOrd().getOrdCode();
+		//String ordCode=ord.getOrd().getOrdCode();
 		
-		orderMapper.orderInsert(ord.getOrd()); //헤더 제일먼저 insert 
+		orderMapper.orderInsert(ord.getOrd()); //헤더 제일먼저 insert 무조건 ord_code가 생김  
 		
+		//order insert를 하고난뒤에 최대 주문번호 찾기 comId 넣어줘야함 
+		String ordCode=orderMapper.findMaxOrdNo(comId);
+			
 		String vdrCode = ord.getOrd().getVdrCode(); // vdrCode 거래처코드
 		Long totPrice = ord.getOrd().getTotPrice(); // totPrice
 		// 외상매입금일경우 여신차감-> 모든 지불방식인 경우에 여신잔량 깎는걸로 변경 
 		orderMapper.updateCreditBal(totPrice, vdrCode,comId);
 		
 		ord.getDtl().getUpdatedRows().get(0).setComId(comId);
-		ord.getDtl().getUpdatedRows().get(0).setOrdCode(ordCode);     //ordCode세팅 해주기
+	//	ord.getDtl().getUpdatedRows().get(0).setOrdCode(ordCode);     //ordCode세팅 해주기
 		System.out.println("프론트에서받아온값ord==>>"+ord.getDtl());
+		ord.getDtl().getUpdatedRows().get(0).setOrdCode(ordCode);
 		orderMapper.odtlInsert(ord.getDtl().getUpdatedRows().get(0)); //등록할때 상세의 제일 첫번째행 
 		for(int i=0; i<ord.getDtl().getCreatedRows().size();i++) {
 			ord.getDtl().getCreatedRows().get(i).setComId(comId);
