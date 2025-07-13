@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dadam.inventory.physical.service.PhysicalService;
 import com.dadam.inventory.physical.service.PhysicalVO;
+import com.dadam.inventory.warehouse.service.WarehouseVO;
 
 
 @RestController // json형식으로 반환
@@ -29,5 +30,15 @@ public class PhysicalRestController {
 	@GetMapping("/selectPhysicalDetail")
 	public List<PhysicalVO> selectPhysicalDetailList(PhysicalVO vo) {
 		return physicalservice.selectPhysicalDetailList(vo);
+	}
+	// 창고 리스트
+	@GetMapping("/physicalWarehouseList")
+	public List<WarehouseVO> physicalWarehouseList(@RequestParam String comId) {
+		return physicalservice.physicalWarehouseList(comId);
+	}
+	// 창고위치, 품목 리스트
+	@GetMapping("/physicalWarehousedetailList")
+	public List<WarehouseVO> physicalWarehousedetailList(@RequestParam String comId, @RequestParam String whCode) {
+		return physicalservice.physicalWarehousedetailList(comId, whCode);
 	}
 }

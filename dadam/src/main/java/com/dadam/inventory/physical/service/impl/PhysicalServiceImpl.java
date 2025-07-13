@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dadam.inventory.physical.mapper.PhysicalMapper;
 import com.dadam.inventory.physical.service.PhysicalService;
 import com.dadam.inventory.physical.service.PhysicalVO;
+import com.dadam.inventory.warehouse.service.WarehouseVO;
 
 @Transactional
 @Service
@@ -30,6 +31,16 @@ public class PhysicalServiceImpl implements PhysicalService{
 	public List<PhysicalVO> selectPhysicalDetailList(PhysicalVO list) {
 		List<PhysicalVO> lists = physicalmapper.selectPhysicalDetailList(list);
 		return lists;
+	}
+
+	@Override
+	public List<WarehouseVO> physicalWarehouseList(String comId) {
+		return physicalmapper.physicalWarehouseList(comId);
+	}
+
+	@Override
+	public List<WarehouseVO> physicalWarehousedetailList(String comId, String whCode) {
+		return physicalmapper.physicalWarehousedetailList(comId,whCode);
 	}
 	
 }

@@ -257,6 +257,7 @@ function selectGrid(){
 	        { header: '홀드코드',name:'holdCode',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
 	        { header: '수량',name:'quantity',align:'center'},
+	        { header: '현재홀드수량',name:'hdqty',align:'center'},
 	        { header: '구분',name:'typeName',align:'center',
 	        	filter: 'select'
 	        	},
@@ -300,17 +301,19 @@ function selectGrid(){
 	});
 	
 	holdGrid.on('click', (ev)=>{
-		if (!ev.targetType || ev.targetType !== 'cell') {
 		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+		if (!ev.targetType || ev.targetType !== 'cell') {
 		    return;
 		  }
+		    
 		let { rowKey, columnName } = ev;
 		let click = holdGrid.getRow(rowKey);
-		let param = {holdCode: click.holdCode,comId}
+		let param = {holdCode: click.holdCode,
+					comId: comId}
 		$.ajax({
 			url:"/erp/inventory/holdDetailList",
 			method:"GET"
-			,data: {param}
+			,data: param
 		   ,success:function(result) {
 			   subLot.resetData(result);
 		   } 
@@ -340,6 +343,7 @@ function insertGrid(){
 	        	}
 	        },
 	        { header: '필요수량',name:'quantity',align:'center'},
+	        { header: '현재홀드수량',name:'hdqty',align:'center'},
 	        { header: '분류',name:'typeName',align:'center'},
 	        { header: '상태',name:'statusName',align:'center'},
 	        { header: '의뢰등록일',name:'createdDate',align:'center'},
@@ -393,12 +397,17 @@ function insertGrid(){
 	        { header: '출고예정일',name:'shipExpDate',align:'center'},
 	    ],
 	});
+	// 출하의뢰 데이터
 	$.ajax({
 		url:"/erp/inventory/holdshipRequestList",
 		method:"GET"
 		,data: {comId}
 	   ,success:function(result) {
-		   shipRequest.resetData(result);
+		  let shipRequestData = result.filter((item)=>{
+			   return item.hdqty < item.quantity;
+			   
+		   });
+		  shipRequest.resetData(shipRequestData);
 	   } 
 	}) // ajax호출 끝
 	
@@ -413,14 +422,15 @@ function insertGrid(){
 						, itemCode: item.itemCode
 						, itemName: item.itemName
 						, quantity: item.quantity
+						, hdqty: item.hdqty
 						, empId: item.empId
 						, empName: item.empName
 						, createdDate: item.createdDate
 						, date: item.shipExpDate
 						, vdrCode: item.vdrCode
 						, location: item.vdrName
-						, status: 'hs03'
-						, statusName: '출고보류'
+						, status: 'hs01'
+						, statusName: '홀드중'
 						, type: 'ht02'
 						, typeName: '출하의뢰'
 			}
@@ -464,10 +474,10 @@ function insertGrid(){
 	        { header: 'lot',name:'lot',align:'center'},
 	        { header: '위치',name:'locCode',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
-	        { header: 'lot재고',name:'quantity',align:'center'},
-	        { header: '예약재고',name:'holdQty',align:'center'},
-	        { header: '가용재고',name:'currQty',align:'center'},
 	        { header: '입력재고',name:'qty',align:'center'},
+	        { header: '현재고',name:'quantity',align:'center'},
+	        { header: '가용재고',name:'currQty',align:'center'},
+	        { header: 'lot예약재고',name:'holdQty',align:'center'},
 	    ],
 	});
 	
@@ -487,8 +497,8 @@ function insertGrid(){
 		  rowKey = ev.rowKey;
 		  columnName = ev.columnName;
 		  if (columnName === 'lot') {
-		    let rowData = holdGrid.getRow(rowKey);
-			itemCode = rowData.itemCode;
+		    let rowDatas = holdGrid.getRow(rowKey);
+			itemCode = rowDatas.itemCode;
 			
 			$.ajax({
 				url:"/erp/inventory/holdlotList",
@@ -535,17 +545,17 @@ function insertGrid(){
 		let holdList = holdGrid.getData();
 		let rowData = holdGrid.getRow(rowKey);
 		code = rowData.code;
-		// 재고전부 입력, 재고전체 입력
-		let origin = false;
+		let totqty = Number(rowData.hdqty);
 		// 입력한값의 전체를 합산
 		check.forEach((item)=>{
 			sum += Number(item.qty)
 		})
+		sum += totqty;
 		// check된 행 검사.
 		for(let item of check){
-			item.qty = Number(item.qty);
-			item.quantity = Number(item.quantity);
-			item.currQty = Number(item.currQty);
+			item.qty = Number(item.qty);	// 입력한수량
+			item.quantity = Number(item.quantity);	// 재고의 홀드수량
+			item.currQty = Number(item.currQty);	// 재고의 홀드진행수량
 			if(item.qty == ""){
 				Swal.fire({
 					  icon: "error",
@@ -576,17 +586,18 @@ function insertGrid(){
 			Swal.fire({
 				  icon: "error",
 				  title: "홀드수량이 많음!",
-				  text: "수량을 확인해주세요!"
+				  text: "이전 홀드한 수량: " + totqty
 				});
 			return;
 		// sum = 각lot의 수량
-		}else if(sum < rowData.quantity){
+		}
+		/* else if(sum < rowData.quantity){
 			holdGrid.setValue(rowKey, 'status', 'hs1')
 			holdGrid.setValue(rowKey, 'statusName', '홀드중')
 		}else{
 			holdGrid.setValue(rowKey, 'status', 'hs02')
 			holdGrid.setValue(rowKey, 'statusName', '홀드완료')
-		}
+		} */
 		// 파라메타 담기
 		checkData = check.map((item)=> ({
 					lot: item.lot,
@@ -597,7 +608,8 @@ function insertGrid(){
 					qty: item.qty,			// 입력한 수량
 					holdQty: item.holdQty,  // 예약재고
 					currQty: item.currQty,  // 가용재고
-					locCode: item.locCode
+					locCode: item.locCode,
+					status: 'hds01'
 		}));
 		
 		// lotList에 map타입으로 키를 코드값으로 value값은 객체를 넣음 
@@ -653,23 +665,18 @@ function insertGrid(){
 						});
 					return;
 				}
-				console.log(lotparam);
-				// 수량 반영하기
-				/* for(let qtys of lotparam){
-					qtys
-				} */
-				
-				// 홀드의 수량은 발주서 수량이 들어가는중...
 				// lot로 입력한 갯수가 아님
 				let saveData={
 								  itemCode: item.itemCode		// 품목코드
 								, quantity: item.quantity		// 발주서수량
 								, type: item.type				// 재고이동, 출하의뢰 , 다른이유
 								, status: item.status			// 재고부족, 홀드중, 처리완료
+								, hstatus: item.hstatus			
 								, note : item.note				// 비고
 								, code : item.code				// 참조 테이블 코드
 								, comId : comId
 								, lotList : lotList.get(item.code)
+								, totqty : item.totqty			// 이전 홀드량
 				}
 				param.push(saveData)
 			}
@@ -679,12 +686,20 @@ function insertGrid(){
 				method:"POST",
 				contentType: "application/json",
 				data: JSON.stringify(param),
-				success:()=>{
+				success:(result)=>{
+					if(result > 0){
 					Swal.fire({
 						  icon: "success",
 						  title: "홀드 완료!",
 						  text: "홀드가 완료되었습니다."
 						});
+					}else{
+					Swal.fire({
+						  icon: "error",
+						  title: "홀드실패",
+						  text: "홀드가 실패했습니다."
+						});
+					}
 					changeView('조회');
 				}
 			})
@@ -696,7 +711,23 @@ function insertGrid(){
 				});
 		}
 		});// 등록함수 끝
-	
+		
+		// 셀클릭 자동체크
+		stklot.on('dblclick', (ev)=>{
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+		    return;
+		  }
+			let { rowKey } = ev;
+			let checks = stklot.getRow(rowKey)._attributes.checked;
+			if(checks == false){
+			stklot.check(rowKey);
+			}else{
+			stklot.uncheck(rowKey);
+			}
+			
+		})
+		
 } // 등록버튼 끝
 </script>
 </body>

@@ -4,18 +4,22 @@
 	<!-- 홀드 내용 조회 -->
 	<select id="selectHoldList" resultType="HoldVO" parameterType="HoldVO">
 		SELECT  
-				hold_code,
-		        item_code,
-		        getitemName(item_code) itemName,
-		        quantity,
-		        getsubcode(type) typeName,
-		        type,
-		        getsubCode(status) statusName,
-		        status,
-		        note,
-		        created_date
-		FROM hold
-		WHERE com_id = #{comId} AND status NOT IN('hs02')
+				ho.hold_code,
+		        ho.item_code,
+		        getitemName(ho.item_code) itemName,
+		        ho.quantity,
+		        getsubcode(ho.type) typeName,
+		        ho.type,
+		        getsubCode(ho.status) statusName,
+		        ho.status,
+		        ho.note,
+		        ho.created_date,
+		        hod.hdqty
+		FROM hold ho left join (SELECT hold_code, com_id, nvl(SUM(quantity),0) hdqty
+	                           FROM holddetail
+	                           GROUP BY hold_code, com_id) hod
+	                           ON(ho.hold_code = hod.hold_code AND ho.com_id = hod.com_id)
+		WHERE ho.com_id = #{comId}
 		ORDER BY hold_code DESC
 	</select>
 	
@@ -24,8 +28,7 @@
 		SELECT 
 			 	sd.ship_req_dtl_code,
 			 	sd.item_code,
-			 	it.name item_name,
-                it.price,
+			 	getitemName(sd.item_code) item_name,
 			 	sd.status,
                 subcode(sd.status) statusName,
 			 	sd.quantity,
@@ -37,64 +40,76 @@
 			 	sr.emp_id,
                 getempName(sr.emp_id, #{comId}) empName,
                 sr.created_date,
-                sd.dlive_date
+                sd.dlive_date,
+                (SELECT nvl(SUM(quantity),0)
+                FROM holddetail
+                WHERE hold_code = ho.hold_code AND com_id = #{comId}) hdqty
 		FROM shipRequestDetail sd left join shiprequest sr
                                     	on(sd.ship_req_code = sr.ship_req_code AND sd.com_id = sr.com_id)
-                                        join item it
-                                        on(sd.item_code = it.item_code AND sd.com_id = it.com_id)
-        WHERE sd.com_id = #{comId} AND sd.status in('srd04','srd01','srd05')
-        ORDER BY ship_exp_date
+                                    	left join hold ho
+                                        on(ho.code = sd.ship_req_dtl_code AND ho.com_id = sd.com_id)
+        WHERE sd.com_id = #{comId} AND sd.status in('srd04','srd01')
+        ORDER BY ship_req_dtl_code
 	</select>
 	
 	<!-- LOT모달 조회 -->
 	<select id="selectHoldLotList" resultType="HoldVO">
-		SELECT
+        SELECT
 				lot,
 				loc_code,
 				item_code,
 				getitemName(item_code) item_name,
 				quantity,
-				hold_qty
+                hold_qty
 		FROM stock st
-        WHERE st.com_id = #{comId} AND st.item_code = #{itemCode}
+		WHERE com_id = #{comId} AND item_code =  #{itemCode} AND quantity > hold_qty
 	</select>
 	<!-- 홀드 등록 -->
-	<insert id="insertHoldList" parameterType="HoldVO">
+	<update id="insertHoldList" parameterType="HoldVO">
 		<selectKey resultType="string" keyProperty="holdCode" order="BEFORE">
-			SELECT 'hold-' || (NVL(MAX(TO_NUMBER(SUBSTR(hold_code,6))),100)+1) lot
+			SELECT 'hold-' || (NVL(MAX(TO_NUMBER(SUBSTR(hold_code,6))),100)+1) holdCode
 			FROM hold
 		</selectKey>
-	INSERT INTO hold(hold_code, item_code, quantity, type, status, note, com_id, created_date, code, status)
-	values(
-			#{holdCode},
-			#{itemCode},
-			#{quantity},
-			#{type},
-			#{status},
-			#{note},
-			#{comId},
-			sysdate,
-			#{code},
-			#{hstatus}
-			)
-	</insert>
+	MERGE INTO hold ho
+		USING (
+		    SELECT 
+		        #{holdCode} AS hold_code,
+                #{itemCode} AS item_code,
+                #{quantity} AS quantity,
+                #{type} AS type,
+                #{hstatus} AS status,
+                #{comId} AS com_id,
+                #{createdDate} AS created_date,
+                #{code} AS code,
+                #{note} AS note
+		    FROM dual
+		) data
+		ON (
+		    ho.hold_code = data.hold_code AND ho.item_code = data.item_code AND ho.com_id = data.com_id
+		)
+		WHEN MATCHED THEN
+		    UPDATE SET 
+		        ho.status = data.status
+		WHEN NOT MATCHED THEN
+        INSERT (hold_code, item_code, quantity, type, status, note, com_id, created_date, code)
+        values(data.hold_code, data.item_code, data.quantity,data.type, data.status, data.note, data.com_id, sysdate, data.code)
+	</update>
 	<!-- 홀드디테일 등록 -->
 	<insert id="insertHoldLotList" parameterType="LotVO">
 		<selectKey resultType="string" keyProperty="holdDtlCode" order="BEFORE">
-			SELECT 'holddt-' || (NVL(MAX(TO_NUMBER(SUBSTR(hold_dtl_code,8))),100)+1) lot
+			SELECT 'holddt-' || (NVL(MAX(TO_NUMBER(SUBSTR(hold_dtl_code,8))),100)+1) holdDtlCode
 			FROM holddetail
 		</selectKey>
-	INSERT INTO holddetail(hold_dtl_code, hold_code, lot, quantity, com_id, status)
+	INSERT INTO holddetail(hold_dtl_code, hold_code, lot, quantity, com_id)
 	values(
 			#{holdDtlCode},
 			#{holdCode},
 			#{lot},
-			#{quantity},
-			#{comId},
-			'hds01'
+			#{qty},
+			#{comId}
 			)
 	</insert>
-	<!-- 홀드등록할때 상태값 변경 -->
+	<!-- 홀드등록할때 출하의뢰상세 상태값 변경 -->
 	<update id="updateHoldShipRequestDetail" parameterType="HoldVO">
 		UPDATE shiprequestdetail
 		SET status = #{shipstatus}
@@ -122,5 +137,9 @@
 		FROM holdDetail
 		WHERE hold_code = #{holdCode} AND com_id = #{comId}
 	</select>
-	
+	<select id="selectHoldDetailHoldQty" resultType="int" parameterType="HoldVO">
+		SELECT nvl(SUM(quantity),0) hold_qty
+		FROM holddetail
+		WHERE hold_code = #{holdCode} AND com_id = #{comId}
+	</select>
 </mapper>

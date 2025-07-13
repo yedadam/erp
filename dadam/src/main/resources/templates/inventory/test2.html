@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/default_layout}"
+	layout:fragment="Content">
+<head>
+<style>
+.main-table {
+	border: 2px solid #0d6efd;
+}
+
+.main-table th {
+	background-color: #e3f2fd;
+	text-align: center;
+	vertical-align: middle;
+	font-weight: bold;
+	border: 1px solid #ddd;
+}
+
+.main-table td {
+	text-align: center;
+	vertical-align: middle;
+	border: 1px solid #ddd;
+}
+
+.detail-table {
+	margin-top: 20px;
+}
+
+.detail-table th {
+	background-color: #f8f9fa;
+	text-align: center;
+	font-size: 14px;
+	padding: 8px;
+}
+
+.detail-table td {
+	text-align: center;
+	font-size: 14px;
+	padding: 8px;
+}
+
+.search-container {
+	margin-bottom: 20px;
+}
+
+.btn-group-custom {
+	margin-bottom: 20px;
+}
+
+.tui-pagination {
+	padding-bottom: 10px;
+}
+
+.start-action {
+	display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid #facc15; /* 연한 노랑 */
+	background-color: #fefce8; /* 연노랑 배경 */
+	color: #92400e; /* 진한 주황갈색 */
+}
+
+.end-action {
+	display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid #22c55e; /* 연초록 */
+	background-color: #ecfdf5; /* 아주 연한 민트 */
+	color: #065f46; /* 진한 초록 */
+}
+
+.del-action {
+	display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid #f87171; /* 연한 빨강 */
+	background-color: #fef2f2; /* 아주 연한 빨강 */
+	color: #991b1b; /* 진한 빨강 */
+}
+
+.require {
+	color: red;
+}
+</style>
+</head>
+<body class="bg-light">
+	<div class="container-fluid mt-4">
+		<h3 class="mb-4">실사관리</h3>
+		<!-- 검색 및 버튼 영역 -->
+		<div class="row mb-3">
+			<div class="col-md-6">
+				<div class="input-group search-container" style="width: 400px;">
+					<input type="text" class="form-control" placeholder="검색어를 입력하세요">
+					<button class="btn btn-outline-secondary" type="button">
+						<i class="fas fa-search"></i>
+					</button>
+				</div>
+			</div>
+
+			<!-- custom button -->
+			<div class="col-md-6 text-end">
+				<div class="btn-group-custom" id="btnGroup">
+					<button class="btn btn-secondary me-1" id="maininsertBtn">
+						<i class="fas fa-pen"></i> 항목추가</button>
+					<button class="btn btn-danger me-1" id="maindeleteBtn">
+						<i class="fas fa-trash"></i> 삭제
+					</button>
+					<button class="btn btn-primary me-1" id="mainsaveBtn">
+						<i class="fas fa-save"></i> 저장
+					</button>
+				</div>
+			</div>
+		</div>
+		<!-- 메인 그리드 -->
+		<div id="mainGrids"></div>
+	</div>
+	
+	<div class="container-fluid mt-4">
+		<div class="row mb-3">
+		<!-- custom button -->
+			<div class="col-md-6 text-start"></div>
+			<div class="col-md-6 text-end">
+				<div class="btn-group-custom" id="btnGroup">
+					<button class="btn btn-secondary me-1" id="subinsertBtn">
+						<i class="fas fa-pen"></i> 항목추가</button>
+					<button class="btn btn-danger me-1" id="subdeleteBtn">
+						<i class="fas fa-trash"></i> 삭제
+					</button>
+					<button class="btn btn-primary me-1" id="subsaveBtn">
+						<i class="fas fa-save"></i> 저장
+					</button>
+				</div>
+			</div>
+		</div>
+		<!-- 그리드 -->
+		<div id="subGrids"></div>
+	</div>
+	
+<script th:inline="javascript">
+let mainGrid;
+let subGrid;
+changeView('조회');
+
+function getName(name){
+	const header = document.createElement('span');
+	header.innerHTML=`<span class="require">* </span>${name}`
+	return header;
+};
+// 페이지 상태
+$('#insertBtn').on('click', function() {
+	changeView('등록');
+});
+$('#selectBtn').on('click', function() {
+	changeView('조회');
+});
+
+// 페이지 전환 처리
+function changeView(viewType){
+	if(holdGrid) {
+		// 그리드 초기화
+		holdGrid.destroy();
+		// dom 초기화
+		$('#mainGrid').html('');
+		$('#shipRequestGrid').html('');
+		$('#lotGrid').html('');
+		$('#subGrid').html('');
+	}
+	// 그리드 변경
+	if(viewType === '조회'){
+		selectGrid();
+		mainList();
+	}else if(viewType === '등록'){
+		insertGrid();
+	}
+}
+// mainGrid data
+function mainList(){
+	$.ajax({
+		url:"/erp/inventory/selectPhysical",
+		method:"GET"
+		,data: {comId}
+	   ,success:function(result) {
+		   mainGrid.resetData(result);
+	   } // ajax호출 끝
+	})
+}
+
+// 조회 그리드
+function selectGrid(){
+	mainGrid = new tui.Grid({
+	    el: document.getElementById('mainGrids'),
+	    rowHeaders: ['checkbox'],
+	    //페이지네이션
+	    pageOptions: {
+	        perPage: 5,
+	        useClient: true,
+	    },
+	    //필드값 구성
+	    columns:[
+	        { header: '실사코드',name:'phyCode',align:'center'},
+	        { header: '창고명',name:'whCode',align:'center', editor:'text'},
+	        { header: '담당자',name:'phyEmpName',align:'center'},
+	        { header: '승인자',name:'apprEmpName',align:'center'},
+	        { header: '등록일자',name:'createdDate',align:'center'},
+	        { header: '비고',name:'note',align:'center', editor:'text'},
+	        { header: '반영',name:'apprDate',align:'center'}
+	    ],
+	});
+	
+	const subGrid = new tui.Grid({
+	    el: document.getElementById('subGrids'),
+	    rowHeaders: ['checkbox'],
+	    //페이지네이션
+	    pageOptions: {
+	        perPage: 5,
+	        useClient: true,
+	    },
+	    //필드값 구성
+	    columns:[
+	        { header: '품목명',name:'phyDtlCode',align:'center'},
+	        { header: '보관위치',name:'locCode',align:'center'},
+	        { header: 'lot',name:'lot',align:'center'},
+	        { header: '품목명',name:'itemName',align:'center'},
+	        { header: '수량',name:'quantity',align:'center'},
+	        { header: '비고',name:'note',align:'center'},
+	    ],
+	});
+	
+}// 조회 그리드
+
+
+
+</script>
+</body>
+</html>

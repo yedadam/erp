@@ -13,7 +13,7 @@ public interface HoldMapper {
 	
 	// 조회
 	public List<HoldVO> selectHoldList(HoldVO vo);
-	// 단건조회
+	// 다건조회
 	public List<LotVO> selectHoldDetailList(LotVO vo);
 	// 발주서 모달 조회
 	public List<OutboundVO> selectShipRequestModal(HoldVO vo);
@@ -29,4 +29,5 @@ public interface HoldMapper {
 	public int updateHoldStock(LotVO list);
 	// 홀드 등록(현재 예약 재고 조회)
 	public int selectHoldStockHoldQty(LotVO list);
+	public int selectHoldDetailHoldQty(HoldVO vo);
 }

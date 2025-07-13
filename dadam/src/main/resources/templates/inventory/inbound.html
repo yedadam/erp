@@ -72,7 +72,7 @@
 </style>
 </head>
 <body class="bg-light">
-<div class="container-fluid mt-4">
+	<div class="container-fluid mt-4">
 		<h3 class="mb-4">입고관리</h3>
 		<!-- 검색 및 버튼 영역 -->
 		<div class="row mb-3">
@@ -89,7 +89,8 @@
 			<div class="col-md-6 text-end">
 				<div class="btn-group-custom" id="btnGroup">
 					<button class="btn btn-secondary me-1" id="insertBtn">
-						<i class="fas fa-pen"></i> 추가</button>
+						<i class="fas fa-pen"></i> 추가
+					</button>
 					<button class="btn btn-warning me-1" id="selectBtn">
 						<i class="fas fa-eye"></i> 조회
 					</button>
@@ -99,42 +100,43 @@
 		<!-- 메인 그리드 -->
 		<div id="mainGrids"></div>
 	</div>
-	
+
 	<div class="container-fluid mt-4">
 		<!--  -->
 		<div id="subGrids"></div>
 	</div>
 
-<!-- 입고를 위한 모달 -->
-<div class="modal fade" id="inboundModal" tabindex="-1"
-	aria-labelledby="exampleModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-xl">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">입고</h5>
-			</div>
-			<div class="modal-body">
+	<!-- 입고를 위한 모달 -->
+	<div class="modal fade" id="inboundModal" tabindex="-1"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">입고</h5>
+				</div>
+				<div class="modal-body">
 					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
 						<button class="btn btn-danger" id="autoModal">
-						<i class="fas fa-square-minus"></i> 모든 값 넣기
+							<i class="fas fa-square-minus"></i> 모든 값 넣기
 						</button>
 						<button class="btn btn-danger" id="resetModal">
-						<i class="fas fa-square-minus"></i> 초기화
+							<i class="fas fa-square-minus"></i> 초기화
 						</button>
 						<button class="btn btn-primary" id="registerBtn">
-                        <i class="fas fa-warehouse"></i> 입고
-                    	</button>
+							<i class="fas fa-warehouse"></i> 입고
+						</button>
 					</div>
 					<div id="gridModal"></div>
-			</div>
-			<div class="modal-footer">
-			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Close</button>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<!--                                   -->
-<!-- <div class="container-fluid mt-4">
+	<!--                                   -->
+	<!-- <div class="container-fluid mt-4">
 		<h3 class="mb-4">입고관리</h3>
 			<div class="btn-group-custom">
 					<button class="btn btn-warning" id="purchasePage" type="button"><i class="fas fa-check-circle"></i> 주문입고</button>
@@ -170,10 +172,10 @@
 		</div>
 </div> -->
 
-<!-- 메인 그리드 -->
-<div id="Grids"></div>
+	<!-- 메인 그리드 -->
+	<div id="Grids"></div>
 
-<script th:inline="javascript">
+	<script th:inline="javascript">
 
 //그리드 전역 등록
 let mainGrid;
@@ -258,6 +260,7 @@ function selectGrid(){
 	        	filter: 'select'
 	        	},
 	        { header: '입고일자',name:'createdDate',align:'center'},
+	        { header: '비고',name:'note',align:'center'}
 	    ],
 	}); // 그리드 그리기 끝
 	
@@ -410,7 +413,6 @@ function insertGrid(){
 				$('#registerBtn').on('click', ()=>{
 					// inboundGrid
 					let gridData = inboundGrid.getData();
-					console.log(gridData);
 					// 빈행 체크
 					for(let item of gridData){
 						if(item.loc == ""){
@@ -457,7 +459,7 @@ function insertGrid(){
 						prices = item.price
 						quantity = item.quantity
 						check = 0;
-						currQty =item.currQty;  // 기입고량 4700
+						currQty = item.currQty;  // 기입고량 4700
 						reqQty = item.reqQty;	// 미입고량
 						}
 						
@@ -485,16 +487,18 @@ function insertGrid(){
 							params = {
 										  purOrdDtlCode: code,
 										  itemCode: items,
-										  currQty: Number(currQty) + Number(item.qty),
+										  currQty: currQty,
 										  price: prices,
 										  empId: empId,
+										  quantity: quantity,
 										  locCode: item.loc,
-										  quantity: item.qty,
+										  qty: item.qty,
 										  note: item.note,
 										  status: status,
 										  comId: comId
 									}
 							param.push(params);
+							console.log(param)
 					})
 					 	$.ajax({
 							url:"/erp/inventory/purchaseRegister",
@@ -517,12 +521,11 @@ function insertGrid(){
 							}
 							
 							$('#inboundModal').modal('hide');
-							/* mainGrid.uncheckAll();
-							inboundGrid.refreshLayout();
-							mainGrid.refreshLayout(); */
+							changeView('조회');
 							purchaseOrderList();
 							}
-						}); // ajax 끝
+						})
+					// ajax 끝
 					});
 		  
 				// 행 추가

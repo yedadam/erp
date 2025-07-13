@@ -9,7 +9,7 @@ public interface HoldService {
 
 	// 조회
 	public List<HoldVO> selectHoldList(HoldVO vo);
-	// 단건조회
+	// 다건조회
 	public List<LotVO> selectHoldDetailList(LotVO vo);
 	// 발주서 모달 조회
 	public List<OutboundVO> selectShipRequestModal(HoldVO vo);
@@ -17,4 +17,6 @@ public interface HoldService {
 	public List<HoldVO> selectHoldLotList(HoldVO vo);
 	// 홀드등록
 	public int insertHoldList(List<HoldVO> list);
+	// 홀드 값가져오기
+	public int selectHoldDetailHoldQty(HoldVO vo);
 }
