@@ -54,6 +54,7 @@ SELECT
 		emp_id
 FROM vender
 WHERE com_id = #{comId}
+AND type in('vt02','vt03')
 <choose>
   <when test="type.equals('vdrCode')">
          AND vdr_code LIKE '%'||#{value}||'%'

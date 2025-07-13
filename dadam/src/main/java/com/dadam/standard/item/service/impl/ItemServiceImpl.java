@@ -36,7 +36,15 @@ public class ItemServiceImpl implements ItemService{
 	// 전체조회
 	@Override
 	public List<ItemVO> itemFindAll(String type,String value) {
+		initAuthInfo(); 
 		List<ItemVO> result = mapper.itemFindAll(type,value,comId);
+		return result;
+	}
+
+	@Override
+	public List<ItemVO> itemFindit02(String type, String value) {
+		initAuthInfo();
+		List<ItemVO> result = mapper.itemFindit02(type,value,comId);
 		return result;
 	}
 }

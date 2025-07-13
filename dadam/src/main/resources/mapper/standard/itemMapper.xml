@@ -17,4 +17,22 @@
 	          </when>
 		</choose>
 	</select>
+	<select id="itemFindit02" resultType="ItemVO">
+		SELECT item_code,
+		       name,
+		       type,
+		       price
+			   FROM item
+		WHERE com_id = #{comId}
+		AND  type='it01'
+		<choose>
+			  <when test="type.equals('itemCode')">
+	                AND item_code LIKE '%'||#{value}||'%'
+	          </when>
+	          <when test="type.equals('name')">
+	            	 AND name LIKE '%'||#{value}||'%'
+	          </when>
+		</choose>
+	</select>
+	
 </mapper>

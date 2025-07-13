@@ -9,5 +9,6 @@ import com.dadam.standard.item.service.ItemVO;
 
 public interface ItemMapper {
 	public List<ItemVO> itemFindAll(@Param("type") String type, @Param("value") String value, @Param("comId") String comId);
+	public List<ItemVO> itemFindit02(@Param("type") String type, @Param("value") String value, @Param("comId") String comId);
 
 }

@@ -57,20 +57,17 @@
 	</style>
 </head>
 <body class="bg-light">
-	<div class="container-fluid mt-4">
-		<div class="d-flex justify-content-between align-items-center mb-3">
+	<div class="container-fluid mt-4">		
 		<h3 class="mb-4 text-secondary fw-bold border-bottom border-secondary pb-2">주문관리</h3>
-		</div>
-		<!--수정하기 -->
-		<!-- 상단 버튼 정렬 -->
-		<!-- 🔍 검색 조건 카드 -->
+
+<!-- 검색창 그룹 -->
 <div class="card mb-3 shadow-sm">
   <div class="card-body">
-    <div class="row g-3 align-items-center">
-
-      <!-- 검색 조건 -->
+    <div class="row g-3 align-items-start">
+      
+      <!-- 1) 검색 조건 -->
       <div class="col-md-4">
-        <label for="orderSelect" class="form-label">검색 조건</label>
+        <label for="orderSelect" class="form-label mb-2">검색 조건</label>
         <div class="input-group">
           <select class="form-select" id="orderSelect">
             <option value="ordCode">주문코드</option>
@@ -79,26 +76,25 @@
           </select>
           <input type="text" class="form-control" id="orderInput" placeholder="검색어 입력">
         </div>
-				<ul id="autoOrderList"
-											class="list-group position-absolute w-100 shadow-sm"
-											style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
-				</ul>
+        <ul id="autoOrderList"
+            class="list-group position-absolute w-100 shadow-sm"
+            style="top:100%; z-index:1050; max-height:200px; overflow-y:auto; display:none;">
+        </ul>
       </div>
-
-			  <div class="col-md-3">
-        <label class="form-label">납기일자</label>
+      
+      <!-- 2) 납기예정일자 -->
+      <div class="col-md-3">
+        <label class="form-label mb-2">납기예정일자</label>
         <div class="d-flex gap-2">
           <input type="date" id="reqDlvStartDate" class="form-control">
-          <input type="date" id="reqDlvEndDate" class="form-control">
+          <input type="date" id="reqDlvEndDate"   class="form-control">
         </div>
       </div>
-
-     
-
-      <!-- 상태 -->
+      
+      <!-- 3) 진행 상태 -->
       <div class="col-md-3">
-        <label class="form-label d-block">진행 상태</label>
-        <div class="d-flex gap-2 flex-wrap">
+        <label class="form-label mb-0 d-block">진행 상태</label>
+        <div class="d-flex gap-3 flex-wrap">
           <div class="form-check">
             <input class="form-check-input" type="radio" name="orderStatus" id="statusAll" value="" checked>
             <label class="form-check-label" for="statusAll">전체</label>
@@ -117,17 +113,22 @@
           </div>
         </div>
       </div>
-
-      <!-- 검색 버튼 -->
-      <div class="col-md-2 d-flex align-items-end">
+      
+      <!-- 4) 검색 버튼 (아래로 내림) -->
+      <div class="col-md-2 align-self-end">
         <button class="btn btn-primary w-100" id="orderSearchBtn">
           <i class="fas fa-search"></i> 검색
         </button>
       </div>
-
-    </div>
+      
+    </div><!-- /.row -->
   </div>
 </div>
+
+
+
+
+
 <!-- ✅ 버튼 그룹 (검색박스 아래 자연스럽게 배치) -->
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div></div> <!-- 왼쪽 공간 비워두기 (필요 시 추가 요소 가능) -->
@@ -136,20 +137,41 @@
       <i class="fas fa-file-excel"></i> 엑셀
     </button>
     <button id="addRow" class="btn btn-secondary">
-      <i class="fas fa-plus"></i> 행추가
+      <i class="fas fa-plus"></i> 주문추가
     </button>
-
+<!--
     <button id="ordreg2" class="btn btn-primary">
       <i class="fas fa-pen"></i> 주문등록
     </button>
-		  
+-->
+	<!--이제 주문등록,주문수정 모두가능-->
+    <button class="btn btn-primary" id="saveRowdtl">
+         <i class="fas fa-save"></i> 저장
+    </button>
     <button id="deleteRow" class="btn btn-danger">
       <i class="fas fa-trash"></i> 행삭제
     </button>
   </div>
 </div>
-  <!-- 검색창 영역 -->
-		<div id="orderGrid" class="mb-4"></div>
+
+ <div id="mainGridWrapper" class="position-relative border rounded p-3 bg-white shadow-sm">
+
+	<div id="orderGrid" class="mb-4"></div>	
+
+	<!--로딩바 -->	
+    <div id="gridSpinner"
+           class="position-absolute top-0 start-0 w-100 h-100 bg-white d-flex align-items-center justify-content-center"
+           style="top: 38px; display: none; z-index: 10;">
+        <dotlottie-player
+            src="https://lottie.host/e8b36d4d-46d8-429f-98b8-d8c1c4dde598/p6hfbX0nTd.lottie"
+            background="transparent" speed="1"
+            style="width: 200px; height: 100px;" loop autoplay>
+        </dotlottie-player>
+      </div>
+    </div>
+
+
+	
 		<!-- 상세 버튼 정렬 -->
 			  <div class="row mb-3">	
         		<div class="col-12 d-flex justify-content-end">
@@ -160,9 +182,6 @@
 					<!-- <button class="btn btn-warning" id="modRowdtl">
 						<i class="fas fa-eye"></i>  상세수정
 					</button> -->
-					<button class="btn btn-primary" id="saveRowdtl">
-                        <i class="fas fa-save"></i> 상세저장
-                    </button>
                     <button class="btn btn-danger me-2" id="delRowdtl">
                         <i class="fas fa-trash"></i> 상세행삭제
                     </button>
@@ -179,10 +198,10 @@
     <div class="modal-content">
       
       <!-- 모달 헤더 -->
-      <div class="modal-header">
+       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalToggleLabel">품목 선택</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
+      </div> 
 
       <!-- 모달 바디 -->
       <div class="modal-body">
@@ -205,16 +224,13 @@
               style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
           </ul>
         </div>
-
         <!-- 결과 리스트 영역 -->
         <div id="itemList"></div>
       </div>
 
       <!-- 모달 푸터 -->
       <div class="modal-footer">
-        <button class="btn btn-primary" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal" data-bs-dismiss="modal">
-          품목 선택
-        </button>
+       
       </div>
     </div>
   </div>
@@ -261,7 +277,7 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<h1 class="modal-title fs-5" id="exampleModalLabel">거래처목록</h1>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						
 					</div>
 					<div id="vdrList"></div>
 					<div class="modal-body">
@@ -329,7 +345,7 @@
 	var itemType = /*[[${itemType}]]*/ []; 
 	var ordStatusList=/*[[${ordStatus}]]*/ [];  
 
-	orderList(); //주문조회  
+	mainList(); //주문조회  
 	itemList(); //제품조회 
 	vdrList(); //거래처조회
 
@@ -347,24 +363,16 @@ if(pageStatus=='register'){
 			confirmButtonColor: "#3085d6",
 			cancelButtonColor: "#d33",
 			confirmButtonText: "검색하기"
-			}).then((result) => {
-			if (result.isConfirmed) {
-				pageStatus='search';
-				ordDtlGrid.resetData([]); 
+			})
+			.then((result) => {
+			if (!result.isConfirmed) {
+				return; 
 			}
+			search(); 
 			});
-		}		
-
-
-		let reqDlvStartDate=document.getElementById('reqDlvStartDate').value;
-		let reqDlvEndDate=document.getElementById('reqDlvEndDate').value; 
-		let type=$('#orderSelect  option:selected').val();
-		let value=$('#orderInput').val();
-		let url='/erp/sales/orderList'; 
-	
-		const status = document.querySelector('input[name="orderStatus"]:checked').value;
-		commonSearchObject({type,value,reqDlvStartDate ,reqDlvEndDate,status},url,orderGrid);
-
+		}else{
+			search();
+		}
 })
     //자동완성기능
 	$('#vdrInput').on('keyup',ev => {
@@ -640,6 +648,7 @@ if(pageStatus=='register'){
 		//console.log(newDtlList);   
 		const checkedRows = itemGrid.getCheckedRowKeys(); //아이템그리드 체크된 행번호 가져오기
 		if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
+	
 			itemGrid.uncheckAll(); // 전체 해제
 			itemGrid.check(ev.rowKey); // 현재 행만 체크
 		}
@@ -673,14 +682,19 @@ if(pageStatus=='register'){
 				//console.log('주문정보 불러오기', result);
 				console.log(result);
 				orderGrid.resetData(result);
+				ordDtlGrid.resetData([]);
+				$('#gridSpinner').css('display', 'none'); 
 			}
-		})
-		
-
+		}).always(function() {
+            	 setTimeout(function() {
+            		 $('#gridSpinner').removeClass('d-flex').hide();
+            	 }, 1500);
+        });
 	}
 	//메인리스트 불러오기 
 	function mainList(){
 		pageStatus='search'; 
+		$('#gridSpinner').addClass('d-flex').show();
 		orderList(); //조회다시 하기 
 	}
 
@@ -727,7 +741,7 @@ if(pageStatus=='register'){
 	$('#addRow').on('click', function () {
 		
 		orderGrid.uncheckAll();
-		$('#ordreg2').prop('disabled',false);
+	//	$('#ordreg2').prop('disabled',false);
 		//orderGrid 수정체크 
 		if(pageStatus=='register'){
 				Swal.fire({
@@ -753,7 +767,7 @@ if(pageStatus=='register'){
 	
 		orderGrid.setValue(newOrdPlus, "createdDate", dateformatyymmdd(new Date()));
 		orderGrid.setValue(newOrdPlus, "status", "ost01");
-	//	orderGrid.setValue(newOrdPlus,"ordCode",nextordCode); //nextordCode
+		//orderGrid.setValue(newOrdPlus,"ordCode",nextordCode); //nextordCode
 	})
 	$('#deleteRow').on('click', function () {
 
@@ -764,6 +778,17 @@ if(pageStatus=='register'){
 			return;
 		}		
 
+		if(pageStatus=='register'){
+			console.log('')
+		
+		checkedRows.forEach(item => {
+		    orderGrid.removeRow(item.rowKey)
+		})
+			pageStatus='search'; 
+			ordDtlGrid.resetData([]);
+			return; //주문중단하고 딴거 조회가능 
+		}
+
 
 	//주문삭제할 경우 출하요청이 완료된 상품일 경우 경고창 띄우기 	
 	 if(orderGrid.getData()[orderGrid.getCheckedRowKeys()[0]].status=='ost02'||orderGrid.getData()[orderGrid.getCheckedRowKeys()[0]].status=='ost03' ){
@@ -771,8 +796,6 @@ if(pageStatus=='register'){
 			return;
 		} 
 		//체크된행을 가져오는 함수	
-	
-
 
 		checkedRows.forEach(item => {
 			//console.log(item.ordCode);
@@ -787,15 +810,27 @@ if(pageStatus=='register'){
 										icon: "success",
 										draggable: true
 						});
+						mainList(); 
+						ordDtlGrid.resetData([]);
 					}
 				});
 			} 
 		})
 
-		ordDtlGrid.resetData([]);
+		
 	})
 	//주문상세 행추가 반영 
 	$('#addRowdtl').on('click', function () {
+	let header=orderGrid.getCheckedRows()[0]; 
+			if(header?.status=='ost02' ||header?.status=='ost03'){
+					Swal.fire({
+				icon: "error",
+				title: "error",
+				text: "출고가 진행중이므로 더 추가 할수없습니다"
+			})
+			return; 
+	}	
+
 	//	orderGrid.uncheckAll(); 
 		let addDtlrow = {} //		
 		ordDtlGrid.appendRow(addDtlrow); //
@@ -904,6 +939,8 @@ if(pageStatus=='register'){
 			dtl: dtlObj     // [{},{}]
 		};
 	
+
+	if(pageStatus=='register'){	
 		$.ajax({
 			url: '/erp/sales/ord/register',
 			type: 'POST',
@@ -920,7 +957,9 @@ if(pageStatus=='register'){
 				ordDtlGrid.resetData([]); 
 			}
 		})
-
+	}else if(pageStatus=='search'){
+		alert('등록상태가 아닙니다');
+	} 	
 		pageStatus='search';
 
 
@@ -928,6 +967,9 @@ if(pageStatus=='register'){
 	//주문 상세 저장
 	$('#saveRowdtl').on('click', function(){
 		//validation 체크 
+
+		//기존 상세저장 
+		if(pageStatus=='search'){
 		let test = ordDtlGrid.getData();
 		let updHeader = orderGrid.getCheckedRows()[0]; //납기일자,지불방식 {ordCode:"ord-129",payMethod:"opm01"}
 		if(updHeader.status=='ost02' ||updHeader.status=='ost03'){
@@ -970,6 +1012,8 @@ if(pageStatus=='register'){
 			dtl: dtlObj
 		};
 
+
+		
 		$.ajax({
 			url: '/erp/sales/ord/regDtl',
 			type: 'POST',
@@ -980,14 +1024,141 @@ if(pageStatus=='register'){
 				Swal.fire({
 					title: "저장성공!",
 					icon: "success",
-				draggable: true
+					draggable: true
 				});
 				mainList();
 				ordDtlGrid.resetData([]); 
 			}
 		})	
-		orderList();
+	}
+	//여기까지 기존 상세저장(수정) 
+	
+
+
+
+	//여기서부터 등록 
+	if(pageStatus=='register'){
+			let regHeader =orderGrid.getModifiedRows().createdRows[0]; //체크표시 굳이 안해도 주문등록가능  
+
+		if(regHeader==null){
+			Swal.fire({
+				icon: "error",
+				title: "error",
+				text: "주문건을 추가하시오"
+			});
+			return;
+		}
+		// ❗ 주문 헤더 유효성 검사
+		if (!regHeader.vdrCode || !regHeader.payMethod || !regHeader.status) {
+			Swal.fire({
+				icon: "error",
+				title: "error",
+				text: "필수항목기입하시오"
+			});
+			return;
+		}
+		//여신잔액이 없는경우
+		if (regHeader.creditBalPrice <= regHeader.totPrice) {
+			Swal.fire({
+				icon: "error",
+				title: "error",
+				text: "여신잔액이 부족합니다"
+			});
+			return;
+		}
+		let itemNull; 
+		if(ordDtlGrid.getData().length>0){ //ordDtlGrid getData 
+				for(let i=0;i<ordDtlGrid.getData().length;i++){
+						if(ordDtlGrid.getData()[i].itemCode==null ||ordDtlGrid.getData()[i].name==null||ordDtlGrid.getData()[i].quantity==null){
+							 itemNull='y'; 	
+						}
+				}		
+		}
+		if(itemNull=='y'){
+			Swal.fire({
+				icon: "error",
+				title: "error",
+				text: "주문디테일을 선택해주세요"
+			});
+			return;
+		}
+
+				
+	let noItemCode; 
+	//console.log('ordDtlGrid 주문등록버튼=>',ordDtlGrid.getData()[0].itemCode); 새로 생성된 행이 있을경우 
+	if(ordDtlGrid.getModifiedRows().createdRows||ordDtlGrid.getModifiedRows().updatedRows){	
+			for(let i=0; i<ordDtlGrid.getModifiedRows().createdRows.length;i++){
+				if(!ordDtlGrid.getModifiedRows().createdRows[i].itemCode){
+					 noItemCode='y'; 
+				}
+			}
+			if(!ordDtlGrid.getModifiedRows().updatedRows[0].itemCode){
+				noItemCode='y'; 
+			}
+
+			if(noItemCode=='y'){
+			Swal.fire({
+					icon: "error",
+					title: "error",
+					text: "주문할 상품을 선택하시오"
+				});
+				return;
+			}
+}
+
+		const dtlObj = ordDtlGrid.getModifiedRows(); 
+		let totSup=0; 
+		let totVat=0; 
+		let totDisc=0;
+		let qty=0; 
+		for(let i=0; i<dtlObj.createdRows.length;i++ ){
+			totSup+=dtlObj.createdRows[i].supPrice; //총 공급가액 
+			totVat+=dtlObj.createdRows[i].vatPrice; //총부가세
+			totDisc+=dtlObj.createdRows[i].discPrice; // 총할인금액	
+			qty+=Number(dtlObj.createdRows[i].quantity); //총수량  
+		}
+
+		for(let i=0; i<dtlObj.updatedRows.length;i++ ){
+			totSup+=dtlObj.updatedRows[i].supPrice; //총 공급가액 
+			totVat+=dtlObj.updatedRows[i].vatPrice; //총부가세
+			totDisc+=dtlObj.updatedRows[i].discPrice; // 총할인금액	
+			qty+=Number(dtlObj.updatedRows[i].quantity); //총수량  
+		}
+
+			regHeader.totSupPrice=totSup;
+			regHeader.totVatPrice=totVat; 
+			regHeader.totDisc=totDisc; 
+			regHeader.totQuantity=qty; 
+ 
+		const dataToSend = {
+			ord: regHeader, // 일반 객체 {}
+			dtl: dtlObj     // [{},{}]
+		};
+	
+
+		//pageStatus가 register라는걸 이미 가정함 	
+		$.ajax({
+			url: '/erp/sales/ord/register',
+			type: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify(dataToSend),
+			success: function (res) {
+				console.log('전송 성공', res);
+				Swal.fire({
+					title: "주문등록성공!",
+					icon: "success",
+					draggable: true
+				});
+				mainList();
+				ordDtlGrid.resetData([]); 
+				pageStatus='search';
+			}
+		})
+	
 		
+	}
+	//등록상태일 경우 끝 
+
 	})
 	//주문 수정
 	$('#ordupd').on('click', function () {
@@ -1018,20 +1189,47 @@ if(pageStatus=='register'){
 	$('#delRowdtl').on('click', function () {
 			let info = ordDtlGrid.getCheckedRows(); // [ ]
 			let header=orderGrid.getCheckedRows()[0]; 
-			if(header.status=='ost02' ||header.status=='ost03'){
-					Swal.fire({
-				icon: "error",
-				title: "error",
-				text: "출고가 진행중입니다"
+			if(header?.status=='ost02' ||header?.status=='ost03'){
+			 	Swal.fire({
+					icon: "error",
+					title: "error",
+					text: "출고가 진행중입니다"
 			})
-			return; 
+				return; 
 			}
-			const checkedRows = ordDtlGrid.getCheckedRows();
-			//행삭제
+			let  checkedRows = ordDtlGrid.getCheckedRows();
+			let  length=ordDtlGrid.getData().length;
+
+
+			//행삭제  페이지 상태가 어떻든간에  상세가 삭제되긴함 
 			checkedRows.forEach(item => {
-		    ordDtlGrid.removeRow(item.rowKey)
-		  })
+				ordDtlGrid.removeRow(item.rowKey)	
+			})
+
+
 			if(pageStatus=='search'){
+						
+				//주문상세 내역을 모두 삭제할 경우 헤더,상세 모두삭제됨
+				if(Number(checkedRows.length)==Number(length)){		
+							$.ajax({
+								url: "/erp/sales/ord/delete?ordCode=" + header.ordCode ,
+								type:'DELETE',
+								success: function(res) {
+									Swal.fire({
+										title: "주문건 삭제 완료!",
+										icon: "success",
+										draggable: true
+									});		
+									mainList(); //새로고침  		
+								},
+								error: function(xhr, status, error) {
+									 console.log("실패:", xhr.status, error);
+								  }
+								})
+						return;   //주문헤더 자체가 삭제처리 
+				}
+
+				
 			$.ajax({
 				url: '/erp/sales/ord/delOrdDtl', 
 				type: 'DELETE',
@@ -1099,7 +1297,16 @@ if(pageStatus=='register'){
 		} //0.12
 		else if(pageStatus=='search'){
 			//
+			const check=orderGrid.getCheckedRows()[0];  
+			if(check?.discount){
 			vdrdiscount=(orderGrid.getCheckedRows()[0].discount)/100;
+			}else if(!check?.discount){
+				Swal.fire({
+				title: "선택",
+				text: "수정할 주문건을 선택해주세요",
+				icon: "question"
+			});
+			}
 		}
 
 		let supPrice = (ev.changes[0].value * ordDtlGrid.getRow(ev.changes[0].rowKey).price)*(1-vdrdiscount);  
@@ -1203,6 +1410,21 @@ if(pageStatus=='register'){
 				}
 			}
 	}
+	//검색함수
+	function search(){
+		pageStatus='search';
+		ordDtlGrid.resetData([]); 	
+
+		let reqDlvStartDate=document.getElementById('reqDlvStartDate').value;
+		let reqDlvEndDate=document.getElementById('reqDlvEndDate').value; 
+		let type=$('#orderSelect  option:selected').val();
+		let value=$('#orderInput').val();
+		let url='/erp/sales/orderList'; 
+	
+		const status = document.querySelector('input[name="orderStatus"]:checked').value;
+		commonSearchObject({type,value,reqDlvStartDate ,reqDlvEndDate,status},url,orderGrid);
+	}
+
   orderGrid.on('editingStart', ev => {
 
   const readOnlyFields = [ 'creditPrice', 'creditBalPrice'];  //
