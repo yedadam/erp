@@ -14,6 +14,8 @@ public interface SalaryItemMapper {
     public List<SalaryItemVO> selectSalaryItemList(java.util.Map<String, Object> map);
     /** 단일 급여항목 조회 */
     public SalaryItemVO selectSalaryItem(@Param("comId") String comId, @Param("allowCode") String allowCode);
+    /** 마지막 항목코드 조회 (자동생성용) */
+    public String selectLastAllowCode(@Param("comId") String comId);
     /** 급여항목 등록 */
     public int insertSalaryItem(SalaryItemVO vo);
     /** 급여항목 수정 */

@@ -226,15 +226,9 @@
                 인사
             </div>
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/erp/hr/attendance}">
-                    <i class="fas fa-fw fa-clock"></i>
-                    <span>근태관리</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" th:href="@{/erp/hr/mypage}">
-                    <i class="fas fa-fw fa-user"></i>
-                    <span>내 정보</span>
+                <a class="nav-link" th:href="@{/erp/hr/emp-all}">
+                    <i class="fas fa-fw fa-chart-bar"></i>
+                    <span>사원전체조회</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -244,14 +238,14 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/erp/hr/emp-all}">
-                    <i class="fas fa-fw fa-list"></i>
-                    <span>사원전체조회</span>
+                <a class="nav-link" th:href="@{/erp/hr/attendance}">
+                    <i class="fas fa-fw fa-clock"></i>
+                    <span>근태관리</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/erp/hr/salary-dashboard}">
-                    <i class="fas fa-fw fa-coins"></i>
+                <a class="nav-link" th:href="@{/erp/hr/salary-dashboard-admin2}">
+                    <i class="fa-solid fa-gauge"></i>
                     <span>급여관리</span>
                 </a>
             </li>
@@ -261,7 +255,6 @@
                     <span>급여명세서</span>
                 </a>
             </li>
-            <!-- 급여항목 관리 메뉴 추가 -->
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/erp/hr/salaryitem}">
                     <i class="fas fa-fw fa-list-alt"></i>
@@ -272,6 +265,12 @@
                 <a class="nav-link" th:href="@{/erp/hr/chit}">
                     <i class="fas fa-fw fa-cubes"></i>
                     <span>전표관리</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/erp/hr/mypage}">
+                    <i class="fas fa-fw fa-user"></i>
+                    <span>내 정보</span>
                 </a>
             </li>
             </div>

@@ -66,57 +66,172 @@ public class AttendanceRestController {
     }
 
     /**
-     * 출근 등록 (보안 검증 포함)
+     * 출근 등록 (보안 검증 포함) - 강화된 위치 기반 검증
      * @param vo - 근태 정보
      * @param request - 요청 객체
      * @return 처리 결과
      */
     @PostMapping("/attendanceCheckIn")
-    public String checkIn(@RequestBody AttendanceVO vo, HttpServletRequest request) {
+    public Map<String, Object> checkIn(@RequestBody AttendanceVO vo, HttpServletRequest request) {
+        Map<String, Object> result = new java.util.HashMap<>();
+        
         try {
             Map<String, String> userInfo = getCurrentUserInfo();
             
             // 본인만 출근 등록 가능
             if (!vo.getEmpId().equals(userInfo.get("empId"))) {
-                return "unauthorized";
+                result.put("success", false);
+                result.put("message", "본인만 출근 등록이 가능합니다.");
+                return result;
             }
             
             String ip = request.getRemoteAddr();
             String gpsInfo = request.getHeader("GPS-Info");
             String locationInfo = request.getHeader("Location-Info");
             
-            String result = attendanceService.checkIn(vo, ip, gpsInfo, locationInfo);
-            return result;
+            // 강화된 위치 검증
+            boolean locationValid = validateLocation(vo.getComId(), gpsInfo, locationInfo);
+            if (!locationValid) {
+                result.put("success", false);
+                result.put("message", "회사 위치에서 출근해주세요. (GPS/위치 검증 실패)");
+                return result;
+            }
+            
+            // IP 검증
+            boolean ipValid = attendanceService.validateIp(ip, vo.getComId(), vo.getEmpId());
+            if (!ipValid) {
+                result.put("success", false);
+                result.put("message", "허용되지 않은 IP입니다.");
+                return result;
+            }
+            
+            String serviceResult = attendanceService.checkIn(vo, ip, gpsInfo, locationInfo);
+            result.put("success", true);
+            result.put("message", serviceResult);
+            
         } catch (Exception e) {
-            return "error: " + e.getMessage();
+            result.put("success", false);
+            result.put("message", "출근 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
+        
+        return result;
     }
 
     /**
-     * 퇴근 등록 (보안 검증 포함)
+     * 퇴근 등록 (보안 검증 포함) - 강화된 위치 기반 검증
      * @param vo - 근태 정보
      * @param request - 요청 객체
      * @return 처리 결과
      */
     @PostMapping("/attendanceCheckOut")
-    public String checkOut(@RequestBody AttendanceVO vo, HttpServletRequest request) {
+    public Map<String, Object> checkOut(@RequestBody AttendanceVO vo, HttpServletRequest request) {
+        Map<String, Object> result = new java.util.HashMap<>();
+        
         try {
             Map<String, String> userInfo = getCurrentUserInfo();
             
             // 본인만 퇴근 등록 가능
             if (!vo.getEmpId().equals(userInfo.get("empId"))) {
-                return "unauthorized";
+                result.put("success", false);
+                result.put("message", "본인만 퇴근 등록이 가능합니다.");
+                return result;
             }
             
             String ip = request.getRemoteAddr();
             String gpsInfo = request.getHeader("GPS-Info");
             String locationInfo = request.getHeader("Location-Info");
             
-            String result = attendanceService.checkOut(vo, ip, gpsInfo, locationInfo);
-            return result;
+            // 강화된 위치 검증
+            boolean locationValid = validateLocation(vo.getComId(), gpsInfo, locationInfo);
+            if (!locationValid) {
+                result.put("success", false);
+                result.put("message", "회사 위치에서 퇴근해주세요. (GPS/위치 검증 실패)");
+                return result;
+            }
+            
+            // IP 검증
+            boolean ipValid = attendanceService.validateIp(ip, vo.getComId(), vo.getEmpId());
+            if (!ipValid) {
+                result.put("success", false);
+                result.put("message", "허용되지 않은 IP입니다.");
+                return result;
+            }
+            
+            String serviceResult = attendanceService.checkOut(vo, ip, gpsInfo, locationInfo);
+            result.put("success", true);
+            result.put("message", serviceResult);
+            
         } catch (Exception e) {
-            return "error: " + e.getMessage();
+            result.put("success", false);
+            result.put("message", "퇴근 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
+        
+        return result;
+    }
+
+    /**
+     * 강화된 위치 검증 (GPS + IP 기반)
+     * @param comId - 회사ID
+     * @param gpsInfo - GPS 정보
+     * @param locationInfo - 위치 정보
+     * @return 검증 결과
+     */
+    private boolean validateLocation(String comId, String gpsInfo, String locationInfo) {
+        // 1. GPS 정보 검증
+        if (gpsInfo != null && !gpsInfo.isEmpty()) {
+            boolean gpsValid = attendanceService.validateGps(gpsInfo, comId, "");
+            if (!gpsValid) {
+                return false;
+            }
+        }
+        
+        // 2. 위치 정보 검증 (추가 검증 로직)
+        if (locationInfo != null && !locationInfo.isEmpty()) {
+            // 위치 정보 파싱 및 검증
+            String[] locationParts = locationInfo.split(",");
+            if (locationParts.length >= 2) {
+                try {
+                    double lat = Double.parseDouble(locationParts[0]);
+                    double lng = Double.parseDouble(locationParts[1]);
+                    
+                    // 회사 위치와의 거리 계산 (100m 이내)
+                    double companyLat = 37.5665; // 예시: 서울시청 위도
+                    double companyLng = 126.9780; // 예시: 서울시청 경도
+                    
+                    double distance = calculateDistance(lat, lng, companyLat, companyLng);
+                    if (distance > 100) { // 100m 초과 시 거부
+                        return false;
+                    }
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * 두 지점 간의 거리 계산 (미터 단위)
+     * @param lat1 - 첫 번째 지점 위도
+     * @param lng1 - 첫 번째 지점 경도
+     * @param lat2 - 두 번째 지점 위도
+     * @param lng2 - 두 번째 지점 경도
+     * @return 거리 (미터)
+     */
+    private double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
+        final int R = 6371000; // 지구 반지름 (미터)
+        
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lngDistance = Math.toRadians(lng2 - lng1);
+        
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lngDistance / 2) * Math.sin(lngDistance / 2);
+        
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        
+        return R * c;
     }
 
     /**
@@ -182,6 +297,25 @@ public class AttendanceRestController {
     }
 
     /**
+     * 위치 검증 (새로운 API)
+     * @param gpsInfo - GPS 정보
+     * @param locationInfo - 위치 정보
+     * @return 검증 결과
+     */
+    @GetMapping("/validateLocation")
+    public Map<String, Object> validateLocation(@RequestParam(required = false) String gpsInfo,
+                                               @RequestParam(required = false) String locationInfo) {
+        Map<String, Object> result = new java.util.HashMap<>();
+        Map<String, String> userInfo = getCurrentUserInfo();
+        
+        boolean isValid = validateLocation(userInfo.get("comId"), gpsInfo, locationInfo);
+        result.put("valid", isValid);
+        result.put("message", isValid ? "위치 검증 성공" : "위치 검증 실패");
+        
+        return result;
+    }
+
+    /**
      * 지각/조퇴 통계 조회 (관리자만)
      * @param comId - 회사ID
      * @param fromDate - 시작일
@@ -211,57 +345,11 @@ public class AttendanceRestController {
      * @return 테스트 데이터
      */
     @GetMapping("/testAttendanceData")
-    public List<AttendanceVO> getTestAttendanceData(@RequestParam String comId, @RequestParam String empId) {
-        List<AttendanceVO> testData = new java.util.ArrayList<>();
-        
-        // 오늘부터 7일 전까지의 테스트 데이터 생성
-        for (int i = 6; i >= 0; i--) {
-            AttendanceVO vo = new AttendanceVO();
-            vo.setAttendanceCode("ATT" + System.currentTimeMillis() + i);
-            vo.setComId(comId);
-            vo.setEmpId(empId);
-            vo.setWorkDate(java.time.LocalDate.now().minusDays(i));
-            
-            // 출근시간 (9시 + 랜덤 지각)
-            java.time.LocalDateTime startTime = java.time.LocalDateTime.of(
-                vo.getWorkDate(), 
-                java.time.LocalTime.of(9, 0)
-            ).plusMinutes((long) (Math.random() * 30)); // 0-30분 지각
-            
-            // 퇴근시간 (18시 + 랜덤 연장)
-            java.time.LocalDateTime endTime = java.time.LocalDateTime.of(
-                vo.getWorkDate(), 
-                java.time.LocalTime.of(18, 0)
-            ).plusMinutes((long) (Math.random() * 120)); // 0-2시간 연장
-            
-            vo.setActualStartTime(startTime);
-            vo.setActualEndTime(endTime);
-            vo.setStandardStartTime(java.time.LocalDateTime.of(vo.getWorkDate(), java.time.LocalTime.of(9, 0)));
-            vo.setStandardEndTime(java.time.LocalDateTime.of(vo.getWorkDate(), java.time.LocalTime.of(18, 0)));
-            
-            // 상태 판정
-            if (startTime.isAfter(vo.getStandardStartTime())) {
-                vo.setStatus("LATE");
-            } else {
-                vo.setStatus("NORMAL");
-            }
-            
-            // 연장근무 시간 계산
-            if (endTime.isAfter(vo.getStandardEndTime())) {
-                long overtimeMinutes = java.time.Duration.between(vo.getStandardEndTime(), endTime).toMinutes();
-                vo.setOvertimeHrs(java.math.BigDecimal.valueOf(overtimeMinutes / 60.0));
-            } else {
-                vo.setOvertimeHrs(java.math.BigDecimal.ZERO);
-            }
-            
-            vo.setCheckIp("192.168.1.100");
-            vo.setGpsInfo("37.5665,126.9780");
-            vo.setLocationInfo("서울시 강남구");
-            vo.setCreatedAt(java.time.LocalDateTime.now());
-            
-            testData.add(vo);
-        }
-        
-        return testData;
+    public Map<String, Object> getTestAttendanceData(@RequestParam String comId, @RequestParam String empId) {
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("comId", comId);
+        result.put("empId", empId);
+        result.put("testData", "테스트 근태 데이터");
+        return result;
     }
 } 

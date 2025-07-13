@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.hr.attendance.mapper.AttendanceLocationMapper">
+
+    <!--
+        출퇴근 위치 관리 Mapper(XML)
+        - insertLocation: 위치 정보 저장
+        - selectLocation: 위치 정보 조회
+        - validateLocation: 위치 검증
+        - getCompanyLocation: 회사 위치 정보 조회
+        - updateLocation: 위치 정보 업데이트
+    -->
+
+    <!-- [위치 정보 저장] 출퇴근 시 위치 정보 저장 -->
+    <insert id="insertLocation" parameterType="map">
+        INSERT INTO attendance_location (
+            emp_id, attendance_date, check_in_lat, check_in_lng, 
+            check_out_lat, check_out_lng, ip_address, com_id, created_date
+        ) VALUES (
+            #{empId}, #{attendanceDate}, #{checkInLat}, #{checkInLng}, 
+            #{checkOutLat}, #{checkOutLng}, #{ipAddress}, #{comId}, SYSDATE
+        )
+    </insert>
+
+    <!-- [위치 정보 조회] 사원별 위치 정보 조회 -->
+    <select id="selectLocation" parameterType="map" resultType="map">
+        SELECT 
+            emp_id,
+            attendance_date,
+            check_in_lat,
+            check_in_lng,
+            check_out_lat,
+            check_out_lng,
+            ip_address,
+            com_id,
+            created_date
+        FROM attendance_location
+        WHERE emp_id = #{empId}
+          AND attendance_date = #{attendanceDate}
+          AND com_id = #{comId}
+    </select>
+
+    <!-- [위치 검증] GPS 정보 기반 위치 검증 -->
+    <select id="validateLocation" parameterType="map" resultType="boolean">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+        FROM company_location cl
+        WHERE cl.com_id = #{comId}
+          AND cl.acct_yn = 'Y'
+          AND (
+              -- GPS 좌표 기반 검증 (100m 이내)
+              (cl.latitude BETWEEN #{lat} - 0.001 AND #{lat} + 0.001)
+              AND (cl.longitude BETWEEN #{lng} - 0.001 AND #{lng} + 0.001)
+              OR
+              -- IP 기반 검증
+              cl.allowed_ip LIKE CONCAT(#{ipAddress}, '%')
+          )
+    </select>
+
+    <!-- [회사 위치 정보 조회] 회사별 허용 위치 정보 -->
+    <select id="getCompanyLocation" parameterType="map" resultType="map">
+        SELECT 
+            com_id,
+            location_name,
+            latitude,
+            longitude,
+            allowed_radius,
+            allowed_ip,
+            acct_yn
+        FROM company_location
+        WHERE com_id = #{comId}
+          AND acct_yn = 'Y'
+    </select>
+
+    <!-- [위치 정보 업데이트] 위치 정보 수정 -->
+    <update id="updateLocation" parameterType="map">
+        UPDATE attendance_location
+        SET check_in_lat = #{checkInLat},
+            check_in_lng = #{checkInLng},
+            check_out_lat = #{checkOutLat},
+            check_out_lng = #{checkOutLng},
+            ip_address = #{ipAddress},
+            updated_date = SYSDATE
+        WHERE emp_id = #{empId}
+          AND attendance_date = #{attendanceDate}
+          AND com_id = #{comId}
+    </update>
+
+    <!-- [위치 통계] 부서별 위치 기반 출퇴근 통계 -->
+    <select id="getLocationStats" parameterType="map" resultType="map">
+        SELECT 
+            al.dept_code,
+            COUNT(CASE WHEN al.check_in_lat IS NOT NULL THEN 1 END) as valid_check_in,
+            COUNT(CASE WHEN al.check_in_lat IS NULL THEN 1 END) as invalid_check_in,
+            COUNT(CASE WHEN al.check_out_lat IS NOT NULL THEN 1 END) as valid_check_out,
+            COUNT(CASE WHEN al.check_out_lat IS NULL THEN 1 END) as invalid_check_out
+        FROM attendance_location al
+        JOIN attendance a ON al.emp_id = a.emp_id 
+                         AND al.attendance_date = a.work_date
+                         AND al.com_id = a.com_id
+        WHERE al.com_id = #{comId}
+          AND al.attendance_date BETWEEN #{fromDate} AND #{toDate}
+        <if test="deptCode != null and deptCode != ''">
+            AND al.dept_code = #{deptCode}
+        </if>
+        GROUP BY al.dept_code
+    </select>
+
+    <!-- [위치 이력] 사원별 위치 기반 출퇴근 이력 -->
+    <select id="getLocationHistory" parameterType="map" resultType="map">
+        SELECT 
+            al.emp_id,
+            al.attendance_date,
+            al.check_in_lat,
+            al.check_in_lng,
+            al.check_out_lat,
+            al.check_out_lng,
+            al.ip_address,
+            a.status,
+            getEmpName(al.emp_id, #{comId}) as emp_name
+        FROM attendance_location al
+        LEFT JOIN attendance a ON al.emp_id = a.emp_id 
+                             AND al.attendance_date = a.work_date
+                             AND al.com_id = a.com_id
+        WHERE al.com_id = #{comId}
+          AND al.emp_id = #{empId}
+          AND al.attendance_date BETWEEN #{fromDate} AND #{toDate}
+        ORDER BY al.attendance_date DESC
+    </select>
+
+    <!-- [위치 검증 로그] 위치 검증 실패 로그 -->
+    <insert id="insertLocationValidationLog" parameterType="map">
+        INSERT INTO location_validation_log (
+            emp_id, com_id, validation_date, gps_info, ip_address,
+            validation_result, failure_reason, created_date
+        ) VALUES (
+            #{empId}, #{comId}, SYSDATE, #{gpsInfo}, #{ipAddress},
+            #{validationResult}, #{failureReason}, SYSDATE
+        )
+    </insert>
+
+    <!-- [위치 검증 로그 조회] 위치 검증 이력 조회 -->
+    <select id="getLocationValidationLog" parameterType="map" resultType="map">
+        SELECT 
+            emp_id,
+            validation_date,
+            gps_info,
+            ip_address,
+            validation_result,
+            failure_reason,
+            created_date
+        FROM location_validation_log
+        WHERE com_id = #{comId}
+          AND validation_date BETWEEN #{fromDate} AND #{toDate}
+        <if test="empId != null and empId != ''">
+            AND emp_id = #{empId}
+        </if>
+        ORDER BY validation_date DESC
+    </select>
+
+</mapper> 

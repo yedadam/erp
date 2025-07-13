@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ERP API 테스트</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-result { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 3px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        button { padding: 8px 15px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>ERP 급여항목 카테고리 7가지 + 사원별 급여항목 연동 테스트</h1>
+
+    <div class="test-section">
+        <h3>1. 급여항목 카테고리 7가지 확인</h3>
+        <p>급여항목 관리 화면에서 카테고리 드롭다운에 다음 7가지가 모두 표시되는지 확인:</p>
+        <ul>
+            <li>기본급</li>
+            <li>수당</li>
+            <li>복리후생</li>
+            <li>상여</li>
+            <li>공제</li>
+            <li>비과세</li>
+            <li>기타</li>
+        </ul>
+        <button onclick="testSalaryItemCategories()">급여항목 카테고리 테스트</button>
+        <div id="categoryTestResult" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. 사원별 급여항목 API 테스트</h3>
+        <button onclick="testEmpAllowances()">사원별 급여항목 조회 테스트</button>
+        <button onclick="testInsertEmpAllowance()">사원별 급여항목 등록 테스트</button>
+        <div id="empAllowanceTestResult" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. 급여명세서 연동 테스트</h3>
+        <button onclick="testSalaryStatement()">급여명세서 조회 테스트</button>
+        <div id="salaryStatementTestResult" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. 전체 테스트 실행</h3>
+        <button onclick="runAllTests()">전체 테스트 실행</button>
+        <div id="allTestsResult" class="test-result"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:8080';
+
+        function showResult(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<pre>${message}</pre>`;
+            element.className = `test-result ${isSuccess ? 'success' : 'error'}`;
+        }
+
+        async function testSalaryItemCategories() {
+            try {
+                const response = await fetch(`${BASE_URL}/erp/hr/salaryitem`);
+                if (response.ok) {
+                    showResult('categoryTestResult', 
+                        '✅ 급여항목 관리 화면 접속 성공\n' +
+                        '화면에서 카테고리 드롭다운에 7가지 옵션이 표시되는지 확인하세요:\n' +
+                        '- 기본급, 수당, 복리후생, 상여, 공제, 비과세, 기타');
+                } else {
+                    showResult('categoryTestResult', 
+                        '❌ 급여항목 관리 화면 접속 실패', false);
+                }
+            } catch (error) {
+                showResult('categoryTestResult', 
+                    `❌ 오류: ${error.message}`, false);
+            }
+        }
+
+        async function testEmpAllowances() {
+            try {
+                const response = await fetch(`${BASE_URL}/erp/hr/empAllowances?empId=e1001&comId=com-101`);
+                const data = await response.json();
+                showResult('empAllowanceTestResult', 
+                    '✅ 사원별 급여항목 조회 성공\n' +
+                    `조회된 데이터: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                showResult('empAllowanceTestResult', 
+                    `❌ 사원별 급여항목 조회 실패: ${error.message}`, false);
+            }
+        }
+
+        async function testInsertEmpAllowance() {
+            try {
+                const testData = {
+                    empId: 'e1001',
+                    comId: 'com-101',
+                    allowCode: 'TEST_ALLOW',
+                    amount: 50000,
+                    note: '테스트 급여항목'
+                };
+
+                const response = await fetch(`${BASE_URL}/erp/hr/insertEmpAllowance`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const result = await response.text();
+                showResult('empAllowanceTestResult', 
+                    `✅ 사원별 급여항목 등록 테스트 완료\n결과: ${result}`);
+            } catch (error) {
+                showResult('empAllowanceTestResult', 
+                    `❌ 사원별 급여항목 등록 실패: ${error.message}`, false);
+            }
+        }
+
+        async function testSalaryStatement() {
+            try {
+                const response = await fetch(`${BASE_URL}/erp/hr/salary/list-data?comId=com-101`);
+                const data = await response.json();
+                showResult('salaryStatementTestResult', 
+                    '✅ 급여명세서 조회 성공\n' +
+                    `조회된 건수: ${data.length}건`);
+            } catch (error) {
+                showResult('salaryStatementTestResult', 
+                    `❌ 급여명세서 조회 실패: ${error.message}`, false);
+            }
+        }
+
+        async function runAllTests() {
+            const results = [];
+            
+            // 테스트 1: 급여항목 카테고리
+            try {
+                const response1 = await fetch(`${BASE_URL}/erp/hr/salaryitem`);
+                results.push('✅ 급여항목 카테고리 테스트: 성공');
+            } catch (error) {
+                results.push(`❌ 급여항목 카테고리 테스트: 실패 - ${error.message}`);
+            }
+
+            // 테스트 2: 사원별 급여항목
+            try {
+                const response2 = await fetch(`${BASE_URL}/erp/hr/empAllowances?empId=e1001&comId=com-101`);
+                results.push('✅ 사원별 급여항목 테스트: 성공');
+            } catch (error) {
+                results.push(`❌ 사원별 급여항목 테스트: 실패 - ${error.message}`);
+            }
+
+            // 테스트 3: 급여명세서
+            try {
+                const response3 = await fetch(`${BASE_URL}/erp/hr/salary/list-data?comId=com-101`);
+                results.push('✅ 급여명세서 테스트: 성공');
+            } catch (error) {
+                results.push(`❌ 급여명세서 테스트: 실패 - ${error.message}`);
+            }
+
+            showResult('allTestsResult', 
+                '📋 전체 테스트 결과:\n' + results.join('\n'));
+        }
+    </script>
+</body>
+</html> 

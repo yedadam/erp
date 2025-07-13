@@ -34,6 +34,10 @@
             overflow-x: auto;
             box-sizing: border-box;
         }
+        #salaryItemGrid .tui-grid-container {
+            border-radius: 8px 8px 0 0 !important;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
@@ -42,11 +46,11 @@
     <h3 class="mb-3 text-secondary fw-bold border-bottom border-secondary pb-2">급여항목 관리</h3>
 
     <!-- 검색/필터 영역 -->
-    <div class="card mb-3 rounded shadow-sm">
+    <div class="card mb-3 rounded shadow-sm search-area">
       <div class="card-body">
         <div class="row g-3 align-items-center">
           <!-- 카테고리 -->
-          <div class="col-md-3">
+          <div class="col-md-2">
             <label for="categoryFilter" class="form-label">카테고리</label>
             <select class="form-select" id="categoryFilter">
               <option value="">전체</option>
@@ -55,8 +59,17 @@
               <option value="공제">공제</option>
             </select>
           </div>
+          <!-- 과세여부 -->
+          <div class="col-md-2">
+            <label for="taxFilter" class="form-label">과세여부</label>
+            <select class="form-select" id="taxFilter">
+              <option value="">전체</option>
+              <option value="Y">과세대상</option>
+              <option value="N">비과세</option>
+            </select>
+          </div>
           <!-- 검색어 -->
-          <div class="col-md-4">
+          <div class="col-md-2">
             <label for="searchInput" class="form-label">검색어</label>
             <input type="text" class="form-control" id="searchInput" placeholder="항목명 또는 코드 입력">
           </div>
@@ -78,34 +91,35 @@
               </div>
             </div>
           </div>
-          <!-- 검색 버튼 -->
-          <div class="col-md-2 d-flex align-items-end">
+          <!-- 검색 버튼: 항상 우측 끝, 버튼 너비 col-md-2로 통일 -->
+          <div class="col-md-2 d-flex align-items-end ms-auto justify-content-end">
             <button class="btn btn-primary w-100" id="searchBtn"><i class="fas fa-search"></i> 검색</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 버튼 영역 복원 -->
-    <div class="d-flex align-items-center gap-2 mb-2" style="min-height:40px;">
-      <button class="btn btn-outline-success" id="excelBtn" data-bs-toggle="tooltip" title="급여항목 목록 다운로드">
-        <i class="fas fa-file-excel"></i>
-      </button>
-      <div class="ms-auto"></div>
-      <button class="btn btn-info" id="addBtn" style="min-width:100px;">
-        <i class="fas fa-plus"></i> 추가
-      </button>
-      <button class="btn btn-danger" id="deleteBtn" style="min-width:100px;" disabled>
-        <i class="fas fa-trash"></i> 삭제
-      </button>
-      <button class="btn btn-success" id="saveBtn" style="min-width:100px;" disabled>
-        <i class="fas fa-save"></i> 저장
-      </button>
-      <span class="ms-3 text-secondary" id="resultCount"></span>
+    <!-- 버튼 영역 -->
+    <div class="d-flex justify-content-between align-items-center button-area mt-4 mb-2" style="min-height:40px;">
+      <div>
+        <button class="btn btn-outline-success" id="excelBtn" data-bs-toggle="tooltip" title="급여항목 목록 다운로드">
+          <i class="fas fa-file-excel"></i> 엑셀
+        </button>
+      </div>
+      <div class="d-flex gap-2 w-auto">
+        <button class="btn btn-outline-primary" id="addBtn">
+          <i class="fas fa-plus"></i> 추가
+        </button>
+        <button class="btn btn-danger" id="deleteBtn" disabled>
+          <i class="fas fa-trash"></i> 삭제
+        </button>
+        <button class="btn btn-success" id="saveBtn" disabled>
+          <i class="fas fa-save"></i> 저장
+        </button>
+      </div>
     </div>
-
     <!-- TOAST UI Grid -->
-    <div id="salaryItemGrid"></div>
+    <div id="salaryItemGrid" class="grid-area"></div>
     <!-- 검색 결과 없음 메시지 -->
     <div id="noResultMsg" class="text-center text-muted my-4" style="display:none;">
       🔍 검색 조건에 맞는 항목이 없습니다.
@@ -134,7 +148,11 @@
             <select class="form-select" name="type" required>
               <option value="기본급">기본급</option>
               <option value="수당">수당</option>
+              <option value="복리후생">복리후생</option>
+              <option value="상여">상여</option>
               <option value="공제">공제</option>
+              <option value="비과세">비과세</option>
+              <option value="기타">기타</option>
             </select>
           </div>
           <div class="mb-2">
@@ -144,6 +162,13 @@
               <option value="비율">비율</option>
               <option value="근무시간 비례">근무시간 비례</option>
               <option value="성과 연동">성과 연동</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">과세여부</label>
+            <select class="form-select" name="taxFreeYn" required>
+              <option value="Y">과세대상</option>
+              <option value="N">비과세</option>
             </select>
           </div>
           <div class="mb-2">
@@ -206,7 +231,13 @@
       { header: '항목코드', name: 'allowCode', align: 'center', editor: 'text' },
       { header: '항목명', name: 'allowName', editor: 'text' },
       { header: '카테고리', name: 'type', align: 'center', editor: { type: 'select', options: { listItems: [
-        { text: '기본급', value: '기본급' }, { text: '수당', value: '수당' }, { text: '공제', value: '공제' }
+        { text: '기본급', value: '기본급' },
+        { text: '수당', value: '수당' },
+        { text: '복리후생', value: '복리후생' },
+        { text: '상여', value: '상여' },
+        { text: '공제', value: '공제' },
+        { text: '비과세', value: '비과세' },
+        { text: '기타', value: '기타' }
       ]}}},
       { header: '금액', name: 'defaultAmount', align: 'right', editor: { type: 'text', options: { inputType: 'number' } },
         formatter: ({value}) => value ? value.toLocaleString() + '원' : '-', sortable: true },
@@ -218,6 +249,13 @@
           { text: '주말근무수당', value: 'WEEKEND_PAY' }
         ]}},
         formatter: ({value}) => calcTypeMap[value] || value
+      },
+      { header: '과세여부', name: 'taxFreeYn', align: 'center', 
+        editor: { type: 'select', options: { listItems: [
+          { text: '과세', value: 'Y' },
+          { text: '비과세', value: 'N' }
+        ]}},
+        formatter: ({value}) => value === 'Y' ? '<span class="status-badge status-active">과세</span>' : '<span class="status-badge status-inactive">비과세</span>'
       },
       { header: '적용대상', name: 'workTypes', align: 'center',
         editor: {
@@ -251,7 +289,7 @@
       data: [], // 하드코딩 데이터 완전 삭제, ajax로만 데이터 표시
       scrollX: false,
       scrollY: true,
-      bodyHeight: 400,
+      bodyHeight: 410,
       rowHeaders: ['checkbox', 'rowNum'],
       columns: columns
     });
@@ -270,7 +308,6 @@
         success: function(result) {
           console.log('API 응답:', result); // 디버깅용
           grid.resetData(result);
-          $('#resultCount').text(`총 ${result.length}건`);
           $('#noResultMsg').toggle(result.length === 0);
         },
         error: function(xhr, status, error) {
@@ -285,6 +322,7 @@
       const paramObj = {
         comId: 'com-101',
         type: $('#categoryFilter').val(), // category → type
+        taxFreeYn: $('#taxFilter').val(), // 과세여부 필터 추가
         acctYn: $('input[name="salaryStatus"]:checked').val(), // status → acctYn
         keyword: $('#searchInput').val()
       };
@@ -293,6 +331,7 @@
     }
     // 카테고리/진행상태는 즉시 필터링
     $('#categoryFilter').on('change', filterSalaryItems);
+    $('#taxFilter').on('change', filterSalaryItems);
     document.querySelectorAll('input[name="salaryStatus"]').forEach(radio => {
       radio.addEventListener('change', filterSalaryItems);
     });
@@ -306,13 +345,32 @@
 
     // 추가 버튼 클릭 시 오늘 날짜, 활성 상태 자동 세팅
     $('#addBtn').on('click', function() {
+      // 마지막 항목코드 조회하여 다음 번호 생성
+      $.ajax({
+        url: '/erp/hr/salaryitem/lastCode',
+        method: 'GET',
+        data: { comId: 'com-101' },
+        success: function(response) {
+          let nextCode = 'ALLOW01'; // 기본값
+          
+          if (response.lastCode) {
+            // 마지막 코드에서 숫자 부분 추출하여 +1
+            const lastCode = response.lastCode;
+            if (lastCode.startsWith('ALLOW')) {
+              const numStr = lastCode.substring(5); // "01", "02" 등
+              const nextNum = parseInt(numStr) + 1;
+              nextCode = 'ALLOW' + String(nextNum).padStart(2, '0'); // 2자리로 포맷
+            }
+          }
+          
       const today = new Date();
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
       const todayStr = `${yyyy}-${mm}-${dd}`;
+          
       grid.prependRow({
-        allowCode: '',
+            allowCode: nextCode,
         allowName: '',
         type: '',
         defaultAmount: '',
@@ -320,13 +378,43 @@
         createdDate: todayStr,
         note: ''
       }, { focus: true });
+          
       setTimeout(() => {
-        grid.focusAt(0, 'allowCode'); // 첫 입력 셀로 포커스
+            grid.focusAt(0, 'allowName'); // 항목명 입력 셀로 포커스
         // 스크롤을 맨 위로 이동
         const gridBody = document.querySelector('.tui-grid-body-area');
         if (gridBody) gridBody.scrollTop = 0;
       }, 100);
+          
+          $('#saveBtn').prop('disabled', false);
+        },
+        error: function() {
+          // API 호출 실패 시 기본값으로 생성
+          const today = new Date();
+          const yyyy = today.getFullYear();
+          const mm = String(today.getMonth() + 1).padStart(2, '0');
+          const dd = String(today.getDate()).padStart(2, '0');
+          const todayStr = `${yyyy}-${mm}-${dd}`;
+          
+          grid.prependRow({
+            allowCode: 'ALLOW01',
+            allowName: '',
+            type: '',
+            defaultAmount: '',
+            acctYn: 'Y',
+            createdDate: todayStr,
+            note: ''
+          }, { focus: true });
+          
+          setTimeout(() => {
+            grid.focusAt(0, 'allowName');
+            const gridBody = document.querySelector('.tui-grid-body-area');
+            if (gridBody) gridBody.scrollTop = 0;
+          }, 100);
+          
       $('#saveBtn').prop('disabled', false);
+        }
+      });
     });
 
     // 저장 버튼 클릭 시 신규/수정 분기 및 필수값 체크 + 실제 DB 저장 ajax
@@ -549,12 +637,28 @@
           gridOptions.push({ text: item.subName, value: item.subCode });
         });
         // 그리드 적용대상 컬럼에도 옵션 동적 반영
-        const workTypesCol = columns.find(col => col.name === 'workTypes'); // Changed from 'workTypes' to 'workTypeNames'
+        const workTypesCol = columns.find(col => col.name === 'workTypes');
         if (workTypesCol && workTypesCol.editor) {
           workTypesCol.editor.options.listItems = gridOptions;
         }
         grid.setColumns(columns);
       });
+      // 카테고리(항목유형) 필터 셀렉트박스 - 하드코딩 방식 (안정성 우선)
+      $('#categoryFilter').html(`
+        <option value="">전체</option>
+        <option value="기본급">기본급</option>
+        <option value="수당">수당</option>
+        <option value="복리후생">복리후생</option>
+        <option value="상여">상여</option>
+        <option value="공제">공제</option>
+        <option value="비과세">비과세</option>
+        <option value="기타">기타</option>
+      `);
+      $('#taxFilter').html(`
+        <option value="">전체</option>
+        <option value="Y">과세</option>
+        <option value="N">비과세</option>
+      `);
     });
 
     // 저장/수정 시 calcType, workTypes 값 처리

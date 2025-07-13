@@ -4,37 +4,37 @@
     <!-- 급여명세서 전체 목록 조회 (DB 실구조 매핑) -->
     <select id="selectSalaryStatementList" resultType="SalaryStatementVO">
         SELECT
-            s.sal_id,
-            s.emp_id,
-            s.com_id,
-            s.calc_month AS calcMonth,
-            s.base_sal AS baseSal,
-            s.bonus,
-            s.ot_allow,
-            s.holi_allow,
-            s.meal_allow,
-            s.inc_tax,
-            s.nat_pension,
-            s.health_insur,
-            s.emp_insur,
-            s.ltc_insur,
-            s.net_salary AS netSalary,
-            s.status,
-            e.emp_name AS empName
+            s.sal_id AS sal_id,
+            s.emp_id AS emp_id,
+            s.com_id AS com_id,
+            s.calc_month AS calc_month,
+            s.base_sal AS base_sal,
+            s.bonus AS bonus,
+            s.ot_allow AS ot_allow,
+            s.holi_allow AS holi_allow,
+            s.meal_allow AS meal_allow,
+            s.inc_tax AS inc_tax,
+            s.nat_pension AS nat_pension,
+            s.health_insur AS health_insur,
+            s.emp_insur AS emp_insur,
+            s.ltc_insur AS ltc_insur,
+            s.net_salary AS net_salary,
+            s.status AS status,
+            e.emp_name AS emp_name,
+            e.dept_code AS dept_code,
+            d.dept_name AS dept_name
         FROM salarystatement s
         JOIN employees e ON s.emp_id = e.emp_id AND s.com_id = e.com_id
-        WHERE 1=1
-        <if test="empId != null and empId != ''">
-            AND s.emp_id = #{empId}
+        LEFT JOIN departments d ON e.dept_code = d.dept_code
+        WHERE s.com_id = #{comId}
+        <if test="emp_id != null and emp_id != ''">
+            AND s.emp_id = #{emp_id}
         </if>
-        <if test="comId != null and comId != ''">
-            AND s.com_id = #{comId}
-        </if>
-        <if test="calcMonth != null and calcMonth != ''">
-            AND s.calc_month = #{calcMonth}
+        <if test="calc_month != null and calc_month != ''">
+            AND s.calc_month = #{calc_month}
         </if>
         <if test="keyword != null and keyword != ''">
-            AND (e.emp_name LIKE CONCAT('%', #{keyword}, '%') OR s.sal_id LIKE CONCAT('%', #{keyword}, '%'))
+            AND (e.emp_name LIKE '%' || #{keyword} || '%' OR s.sal_id LIKE '%' || #{keyword} || '%')
         </if>
         ORDER BY s.calc_month DESC
     </select>
@@ -42,11 +42,25 @@
     <select id="selectSalaryStatementById" parameterType="map" resultType="SalaryStatementVO">
         SELECT
             s.*,
-            e.emp_name AS empName
+            e.emp_name AS empName,
+            -- EMP_ALLOWANCE에서 식대, 교통비 등 추가 급여항목 조회
+            (SELECT NVL(SUM(AMOUNT), 0) FROM EMP_ALLOWANCE 
+             WHERE EMP_ID = s.emp_id AND COM_ID = s.com_id AND ALLOW_CODE = 'MEAL') AS mealAllowance,
+            (SELECT NVL(SUM(AMOUNT), 0) FROM EMP_ALLOWANCE 
+             WHERE EMP_ID = s.emp_id AND COM_ID = s.com_id AND ALLOW_CODE = 'TRANSPORT') AS transportAllowance
         FROM salarystatement s
         JOIN employees e ON s.emp_id = e.emp_id AND s.com_id = e.com_id
         WHERE s.sal_id = #{salId}
           AND s.com_id = #{comId}
+    </select>
+
+    <!-- 사원별 급여항목(EMP_ALLOWANCE) 조회 -->
+    <select id="selectEmpAllowances" parameterType="map" resultType="map">
+        SELECT ALLOW_CODE, AMOUNT, NOTE
+        FROM EMP_ALLOWANCE
+        WHERE EMP_ID = #{empId}
+          AND COM_ID = #{comId}
+        ORDER BY ALLOW_CODE
     </select>
     <!-- 급여명세서 등록 (DB 컬럼명 일치) -->
     <insert id="insertSalaryStatement" parameterType="SalaryStatementVO">

@@ -33,6 +33,12 @@ public class SalaryItemServiceImpl implements SalaryItemService {
     public SalaryItemVO getSalaryItem(String comId, String allowCode) {
         return salaryItemMapper.selectSalaryItem(comId, allowCode);
     }
+
+    @Override
+    public String getLastAllowCode(String comId) {
+        return salaryItemMapper.selectLastAllowCode(comId);
+    }
+
     @Override
     public int addSalaryItem(SalaryItemVO vo) {
         return salaryItemMapper.insertSalaryItem(vo);

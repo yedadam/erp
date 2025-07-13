@@ -48,4 +48,74 @@
         FROM dual
     </select>
 
+    <!-- === 스케줄러에서 사용하는 메서드들 === -->
+    
+    <!-- [연차 수정] 연차 정보 수정 -->
+    <update id="updateAnnualLeave" parameterType="AnnualLeaveVO">
+        UPDATE annualLeave
+        SET total_days = #{totalDays},
+            used_days = #{usedDays},
+            remaining_days = #{remainingDays},
+            updated_at = #{updatedAt}
+        WHERE emp_id = #{empId}
+          AND com_id = #{comId}
+          AND year = #{year}
+    </update>
+
+    <!-- [사원별 연차 조회 (연도별)] 사원의 특정 연도 연차 정보 조회 -->
+    <select id="selectAnnualLeaveByEmpAndYear" parameterType="map" resultType="AnnualLeaveVO">
+        SELECT * FROM annualLeave
+        WHERE emp_id = #{empId}
+          AND com_id = #{comId}
+          AND year = #{year}
+    </select>
+
+    <!-- [만료된 연차 조회] 만료된 연차 리스트 조회 -->
+    <select id="selectExpiredAnnualLeaves" parameterType="map" resultType="AnnualLeaveVO">
+        SELECT * FROM annualLeave
+        WHERE expiry_date &lt;= #{date}
+          AND status != 'EXPIRED'
+    </select>
+
+    <!-- [미사용 연차 사원 조회] 연차를 사용하지 않은 사원 조회 -->
+    <select id="selectUnusedLeaveEmployees" parameterType="map" resultType="AnnualLeaveVO">
+        SELECT al.*, e.emp_name, e.hire_date
+        FROM annualLeave al
+        JOIN employees e ON al.emp_id = e.emp_id AND al.com_id = e.com_id
+        WHERE al.remaining_days >= 5
+          AND al.year = YEAR(#{date})
+    </select>
+
+    <!-- [오늘 사용된 연차 조회] 오늘 사용된 연차 리스트 조회 -->
+    <select id="selectUsedLeavesToday" parameterType="map" resultType="AnnualLeaveVO">
+        SELECT * FROM annualLeave
+        WHERE start_date &lt;= #{date}
+          AND end_date >= #{date}
+          AND status = '승인'
+    </select>
+
+    <!-- [월별 연차 통계 생성] 월별 연차 사용 통계 생성 -->
+    <select id="generateMonthlyLeaveStatistics" parameterType="map" resultType="map">
+        SELECT 
+            COUNT(*) as total_employees,
+            SUM(total_days) as total_leave_days,
+            SUM(used_days) as used_leave_days,
+            SUM(remaining_days) as remaining_leave_days,
+            AVG(used_days) as avg_used_days
+        FROM annualLeave
+        WHERE year = YEAR(#{date})
+          AND month = MONTH(#{date})
+    </select>
+
+    <!-- [월별 연차 통계 저장] 월별 연차 통계 저장 -->
+    <insert id="insertMonthlyLeaveStatistics" parameterType="map">
+        INSERT INTO monthly_leave_statistics (
+            year, month, total_employees, total_leave_days, 
+            used_leave_days, remaining_leave_days, avg_used_days, created_at
+        ) VALUES (
+            #{year}, #{month}, #{totalEmployees}, #{totalLeaveDays},
+            #{usedLeaveDays}, #{remainingLeaveDays}, #{avgUsedDays}, NOW()
+        )
+    </insert>
+
 </mapper> 

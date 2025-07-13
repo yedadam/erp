@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.hr.attendance.mapper.WorkTimeValidationMapper">
+    
+    <!-- === 근무시간 검증 관련 메서드들 === -->
+    
+    <!-- [일일 근무시간 조회] 특정 날짜의 일일 근무시간 조회 -->
+    <select id="getDailyWorkHours" parameterType="map" resultType="double">
+        SELECT NVL(SUM(
+            CASE 
+                WHEN actual_start_time IS NOT NULL AND actual_end_time IS NOT NULL 
+                THEN EXTRACT(DAY FROM (actual_end_time - actual_start_time)) * 24 + 
+                     EXTRACT(HOUR FROM (actual_end_time - actual_start_time)) +
+                     EXTRACT(MINUTE FROM (actual_end_time - actual_start_time)) / 60
+                ELSE 0 
+            END
+        ), 0) as daily_hours
+        FROM attendance
+        WHERE emp_id = #{empId}
+          AND com_id = #{comId}
+          AND TRUNC(work_date) = TRUNC(#{date})
+    </select>
+    
+    <!-- [주간 근무시간 조회] 특정 날짜의 주간 근무시간 조회 -->
+    <select id="getWeeklyWorkHours" parameterType="map" resultType="double">
+        SELECT NVL(SUM(
+            CASE 
+                WHEN actual_start_time IS NOT NULL AND actual_end_time IS NOT NULL 
+                THEN EXTRACT(DAY FROM (actual_end_time - actual_start_time)) * 24 + 
+                     EXTRACT(HOUR FROM (actual_end_time - actual_start_time)) +
+                     EXTRACT(MINUTE FROM (actual_end_time - actual_start_time)) / 60
+                ELSE 0 
+            END
+        ), 0) as weekly_hours
+        FROM attendance
+        WHERE emp_id = #{empId}
+          AND com_id = #{comId}
+          AND work_date BETWEEN TRUNC(#{date}, 'IW') AND TRUNC(#{date}, 'IW') + 6
+    </select>
+    
+    <!-- [월간 근무시간 조회] 특정 날짜의 월간 근무시간 조회 -->
+    <select id="getMonthlyWorkHours" parameterType="map" resultType="double">
+        SELECT NVL(SUM(
+            CASE 
+                WHEN actual_start_time IS NOT NULL AND actual_end_time IS NOT NULL 
+                THEN EXTRACT(DAY FROM (actual_end_time - actual_start_time)) * 24 + 
+                     EXTRACT(HOUR FROM (actual_end_time - actual_start_time)) +
+                     EXTRACT(MINUTE FROM (actual_end_time - actual_start_time)) / 60
+                ELSE 0 
+            END
+        ), 0) as monthly_hours
+        FROM attendance
+        WHERE emp_id = #{empId}
+          AND com_id = #{comId}
+          AND work_date BETWEEN TRUNC(#{date}, 'MM') AND LAST_DAY(#{date})
+    </select>
+    
+    <!-- [월간 연장근무시간 조회] 특정 날짜의 월간 연장근무시간 조회 -->
+    <select id="getMonthlyOvertimeHours" parameterType="map" resultType="double">
+        SELECT NVL(SUM(
+            CASE 
+                WHEN actual_start_time IS NOT NULL AND actual_end_time IS NOT NULL 
+                AND (EXTRACT(DAY FROM (actual_end_time - actual_start_time)) * 24 + 
+                    EXTRACT(HOUR FROM (actual_end_time - actual_start_time)) +
+                    EXTRACT(MINUTE FROM (actual_end_time - actual_start_time)) / 60) > 8
+                THEN (EXTRACT(DAY FROM (actual_end_time - actual_start_time)) * 24 + 
+                      EXTRACT(HOUR FROM (actual_end_time - actual_start_time)) +
+                      EXTRACT(MINUTE FROM (actual_end_time - actual_start_time)) / 60) - 8
+                ELSE 0 
+            END
+        ), 0) as overtime_hours
+        FROM attendance
+        WHERE emp_id = #{empId}
+          AND com_id = #{comId}
+          AND work_date BETWEEN TRUNC(#{date}, 'MM') AND LAST_DAY(#{date})
+    </select>
+    
+    <!-- [일일 휴식시간 조회] 특정 날짜의 일일 휴식시간 조회 (휴식시간 컬럼이 없으므로 0 반환) -->
+    <select id="getDailyRestHours" parameterType="map" resultType="double">
+        SELECT 0 as rest_hours FROM dual
+    </select>
+    
+    <!-- [위반 통계 조회] 근로기준법 위반 통계 조회 (테이블이 없으므로 임시로 0 반환) -->
+    <select id="getViolationStats" parameterType="map" resultType="map">
+        SELECT 
+            0 as total_violations,
+            0 as daily_violations,
+            0 as weekly_violations,
+            0 as monthly_violations,
+            0 as overtime_violations,
+            0 as rest_violations
+        FROM dual
+    </select>
+    
+    <!-- [부서별 위반 통계 조회] 부서별 근로기준법 위반 통계 조회 (테이블이 없으므로 임시로 0 반환) -->
+    <select id="getDeptViolationStats" parameterType="map" resultType="map">
+        SELECT 
+            '전체' as dept_name,
+            0 as violation_count,
+            0 as daily_violations,
+            0 as weekly_violations,
+            0 as monthly_violations
+        FROM dual
+    </select>
+    
+    <!-- [사원별 위반 통계 조회] 사원별 근로기준법 위반 통계 조회 (테이블이 없으므로 임시로 0 반환) -->
+    <select id="getEmpViolationStats" parameterType="map" resultType="map">
+        SELECT 
+            #{empId} as emp_id,
+            '테스트사원' as emp_name,
+            '테스트부서' as dept_name,
+            0 as violation_count,
+            0 as daily_violations,
+            0 as weekly_violations,
+            0 as monthly_violations
+        FROM dual
+    </select>
+    
+    <!-- [근무시간 검증 데이터 등록] 근무시간 검증 데이터 등록 (테이블이 없으므로 임시로 성공 반환) -->
+    <insert id="insertWorkTimeValidation" parameterType="map">
+        SELECT 1 FROM dual
+    </insert>
+    
+    <!-- [근무시간 위반 알림 등록] 근무시간 위반 알림 등록 (테이블이 없으므로 임시로 성공 반환) -->
+    <insert id="insertWorkTimeViolationAlert" parameterType="map">
+        SELECT 1 FROM dual
+    </insert>
+    
+    <!-- [근무시간 검증 데이터 조회] 근무시간 검증 데이터 조회 (테이블이 없으므로 임시로 빈 결과 반환) -->
+    <select id="selectWorkTimeValidationList" parameterType="map" resultType="map">
+        SELECT 
+            #{empId} as emp_id,
+            #{comId} as com_id,
+            SYSDATE as work_date,
+            'true' as validation_result,
+            'NORMAL' as violation_type,
+            SYSDATE as created_at,
+            '테스트사원' as emp_name,
+            '테스트부서' as dept_name
+        FROM dual
+        WHERE 1 = 0
+    </select>
+    
+    <!-- [근무시간 검증 데이터 수정] 근무시간 검증 데이터 수정 (테이블이 없으므로 임시로 성공 반환) -->
+    <update id="updateWorkTimeValidation" parameterType="map">
+        SELECT 1 FROM dual
+    </update>
+    
+    <!-- [근무시간 검증 데이터 삭제] 근무시간 검증 데이터 삭제 (테이블이 없으므로 임시로 성공 반환) -->
+    <delete id="deleteWorkTimeValidation" parameterType="map">
+        SELECT 1 FROM dual
+    </delete>
+
+</mapper> 

@@ -3,6 +3,7 @@ package com.dadam.hr.attendance.service;
 import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 연차 정보 VO
@@ -37,4 +38,19 @@ public class AnnualLeaveVO {
     private LocalDateTime createdAt;
     /** 수정일시 */
     private LocalDateTime updatedAt;
+    
+    // === 스케줄러에서 사용하는 필드들 ===
+    
+    /** 연도 */
+    private int year;
+    /** 총 연차일수 */
+    private int totalDays;
+    /** 사용한 연차일수 */
+    private int usedDays;
+    /** 잔여 연차일수 */
+    private int remainingDays;
+    /** 만료일 */
+    private LocalDate expiryDate;
+    /** 입사일 */
+    private Date hireDate;
 } 

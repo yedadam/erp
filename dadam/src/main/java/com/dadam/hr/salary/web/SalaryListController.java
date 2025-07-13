@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * 급여명세 리스트 관리 Controller
@@ -24,6 +26,18 @@ public class SalaryListController {
     private SalaryListService salaryListService;
 
     /**
+     * 현재 로그인 사용자의 회사ID(comId) 추출 (실무 기준)
+     */
+    private String getCurrentUserComId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() != null && auth.getPrincipal() instanceof com.dadam.security.service.LoginUserAuthority) {
+            return ((com.dadam.security.service.LoginUserAuthority) auth.getPrincipal()).getComId();
+        }
+        // 기본값(테스트용)
+        return "com-101";
+    }
+
+    /**
      * 급여명세 목록 조회
      * 
      * @param searchVO 검색 조건
@@ -32,6 +46,15 @@ public class SalaryListController {
     @PostMapping("/api/salary/list")
     public ResponseEntity<Map<String, Object>> getSalaryList(@RequestBody SalaryListVO searchVO) {
         Map<String, Object> response = new HashMap<>();
+        // comId 우선순위: 프론트 → 세션/로그인 → 기본값
+        String comId = searchVO.getComId();
+        if (comId == null || comId.isEmpty()) {
+            comId = getCurrentUserComId();
+        }
+        if (comId == null || comId.isEmpty()) {
+            comId = "com-101";
+        }
+        searchVO.setComId(comId);
         
         try {
             List<SalaryListVO> salaryList = salaryListService.getSalaryList(searchVO);

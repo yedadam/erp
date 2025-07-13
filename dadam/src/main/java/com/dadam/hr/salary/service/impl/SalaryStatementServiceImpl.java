@@ -25,7 +25,20 @@ public class SalaryStatementServiceImpl implements SalaryStatementService {
     }
     @Override
     public SalaryStatementVO getSalaryStatementById(java.util.Map<String, Object> param) {
-        return salaryStatementMapper.selectSalaryStatementById(param);
+        SalaryStatementVO vo = salaryStatementMapper.selectSalaryStatementById(param);
+        
+        // EMP_ALLOWANCE에서 사원별 급여항목 조회하여 추가
+        if (vo != null) {
+            try {
+                List<java.util.Map<String, Object>> empAllowances = salaryStatementMapper.selectEmpAllowances(param);
+                vo.setEmpAllowances(empAllowances);
+            } catch (Exception e) {
+                // EMP_ALLOWANCE 조회 실패 시에도 기본 정보는 반환
+                System.err.println("사원별 급여항목 조회 실패: " + e.getMessage());
+            }
+        }
+        
+        return vo;
     }
     @Override
     public int addSalaryStatement(SalaryStatementVO vo) {

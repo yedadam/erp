@@ -1,6 +1,7 @@
 package com.dadam.hr.emp.service;
 
 import java.util.List;
+import java.time.LocalDate;
 
 /**
  * 사원 서비스 인터페이스
@@ -68,4 +69,61 @@ public interface EmpService {
      * @return 처리 결과
      */
     int useAnnualLeave(String empId, int usedDays);
+    
+    // === 스케줄러에서 사용하는 메서드들 ===
+    
+    /**
+     * 신입 사원 조회 (특정 날짜 이후 입사)
+     * @param date - 기준일
+     * @return 신입 사원 리스트
+     */
+    List<EmpVO> getNewEmployees(LocalDate date);
+    
+    /**
+     * 입사일 기준 사원 조회
+     * @param hireDate - 입사일
+     * @return 해당 입사일의 사원 리스트
+     */
+    List<EmpVO> getEmployeesByHireDate(LocalDate hireDate);
+    
+    // === 사원별 급여항목(EMP_ALLOWANCE) 관련 메서드들 ===
+    
+    /**
+     * 사원별 급여항목 조회
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @return 급여항목 리스트
+     */
+    List<java.util.Map<String, Object>> getEmpAllowances(String empId, String comId);
+    
+    /**
+     * 사원별 급여항목 등록
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @param allowCode - 급여항목코드
+     * @param amount - 금액
+     * @param note - 비고
+     * @return 등록 결과
+     */
+    boolean insertEmpAllowance(String empId, String comId, String allowCode, Double amount, String note);
+    
+    /**
+     * 사원별 급여항목 수정
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @param allowCode - 급여항목코드
+     * @param amount - 금액
+     * @param note - 비고
+     * @return 수정 결과
+     */
+    boolean updateEmpAllowance(String empId, String comId, String allowCode, Double amount, String note);
+    
+    /**
+     * 사원별 급여항목 삭제
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @param allowCode - 급여항목코드
+     * @return 삭제 결과
+     */
+    boolean deleteEmpAllowance(String empId, String comId, String allowCode);
 } 

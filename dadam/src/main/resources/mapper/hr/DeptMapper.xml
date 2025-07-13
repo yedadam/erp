@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.hr.emp.mapper.DeptMapper">
     <!-- [부서 전체 조회] 부서 테이블 전체 조회 -->
-    <select id="getDeptList" parameterType="map" resultType="DeptVO">
+    <select id="getDeptList" parameterType="map" resultType="com.dadam.hr.emp.service.DeptVO">
         SELECT 
             d.dept_code AS deptCode,
             d.dept_name AS deptName,
@@ -44,7 +44,7 @@
     </select>
 
     <!-- [부서 등록] 부서 신규 등록 -->
-    <insert id="insertDept" parameterType="DeptVO">
+    <insert id="insertDept" parameterType="com.dadam.hr.emp.service.DeptVO">
         INSERT INTO departments (
             dept_code, dept_name, parent_dept_code, emp_id, created_date, com_id, acct_yn, remark
         ) VALUES (
@@ -53,7 +53,7 @@
     </insert>
 
     <!-- [부서 수정] 부서 정보 수정 -->
-    <update id="updateDept" parameterType="DeptVO">
+    <update id="updateDept" parameterType="com.dadam.hr.emp.service.DeptVO">
         UPDATE departments
         SET dept_name = #{deptName},
             parent_dept_code = #{parentDeptCode},
@@ -71,7 +71,7 @@
     </delete>
 
     <!-- [부서 상세 조회] 부서 상세정보 조회 -->
-    <select id="getDeptDetail" parameterType="map" resultType="DeptVO">
+    <select id="getDeptDetail" parameterType="map" resultType="com.dadam.hr.emp.service.DeptVO">
         SELECT 
             dept_code AS deptCode,
             dept_name AS deptName,

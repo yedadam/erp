@@ -27,11 +27,15 @@ public class SalaryStatementRestController {
      * @param comId 회사ID
      * @return 급여명세서 리스트
      */
-    @GetMapping("/salary/list-data")
+    @GetMapping("/salary/statement/list")
     public List<SalaryStatementVO> getSalaryList(@RequestParam(required = false) String keyword,
                                                  @RequestParam(required = false) String month,
                                                  @RequestParam(required = false) String empId,
                                                  @RequestParam(required = false) String comId) {
+        // comId 우선순위: 프론트 파라미터 → 기본값
+        if (comId == null || comId.isEmpty()) {
+            comId = "com-101";
+        }
         Map<String, Object> param = new HashMap<>();
         param.put("empId", empId);
         param.put("comId", comId);

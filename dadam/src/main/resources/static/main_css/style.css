@@ -886,4 +886,15 @@
 }
 /*** copyright end ***/
 
+/* 급여항목 관리 간격 개선 */
+.search-area {
+  margin-bottom: 20px !important;
+}
+.button-area {
+  margin-bottom: 16px !important;
+}
+.grid-area {
+  margin-top: 8px !important;
+}
+
 

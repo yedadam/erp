@@ -18,4 +18,7 @@ public interface SalaryStatementMapper {
     public int updateSalaryStatement(SalaryStatementVO vo);
     /** 급여명세서 삭제 (SAL_ID, COM_ID) */
     public int deleteSalaryStatement(java.util.Map<String, Object> param);
+    
+    /** 사원별 급여항목(EMP_ALLOWANCE) 조회 */
+    public List<java.util.Map<String, Object>> selectEmpAllowances(java.util.Map<String, Object> param);
 } 

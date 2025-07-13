@@ -17,4 +17,12 @@ public class SalaryDashboardController {
     public String salaryDashboard() {
         return "hr/salary-dashboard-admin";
     }
+
+    /**
+     * 급여관리 대시보드(관리자2) 화면
+     */
+    @GetMapping("/salary-dashboard-admin2")
+    public String salaryDashboardAdmin2() {
+        return "hr/salary_dashboard_admin2";
+    }
 } 

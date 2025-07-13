@@ -24,6 +24,9 @@
         LEFT JOIN EMPLOYEES E ON SS.EMP_ID = E.EMP_ID
         LEFT JOIN DEPARTMENTS D ON E.DEPT_CODE = D.DEPT_CODE
         <where>
+            <if test="comId != null and comId != ''">
+                AND SS.COM_ID = #{comId}
+            </if>
             <if test="calcMonth != null and calcMonth != ''">
                 AND SS.CALC_MONTH = #{calcMonth}
             </if>

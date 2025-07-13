@@ -2,6 +2,7 @@ package com.dadam.hr.emp.mapper;
 
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDate;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -92,4 +93,59 @@ public interface EmpMapper {
      * @return 처리 결과
      */
     public int useAnnualLeave(@Param("empId") String empId, @Param("comId") String comId, @Param("usedDays") int usedDays);
+    
+    // === 스케줄러에서 사용하는 메서드들 ===
+    
+    /**
+     * 신입 사원 조회 (특정 날짜 이후 입사)
+     * @param comId - 회사ID
+     * @param date - 기준일
+     * @return 신입 사원 리스트
+     */
+    public List<EmpVO> selectNewEmployees(@Param("comId") String comId, @Param("date") LocalDate date);
+    
+    /**
+     * 입사일 기준 사원 조회
+     * @param comId - 회사ID
+     * @param hireDate - 입사일
+     * @return 해당 입사일의 사원 리스트
+     */
+    public List<EmpVO> selectEmployeesByHireDate(@Param("comId") String comId, @Param("hireDate") LocalDate hireDate);
+    
+    // === 사원별 급여항목(EMP_ALLOWANCE) 관련 메서드들 ===
+    
+    /**
+     * 사원별 급여항목 조회
+     * @param param - 사원번호, 회사ID
+     * @return 급여항목 리스트
+     */
+    public List<Map<String, Object>> findEmpAllowances(Map<String, String> param);
+    
+    /**
+     * 사원별 급여항목 등록
+     * @param param - 사원번호, 회사ID, 급여항목코드, 금액, 비고
+     * @return 등록 결과
+     */
+    public int insertEmpAllowance(Map<String, Object> param);
+    
+    /**
+     * 사원별 급여항목 수정
+     * @param param - 사원번호, 회사ID, 급여항목코드, 금액, 비고
+     * @return 수정 결과
+     */
+    public int updateEmpAllowance(Map<String, Object> param);
+    
+    /**
+     * 사원별 급여항목 삭제
+     * @param param - 사원번호, 회사ID, 급여항목코드
+     * @return 삭제 결과
+     */
+    public int deleteEmpAllowance(Map<String, String> param);
+    
+    /**
+     * 사원별 급여항목 일괄 삭제
+     * @param param - 사원번호, 회사ID
+     * @return 삭제 결과
+     */
+    public int deleteAllEmpAllowances(Map<String, String> param);
 }

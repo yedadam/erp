@@ -1,6 +1,7 @@
 package com.dadam.hr.emp.service.impl;
 
 import java.util.List;
+import java.time.LocalDate;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -195,5 +196,123 @@ public class EmpServiceImpl implements EmpService {
         }
         
         return result;
+    }
+    
+    // === 스케줄러에서 사용하는 메서드들 ===
+    
+    /**
+     * 신입 사원 조회 (특정 날짜 이후 입사)
+     * @param date - 기준일
+     * @return 신입 사원 리스트
+     */
+    @Override
+    public List<EmpVO> getNewEmployees(LocalDate date) {
+        initAuthInfo();
+        return empMapper.selectNewEmployees(comId, date);
+    }
+    
+    /**
+     * 입사일 기준 사원 조회
+     * @param hireDate - 입사일
+     * @return 해당 입사일의 사원 리스트
+     */
+    @Override
+    public List<EmpVO> getEmployeesByHireDate(LocalDate hireDate) {
+        initAuthInfo();
+        return empMapper.selectEmployeesByHireDate(comId, hireDate);
+    }
+    
+    // === 사원별 급여항목(EMP_ALLOWANCE) 관련 메서드들 ===
+    
+    /**
+     * 사원별 급여항목 조회
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @return 급여항목 리스트
+     */
+    @Override
+    public List<java.util.Map<String, Object>> getEmpAllowances(String empId, String comId) {
+        if (comId == null || comId.isEmpty()) {
+            initAuthInfo();
+            comId = this.comId;
+        }
+        java.util.Map<String, String> param = new java.util.HashMap<>();
+        param.put("empId", empId);
+        param.put("comId", comId);
+        return empMapper.findEmpAllowances(param);
+    }
+    
+    /**
+     * 사원별 급여항목 등록
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @param allowCode - 급여항목코드
+     * @param amount - 금액
+     * @param note - 비고
+     * @return 등록 결과
+     */
+    @Override
+    public boolean insertEmpAllowance(String empId, String comId, String allowCode, Double amount, String note) {
+        if (comId == null || comId.isEmpty()) {
+            initAuthInfo();
+            comId = this.comId;
+        }
+        java.util.Map<String, Object> param = new java.util.HashMap<>();
+        param.put("empId", empId);
+        param.put("comId", comId);
+        param.put("allowCode", allowCode);
+        param.put("amount", amount != null ? amount : 0.0);
+        param.put("note", note);
+        
+        int result = empMapper.insertEmpAllowance(param);
+        return result > 0;
+    }
+    
+    /**
+     * 사원별 급여항목 수정
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @param allowCode - 급여항목코드
+     * @param amount - 금액
+     * @param note - 비고
+     * @return 수정 결과
+     */
+    @Override
+    public boolean updateEmpAllowance(String empId, String comId, String allowCode, Double amount, String note) {
+        if (comId == null || comId.isEmpty()) {
+            initAuthInfo();
+            comId = this.comId;
+        }
+        java.util.Map<String, Object> param = new java.util.HashMap<>();
+        param.put("empId", empId);
+        param.put("comId", comId);
+        param.put("allowCode", allowCode);
+        param.put("amount", amount != null ? amount : 0.0);
+        param.put("note", note);
+        
+        int result = empMapper.updateEmpAllowance(param);
+        return result > 0;
+    }
+    
+    /**
+     * 사원별 급여항목 삭제
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @param allowCode - 급여항목코드
+     * @return 삭제 결과
+     */
+    @Override
+    public boolean deleteEmpAllowance(String empId, String comId, String allowCode) {
+        if (comId == null || comId.isEmpty()) {
+            initAuthInfo();
+            comId = this.comId;
+        }
+        java.util.Map<String, String> param = new java.util.HashMap<>();
+        param.put("empId", empId);
+        param.put("comId", comId);
+        param.put("allowCode", allowCode);
+        
+        int result = empMapper.deleteEmpAllowance(param);
+        return result > 0;
     }
 } 

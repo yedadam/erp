@@ -53,6 +53,10 @@ public class EmpController {
     @Autowired
     private CodeService codeService;
 
+    /** 근로계약 매퍼 */
+    @Autowired
+    private com.dadam.hr.emp.mapper.ContractMapper contractMapper;
+
     /**
      * 현재 사용자의 권한 정보를 가져오는 메서드
      * @return 권한 정보 (comId, deptCode, authority)
@@ -144,8 +148,61 @@ public class EmpController {
         if (empVO.getEmpId() == null || empVO.getEmpId().isEmpty()) {
             empVO.setEmpId(generateNextEmpId());
         }
-        boolean result = empService.insertEmp(empVO);
-        return result ? "ok" : "fail";
+        // 기본값 설정
+        if (empVO.getAnnualLeaveTotal() == null) empVO.setAnnualLeaveTotal(0.0);
+        if (empVO.getAnnualLeaveUsed() == null) empVO.setAnnualLeaveUsed(0.0);
+        if (empVO.getAnnualLeaveRemain() == null) empVO.setAnnualLeaveRemain(0.0);
+        
+        // 급여 기본값 설정
+        if (empVO.getMealAllowance() == null) empVO.setMealAllowance(0);
+        if (empVO.getTransportAllowance() == null) empVO.setTransportAllowance(0);
+        
+        // 사원 정보 등록
+        boolean empResult = empService.insertEmp(empVO);
+        
+        // 근로계약 정보 등록 (기본값 포함)
+        if (empResult) {
+            try {
+                com.dadam.hr.emp.service.ContractVO contractVO = new com.dadam.hr.emp.service.ContractVO();
+                contractVO.setEmpId(empVO.getEmpId());
+                contractVO.setComId(empVO.getComId());
+                contractVO.setContCode(generateNextContractCode());
+                contractVO.setContType(empVO.getWorkType() != null ? empVO.getWorkType() : "정규직"); // 기본값: 정규직
+                contractVO.setContStatus("ACTIVE");
+                contractVO.setCreatedDate(java.time.LocalDate.now().toString());
+                
+                // 급여 정보 설정
+                if (empVO.getSal() != null) {
+                    contractVO.setMonSal(empVO.getSal());
+                    contractVO.setAnnSal(empVO.getSal() * 12);
+                }
+                
+                contractMapper.insertContract(contractVO);
+            } catch (Exception e) {
+                System.err.println("근로계약 정보 등록 실패: " + e.getMessage());
+            }
+            
+            // 사원별 급여항목(EMP_ALLOWANCE) 자동 등록 (기본값 포함)
+            try {
+                // 식대 지원 등록 (기본값: 0원)
+                empService.insertEmpAllowance(empVO.getEmpId(), empVO.getComId(), "MEAL", 
+                    empVO.getMealAllowance().doubleValue(), "식대 지원");
+                
+                // 교통비 지원 등록 (기본값: 0원)
+                empService.insertEmpAllowance(empVO.getEmpId(), empVO.getComId(), "TRANSPORT", 
+                    empVO.getTransportAllowance().doubleValue(), "교통비 지원");
+                
+                // 기본급 등록
+                if (empVO.getSal() != null) {
+                    empService.insertEmpAllowance(empVO.getEmpId(), empVO.getComId(), "BASIC_SALARY", 
+                        empVO.getSal().doubleValue(), "기본급");
+                }
+            } catch (Exception e) {
+                System.err.println("사원별 급여항목 등록 실패: " + e.getMessage());
+            }
+        }
+        
+        return empResult ? "ok" : "fail";
     }
 
     /**
@@ -158,11 +215,34 @@ public class EmpController {
     @ResponseBody
     public String updateEmp(@ModelAttribute EmpVO empVO, @RequestParam(value = "profileImg", required = false) MultipartFile profileImg) {
         java.util.Map<String, String> userInfo = getCurrentUserInfo();
-        // 관리자가 아니고 본인이 아닌 경우 수정 불가
         if (profileImg != null && !profileImg.isEmpty()) {
             empVO.setProfileImgPath(saveProfileImage(profileImg));
         }
         boolean result = empService.updateEmp(empVO);
+        try {
+            // 식대 지원
+            if (empService.getEmpAllowances(empVO.getEmpId(), empVO.getComId()).stream().anyMatch(a -> "MEAL".equals(a.get("ALLOW_CODE")))) {
+                empService.updateEmpAllowance(empVO.getEmpId(), empVO.getComId(), "MEAL", empVO.getMealAllowance() != null ? empVO.getMealAllowance().doubleValue() : 0.0, "식대 지원");
+            } else {
+                empService.insertEmpAllowance(empVO.getEmpId(), empVO.getComId(), "MEAL", empVO.getMealAllowance() != null ? empVO.getMealAllowance().doubleValue() : 0.0, "식대 지원");
+            }
+            // 교통비 지원
+            if (empService.getEmpAllowances(empVO.getEmpId(), empVO.getComId()).stream().anyMatch(a -> "TRANSPORT".equals(a.get("ALLOW_CODE")))) {
+                empService.updateEmpAllowance(empVO.getEmpId(), empVO.getComId(), "TRANSPORT", empVO.getTransportAllowance() != null ? empVO.getTransportAllowance().doubleValue() : 0.0, "교통비 지원");
+            } else {
+                empService.insertEmpAllowance(empVO.getEmpId(), empVO.getComId(), "TRANSPORT", empVO.getTransportAllowance() != null ? empVO.getTransportAllowance().doubleValue() : 0.0, "교통비 지원");
+            }
+            // 기본급(필요시)
+            if (empVO.getSal() != null) {
+                if (empService.getEmpAllowances(empVO.getEmpId(), empVO.getComId()).stream().anyMatch(a -> "BASIC_SALARY".equals(a.get("ALLOW_CODE")))) {
+                    empService.updateEmpAllowance(empVO.getEmpId(), empVO.getComId(), "BASIC_SALARY", empVO.getSal().doubleValue(), "기본급");
+                } else {
+                    empService.insertEmpAllowance(empVO.getEmpId(), empVO.getComId(), "BASIC_SALARY", empVO.getSal().doubleValue(), "기본급");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[경고] 급여항목(EMPALLOWANCE) 저장/수정 실패: " + e.getMessage());
+        }
         return result ? "ok" : "fail";
     }
 
@@ -282,6 +362,23 @@ public class EmpController {
     }
 
     /**
+     * 다음 계약코드 생성
+     * @return 계약코드
+     */
+    private String generateNextContractCode() {
+        try {
+            String maxCode = contractMapper.getMaxContractCode();
+            if (maxCode == null || maxCode.isEmpty() || "CONT0000".equals(maxCode)) {
+                return "CONT0001";
+            }
+            int nextNum = Integer.parseInt(maxCode.substring(4)) + 1;
+            return String.format("CONT%04d", nextNum);
+        } catch (Exception e) {
+            return "CONT0001";
+        }
+    }
+
+    /**
      * 프로필 이미지 저장
      * @param profileImg - 이미지 파일
      * @return 저장 경로
@@ -312,5 +409,121 @@ public class EmpController {
         }
         int num = Integer.parseInt(maxEmpId.substring(1));
         return "e" + (num + 1);
+    }
+    
+    // === 사원별 급여항목(EMP_ALLOWANCE) 관련 API ===
+    
+    /**
+     * 사원별 급여항목 조회
+     * @param empId - 사원번호
+     * @param comId - 회사ID
+     * @return 급여항목 리스트
+     */
+    @GetMapping("/empAllowances")
+    @ResponseBody
+    public List<java.util.Map<String, Object>> getEmpAllowances(
+        @RequestParam String empId,
+        @RequestParam(required = false) String comId
+    ) {
+        if (comId == null || comId.isEmpty()) {
+            java.util.Map<String, String> userInfo = getCurrentUserInfo();
+            comId = userInfo.get("comId");
+        }
+        List<java.util.Map<String, Object>> rawList = empService.getEmpAllowances(empId, comId);
+        // key를 소문자/카멜케이스로 변환
+        List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
+        for (java.util.Map<String, Object> row : rawList) {
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            for (String key : row.keySet()) {
+                String camelKey = key.toLowerCase();
+                if (camelKey.contains("_")) {
+                    String[] parts = camelKey.split("_");
+                    StringBuilder sb = new StringBuilder(parts[0]);
+                    for (int i = 1; i < parts.length; i++) {
+                        sb.append(parts[i].substring(0, 1).toUpperCase()).append(parts[i].substring(1));
+                    }
+                    camelKey = sb.toString();
+                }
+                map.put(camelKey, row.get(key));
+            }
+            result.add(map);
+        }
+        return result;
+    }
+    
+    /**
+     * 사원별 급여항목 등록
+     * @param param - 급여항목 정보
+     * @return 등록 결과
+     */
+    @PostMapping("/insertEmpAllowance")
+    @ResponseBody
+    public String insertEmpAllowance(@RequestBody java.util.Map<String, Object> param) {
+        if (!isAdmin()) {
+            return "unauthorized";
+        }
+        
+        String empId = (String) param.get("empId");
+        String comId = (String) param.get("comId");
+        String allowCode = (String) param.get("allowCode");
+        Double amount = (Double) param.get("amount");
+        String note = (String) param.get("note");
+        
+        if (empId == null || comId == null || allowCode == null) {
+            return "fail";
+        }
+        
+        boolean result = empService.insertEmpAllowance(empId, comId, allowCode, amount, note);
+        return result ? "ok" : "fail";
+    }
+    
+    /**
+     * 사원별 급여항목 수정
+     * @param param - 급여항목 정보
+     * @return 수정 결과
+     */
+    @PostMapping("/updateEmpAllowance")
+    @ResponseBody
+    public String updateEmpAllowance(@RequestBody java.util.Map<String, Object> param) {
+        if (!isAdmin()) {
+            return "unauthorized";
+        }
+        
+        String empId = (String) param.get("empId");
+        String comId = (String) param.get("comId");
+        String allowCode = (String) param.get("allowCode");
+        Double amount = (Double) param.get("amount");
+        String note = (String) param.get("note");
+        
+        if (empId == null || comId == null || allowCode == null) {
+            return "fail";
+        }
+        
+        boolean result = empService.updateEmpAllowance(empId, comId, allowCode, amount, note);
+        return result ? "ok" : "fail";
+    }
+    
+    /**
+     * 사원별 급여항목 삭제
+     * @param param - 급여항목 정보
+     * @return 삭제 결과
+     */
+    @PostMapping("/deleteEmpAllowance")
+    @ResponseBody
+    public String deleteEmpAllowance(@RequestBody java.util.Map<String, String> param) {
+        if (!isAdmin()) {
+            return "unauthorized";
+        }
+        
+        String empId = param.get("empId");
+        String comId = param.get("comId");
+        String allowCode = param.get("allowCode");
+        
+        if (empId == null || comId == null || allowCode == null) {
+            return "fail";
+        }
+        
+        boolean result = empService.deleteEmpAllowance(empId, comId, allowCode);
+        return result ? "ok" : "fail";
     }
 } 
