@@ -19,6 +19,7 @@ public class HoldVO {
 	private String itemCode;   // 품목코드
 	private String itemName;   // 품목이름
 	private int quantity;   // 수량
+	private int totqty;   // 수량
 	private int holdQty;   // 예약수량
 	private int price;   // 단가
 	private int currQty;   // 현수량
@@ -27,6 +28,7 @@ public class HoldVO {
 	private String type;   // 홀드구분
 	private String typeName;
 	private String status; 
+	private String hstatus; 
 	private String hdstatus; 
 	private String shipstatus; // 발주서상태
 	private String statusName;

@@ -39,7 +39,7 @@
         getvdrName(po.vdr_code) vdr_code,
         nvl((select max(curr_qty)
 	         from purchase
-	         where pur_ord_dtl_code =  pod.pur_ord_dtl_code),0) curr_qty
+	         where pur_ord_dtl_code = pod.pur_ord_dtl_code AND com_id = #{comId}),0) curr_qty
 	FROM purchaseOrderDetail pod join purchaseOrder po
 	                               on(pod.pur_ord_code=po.pur_ord_code AND pod.com_id = po.com_id)
 	WHERE pod.com_id = #{comId} and pod.status not in('pds03')
@@ -95,7 +95,7 @@
 		    SELECT 
 		        #{locCode}  AS loc_code,
 		        #{itemCode} AS item_code,
-		        #{quantity} AS quantity,
+		        #{qty} AS quantity,
 		        #{comId}   AS com_id,
 		        #{stkCode} AS stk_code,
 		        #{lot} AS lot
@@ -116,7 +116,8 @@
         item_code, 
         quantity, 
         com_id,
-        lot
+        lot,
+        hold_qty
     )
     VALUES (
         data.stk_code,
@@ -124,16 +125,17 @@
         data.item_code,
         data.quantity,
         data.com_id,
-        data.lot
+        data.lot,
+        0
     )
 	</update>
 	
 	<update id="prcPurchaseOrderStatus" parameterType="PurchaseVO">
 	{ CALL prc_purchaseOrder_status( #{purOrdDtlCode, mode=IN, jdbcType=VARCHAR})}
 	</update>
-	<!-- 사용안함 -->
+	<!-- 이 방법은 안됨. 트랜젝션이 닫히지 않은 상태에서 재조회해도 같은결과만 나오기 떄문... -->
 	<!-- <select id="purchaseCurrQty" parameterType="PurchaseVO" resultType="int">
-		SELECT max(curr_qty)
+		SELECT max(curr_qty) curr_qty
 		FROM purchase
 		WHERE com_id = #{comId} AND pur_ord_dtl_code = #{purOrdDtlCode}
 	</select> -->

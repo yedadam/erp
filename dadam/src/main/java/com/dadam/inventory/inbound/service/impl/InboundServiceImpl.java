@@ -38,15 +38,29 @@ public class InboundServiceImpl implements InboundService{
 	public int insertPurchaseInbound(List<PurchaseVO> list) {
 		Map<String, String> map = new HashMap<>();
 		int result = 0;
+		int Curr = 0;
+		int sumqty = 0;
+		String purdtl = null;
 		for (PurchaseVO vo : list) {
+			String checkpur = vo.getPurOrdDtlCode();
 			// 입고항목 등록
-			// 현재수량에 입력한 재고와 현재수량을 더해서 넣음.
-			// vo.setCurrQty(vo.getCurrQty() + vo.getQuantity());
-			
 			// 가장 높은 수량을 가져와서 변수저장
-			// currqt = inboundMapper.purchaseCurrQty(vo);
-			// 변수에 입력한 수량을 더해서 등록진행.
-			// vo.setCurrQty(currqt + vo.getQuantity());
+			// 이 방법은 안됨. 트랜젝션이 닫히지 않은 상태에서 재조회해도 같은결과만 나오기 떄문.
+			// inboundMapper.purchaseCurrQty(vo);
+			// 한종류의 발주상세는 가능한데 여러건이라면 중복되기 때문에 초기화 과정이 필요함.
+			// purdtl가 현재 vo의 값과 같다면 또는 널이 아니라면
+			if(purdtl != null && checkpur.equals(purdtl)) {
+				sumqty += vo.getQty();
+				vo.setCurrQty(sumqty);
+			}else {
+				// 다른 purdtlcode라면 값을 초기화
+				sumqty = vo.getQty() + vo.getCurrQty();
+				vo.setCurrQty(sumqty);
+				
+				// null이거나 다른값일떄는 그값을 넣음
+				purdtl = vo.getPurOrdDtlCode();
+			}
+
 			result = inboundMapper.insertPurchaseInbound(vo);
 			inboundMapper.updateStockInbound(vo);
 			// 기본은 입고 완료
@@ -59,13 +73,12 @@ public class InboundServiceImpl implements InboundService{
 			map.put(vo.getPurOrdDtlCode(), status);
 		}
 		// 재고 항목 머지문
-		// for문조건으로 entrySet을 사용해서 map의 모든값(key, value)을 꺼내서
+		// for문조건으로 entrySet을 사용해서 map의 모든값(key, value)을 꺼내서 활용함
 		for (Map.Entry<String, String> entry : map.entrySet()) {
 			PurchaseVO vo = new PurchaseVO();
 			vo.setComId(list.get(0).getComId());
 			vo.setPurOrdDtlCode(entry.getKey());
 			vo.setStatus(entry.getValue());
-			System.out.println("vo:" + vo);
 			inboundMapper.updatePurchaseOrderDetailInbound(vo);
 			inboundMapper.prcPurchaseOrderStatus(vo);
 		}

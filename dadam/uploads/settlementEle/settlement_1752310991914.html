@@ -1,0 +1,237 @@
+
+			<!DOCTYPE html>
+			<html lang="ko">
+			<head>
+			  <meta charset="UTF-8" />
+			  <meta name="viewport" content="width=device-width, initial-scale=1" />
+			  <title>재고 현황 결재서</title>
+			  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+			  <style>
+			    body {
+			      font-family: 'Malgun Gothic', sans-serif;
+			      background-color: #f8f9fa;
+			    }
+			    .document-container {
+			      background: white;
+			      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+			      border-radius: 8px;
+			      padding: 20px;
+			      margin: 20px auto;
+			      max-width: 1200px;
+			    }
+			    .title {
+			      font-size: 28px;
+			      font-weight: bold;
+			      border-bottom: 2px solid #333;
+			      padding-bottom: 15px;
+			      margin-bottom: 30px;
+			    }
+			    .approval-section {
+			      font-size: 12px;
+			    }
+			    .approval-content {
+			      height: 80px;
+			      display: flex;
+			      align-items: center;
+			      justify-content: center;
+			      color: #666;
+			      font-size: 10px;
+			    }
+			    @media print {
+			      body {
+			        background-color: white;
+			      }
+			      .document-container {
+			        box-shadow: none;
+			        margin: 0;
+			        border-radius: 0;
+			      }
+			    }
+			  </style>
+			</head>
+			<body>
+			  <div class="document-container">
+			    <h1 class="title text-center">재고 현황 보고서</h1>
+			
+			    <div class="d-flex justify-content-end mb-3">
+			      <div class="col-md-4">
+			        <div class="approval-section">
+			          <div class="card">
+			            <div class="card-header text-center py-1">
+			              <small class="fw-bold">결재</small>
+			            </div>
+			            <div class="card-body p-0">
+			              <div class="row g-0">
+			                
+		  <div class="col border-end">
+		    <div class="bg-light text-center py-1 border-bottom">
+		      <small class="fw-bold">관리자 유환</small>
+		    </div>
+		    <div class="approval-content">
+		      <img src='data:image/png;base64,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' style='width: 100px; height: auto;'>
+		    </div>
+		  </div>
+		
+			              </div>
+			            </div>
+			          </div>
+			        </div>
+			      </div>
+			    </div>
+			
+			    <!-- 문서 정보 -->
+			    <div class="row mb-4">
+			      <div class="col-md-6">
+			        <div class="card">
+			          <div class="card-body p-0">
+			            <div class="row g-0">
+			              <div class="col-4 bg-light border-end border-bottom d-flex align-items-center justify-content-center">
+			                <span class="fw-bold">문서번호</span>
+			              </div>
+			              <div class="col-8 border-bottom d-flex align-items-center ps-3">
+			                <span id="docNumber">set-102</span>
+			              </div>
+			            </div>
+			            <div class="row g-0">
+			              <div class="col-4 bg-light border-end d-flex align-items-center justify-content-center">
+			                <span class="fw-bold">작성일자</span>
+			              </div>
+			              <div class="col-8 d-flex align-items-center ps-3">
+			                <span id="createDate">2025-07-12</span>
+			              </div>
+			            </div>
+			          </div>
+			        </div>
+			      </div>
+			      <div class="col-md-6">
+			        <div class="card">
+			          <div class="card-body p-0">
+			            <div class="row g-0">
+			              <div class="col-4 bg-light border-end border-bottom d-flex align-items-center justify-content-center">
+			                <span class="fw-bold">작성자</span>
+			              </div>
+			              <div class="col-8 border-bottom d-flex align-items-center ps-3">
+			                <span id="creator">다담</span>
+			              </div>
+			            </div>
+			            <div class="row g-0">
+			              <div class="col-4 bg-light border-end d-flex align-items-center justify-content-center">
+			                <span class="fw-bold">부서</span>
+			              </div>
+			              <div class="col-8 d-flex align-items-center ps-3">
+			                <span id="department">재고팀</span>
+			              </div>
+			            </div>
+			          </div>
+			        </div>
+			      </div>
+			    </div>
+			
+			    <!-- 재고 테이블 -->
+			    <div class="table-responsive">
+			      <table class="table table-bordered table-hover" id="inventoryTable">
+			        <thead class="table-light">
+			          <tr class="text-center">
+			            <th>품목코드</th>
+			            <th>품목명</th>
+			            <th>전월수량</th>
+			            <th>전월평가액</th>
+			            <th>입고수량</th>
+			            <th>출고수량</th>
+			            <th>조정수량</th>
+			            <th>기말수량</th>
+			            <th>기말평가액</th>
+			          </tr>
+			        </thead>
+			        <tbody>
+			          
+			            <tr>
+			              <td>item-101</td>
+			              <td>연필</td>
+			              <td class="text-end">80</td>
+			              <td class="text-end">40000</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">80</td>
+			              <td class="text-end">40000</td>
+			            </tr>
+			          
+			            <tr>
+			              <td>item-102</td>
+			              <td>지우개</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			            </tr>
+			          
+			            <tr>
+			              <td>item-103</td>
+			              <td>이름이법이될때</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			            </tr>
+			          
+			            <tr>
+			              <td>item-104</td>
+			              <td>좋은이름의비밀</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			            </tr>
+			          
+			            <tr>
+			              <td>item-105</td>
+			              <td>자연에이름붙이기</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			            </tr>
+			          
+			            <tr>
+			              <td>item-106</td>
+			              <td>종이</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			              <td class="text-end">0</td>
+			            </tr>
+			          
+			        </tbody>
+			        <tfoot class="table-info">
+			          <tr class="fw-bold text-center">
+			            <td colspan="2">합계</td>
+			            <td class="text-end">80</td>
+			            <td class="text-end">40000</td>
+			            <td class="text-end">0</td>
+			            <td class="text-end">0</td>
+			            <td class="text-end">0</td>
+			            <td class="text-end">80</td>
+			            <td class="text-end">40000</td>
+			          </tr>
+			        </tfoot>
+			      </table>
+			    </div>
+			  </div>
+			</body>
+			</html>

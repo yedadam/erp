@@ -13,7 +13,9 @@ public class LotVO {
 	private String holdDtlCode;
 	private String code;
 	private String holdCode;
+	private int qty;
 	private int holdQty;
 	private int quantity;
 	private String comId;
+	private String status;
 }

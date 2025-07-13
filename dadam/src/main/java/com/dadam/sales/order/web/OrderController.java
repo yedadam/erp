@@ -46,13 +46,13 @@ public class OrderController {
 	@GetMapping("/venderAll")
 	@ResponseBody
 	public List<VenderVO> venderAll(@RequestParam (defaultValue = "",required = false) String type,@RequestParam(defaultValue = "",required = false) String value) {
-		return venderService.venderFindAll(type,value);
+		return venderService.venderFindAllList(type,value);
 	}
 	
 	@GetMapping("/itemAll")
 	@ResponseBody
 	public List<ItemVO> itemAll(@RequestParam(defaultValue = "",required = false) String type,@RequestParam(defaultValue = "",required = false) String value) {
-		return itemService.itemFindAll(type,value);
+		return itemService.itemFindit02(type,value);
 	}
 	
 	

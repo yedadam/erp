@@ -18,6 +18,7 @@ public class PurchaseVO {
 	private String comId;  // 회사id
 	private String lot;
 	private int price;
+	private int qty;
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date createDate;
 	private String locCode;

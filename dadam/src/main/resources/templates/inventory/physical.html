@@ -104,12 +104,15 @@
 			<!-- custom button -->
 			<div class="col-md-6 text-end">
 				<div class="btn-group-custom" id="btnGroup">
-					<button class="btn btn-secondary me-1" id="maininsertBtn">
-						<i class="fas fa-pen"></i> 항목추가</button>
-					<button class="btn btn-danger me-1" id="maindeleteBtn">
+					<button class="btn btn-secondary me-1" id="insertBtn">
+						<i class="fas fa-pen"></i> 추가</button>
+						<button class="btn btn-warning me-1" id="selectBtn">
+						<i class="fas fa-eye"></i> 조회
+					</button>
+					<button class="btn btn-danger me-1" id="deleteBtn">
 						<i class="fas fa-trash"></i> 삭제
 					</button>
-					<button class="btn btn-primary me-1" id="mainsaveBtn">
+					<button class="btn btn-primary me-1" id="saveBtn">
 						<i class="fas fa-save"></i> 저장
 					</button>
 				</div>
@@ -120,174 +123,261 @@
 	</div>
 	
 	<div class="container-fluid mt-4">
-		<div class="row mb-3">
-		<!-- custom button -->
-			<div class="col-md-6 text-start"></div>
-			<div class="col-md-6 text-end">
+		<div class="col-md-6 text-end">
 				<div class="btn-group-custom" id="btnGroup">
-					<button class="btn btn-secondary me-1" id="subinsertBtn">
-						<i class="fas fa-pen"></i> 항목추가</button>
-					<button class="btn btn-danger me-1" id="subdeleteBtn">
-						<i class="fas fa-trash"></i> 삭제
-					</button>
-					<button class="btn btn-primary me-1" id="subsaveBtn">
-						<i class="fas fa-save"></i> 저장
-					</button>
 				</div>
-			</div>
 		</div>
 		<!-- 그리드 -->
 		<div id="subGrids"></div>
 	</div>
 	
+	<!-- 입고를 위한 모달 -->
+	<div class="modal fade" id="warehouseModal" tabindex="-1"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">창고선택</h5>
+				</div>
+				<div class="modal-body">
+					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
+						<button class="btn btn-primary" id="warehouseBtn">
+							<i class="fas fa-warehouse"></i> 선택
+						</button>
+					</div>
+					<div id="warehouseGrids"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 입고를 위한 모달 -->
+	<div class="modal fade" id="itemModal" tabindex="-1"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">품목선택</h5>
+				</div>
+				<div class="modal-body">
+					<div class="d-grid gap-2 d-md-flex justify-content-md-end m-2">
+						<button class="btn btn-primary" id="itemBtn">
+							<i class="fas fa-warehouse"></i> 선택
+						</button>
+					</div>
+					<div id="itemgrids"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
 <script th:inline="javascript">
-$.ajax({
-	url:"/erp/inventory/selectPhysical",
-	method:"GET"
-	,data: {comId}
-   ,success:function(result) {
-	   mainGrid.resetData(result);
-   } // ajax호출 끝
-})
+let mainGrid;
+let subGrid;
 
+changeView('조회');
 
-const mainGrid = new tui.Grid({
-    el: document.getElementById('mainGrids'),
-    rowHeaders: ['checkbox'],
-    //페이지네이션
-    pageOptions: {
-        perPage: 5,
-        useClient: true,
-    },
-    //필드값 구성
-    columns:[
-        { header: '실사코드',name:'phyCode',align:'center'},
-        { header: '창고명',name:'whCode',align:'center', editor:'text'},
-        { header: '담당자',name:'phyEmpName',align:'center'},
-        { header: '승인자',name:'apprEmpName',align:'center'},
-        { header: '등록일자',name:'createdDate',align:'center'},
-        { header: '비고',name:'note',align:'center', editor:'text'},
-        { header: '반영',name:'apprDate',align:'center'}
-    ],
+function getName(name){
+	const header = document.createElement('span');
+	header.innerHTML=`<span class="require">* </span>${name}`
+	return header;
+};
+// 페이지 상태
+$('#selectBtn').on('click', function() {
+	changeView('조회');
+});
+$('#insertBtn').on('click', function() {
+	changeView('등록');
+	mainGrid.appendRow();
+	subGrid.appendRow();
 });
 
-const subGrid = new tui.Grid({
-    el: document.getElementById('subGrids'),
-    rowHeaders: ['checkbox'],
-    //페이지네이션
-    pageOptions: {
-        perPage: 5,
-        useClient: true,
-    },
-    //필드값 구성
-    columns:[
-        { header: '품목명',name:'phyDtlCode',align:'center'},
-        { header: '보관위치',name:'locCode',align:'center'},
-        { header: 'lot',name:'lot',align:'center'},
-        { header: '품목명',name:'itemName',align:'center'},
-        { header: '수량',name:'quantity',align:'center'},
-        { header: '비고',name:'note',align:'center'},
-    ],
-});
+// 페이지 전환 처리
+function changeView(viewType){
+	if(mainGrid) {
+		// 그리드 초기화
+		mainGrid.destroy();
+		// dom 초기화
+		$('#mainGrids').html('');
+		$('#subGrids').html('');
+	}
+	// 그리드 변경
+	if(viewType === '조회'){
+		selectGrid();
+		mainList();
+	}else if(viewType === '등록'){
+		insertGrid();
+	}
+}
+// mainGrid data
+function mainList(){
+	$.ajax({
+		url:"/erp/inventory/selectPhysical",
+		method:"GET"
+		,data: {comId}
+	   ,success:function(result) {
+		   mainGrid.resetData(result);
+	   } // ajax호출 끝
+	})
+}
 
-
-// 이벤트
-	// 행추가
-	$('#maininsertBtn').on('click',()=>{
-		inserts(mainGrid);
-	});
-	$('#subinsertBtn').on('click',()=>{
-		inserts(subGrid);
+// 조회 그리드
+function selectGrid(){
+	$('#selectBtn').prop('disabled', true);
+	$('#insertBtn').prop('disabled', false);
+	
+	mainGrid = new tui.Grid({
+	    el: document.getElementById('mainGrids'),
+	    rowHeaders: ['checkbox'],
+	    //페이지네이션
+	    pageOptions: {
+	        perPage: 5,
+	        useClient: true,
+	    },
+	    //필드값 구성
+	    columns:[
+	        { header: '실사코드',name:'phyCode',align:'center'},
+	        { header: '창고명',name:'whCode',align:'center', editor:'text'},
+	        { header: '담당자',name:'phyEmpName',align:'center'},
+	        { header: '승인자',name:'apprEmpName',align:'center'},
+	        { header: '등록일자',name:'createdDate',align:'center'},
+	        { header: '비고',name:'note',align:'center', editor:'text'},
+	        { header: '반영',name:'apprDate',align:'center'}
+	    ],
 	});
 	
-	// 행삭제
-	$('#maindeleteBtn').on('click',()=>{
-		deletes(mainGrid);
-	});
-	$('#subdeleteBtn').on('click',()=>{
-		deletes(subGrid);
+	subGrid = new tui.Grid({
+	    el: document.getElementById('subGrids'),
+	    rowHeaders: ['checkbox'],
+	    //페이지네이션
+	    pageOptions: {
+	        perPage: 5,
+	        useClient: true,
+	    },
+	    //필드값 구성
+	    columns:[
+	        { header: '보관위치',name:'locCode',align:'center'},
+	        { header: '품목명',name:'phyDtlCode',align:'center'},
+	        { header: 'lot',name:'lot',align:'center'},
+	        { header: '품목명',name:'itemName',align:'center'},
+	        { header: '수량',name:'quantity',align:'center'},
+	        { header: '비고',name:'note',align:'center'},
+	    ],
 	});
 	
-	// 행 저장
-	$('#mainsaveBtn').on('click',()=>{
-		// main내용이 없습니다.
-		/* if(mainGrid.getData().length <= 0){
-			Swal.fire({
-				  icon: "error",
-				  title: "메인 내용이 없습니다.",
-				  text: "생성 해주세요."
-				});
-			return;
-		// sube내용이 없습니다.
-		}else if(subGrid.getData().length <= 0){
-			Swal.fire({
-				  icon: "error",
-				  title: "상세내용이 없습니다.",
-				  text: "메인을 선택해주세요"
-				});
-			return;
-		}else{ */
-		const maindata = mainGrid.getModifiedRows();
-		const subdata = subGrid.getModifiedRows();
-		//}
-		//생성된행
-		// 파라메타
-		// 추가항목이 있다면
-		if(mainGrid.getData().length <= 0){
-		let subcr = subdata.createdRows;
-		let maincr = maindata.createdRows;
-			// 파라미터 정리
-			$.ajax({
-				url:"/erp/inventory/insertPhysical",
-				method:"POST",
-				contentType: 'application/json',
-				data: JSON.stringify(gridcr),
-				success:(result)=>{
-				if(result > 0){
-				Swal.fire({
-					  icon: "success",
-					  title: "저장 완료!",
-					  text: "저장이 완료되었습니다."
-					});
-				}else{
-					Swal.fire({
-						  icon: "error",
-						  title: "저장 실패!",
-						  text: "저장이 실패했습니다."
-						});
-					}
-				}
-			}); // ajax 끝
-			console.log('추가항목있음')
-		}else{
-			console.log('추가항목없음')
+}// 조회 그리드
+// 등록 그리드
+function insertGrid(){
+	$('#selectBtn').prop('disabled', false);
+	$('#insertBtn').prop('disabled', true);
+	
+	mainGrid = new tui.Grid({
+	    el: document.getElementById('mainGrids'),
+	    rowHeaders: ['checkbox'],
+	    //페이지네이션
+	    pageOptions: {
+	        perPage: 5,
+	        useClient: true,
+	    },
+	    //필드값 구성
+	    columns:[
+	        { header: '창고명',name:'whName',align:'center', editor:'text'},
+	        { header: '담당자',name:'phyEmpName',align:'center'},
+	        { header: '등록일자',name:'createdDate',align:'center'},
+	        { header: '비고',name:'note',align:'center', editor:'text'},
+	        { header: '반영',name:'apprDate',align:'center'}
+	    ],
+	});
+	
+	subGrid = new tui.Grid({
+	    el: document.getElementById('subGrids'),
+	    rowHeaders: ['checkbox'],
+	    //페이지네이션
+	    pageOptions: {
+	        perPage: 5,
+	        useClient: true,
+	    },
+	    //필드값 구성
+	    columns:[
+	        { header: '품목명',name:'itemName',align:'center'},
+	        { header: '보관위치',name:'locCode',align:'center'},
+	        { header: 'lot',name:'lot',align:'center'},
+	        { header: '수량',name:'quantity',align:'center'},
+	        { header: '비고',name:'note',align:'center'},
+	    ],
+	});
+	// 창고 모달
+	warehouseGrid = new tui.Grid({
+	    el: document.getElementById('warehouseGrids'),
+	    rowHeaders: ['rowNum'],
+	    //페이지네이션
+	    pageOptions: {
+	        perPage: 5,
+	        useClient: true,
+	    },
+	    //필드값 구성
+	    columns:[
+	        { header: '품목명',name:'itemName',align:'center'},
+	        { header: '보관위치',name:'locCode',align:'center'},
+	        { header: 'lot',name:'lot',align:'center'},
+	        { header: '수량',name:'quantity',align:'center'},
+	        { header: '비고',name:'note',align:'center'},
+	    ],
+	});
+	// 품목 모달
+	itemgrid = new tui.Grid({
+	    el: document.getElementById('itemgrids'),
+	    rowHeaders: ['rowNum'],
+	    //페이지네이션
+	    pageOptions: {
+	        perPage: 5,
+	        useClient: true,
+	    },
+	    //필드값 구성
+	    columns:[
+	        { header: '품목명',name:'itemName',align:'center'},
+	        { header: '보관위치',name:'locCode',align:'center'},
+	        { header: 'lot',name:'lot',align:'center'},
+	        { header: '수량',name:'quantity',align:'center'},
+	        { header: '비고',name:'note',align:'center'},
+	    ],
+	});
+	// 여기에 등록 이벤트 추가
+	// 메인 모달
+		mainGrid.on('click', (ev)=>{
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+			if (!ev.targetType || ev.targetType !== 'cell') {
+			    return;
+			  }
+			let { rowKey, columnName } = ev;
+			if(columnName == 'whName'){
+				$('#warehouseModal').modal('show');
+			}
+		});
+	
+		// 상세창 모달 이쪽 고쳐는중
+	subGrid.on('click', (ev)=>{
+	    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    return;
+		  }
+		let { rowKey, columnName } = ev;
+		console.log(columnName)
+		if(columnName == 'itemName'){
+			$('#itemModal').modal('show');
 		}
 	});
 	
-	// 행추가
-	function inserts(Grid){
-		let param;
-		if(Grid == mainGrid){
-		let param = {phyCode: '',
-				createdDate: empName,
-				whCode: '창고이름'
-				}
-		}else if(Grid == subGrid){
-			let param = {phyCode: '',
-					phyEmpName: empName,
-					whCode: '창고이름'
-					}
-		}
-		Grid.prependRow(param);
-	}
-	
-	// 삭제 기능
-	function deletes(Grid){
-		let check = Grid.getCheckedRows();
-		check.forEach((item)=>{
-			Grid.removeRow(item.rowKey);
-		})
-	}
+}
+
+
 </script>
 </body>
 </html>

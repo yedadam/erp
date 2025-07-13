@@ -57,18 +57,22 @@ public class OrderServiceImpl implements OrderService {
 		initAuthInfo(); 
 		ord.getOrd().setComId(comId);
 		
-		String ordCode=ord.getOrd().getOrdCode();
+		//String ordCode=ord.getOrd().getOrdCode();
 		
-		orderMapper.orderInsert(ord.getOrd()); //헤더 제일먼저 insert 
+		orderMapper.orderInsert(ord.getOrd()); //헤더 제일먼저 insert 무조건 ord_code가 생김  
 		
+		//order insert를 하고난뒤에 최대 주문번호 찾기 comId 넣어줘야함 
+		String ordCode=orderMapper.findMaxOrdNo(comId);
+			
 		String vdrCode = ord.getOrd().getVdrCode(); // vdrCode 거래처코드
 		Long totPrice = ord.getOrd().getTotPrice(); // totPrice
 		// 외상매입금일경우 여신차감-> 모든 지불방식인 경우에 여신잔량 깎는걸로 변경 
 		orderMapper.updateCreditBal(totPrice, vdrCode,comId);
 		
 		ord.getDtl().getUpdatedRows().get(0).setComId(comId);
-		ord.getDtl().getUpdatedRows().get(0).setOrdCode(ordCode);     //ordCode세팅 해주기
+	//	ord.getDtl().getUpdatedRows().get(0).setOrdCode(ordCode);     //ordCode세팅 해주기
 		System.out.println("프론트에서받아온값ord==>>"+ord.getDtl());
+		ord.getDtl().getUpdatedRows().get(0).setOrdCode(ordCode);
 		orderMapper.odtlInsert(ord.getDtl().getUpdatedRows().get(0)); //등록할때 상세의 제일 첫번째행 
 		for(int i=0; i<ord.getDtl().getCreatedRows().size();i++) {
 			ord.getDtl().getCreatedRows().get(i).setComId(comId);
@@ -132,15 +136,18 @@ public class OrderServiceImpl implements OrderService {
 		//새로추가된 주문행
 		String ordCode=req.getOrd().getOrdCode(); //주문코드헤더에서 받아옴 
 		System.out.println("주문번호"+ordCode);
-		req.getOrd().setComId(comId);
-		//req.getOrd().setUpdateId();
-		orderMapper.updOrder(req.getOrd()); 
-		//새로 생긴행 
-		for (int i = 0; i < req.getDtl().getCreatedRows().size(); i++) {
-			req.getDtl().getCreatedRows().get(i).setComId(comId); //comId 확인하기 
-			req.getDtl().getCreatedRows().get(i).setOrdCode(ordCode); //디테일에 ordCode 부여하기 
-			orderMapper.odtlInsertDetailSave(req.getDtl().getCreatedRows().get(i)); 
+		
+		//여기서 기존의 주문디테일 총합을 받아옴 
+		Long total=0L;
+		List<OrdDtlVO> list=orderMapper.findOrdListByOrdNo(ordCode);
+		for(int i=0;i<list.size();i++) {
+			total+=orderMapper.findOrdListByOrdNo(ordCode).get(i).getTotPrice(); //totPrice 계산 
 		}
+		
+	
+		req.getOrd().setComId(comId);
+			
+		orderMapper.updOrder(req.getOrd()); 
 		
 		//주문등록할때 updated된 행도 수정해줘야함 
 		for (int i = 0; i < req.getDtl().getUpdatedRows().size(); i++) {
@@ -148,17 +155,17 @@ public class OrderServiceImpl implements OrderService {
 			req.getDtl().getUpdatedRows().get(i).setOrdCode(ordCode); //주문번호 부여해주기
 			orderMapper.updOrdDtl(req.getDtl().getUpdatedRows().get(i)); 
 		}
-		//ordersDetail 테이블에 부여받은 ordCode로 insert확인후 총수량,총가격,총부가세,총 공급가액 을 바꾸는 프로시저 실행
-		orderMapper.callUpdateOrderTotals(ordCode);  	
-		List<OrdDtlVO> list=orderMapper.findOrdListByOrdNo(ordCode);
-		Long total=0L;
-		//주문건 상세조회후 수정된 총금액 조회
-		for(int i=0;i<list.size();i++) {
-			total+=orderMapper.findOrdListByOrdNo(ordCode).get(i).getTotPrice(); //totPrice 계산 
+		//새로 생긴행 
+		for (int i = 0; i < req.getDtl().getCreatedRows().size(); i++) {
+			req.getDtl().getCreatedRows().get(i).setComId(comId); //comId 확인하기 
+			req.getDtl().getCreatedRows().get(i).setOrdCode(ordCode); //디테일에 ordCode 부여하기 
+			orderMapper.odtlInsertDetailSave(req.getDtl().getCreatedRows().get(i)); 
 		}
+		//ordersDetail 테이블에 부여받은 ordCode로 insert확인후 총수량,총가격,총부가세,총 공급가액 을 바꾸는 프로시저 실행
+		orderMapper.callUpdateOrderTotals(ordCode); //order헤더 상태변경  	
 		//주문수정후 여신잔량을 바꿈 
-		orderMapper.callPrcCreditBalanceForModify(ordCode, comId,total);
-		System.out.println("상세저장무사히 완료");
+		orderMapper.callPrcCreditBalanceForModify(ordCode, comId,total); //total값은 예전 주문총액 
+		System.out.println("상세저장무사히 완료!!");
 		return 0;
 	}
 

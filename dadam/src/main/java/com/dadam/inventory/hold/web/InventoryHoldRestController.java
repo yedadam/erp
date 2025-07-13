@@ -46,8 +46,10 @@ public class InventoryHoldRestController {
 		holdservice.insertHoldList(list);
 		return null;
 	}
+	// 홀드 상세 조회
 	@GetMapping("/holdDetailList")
 	public List<LotVO> selectHoldDetailList(LotVO vo){
 		return holdservice.selectHoldDetailList(vo);
 	}
+	
 }

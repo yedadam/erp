@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.main.mapper.MainMapper">
+	<select id="todayOrderPrice">
+		SELECT NVL(SUM(tot_sup_price),0) todayOdersPrice
+		FROM orders
+		WHERE TO_CHAR(created_date,'yyyy-MM-dd') = TO_CHAR(sysdate,'yyyy-MM-dd')
+		AND com_id =#{comId}
+	</select>
+
+	<select id="todayPurchasePrice" resultType="int">
+		SELECT NVL(SUM(tot_sup_price),0) todayPurchasePrice
+		FROM purchaseOrder
+		WHERE TO_CHAR(pur_ord_date,'yyyy-MM-dd') = TO_CHAR(sysdate,'yyyy-MM-dd')
+		AND com_id =#{comId}
+	</select>
+
+	<select id="todayPurchaseQunatity">
+		SELECT NVL(SUM(quantity),0) todayPurchaseQunatity
+		FROM purchase
+		WHERE TO_CHAR(created_date,'yyyy-MM-dd') = TO_CHAR(sysdate,'yyyy-MM-dd')
+		AND com_id =#{comId}
+	</select>
+
+	<select id="todayTranPrice">
+		SELECT NVL(SUM(price),0) todayTranPrice
+		FROM transaction
+		WHERE TO_CHAR(txn_date,'yyyy-MM-dd') = TO_CHAR(sysdate,'yyyy-MM-dd')
+		AND com_id =#{comId}
+		AND txn_type = 'tt01'
+	</select>
+	
+	<select id="lineChart">
+	SELECT
+	     TO_CHAR(CREATED_DATE, 'DY', 'NLS_DATE_LANGUAGE=KOREAN') AS order_day,
+	     SUM(TOT_PRICE) AS tot_price
+	FROM ORDERS
+	WHERE CREATED_DATE BETWEEN TRUNC(SYSDATE, 'IW') 
+	AND TRUNC(SYSDATE, 'IW') + 6 
+	AND COM_ID = #{comId}
+	GROUP BY TO_CHAR(CREATED_DATE, 'DY', 'NLS_DATE_LANGUAGE=KOREAN'),
+	         TO_CHAR(CREATED_DATE, 'D')
+	ORDER BY
+			 TO_CHAR(CREATED_DATE, 'D')
+	  
+	</select>
+	
+	<select id="pieChart">
+	  SELECT 
+    		getItemName(s.item_code) AS item_name,
+    		SUM(s.quantity) AS item_quantity,
+    		ROUND(SUM(s.quantity) / total.total_quantity * 100, 2) AS percentage
+	FROM 
+    	stock s,
+    			(SELECT SUM(quantity) AS total_quantity
+     			FROM stock
+     			WHERE com_id = #{comId}) total
+	WHERE 
+    	s.com_id = #{comId}
+	GROUP BY 
+    	getItemName(s.item_code), total.total_quantity
+	ORDER BY 
+    	percentage DESC
+	</select>
+	<select id="safeList">
+		SELECT CASE 
+            WHEN NVL(safe_quantity,0)= 0 
+            THEN
+               100 
+            WHEN NVL(SUM(s.quantity),0)> NVL(safe_quantity,0)
+            THEN 100
+            WHEN NVL(safe_quantity,0)!= 0  
+            THEN
+             ROUND(NVL(SUM(s.quantity),0)/NVL(safe_quantity,0)*100,2)
+            END safe_percentage,
+            getItemName(i.item_code) item_name
+        FROM item i LEFT JOIN stock s ON (i.item_code = s.item_code)
+        WHERE i.com_id = #{comId}
+        GROUP BY safe_quantity,i.item_code
+        ORDER BY safe_percentage
+       
+	</select>
+	<select id="barChart">
+	   SELECT item_code,
+              getItemName(item_code) item_name,
+              NVL(SUM(quantity),0) tot_price
+        FROM purchase
+        WHERE com_id= #{comId}
+        GROUP BY item_code,
+              getItemName(item_code)
+	</select>
+
+</mapper>

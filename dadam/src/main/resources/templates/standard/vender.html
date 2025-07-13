@@ -127,45 +127,46 @@
   <div class="container-fluid mt-4">
     <h3 class="mb-4">거래처관리</h3>
 
-    <!-- 검색 및 버튼 영역 -->
-    <div class="row mb-3">
-      <!-- 검색 조건 -->
-     	<div class="position-relative mb-3" style="max-width: 500px;">
-						    <div class="input-group">
-						        <select class="form-select col-4" id="vdrSelect" style="max-width: 30%;">
-						            <option value="vdrCode" selected>거래처코드</option>
-						            <option value="vdrName">거래처명</option>
-						        </select>
-						        <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="vdrInput" autocomplete="off">
-						        <button class="btn btn-outline-secondary" type="button" id="vdrSearchBtn">
-						            <i class="fas fa-search"></i>
-						        </button>
-						    </div>
-						    <!-- 자동완성 리스트 -->
-						    <ul id="autoVdrList"
-						        class="list-group position-absolute w-100 shadow-sm"
-						        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
-						    </ul>
-						</div>
-      <!--검색창 끝-->
-      <div class="col-md-6 text-end">
-        <div class="btn-group-custom">
-          <button class="btn btn-secondary me-2" id="newBtn">
-            <i class="fas fa-pen"></i> 추가
-          </button>
-          <button class="btn btn-warning me-2" id="searchBtn">
-            <i class="fas fa-eye"></i> 조회
-          </button>
-          <button class="btn btn-danger me-2" id="delBtn">
-            <i class="fas fa-trash"></i> 삭제
-          </button>
-          <button class="btn btn-primary" id="saveBtn">
-            <i class="fas fa-save"></i> 저장
-          </button>
 
-        </div>
-      </div>
+    <div class="row mb-3 align-items-center">
+  <!-- 검색창: 좌측 컬럼 -->
+  <div class="col-md-6 col-lg-4 mb-3" style="max-width: 500px;">
+    <div class="input-group">
+      <select class="form-select col-4" id="vdrSelect">
+        <option value="vdrCode" selected>거래처코드</option>
+        <option value="vdrName">거래처명</option>
+      </select>
+      <input type="text" class="form-control" placeholder="검색어를 입력하세요" id="vdrInput" autocomplete="off">
+      <button class="btn btn-outline-secondary" type="button" id="vdrSearchBtn">
+        <i class="fas fa-search"></i>
+      </button>
     </div>
+    <ul id="autoVdrList"
+        class="list-group position-absolute w-100 shadow-sm"
+        style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+    </ul>
+  </div>
+
+  <!-- 버튼그룹: 우측 끝에 정렬 -->
+  <div class="col-md-6 col-lg-8 d-flex justify-content-end">
+    <div class="btn-group-custom">
+      <button class="btn btn-secondary me-2" id="newBtn">
+        <i class="fas fa-pen"></i> 추가
+      </button>
+      <button class="btn btn-warning me-2" id="searchBtn">
+        <i class="fas fa-eye"></i> 조회
+      </button>
+      <button class="btn btn-danger me-2" id="delBtn">
+        <i class="fas fa-trash"></i> 삭제
+      </button>
+      <button class="btn btn-primary" id="saveBtn">
+        <i class="fas fa-save"></i> 저장
+      </button>
+    </div>
+  </div>
+</div>
+
+
 
     <!-- 메인 테이블 -->
 
@@ -659,12 +660,15 @@
     		 method:'PUT',
     		 contentType: "application/json",
     		 data:JSON.stringify(front),
-    		 success :  Swal.fire('저장','수정이 정상적으로 완료되었습니다.','success'),
+    		 success : function(res){ 
+              Swal.fire('저장','수정이 정상적으로 완료되었습니다.','success');
+              mainList();  
+        },
 
-            error: function(xhr, status, error) {
-    			  console.log("실패:", xhr.status, error);
+         error: function(xhr, status, error) {
+    			      console.log("실패:", xhr.status, error);
         		}
-    	   }) 
+    	 }) 
     }
     //날자 포맷 함수       
     function dateformatyymmdd(today) {
@@ -756,10 +760,10 @@ gridEl.addEventListener('keydown', e => {
     // 2) 팝업 띄우기
     new daum.Postcode({
       oncomplete: data => {
-        // 3) 콜백 안에서 setValue
-        mainGrid.setValue(rowKey, 'addr', data.address);
         // (필요하면) 에디팅 모드 완전히 끝내기
         mainGrid.finishEditing();
+        // 3) 콜백 안에서 setValue
+        mainGrid.setValue(rowKey, 'addr', data.address);
       }
     }).open();
   }
