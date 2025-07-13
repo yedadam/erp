@@ -132,7 +132,7 @@ public class SubscirbeServiceImple implements SubscribeService {
      */
     public String getAccessToken() {
         String url = BASE_URL + "/users/getToken";
-
+     // 아임포트에서 요구하는 요청 바디 구성 (imp_key, imp_secret)
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("imp_key", impKey);
         requestBody.put("imp_secret", impSecret);
@@ -141,11 +141,12 @@ public class SubscirbeServiceImple implements SubscribeService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         try {
+        	// 요청 본문을 JSON 문자열로 변환
             String jsonBody = objectMapper.writeValueAsString(requestBody);
             HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
-
+            // 아임포트 토큰 발급 요청
             ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
-
+         // 정상 응답 시 access_token 추출
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 Map<String, Object> responseData = (Map<String, Object>) response.getBody().get("response");
                 if (responseData != null) {
@@ -165,12 +166,15 @@ public class SubscirbeServiceImple implements SubscribeService {
      * @implNote
      *  - 구독 건마다 재청구 API 호출, 만기일 업데이트, 구독 및 세금계산서 재등록 수행
      */
-   // @Scheduled (fixedDelay = 3000)
+    @Scheduled(cron = "0 0 3 * * *") //매일 새벽 3시에 발동
     public void subsCriptionList() {
+    	// DB에서 만료일자가 오늘인 정기 결제 구독 대상 목록 조회
         List<SubsListVO> subs = subsMapper.selectSubs();
-
+        // 각 구독자에 대해 반복 처리
         subs.forEach(sub -> {
+        	// 아임포트를 통한 재결제 처리
             chargeSubscription(sub);
+            // 구독 상태값 변경 
             sub.setSubsType("S01");
             // 만기일자 업데이트
             subsMapper.subsEnd(sub.getBillingKey());
@@ -188,23 +192,27 @@ public class SubscirbeServiceImple implements SubscribeService {
      */
     public void chargeSubscription(SubsListVO sub) {
         System.out.println("재청구 대상 구독: " + sub);
+        // 아임포트 토큰 발급
         String accessToken = getAccessToken();
+        // 재결제 API URL
         String url = BASE_URL + "/subscribe/payments/again";
-
+        // HTTP 헤더 구성
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Authorization", "Bearer " + accessToken); // Bearer 토큰 인증
         headers.setContentType(MediaType.APPLICATION_JSON);
-
+        // 요청 바디 구성
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("customer_uid", sub.getBillingKey());
-        requestBody.put("merchant_uid", "sub_" + System.currentTimeMillis());
-        requestBody.put("amount", sub.getSubsPrice());
-        requestBody.put("name", "정기구독료");
+        requestBody.put("customer_uid", sub.getBillingKey()); // 저장된 빌링키
+        requestBody.put("merchant_uid", "sub_" + System.currentTimeMillis()); // 고유 주문번호
+        requestBody.put("amount", sub.getSubsPrice()); // 결제 금액
+        requestBody.put("name", "정기구독료");  // 상품 이름
 
         try {
+        	// 요청 본문을 JSON 문자열로 변환 후 POST 전송
             String jsonBody = objectMapper.writeValueAsString(requestBody);
             HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
             ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            // 결과 로그 출력
             System.out.println("재청구 응답: " + response.getBody());
         } catch (Exception e) {
             e.printStackTrace();
