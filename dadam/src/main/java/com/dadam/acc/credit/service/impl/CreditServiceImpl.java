@@ -35,12 +35,12 @@ public class CreditServiceImpl implements CreditService{
 	@Autowired CreditMapper creditMapper;
 
 	@Override
-	public List<CreditVO> creditFindAll(@Param("comId") String comId) {
+	public List<CreditVO> creditFindAll(String comId, String type) {
 	 	   Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 	       System.out.println(auth+"===========");
 		initAuthInfo();
 
-		return creditMapper.creditFindAll(comId);
+		return creditMapper.creditFindAll(comId, type);
 	}
 
 	@Override
@@ -57,4 +57,18 @@ public class CreditServiceImpl implements CreditService{
 	    return creditMapper.creditSearch(params);
 	}
 
+	@Override
+	public List<CreditVO> detailFindSupplier(String vdrCode, String comId) {
+		initAuthInfo();
+		return creditMapper.detailFindSupplier(vdrCode, comId);
+	}
+
+	@Override
+	public List<Map<String, Object>> purchaseSummary(String vdrCode, String comId) {
+		return creditMapper.purchaseSummary(vdrCode, comId);
+	}
+	@Override
+	public List<Map<String, Object>> purchaseDetail(String purOrdCode) {
+		return creditMapper.purchaseDetail(purOrdCode);
+	}
 }

@@ -18,32 +18,31 @@
 		, v.credit_bal_price
 		, v.credit_period
 		, get_credit_status(credit_bal_price, credit_price ) status
-		, (SELECT MAX(c.update_date)
-		FROM chit c
-		JOIN orders o ON ord_code = article_code
-		WHERE o.vdr_code = v.vdr_code
-		AND c.status = 'cst04') AS createdDate
+		, v.type
+		, (SELECT MAX(c.created_date)
+ 			 FROM chit c
+ 			 JOIN orders o ON c.article_code = o.ord_code 
+ 			WHERE o.vdr_code = v.vdr_code
+   			  AND c.status = 'cst04') AS createdDate
 		FROM vender v
 		WHERE v.com_id = #{comId}
+		AND v.type = 'vt01'
 		ORDER BY v.vdr_code
 	</select>
 
 	<!-- 거래처별 여신 상세 목록 -->
 	<select id="creditFindCode"
-		resultType="com.dadam.acc.credit.service.CreditVO">
+		resultType="CreditVO">
 	SELECT 
-		   l.article_code articleCode	<!-- 각 항목 PK -->
-		 , l.chit_code		<!-- 전표코드 -->
-		 , l.change_type type		<!-- 차/대변 -->
+		   l.article_code articleCode	<!-- 항목 PK -->
+		 , l.chit_code				<!-- 전표코드 -->
+		 , l.change_type AS type	<!-- 차/대변 코드 -->
 		 , getSubCode(l.change_type) AS typeName
-		 , l.before_amt		<!-- 전표결제 전 금액 -->
+		 , l.before_amt	beforeAmt		<!-- 전표결제 전 금액 -->
 		 , l.after_amt	creditBalPrice	<!-- 전표결제 후 금액 -->
-		 , l.change_amt	totPrice	<!-- 변동금액 -->
-		 , l.changed_at	createdDate	<!-- 결제 일자 -->
-		 , l.note				<!-- 비고 -->
-		 , l.com_id			<!-- comId-->
-		 , getEmpName(v.emp_id, #{comId}) as emp_id 
-		 , getEmpName(c.phy_emp_id, #{comId}) as phy_emp_id 
+		 , l.change_amt	totPrice		<!-- 변동금액 -->
+		 , l.changed_at	createdDate		<!-- 결제 일자 -->
+		 , l.com_id					<!-- comId-->
 	  FROM chit c
 	  JOIN VENDER_TRADE_LOG l ON c.chit_code = l.chit_code
 	  JOIN VENDER v ON l.vdr_code = v.vdr_code
@@ -95,6 +94,33 @@
 			AND emp_id LIKE '%'||#{empId}||'%'
 		</if>
 		ORDER BY vdr_code DESC
+	</select>
+
+	<!-- 공급처 매입 상세 목록 -->
+	<select id="detailFindSupplier" resultType="CreditVO">
+	SELECT
+	  l.chit_code,
+	  l.change_amt AS totPrice,
+	  SUM(l.change_amt) OVER (PARTITION BY l.vdr_code ORDER BY l.changed_at ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS totalPrice,
+	  l.changed_at AS createdDate
+	FROM vender_trade_log l
+	JOIN purchaseOrder p ON l.article_code = p.pur_ord_code
+	WHERE l.vdr_code = #{vdrCode}
+	  AND l.change_type = 'cht01'
+	  AND l.com_id = #{comId}
+	ORDER BY l.changed_at DESC
+	</select>
+
+
+	<!-- 공급처 모달(품목별 상세) -->
+	<select id="purchaseDetail" resultType="map">
+	SELECT
+	  i.name AS itemName,
+	  d.price AS totPrice
+	FROM pur_ord_dtl d
+	JOIN item i ON d.item_code = i.item_code
+	WHERE d.pur_ord_code = #{purOrdCode}
+	ORDER BY d.created_at DESC
 	</select>
 
 </mapper>

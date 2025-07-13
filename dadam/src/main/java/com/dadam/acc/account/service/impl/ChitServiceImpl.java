@@ -37,26 +37,30 @@ public class ChitServiceImpl implements ChitService{
     	
 	@Override
 	public List<ChitVO> chitFindAll() {
+		initAuthInfo();
 		return chitMapper.chitFindAll(comId);
 	}
 	//계정과목 자동조회
 	@Override
     public List<Map<String, String>> acctCodeFindByCode(String keyword) {
+        initAuthInfo();
         return chitMapper.acctCodeFindByCode(keyword, comId);
     }
 	@Override
 	public List<Map<String, String>> indTypeFindByCode(String keyword) {
+		initAuthInfo();
 		return chitMapper.indTypeFindByCode(keyword, comId);
 	}
 
 	@Override
 	public List<Map<String, String>> chtTypeFindByCode(String keyword) {
+		initAuthInfo();
 		return chitMapper.chtTypeFindByCode(keyword, comId);
 	}
 
 	@Override
 	public List<ChitVO> chitSearch(Map<String, Object> params) {
-	    String comId = this.comId;
+	    initAuthInfo();
 	    params.put("comId", comId);
 	    return chitMapper.chitSearch(params);
 	}
@@ -65,6 +69,7 @@ public class ChitServiceImpl implements ChitService{
 	@Transactional
 	public void saveAll(ChitVO chit) {
 
+	    initAuthInfo();
 	    System.out.println("👉 impl에 넘어온 데이터: " + chit);
 
 	    List<ChitVO> createdRows = chit.getCreatedRows();
@@ -109,6 +114,7 @@ public class ChitServiceImpl implements ChitService{
 	@Override
 	@Transactional
 	public void modifyChitPay(String chitCode, String articleCode, int totPrice) {
+        initAuthInfo();
         // 1. 전표 상태 변경
         chitMapper.modifySta(chitCode, comId);
 
@@ -121,6 +127,7 @@ public class ChitServiceImpl implements ChitService{
 	
 	@Override
 	public List<ChitVO> getAutoChitRules(String comId) {
+        initAuthInfo();
         return chitMapper.selectAutoChitRules(comId);
 	}
 	
@@ -180,6 +187,7 @@ public class ChitServiceImpl implements ChitService{
 
     @Override
     public List<Map<String, Object>> getAutoRules(String chitType, String comId) {
+        initAuthInfo();
         return chitMapper.selectAutoRules(chitType, comId);
     }
 

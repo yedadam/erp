@@ -81,15 +81,4 @@ public class AccountRestController {
     public List<AccountVO> accountSearch(@RequestParam Map<String, Object> params) {
         return accountService.accountSearch(params);
     }
-
-    // 계정명/비고 자동완성
-    @GetMapping("/accountAutoComplete")
-    @ResponseBody
-    public List<Map<String, String>> accountAutoComplete(@RequestParam String type, @RequestParam String value) {
-        if (value == null || value.trim().length() < 2) {
-            return List.of();
-        }
-        // comId는 인증에서 추출
-        return accountService.accountAutoComplete(type, value);
-    }
 }
