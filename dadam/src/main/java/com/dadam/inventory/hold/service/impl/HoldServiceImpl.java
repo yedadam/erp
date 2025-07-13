@@ -1,8 +1,6 @@
 package com.dadam.inventory.hold.service.impl;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,7 @@ public class HoldServiceImpl implements HoldService{
 	@Autowired
 	HoldMapper holdMapper;
 	
-	// 발주서 리스트
+	// 홀드 리스트
 	@Override
 	public List<HoldVO> selectHoldList(HoldVO vo) {
 		List<HoldVO> list = holdMapper.selectHoldList(vo);
@@ -44,49 +42,68 @@ public class HoldServiceImpl implements HoldService{
 	// 홀드리스트 등록 등록처리하기위해서 누적량을 조회해서 가져와야함.
 	@Override
 	public int insertHoldList(List<HoldVO> list) {
+		int result = 0;
 		// 홀드 등록
 		for(HoldVO vo : list) {
-			holdMapper.insertHoldList(vo);
-			// ht01 = 재고이동 ht02 = 출하의뢰
-			if(vo.getType() == "ht01") {
-				vo.setShipReqDtlCode(vo.getCode());
-				// 홀드 중
-				if(vo.getStatus() == "hs01") {
-					vo.setShipstatus("srd04");
-				// 홀드 완료
-				}else if(vo.getStatus() == "hs02") {
-					vo.setShipstatus("srd05");
-				}
-				holdMapper.updateHoldShipRequestDetail(vo);
-				
-			// 재고이동 구현한다면...
-			}else if(vo.getType() == "ht02"){
-				
-			}
+			// 홀드 디테일 먼저 등록
 			List<LotVO> lotList = vo.getLotList();
+			int qty = 0;
 			int holdQty = 0;
 			// 홀드 디테일 등록
-			for(LotVO lot : lotList) {
-				// holdDetail에 lot등록
-				lot.setHoldCode(vo.getHoldCode());
-				lot.setComId(vo.getComId());
-				holdMapper.insertHoldLotList(lot);
-				// 조회 후 등록된 값을 val에 담고. 
-				holdQty = holdMapper.selectHoldStockHoldQty(lot);
-				// 증감 입력처리
-				holdQty = lot.getQuantity() + holdQty;
-				lot.setHoldQty(holdQty);
-				holdMapper.updateHoldStock(lot);
+			for(LotVO qtys : lotList) {
+				// Qty가 입력한 수량
+				qty += qtys.getQty();
 			}
-		}
+			// 현재 홀드한 수량에 입력값 더하기
+			qty += vo.getTotqty();
+				// 입력수량이 필요수량이랑 같을경우 = 홀드완료
+				if(qty == vo.getQuantity()) {
+					vo.setHstatus("hs02");
+					vo.setShipstatus("srd05");
+				}else {
+					vo.setHstatus("hs01");
+					vo.setShipstatus("srd04");
+				}
+			// 홀드 등록
+			holdMapper.insertHoldList(vo);
+			
+			// ht01 = 재고이동 ht02 = 출하의뢰
+			// 재고이동
+			 if(vo.getType() == "ht01") {
+				
+			// 출하의뢰
+			}else if(vo.getType() == "ht02"){
+				vo.setShipReqDtlCode(vo.getCode());
+				// 홀드 중
+				holdMapper.updateHoldShipRequestDetail(vo);
+			}
+			 System.out.println(lotList);
+				// 홀드 디테일 등록
+				for(LotVO lot : lotList) {
+					// holdDetail에 lot등록
+					lot.setHoldCode(vo.getHoldCode());
+					lot.setComId(vo.getComId());
+					holdMapper.insertHoldLotList(lot);
+					// 조회 후 등록된 값을 val에 담고. 
+					holdQty = holdMapper.selectHoldStockHoldQty(lot);
+					// 증감 입력처리
+					holdQty = lot.getQty() + holdQty;
+					lot.setHoldQty(holdQty);
+					result = holdMapper.updateHoldStock(lot);
+				}
+		} // for문 종료.
 		
-		return 0;
+		return result;
 	}
 	
 	// hold상세 조회
 	@Override
 	public List<LotVO> selectHoldDetailList(LotVO vo) {
 		return holdMapper.selectHoldDetailList(vo);
-		
+	}
+
+	@Override
+	public int selectHoldDetailHoldQty(HoldVO vo) {
+		return holdMapper.selectHoldDetailHoldQty(vo);
 	}
 }

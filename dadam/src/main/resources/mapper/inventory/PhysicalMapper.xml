@@ -81,4 +81,17 @@
 	                    #{locCode},
 	                    #{comId})
 	</insert>
+	<!-- 창고 -->
+	<select id="physicalWarehouseList" resultType="WarehouseVO" parameterType="String">
+		SELECT wh_code, name, type, note
+		FROM warehouse
+        WHERE w.com_id = #{comId}
+	</select>
+	<!-- 품목,위치 -->
+	<select id="physicalWarehousedetailList" resultType="WarehouseVO" parameterType="String">
+		SELECT st.loc_code, st.item_code, st.quantity, st.lot, st.hold_qty, whl.name, whl.wh_code
+		FROM stock st join warehouselocation whl
+						on(st.com_id = whl.com_id AND st.loc_code = whl.loc_code)
+        WHERE w.com_id = #{comId} AND whl.wh_code = #{whCode}
+	</select>
 </mapper>
