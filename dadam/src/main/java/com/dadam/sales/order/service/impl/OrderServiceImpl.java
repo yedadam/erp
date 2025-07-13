@@ -136,15 +136,18 @@ public class OrderServiceImpl implements OrderService {
 		//새로추가된 주문행
 		String ordCode=req.getOrd().getOrdCode(); //주문코드헤더에서 받아옴 
 		System.out.println("주문번호"+ordCode);
-		req.getOrd().setComId(comId);
-		//req.getOrd().setUpdateId();
-		orderMapper.updOrder(req.getOrd()); 
-		//새로 생긴행 
-		for (int i = 0; i < req.getDtl().getCreatedRows().size(); i++) {
-			req.getDtl().getCreatedRows().get(i).setComId(comId); //comId 확인하기 
-			req.getDtl().getCreatedRows().get(i).setOrdCode(ordCode); //디테일에 ordCode 부여하기 
-			orderMapper.odtlInsertDetailSave(req.getDtl().getCreatedRows().get(i)); 
+		
+		//여기서 기존의 주문디테일 총합을 받아옴 
+		Long total=0L;
+		List<OrdDtlVO> list=orderMapper.findOrdListByOrdNo(ordCode);
+		for(int i=0;i<list.size();i++) {
+			total+=orderMapper.findOrdListByOrdNo(ordCode).get(i).getTotPrice(); //totPrice 계산 
 		}
+		
+	
+		req.getOrd().setComId(comId);
+			
+		orderMapper.updOrder(req.getOrd()); 
 		
 		//주문등록할때 updated된 행도 수정해줘야함 
 		for (int i = 0; i < req.getDtl().getUpdatedRows().size(); i++) {
@@ -152,17 +155,17 @@ public class OrderServiceImpl implements OrderService {
 			req.getDtl().getUpdatedRows().get(i).setOrdCode(ordCode); //주문번호 부여해주기
 			orderMapper.updOrdDtl(req.getDtl().getUpdatedRows().get(i)); 
 		}
-		//ordersDetail 테이블에 부여받은 ordCode로 insert확인후 총수량,총가격,총부가세,총 공급가액 을 바꾸는 프로시저 실행
-		orderMapper.callUpdateOrderTotals(ordCode);  	
-		List<OrdDtlVO> list=orderMapper.findOrdListByOrdNo(ordCode);
-		Long total=0L;
-		//주문건 상세조회후 수정된 총금액 조회
-		for(int i=0;i<list.size();i++) {
-			total+=orderMapper.findOrdListByOrdNo(ordCode).get(i).getTotPrice(); //totPrice 계산 
+		//새로 생긴행 
+		for (int i = 0; i < req.getDtl().getCreatedRows().size(); i++) {
+			req.getDtl().getCreatedRows().get(i).setComId(comId); //comId 확인하기 
+			req.getDtl().getCreatedRows().get(i).setOrdCode(ordCode); //디테일에 ordCode 부여하기 
+			orderMapper.odtlInsertDetailSave(req.getDtl().getCreatedRows().get(i)); 
 		}
+		//ordersDetail 테이블에 부여받은 ordCode로 insert확인후 총수량,총가격,총부가세,총 공급가액 을 바꾸는 프로시저 실행
+		orderMapper.callUpdateOrderTotals(ordCode); //order헤더 상태변경  	
 		//주문수정후 여신잔량을 바꿈 
-		orderMapper.callPrcCreditBalanceForModify(ordCode, comId,total);
-		System.out.println("상세저장무사히 완료");
+		orderMapper.callPrcCreditBalanceForModify(ordCode, comId,total); //total값은 예전 주문총액 
+		System.out.println("상세저장무사히 완료!!");
 		return 0;
 	}
 

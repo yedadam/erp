@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.dadam.sales.order.service.OrdDtlVO;
 import com.dadam.sales.order.service.OrdersVO;
+import com.dadam.standard.item.service.ItemVO;
 
 public interface OrderMapper {
         public List<OrdersVO> findOrderList(Map<String,Object> map); //주문건조회  
@@ -29,4 +30,6 @@ public interface OrderMapper {
         public void callPrcCreditBalanceForModify(@Param("ordCode")String ordCode,@Param("comId")String comId,@Param("total") Long total); //주문수정후 거래처 여신잔량 변경
         
         public String findMaxOrdNo(@Param("comId") String comId); 
+        
+        public List<ItemVO> findItemList(@Param("comId") String comId); 
 }

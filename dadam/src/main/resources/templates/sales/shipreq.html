@@ -105,16 +105,16 @@
      <div class="container-fluid mt-4 p-4 rounded shadow-sm">
     <h3 class="mb-4 text-secondary fw-bold border-bottom border-secondary pb-2">출하의뢰</h3>
         
-        <!-- 검색 및 버튼 영역 -->
-      <!-- 📦 출하의뢰 조건 + 버튼 카드 -->
-		<!-- 🔍 검색 박스 -->
+
+<!-- 🔍 검색 박스 -->
+<!--검색그룹수정 -->
 <div class="card mb-3 shadow-sm">
   <div class="card-body">
-    <div class="row g-3 align-items-end">
+    <div class="row g-3 align-items-start">
       
       <!-- 검색 조건 -->
       <div class="col-md-4">
-        <label for="shipReqSelect" class="form-label">검색 조건</label>
+        <label for="shipReqSelect" class="form-label mb-1">검색 조건</label>
         <div class="input-group">
           <select class="form-select" id="shipReqSelect" style="max-width: 40%;">
             <option value="shipReqCode" selected>출하의뢰코드</option>
@@ -125,23 +125,23 @@
           <input type="text" class="form-control" id="shipReqInput" placeholder="검색어 입력">
         </div>
         <ul id="autoShipReqList"
-          class="list-group position-absolute w-100 shadow-sm"
-          style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+            class="list-group position-absolute w-100 shadow-sm"
+            style="top:100%; z-index:1050; max-height:200px; overflow-y:auto; display:none;">
         </ul>
       </div>
 
       <!-- 출고예정일 -->
       <div class="col-md-3">
-        <label class="form-label">출고예정일자</label>
+        <label class="form-label mb-1">출고예정일자</label>
         <div class="d-flex gap-2">
           <input type="date" id="shipExpStartDate" class="form-control">
-          <input type="date" id="shipExpEndDate" class="form-control">
+          <input type="date" id="shipExpEndDate"   class="form-control">
         </div>
       </div>
 
       <!-- 진행 상태 -->
       <div class="col-md-3">
-        <label class="form-label d-block">진행 상태</label>
+        <label class="form-label mb-1 d-block">진행 상태</label>
         <div class="d-flex gap-2 flex-wrap">
           <div class="form-check">
             <input class="form-check-input" type="radio" name="shipReqStatus" id="statusAll" value="" checked>
@@ -163,14 +163,17 @@
       </div>
 
       <!-- 검색 버튼 -->
-      <div class="col-md-2 d-flex justify-content-end">
+      <div class="col-md-2 align-self-end text-end">
         <button class="btn btn-primary w-100" id="searchButton">
           <i class="fas fa-search"></i> 검색
         </button>
       </div>
-    </div>
+
+    </div><!-- /.row -->
   </div>
 </div>
+<!--검색그룹수정-->
+
 
 <!-- ✅ 하단 버튼 그룹 -->
 <div class="d-flex justify-content-end gap-2 mb-3">
@@ -188,7 +191,20 @@
   </button>
 </div>
 </div>
+  <div id="mainGridWrapper" class="position-relative border rounded p-3 bg-white shadow-sm">
   	    <div id="mainGrid"></div>
+	<!-- Lottie 로딩 바 애니메이션 -->
+      <div id="gridSpinner"
+           class="position-absolute top-0 start-0 w-100 h-100 bg-white d-flex align-items-center justify-content-center"
+           style="top: 38px; display: none; z-index: 10;">
+        <dotlottie-player
+            src="https://lottie.host/e8b36d4d-46d8-429f-98b8-d8c1c4dde598/p6hfbX0nTd.lottie"
+            background="transparent" speed="1"
+            style="width: 200px; height: 100px;" loop autoplay>
+        </dotlottie-player>
+      </div>
+
+  </div>	
            <div class="text-end">
                 <div class="btn-group-custom">
                 	<!-- <button class="btn btn-primary me-2" id="rowAddBtn">
@@ -208,8 +224,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<h1 class="modal-title fs-5" id="exampleModalLabel">주문 리스트</h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"
-						aria-label="Close"></button>
+					
 				</div>
 				<div class="modal-body">
 					<div class="container-fluid">
@@ -237,8 +252,7 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary"
-						data-bs-dismiss="modal">Close</button>
+					
 				</div>
 			</div>
 		</div>
@@ -508,6 +522,7 @@
     	  searchBtn.prop('disabled', true);
     	  //추가버튼 활성화
     	  newBtn.prop('disabled', false);    
+		  $('#gridSpinner').addClass('d-flex').show();
             $.ajax({
                 url: "/erp/sales/shipReqList",
                 method: "GET",
@@ -522,6 +537,10 @@
                 error: function(xhr, status, error) {
                     console.log("실패:", xhr.status, error);
                 }
+            }).always(function() {
+            	 setTimeout(function() {
+            		 $('#gridSpinner').removeClass('d-flex').hide();
+            	    }, 1500);
             });
         }
       //금액 포맷 함수('#,###')
@@ -693,15 +712,9 @@
 								  
 			ordDtlList(requestGrid.getRow(ev.rowKey).ordCode); //주문상세조회하고 난후 detail리스트에 resetdata 처리해줌
 			
-		
 			//모달 지우기
 			$('#requestModal').modal('hide');
-
 		})
-
-		//requestGrid.on
-		
-
 
 
 		//거래처코드 실행
@@ -761,7 +774,7 @@
 
 					Swal.fire({
 						title: "출하삭제?",
-						text: "출하 상세 삭제를 하시겠습니까?",
+						text: "출하건 삭제를 하시겠습니까?",
 						icon: "warning",
 						showCancelButton: true,
 						confirmButtonColor: "#3085d6",
