@@ -30,7 +30,7 @@
 </select>
 
 <!-- 대분류 조회   -->
-<select id="selectAcctTypes" resultType="string" parameterType="string">
+<select id="selectAcctTypes" resultType="string">
   SELECT type_name 
     FROM acct_type 
    WHERE com_id = #{comId}
@@ -38,7 +38,7 @@
 </select>
 
 <!-- 중분류 조회 -->
-<select id="selectAcctClasses" resultType="string" parameterType="map">
+<select id="selectAcctClasses" resultType="string">
   SELECT class_name 
     FROM acct_class
    WHERE type_code  = (SELECT type_code FROM acct_type WHERE type_name = #{acctType})
@@ -47,12 +47,12 @@
 </select>
 
 <!-- 소분류 조회 -->
-<select id="selectAcctSubClasses" resultType="string" parameterType="map">
+<select id="selectAcctSubClasses" resultType="string">
 SELECT s.subclass_name
   FROM acct_subclass s
   JOIN acct_class c ON s.class_code = c.class_code
  WHERE c.class_name = #{acctClass}
-   AND c.com_id = #{comId}
+   AND com_id = #{comId}
  ORDER BY s.subclass_code
 </select>
 
@@ -168,27 +168,7 @@ SELECT s.subclass_name
    ORDER BY acct_code
 </select>
 
-<!-- 계정명/비고 자동완성-->
-<select id="accountAutoComplete" resultType="map">
-SELECT * FROM (
-  SELECT name, note
-    FROM account
-   WHERE com_id = #{comId}
-     <choose>
-       <when test="type.equals('name')">
-         AND name LIKE '%' || #{value} || '%'
-       </when>
-       <when test="type.equals('note')">
-         AND note LIKE '%' || #{value} || '%'
-       </when>
-       <otherwise>
-         AND 1=0
-       </otherwise>
-     </choose>
-   ORDER BY name
-)
-WHERE ROWNUM &lt;= 10
-</select>
+
 
 
 </mapper>

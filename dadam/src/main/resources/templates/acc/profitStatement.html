@@ -4,69 +4,87 @@
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
 <body class="bg-light">
-	<div class="container-fluid mt-4" style="max-width: 1200px;">
+  <div class="container-fluid mt-4 p-4 rounded shadow-sm">
 
-		<!-- 헤더 -->
-		<div class="d-flex justify-content-between align-items-center mb-2">
-			<div>
-				<h2 class="fw-bold mb-1">손익계산서</h2>
-				<small class="text-muted">※ 연도 및 분기별 조회 가능 · 요약 보기 기능 제공</small>
-			</div>
-			<div>
-				<button type="button" class="btn btn-outline-secondary btn-sm" onclick="showProfitSummary()">요약 보기</button>
-			</div>
-		</div>
+    <!-- ✅ 헤더 + 부가기능 -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div>
+        <h3 class="mb-1 text-secondary fw-bold border-bottom pb-2">손익계산서</h3>
+        <small class="text-muted">※ 연도 및 분기별 조회 가능 · 요약 보기 기능 제공</small>
+      </div>
+      <div>
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="showProfitSummary()">
+          요약 보기
+        </button>
+      </div>
+    </div>
 
-		<!-- 조회 필터 -->
-		<form class="row mb-4">
-			<div class="col-md-2">
-				<label class="form-label">연도</label>
-				<select id="year" class="form-select">
-					<option th:each="y : ${yearList}" th:value="${y}" th:text="${y}" th:selected="${y == param.year}"></option>
-				</select>
-			</div>
-			<div class="col-md-2">
-				<label class="form-label">반기</label>
-				<select id="half" class="form-select">
-					<option value="">전체</option>
-					<option value="H1">상반기</option>
-					<option value="H2">하반기</option>
-				</select>
-			</div>
-			<div class="col-md-2">
-				<label class="form-label">분기</label>
-				<select id="quarter" class="form-select">
-					<option value="">전체</option>
-					<option value="Q1">1분기</option>
-					<option value="Q2">2분기</option>
-					<option value="Q3">3분기</option>
-					<option value="Q4">4분기</option>
-				</select>
-			</div>
-			<div class="col-md-2 align-self-end">
-				<button type="button" class="btn btn-primary btn-sm w-100" onclick="loadProfitData()">조회</button>
-			</div>
-		</form>
+    <!-- ✅ 검색 조건 영역 -->
+    <div class="card mb-3 shadow-sm" style="background-color:#f0f8f0">
+      <div class="card-body">
+        <div class="row g-3 align-items-center">
 
-		<!-- Toast UI Grid -->
-		<div class="col-12">
-			<div id="profitGrid" class="mx-3" style="height: 600px;"></div>
-		</div>
-	</div>
+          <div class="col-md-2">
+            <label class="form-label">연도</label>
+            <select id="year" class="form-select">
+              <option th:each="y : ${yearList}" th:value="${y}" th:text="${y}" th:selected="${y == param.year}"></option>
+            </select>
+          </div>
 
-	<!-- 손익 요약 모달 -->
-	<div class="modal fade" id="profitSummaryModal" tabindex="-1" aria-hidden="true">
-		<div class="modal-dialog modal-sm">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">손익 요약</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-				</div>
-				<div class="modal-body" id="profitSummaryContent"></div>
-			</div>
-		</div>
-	</div>
+          <div class="col-md-2">
+            <label class="form-label">반기</label>
+            <select id="half" class="form-select">
+              <option value="">전체</option>
+              <option value="H1">상반기</option>
+              <option value="H2">하반기</option>
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label">분기</label>
+            <select id="quarter" class="form-select">
+              <option value="">전체</option>
+              <option value="Q1">1분기</option>
+              <option value="Q2">2분기</option>
+              <option value="Q3">3분기</option>
+              <option value="Q4">4분기</option>
+            </select>
+          </div>
+
+          <div class="col-md-2 align-self-end">
+            <button type="button" class="btn btn-primary btn-sm w-100" onclick="loadProfitData()">
+              <i class="fas fa-search"></i> 조회
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ 그리드 영역 -->
+    <div id="profitGrid" class="position-relative" style="min-height: 500px;"></div>
+
+  </div>
+
+  <!-- ✅ 손익 요약 모달 -->
+  <div class="modal fade" id="profitSummaryModal" tabindex="-1" aria-labelledby="profitSummaryLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="profitSummaryLabel">손익 요약</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+        </div>
+        <div class="modal-body" id="profitSummaryContent">
+          <!-- 내용 삽입 -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">닫기</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
+
 
 
 
@@ -170,15 +188,17 @@ function loadProfitData() {
   const year = $('#year').val();
   const half = $('#half').val();
   const quarter = $('#quarter').val();
-
   $.ajax({
-    url: "/erp/accounting/profitData", // 너가 만든 API 경로
+    url: "/erp/accounting/profitData",
     method: "GET",
     data: { year, half, quarter },
     success: function (result) {
       const finalData = groupAndAddSubtotalsForProfit(result);
       profitGrid.resetData(finalData);
+    },
+    error: function() {
     }
+  }).always(function() {
   });
 }
 

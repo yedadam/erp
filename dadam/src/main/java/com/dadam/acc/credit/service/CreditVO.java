@@ -37,4 +37,6 @@ public class CreditVO {
 	private String chitCode;	// 전표코드(수금번호)
 	private Double price;
 	private String iType;
+	private String itemName; // 품목명
+	private Double totalPrice; // 누적거래금액
 }

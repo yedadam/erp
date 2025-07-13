@@ -21,8 +21,8 @@ public class CreditRestController {
 	CreditService creditServic;
 	
 	@GetMapping("/creditFindAll")
-	public List<CreditVO> getCredit(String comId) {
-		return creditServic.creditFindAll(comId);
+	public List<CreditVO> getCredit(@RequestParam String comId, @RequestParam(required = false) String type) {
+		return creditServic.creditFindAll(comId, type);
 	}
 	
 	@GetMapping("/creditFindByCode")
@@ -36,6 +36,22 @@ public class CreditRestController {
 	@GetMapping("/creditSearch")
 	public List<CreditVO> creditSearch(@RequestParam Map<String, Object> params) {
 		return creditServic.creditSearch(params);
+	}
+
+	@GetMapping("/detailSearch")
+	public List<CreditVO> detailFindSupplier(@RequestParam String vdrCode, @RequestParam String comId) {
+		List<CreditVO> result = creditServic.detailFindSupplier(vdrCode, comId);
+		return result;
+	}
+
+	@GetMapping("/purchaseSummary")
+	public List<Map<String, Object>> purchaseSummary(@RequestParam String vdrCode, @RequestParam String comId) {
+		return creditServic.purchaseSummary(vdrCode, comId);
+	}
+
+	@GetMapping("/purchaseDetail")
+	public List<Map<String, Object>> purchaseDetail(@RequestParam String purOrdCode) {
+		return creditServic.purchaseDetail(purOrdCode);
 	}
 
 }
