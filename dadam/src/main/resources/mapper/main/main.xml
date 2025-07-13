@@ -77,6 +77,7 @@
         FROM item i LEFT JOIN stock s ON (i.item_code = s.item_code)
         WHERE i.com_id = #{comId}
         GROUP BY safe_quantity,i.item_code
+        ORDER BY safe_percentage
        
 	</select>
 	<select id="barChart">
