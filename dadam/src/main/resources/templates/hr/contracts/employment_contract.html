@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>고용계약서</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .contract-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        .contract-header {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .contract-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .contract-date {
+            color: #666;
+            font-size: 14px;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+            border-left: 4px solid #28a745;
+            padding-left: 10px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #555;
+        }
+        .info-value {
+            color: #333;
+        }
+        .terms-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .terms-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .terms-content {
+            color: #666;
+            line-height: 1.8;
+        }
+        .signature-section {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        .signature-box {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .signature-line {
+            border-top: 1px solid #333;
+            margin-top: 50px;
+            padding-top: 10px;
+        }
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .print-button:hover {
+            background: #218838;
+        }
+        @media print {
+            .print-button {
+                display: none;
+            }
+            body {
+                background: white;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button" onclick="window.print()">인쇄</button>
+    
+    <div class="contract-container">
+        <div class="contract-header">
+            <div class="contract-title">고용계약서</div>
+            <div class="contract-date">계약일자: <span id="contractDate"></span></div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">1. 고용주 (갑)</div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">회사명:</span>
+                    <span class="info-value" id="companyName">[회사명]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">대표자:</span>
+                    <span class="info-value" id="ceoName">[대표자명]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">사업자등록번호:</span>
+                    <span class="info-value" id="businessNumber">[사업자등록번호]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">주소:</span>
+                    <span class="info-value" id="companyAddress">[회사주소]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">연락처:</span>
+                    <span class="info-value" id="companyPhone">[회사연락처]</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">2. 근로자 (을)</div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">성명:</span>
+                    <span class="info-value" id="employeeName">[근로자명]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">주민등록번호:</span>
+                    <span class="info-value" id="residentNumber">[주민등록번호]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">주소:</span>
+                    <span class="info-value" id="employeeAddress">[근로자주소]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">연락처:</span>
+                    <span class="info-value" id="employeePhone">[근로자연락처]</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">3. 근로조건</div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">근무부서:</span>
+                    <span class="info-value" id="department">[부서명]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">직급:</span>
+                    <span class="info-value" id="position">[직급]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">근무형태:</span>
+                    <span class="info-value" id="workType">[근무형태]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">계약기간:</span>
+                    <span class="info-value" id="contractPeriod">[계약기간]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">근무시간:</span>
+                    <span class="info-value" id="workHours">[근무시간]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">급여:</span>
+                    <span class="info-value" id="salary">[급여]</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">4. 근로조건 세부사항</div>
+            <div class="terms-section">
+                <div class="terms-title">근무일 및 근무시간</div>
+                <div class="terms-content" id="workSchedule">
+                    주 5일 근무 (월~금), 1일 8시간 근무<br>
+                    출근시간: 09:00, 퇴근시간: 18:00<br>
+                    점심시간: 12:00~13:00 (1시간)
+                </div>
+            </div>
+            
+            <div class="terms-section">
+                <div class="terms-title">급여 및 지급</div>
+                <div class="terms-content" id="salaryDetails">
+                    기본급: 월 <span id="baseSalary">[기본급]</span>원<br>
+                    지급일: 매월 25일<br>
+                    지급방법: 계좌이체
+                </div>
+            </div>
+            
+            <div class="terms-section">
+                <div class="terms-title">휴가 및 복리후생</div>
+                <div class="terms-content" id="benefits">
+                    연차휴가: 근로기준법에 따른 연차휴가<br>
+                    공휴일: 법정공휴일 휴무<br>
+                    복리후생: 4대보험 가입, 각종 수당 지급
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">5. 계약조건</div>
+            <div class="terms-content" id="contractTerms">
+                1. 본 계약은 근로기준법 및 관련 법령에 따라 체결됩니다.<br>
+                2. 근로자는 회사의 규정을 준수하고 성실히 근무할 의무가 있습니다.<br>
+                3. 고용주는 근로자의 안전과 건강을 보호할 의무가 있습니다.<br>
+                4. 계약기간 중 해고는 근로기준법에 따라 처리됩니다.
+            </div>
+        </div>
+        
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="section-title">고용주 (갑)</div>
+                <div class="signature-line">
+                    회사명: <span id="signCompanyName">[회사명]</span><br>
+                    대표자: <span id="signCeoName">[대표자명]</span><br>
+                    사업자등록번호: <span id="signBusinessNumber">[사업자등록번호]</span><br>
+                    주소: <span id="signCompanyAddress">[회사주소]</span>
+                </div>
+            </div>
+            <div class="signature-box">
+                <div class="section-title">근로자 (을)</div>
+                <div class="signature-line">
+                    성명: <span id="signEmployeeName">[근로자명]</span><br>
+                    주민등록번호: <span id="signResidentNumber">[주민등록번호]</span><br>
+                    주소: <span id="signEmployeeAddress">[근로자주소]</span><br>
+                    연락처: <span id="signEmployeePhone">[근로자연락처]</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 현재 날짜 설정
+        document.getElementById('contractDate').textContent = new Date().toLocaleDateString('ko-KR');
+        
+        // 고용계약서 데이터 로드
+        function loadEmploymentContractData(contractId) {
+            // 예시 데이터
+            const contractData = {
+                companyName: '다담테크',
+                ceoName: '홍길동',
+                businessNumber: '123-45-67890',
+                companyAddress: '서울시 강남구 테헤란로 123',
+                companyPhone: '02-1234-5678',
+                employeeName: '김철수',
+                residentNumber: '123456-1234567',
+                employeeAddress: '서울시 강남구 역삼동 123-45',
+                employeePhone: '010-1234-5678',
+                department: '개발팀',
+                position: '사원',
+                workType: '정규직',
+                contractPeriod: '2024년 1월 1일 ~ 2024년 12월 31일',
+                workHours: '주 40시간',
+                salary: '연봉 3,000만원',
+                baseSalary: '2,500,000',
+                signCompanyName: '다담테크',
+                signCeoName: '홍길동',
+                signBusinessNumber: '123-45-67890',
+                signCompanyAddress: '서울시 강남구 테헤란로 123',
+                signEmployeeName: '김철수',
+                signResidentNumber: '123456-1234567',
+                signEmployeeAddress: '서울시 강남구 역삼동 123-45',
+                signEmployeePhone: '010-1234-5678'
+            };
+            
+            // 데이터 적용
+            Object.keys(contractData).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.textContent = contractData[key];
+                }
+            });
+        }
+        
+        // 페이지 로드 시 데이터 로드
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const contractId = urlParams.get('id') || 'default';
+            loadEmploymentContractData(contractId);
+        };
+    </script>
+</body>
+</html> 

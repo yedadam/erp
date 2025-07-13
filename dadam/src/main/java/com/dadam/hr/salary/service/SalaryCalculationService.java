@@ -22,15 +22,20 @@ import com.dadam.hr.salary.service.SalaryDetailVO;
 import com.dadam.hr.attendance.service.AttendanceStatisticsVO;
 import com.dadam.hr.attendance.mapper.AttendanceStatsMapper;
 import com.dadam.hr.salary.service.SalaryStatementVO;
+import com.dadam.hr.salary.service.SalaryItemVO;
+import com.dadam.hr.salary.service.SalaryItemService;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 급여 자동계산 서비스
+ * 급여 자동계산 서비스 (실제 업계 표준 SALARYITEM 테이블 기반)
+ * - 기존 급여항목 관리 시스템과 완벽 호환
+ * - 회사별 커스터마이징 지원
+ * - 실제 ERP 시스템에서 가장 많이 사용하는 구조
  * 
  * @author ERP Development Team
- * @version 1.0
- * @since 2024-01-01
+ * @version 2.0
+ * @since 2025-07-11
  */
 @Slf4j
 @Service
@@ -45,6 +50,9 @@ public class SalaryCalculationService {
     
     @Autowired
     private EmpMapper employeeMapper;
+    
+    @Autowired
+    private SalaryItemService salaryItemService;
 
     /**
      * 월별 급여 자동계산 실행
@@ -86,7 +94,7 @@ public class SalaryCalculationService {
     }
 
     /**
-     * 개별 사원 급여 계산
+     * 개별 사원 급여 계산 (실제 SALARYITEM 테이블 기반)
      * 
      * @param companyId 회사 ID
      * @param employeeId 사원 ID
@@ -118,8 +126,10 @@ public class SalaryCalculationService {
                 return null;
             }
             
-            // 3. 급여 항목 설정 조회
-            Map<String, Object> salaryItems = salaryMapper.getSalaryItems(companyId);
+            // 3. 급여 항목 조회 (실제 SALARYITEM 테이블 사용)
+            Map<String, Object> salaryItemParams = new HashMap<>();
+            salaryItemParams.put("comId", companyId.toString());
+            List<SalaryItemVO> salaryItems = salaryItemService.getSalaryItemList(salaryItemParams);
             
             // 4. 급여 계산 실행
             SalaryCalculationVO calculation = performSalaryCalculation(employeeInfo, attendanceStats, salaryItems, yearMonth);
@@ -134,18 +144,18 @@ public class SalaryCalculationService {
     }
 
     /**
-     * 급여 계산 로직 실행
+     * 급여 계산 로직 실행 (실제 SALARYITEM 테이블 기반)
      * 
      * @param employeeInfo 사원 기본 정보
      * @param attendanceStats 근태 통계
-     * @param salaryItems 급여 항목 설정
+     * @param salaryItems 급여 항목 목록
      * @param yearMonth 계산 년월
      * @return 급여 계산 결과
      */
     private SalaryCalculationVO performSalaryCalculation(
             Map<String, Object> employeeInfo,
             AttendanceStatisticsVO attendanceStats,
-            Map<String, Object> salaryItems,
+            List<SalaryItemVO> salaryItems,
             String yearMonth) {
         
         SalaryCalculationVO calculation = new SalaryCalculationVO();
@@ -160,19 +170,18 @@ public class SalaryCalculationService {
         BigDecimal baseSalary = calculateBaseSalary(employeeInfo, attendanceStats);
         calculation.setBaseSalary(baseSalary);
         
-        // 2. 수당 계산
+        // 2. 수당/공제 계산 (실제 SALARYITEM 기반)
         Map<String, BigDecimal> allowances = calculateAllowances(employeeInfo, attendanceStats, salaryItems);
-        calculation.setAllowances(allowances);
-        
-        // 3. 공제 계산
         Map<String, BigDecimal> deductions = calculateDeductions(employeeInfo, attendanceStats, salaryItems);
+        
+        calculation.setAllowances(allowances);
         calculation.setDeductions(deductions);
         
-        // 4. 총 급여 계산
-        BigDecimal totalSalary = calculateTotalSalary(baseSalary, allowances, deductions);
+        // 3. 총 급여 계산 (기본급 + 수당)
+        BigDecimal totalSalary = calculateTotalSalary(baseSalary, allowances);
         calculation.setTotalSalary(totalSalary);
         
-        // 5. 실수령액 계산
+        // 4. 실수령액 계산 (총급여 - 공제)
         BigDecimal netSalary = calculateNetSalary(totalSalary, deductions);
         calculation.setNetSalary(netSalary);
         
@@ -217,285 +226,116 @@ public class SalaryCalculationService {
     }
 
     /**
-     * 수당 계산
+     * 수당 계산 (실제 SALARYITEM 기반)
      * 
      * @param employeeInfo 사원 정보
      * @param attendanceStats 근태 통계
-     * @param salaryItems 급여 항목 설정
-     * @return 수당 항목별 금액
+     * @param salaryItems 급여 항목 목록
+     * @return 수당 항목들
      */
     private Map<String, BigDecimal> calculateAllowances(
             Map<String, Object> employeeInfo,
             AttendanceStatisticsVO attendanceStats,
-            Map<String, Object> salaryItems) {
+            List<SalaryItemVO> salaryItems) {
         
         Map<String, BigDecimal> allowances = new HashMap<>();
         
-        // 1. 연장근무수당 계산
-        BigDecimal overtimeAllowance = calculateOvertimeAllowance(employeeInfo, attendanceStats);
-        allowances.put("overtime", overtimeAllowance);
-        
-        // 2. 야간수당 계산
-        BigDecimal nightAllowance = calculateNightAllowance(employeeInfo, attendanceStats);
-        allowances.put("night", nightAllowance);
-        
-        // 3. 휴일수당 계산
-        BigDecimal holidayAllowance = calculateHolidayAllowance(employeeInfo, attendanceStats);
-        allowances.put("holiday", holidayAllowance);
-        
-        // 4. 식대수당
-        BigDecimal mealAllowance = calculateMealAllowance(employeeInfo, attendanceStats);
-        allowances.put("meal", mealAllowance);
-        
-        // 5. 교통수당
-        BigDecimal transportAllowance = calculateTransportAllowance(employeeInfo);
-        allowances.put("transport", transportAllowance);
-        
-        // 6. 기타수당 (동적 항목)
-        Map<String, BigDecimal> otherAllowances = calculateOtherAllowances(employeeInfo, salaryItems);
-        allowances.putAll(otherAllowances);
-        
-        return allowances;
-    }
-    
-    /**
-     * 연장근무수당 계산
-     * 
-     * @param employeeInfo 사원 정보
-     * @param attendanceStats 근태 통계
-     * @return 연장근무수당
-     */
-    private BigDecimal calculateOvertimeAllowance(Map<String, Object> employeeInfo, AttendanceStatisticsVO attendanceStats) {
-        BigDecimal hourlyWage = new BigDecimal(employeeInfo.get("hourlyWage").toString());
-        int overtimeHours = attendanceStats.getOvertimeHours() != null ? attendanceStats.getOvertimeHours().intValue() : 0;
-        
-        // 연장근무수당 = 시간당 임금 × 연장근무시간 × 1.5
-        return hourlyWage
-            .multiply(BigDecimal.valueOf(overtimeHours))
-            .multiply(new BigDecimal("1.5"))
-            .setScale(0, RoundingMode.HALF_UP);
-    }
-
-    /**
-     * 야간수당 계산
-     * 
-     * @param employeeInfo 사원 정보
-     * @param attendanceStats 근태 통계
-     * @return 야간수당
-     */
-    private BigDecimal calculateNightAllowance(Map<String, Object> employeeInfo, AttendanceStatisticsVO attendanceStats) {
-        BigDecimal hourlyWage = new BigDecimal(employeeInfo.get("hourlyWage").toString());
-        int nightHours = attendanceStats.getNightHours() != null ? attendanceStats.getNightHours().intValue() : 0;
-        
-        // 야간수당 = 시간당 임금 × 야간근무시간 × 0.5
-        return hourlyWage
-            .multiply(BigDecimal.valueOf(nightHours))
-            .multiply(new BigDecimal("0.5"))
-            .setScale(0, RoundingMode.HALF_UP);
-    }
-
-    /**
-     * 휴일수당 계산
-     * 
-     * @param employeeInfo 사원 정보
-     * @param attendanceStats 근태 통계
-     * @return 휴일수당
-     */
-    private BigDecimal calculateHolidayAllowance(Map<String, Object> employeeInfo, AttendanceStatisticsVO attendanceStats) {
-        BigDecimal hourlyWage = new BigDecimal(employeeInfo.get("hourlyWage").toString());
-        int holidayHours = attendanceStats.getHolidayHours() != null ? attendanceStats.getHolidayHours().intValue() : 0;
-        
-        // 휴일수당 = 시간당 임금 × 휴일근무시간 × 1.5
-        return hourlyWage
-            .multiply(BigDecimal.valueOf(holidayHours))
-            .multiply(new BigDecimal("1.5"))
-            .setScale(0, RoundingMode.HALF_UP);
-    }
-
-    /**
-     * 식대수당 계산
-     * 
-     * @param employeeInfo 사원 정보
-     * @param attendanceStats 근태 통계
-     * @return 식대수당
-     */
-    private BigDecimal calculateMealAllowance(Map<String, Object> employeeInfo, AttendanceStatisticsVO attendanceStats) {
-        BigDecimal dailyMealAllowance = new BigDecimal("8000"); // 일일 식대수당
-        int workDays = attendanceStats.getTotalWorkDays();
-        
-        return dailyMealAllowance
-            .multiply(BigDecimal.valueOf(workDays))
-            .setScale(0, RoundingMode.HALF_UP);
-    }
-
-    /**
-     * 교통수당 계산
-     * 
-     * @param employeeInfo 사원 정보
-     * @return 교통수당
-     */
-    private BigDecimal calculateTransportAllowance(Map<String, Object> employeeInfo) {
-        // 월 고정 교통수당
-        return new BigDecimal("50000");
-    }
-
-    /**
-     * 기타수당 계산 (동적 항목)
-     * 
-     * @param employeeInfo 사원 정보
-     * @param salaryItems 급여 항목 설정
-     * @return 기타수당 항목별 금액
-     */
-    private Map<String, BigDecimal> calculateOtherAllowances(Map<String, Object> employeeInfo, Map<String, Object> salaryItems) {
-        Map<String, BigDecimal> otherAllowances = new HashMap<>();
-        
-        // sal1~sal10 동적 수당 항목 처리
-        for (int i = 1; i <= 10; i++) {
-            String itemKey = "sal" + i;
-            Object itemValue = salaryItems.get(itemKey);
-            
-            if (itemValue != null && !itemValue.toString().isEmpty()) {
-                try {
-                    BigDecimal amount = new BigDecimal(itemValue.toString());
-                    otherAllowances.put(itemKey, amount);
-                } catch (NumberFormatException e) {
-                    log.warn("급여 항목 {} 값이 숫자가 아닙니다: {}", itemKey, itemValue);
+        for (SalaryItemVO item : salaryItems) {
+            // 수당 항목만 처리 (공제 제외)
+            if ("ALLOWANCE".equals(item.getType()) && "Y".equals(item.getAcctYn())) {
+                BigDecimal amount = calculateItemAmount(item, employeeInfo, attendanceStats);
+                if (amount.compareTo(BigDecimal.ZERO) > 0) {
+                    allowances.put(item.getAllowCode(), amount);
                 }
             }
         }
         
-        return otherAllowances;
+        return allowances;
     }
 
     /**
-     * 공제 계산
+     * 공제 계산 (실제 SALARYITEM 기반)
      * 
      * @param employeeInfo 사원 정보
      * @param attendanceStats 근태 통계
-     * @param salaryItems 급여 항목 설정
-     * @return 공제 항목별 금액
+     * @param salaryItems 급여 항목 목록
+     * @return 공제 항목들
      */
     private Map<String, BigDecimal> calculateDeductions(
             Map<String, Object> employeeInfo,
             AttendanceStatisticsVO attendanceStats,
-            Map<String, Object> salaryItems) {
+            List<SalaryItemVO> salaryItems) {
         
         Map<String, BigDecimal> deductions = new HashMap<>();
         
-        // 1. 국민연금 (9%)
-        BigDecimal nationalPension = calculateNationalPension(employeeInfo);
-        deductions.put("nationalPension", nationalPension);
-        
-        // 2. 건강보험 (3.545%)
-        BigDecimal healthInsurance = calculateHealthInsurance(employeeInfo);
-        deductions.put("healthInsurance", healthInsurance);
-        
-        // 3. 고용보험 (0.8%)
-        BigDecimal employmentInsurance = calculateEmploymentInsurance(employeeInfo);
-        deductions.put("employmentInsurance", employmentInsurance);
-        
-        // 4. 소득세
-        BigDecimal incomeTax = calculateIncomeTax(employeeInfo);
-        deductions.put("incomeTax", incomeTax);
-        
-        // 5. 지방소득세 (소득세의 10%)
-        BigDecimal localIncomeTax = incomeTax.multiply(new BigDecimal("0.1"));
-        deductions.put("localIncomeTax", localIncomeTax);
+        for (SalaryItemVO item : salaryItems) {
+            // 공제 항목만 처리 (수당 제외)
+            if ("DEDUCTION".equals(item.getType()) && "Y".equals(item.getAcctYn())) {
+                BigDecimal amount = calculateItemAmount(item, employeeInfo, attendanceStats);
+                if (amount.compareTo(BigDecimal.ZERO) > 0) {
+                    deductions.put(item.getAllowCode(), amount);
+                }
+            }
+        }
         
         return deductions;
     }
 
     /**
-     * 국민연금 계산
+     * 개별 항목 금액 계산
      * 
+     * @param item 급여 항목
      * @param employeeInfo 사원 정보
-     * @return 국민연금
+     * @param attendanceStats 근태 통계
+     * @return 계산된 금액
      */
-    private BigDecimal calculateNationalPension(Map<String, Object> employeeInfo) {
+    private BigDecimal calculateItemAmount(
+            SalaryItemVO item,
+            Map<String, Object> employeeInfo,
+            AttendanceStatisticsVO attendanceStats) {
+        
+        String calcType = item.getCalcType();
+        BigDecimal defaultAmount = item.getDefaultAmount();
+        
+        if ("FIXED".equals(calcType)) {
+            // 고정 금액
+            return defaultAmount != null ? defaultAmount : BigDecimal.ZERO;
+            
+        } else if ("RATE".equals(calcType)) {
+            // 기본급 비율
         BigDecimal baseSalary = new BigDecimal(employeeInfo.get("baseSalary").toString());
-        
-        // 국민연금 = 기본급 × 9%
-        return baseSalary
-            .multiply(new BigDecimal("0.09"))
-            .setScale(0, RoundingMode.HALF_UP);
-    }
-
-    /**
-     * 건강보험 계산
-     * 
-     * @param employeeInfo 사원 정보
-     * @return 건강보험
-     */
-    private BigDecimal calculateHealthInsurance(Map<String, Object> employeeInfo) {
-        BigDecimal baseSalary = new BigDecimal(employeeInfo.get("baseSalary").toString());
-        
-        // 건강보험 = 기본급 × 3.545%
-        return baseSalary
-            .multiply(new BigDecimal("0.03545"))
-            .setScale(0, RoundingMode.HALF_UP);
-    }
-
-    /**
-     * 고용보험 계산
-     * 
-     * @param employeeInfo 사원 정보
-     * @return 고용보험
-     */
-    private BigDecimal calculateEmploymentInsurance(Map<String, Object> employeeInfo) {
-        BigDecimal baseSalary = new BigDecimal(employeeInfo.get("baseSalary").toString());
-        
-        // 고용보험 = 기본급 × 0.8%
-        return baseSalary
-            .multiply(new BigDecimal("0.008"))
-            .setScale(0, RoundingMode.HALF_UP);
-    }
-
-    /**
-     * 소득세 계산 (간이세율 적용)
-     * 
-     * @param employeeInfo 사원 정보
-     * @return 소득세
-     */
-    private BigDecimal calculateIncomeTax(Map<String, Object> employeeInfo) {
-        BigDecimal baseSalary = new BigDecimal(employeeInfo.get("baseSalary").toString());
-        
-        // 간이세율표 적용 (연간 기준)
-        BigDecimal annualSalary = baseSalary.multiply(new BigDecimal("12"));
-        
-        BigDecimal taxRate;
-        BigDecimal deduction;
-        
-        if (annualSalary.compareTo(new BigDecimal("12000000")) <= 0) {
-            taxRate = new BigDecimal("0.06");
-            deduction = new BigDecimal("0");
-        } else if (annualSalary.compareTo(new BigDecimal("46000000")) <= 0) {
-            taxRate = new BigDecimal("0.15");
-            deduction = new BigDecimal("1080000");
-        } else if (annualSalary.compareTo(new BigDecimal("88000000")) <= 0) {
-            taxRate = new BigDecimal("0.24");
-            deduction = new BigDecimal("5220000");
-        } else if (annualSalary.compareTo(new BigDecimal("150000000")) <= 0) {
-            taxRate = new BigDecimal("0.35");
-            deduction = new BigDecimal("14900000");
-        } else if (annualSalary.compareTo(new BigDecimal("300000000")) <= 0) {
-            taxRate = new BigDecimal("0.38");
-            deduction = new BigDecimal("19400000");
-        } else if (annualSalary.compareTo(new BigDecimal("500000000")) <= 0) {
-            taxRate = new BigDecimal("0.40");
-            deduction = new BigDecimal("25400000");
+            BigDecimal rate = defaultAmount != null ? defaultAmount.divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP) : BigDecimal.ZERO;
+            return baseSalary.multiply(rate);
+            
+        } else if ("HOUR".equals(calcType)) {
+            // 시간당 계산
+            BigDecimal hourlyWage = new BigDecimal(employeeInfo.get("hourlyWage").toString());
+            BigDecimal hours = getHoursByItemCode(item.getAllowCode(), attendanceStats);
+            return hourlyWage.multiply(hours);
+            
         } else {
-            taxRate = new BigDecimal("0.42");
-            deduction = new BigDecimal("35400000");
+            return BigDecimal.ZERO;
         }
-        
-        // 월 소득세 = (연간 소득세 ÷ 12)
-        BigDecimal annualTax = annualSalary.multiply(taxRate).subtract(deduction);
-        if (annualTax.compareTo(BigDecimal.ZERO) < 0) {
-            annualTax = BigDecimal.ZERO;
+    }
+
+    /**
+     * 항목별 근무시간 조회
+     * 
+     * @param itemCode 항목 코드
+     * @param attendanceStats 근태 통계
+     * @return 근무시간
+     */
+    private BigDecimal getHoursByItemCode(String itemCode, AttendanceStatisticsVO attendanceStats) {
+        switch (itemCode) {
+            case "OVERTIME":
+                return attendanceStats.getOvertimeHours() != null ? attendanceStats.getOvertimeHours() : BigDecimal.ZERO;
+            case "NIGHT":
+                return attendanceStats.getNightHours() != null ? attendanceStats.getNightHours() : BigDecimal.ZERO;
+            case "HOLIDAY":
+                return attendanceStats.getHolidayHours() != null ? attendanceStats.getHolidayHours() : BigDecimal.ZERO;
+            default:
+                return BigDecimal.ZERO;
         }
-        
-        return annualTax
-            .divide(new BigDecimal("12"), 0, RoundingMode.HALF_UP);
     }
 
     /**
@@ -503,10 +343,9 @@ public class SalaryCalculationService {
      * 
      * @param baseSalary 기본급
      * @param allowances 수당 항목들
-     * @param deductions 공제 항목들
      * @return 총 급여
      */
-    private BigDecimal calculateTotalSalary(BigDecimal baseSalary, Map<String, BigDecimal> allowances, Map<String, BigDecimal> deductions) {
+    private BigDecimal calculateTotalSalary(BigDecimal baseSalary, Map<String, BigDecimal> allowances) {
         BigDecimal total = baseSalary;
         
         // 수당 합계
@@ -719,38 +558,22 @@ public class SalaryCalculationService {
             
             for (Map<String, Object> detail : salaryDetails) {
                 String itemType = (String) detail.get("item_type");
-                String itemName = (String) detail.get("item_name");
                 BigDecimal amount = (BigDecimal) detail.get("amount");
                 
                 if ("ALLOWANCE".equals(itemType)) {
                     allowanceTotal = allowanceTotal.add(amount);
-                    // 특정 수당 항목 설정
-                    if ("overtime".equals(itemName)) {
-                        statement.setOvertimePay(amount);
-                    } else if ("annualLeave".equals(itemName)) {
-                        statement.setAnnualLeavePay(amount);
-                    }
                 } else if ("DEDUCTION".equals(itemType)) {
                     deductionTotal = deductionTotal.add(amount);
-                    // 특정 공제 항목 설정
-                    if ("late".equals(itemName)) {
-                        statement.setLateDeduction(amount);
-                    } else if ("earlyLeave".equals(itemName)) {
-                        statement.setEarlyLeaveDeduction(amount);
-                    } else if ("absent".equals(itemName)) {
-                        statement.setAbsentDeduction(amount);
-                    }
                 }
             }
             
             statement.setAllowanceTotal(allowanceTotal);
             statement.setDeductionTotal(deductionTotal);
             
-            log.debug("급여 명세서 조회 완료 - 급여ID: {}", salaryId);
             return statement;
             
         } catch (Exception e) {
-            log.error("급여 명세서 조회 중 오류 발생: {}", e.getMessage(), e);
+            log.error("급여 명세서 조회 중 오류 발생", e);
             return null;
         }
     }

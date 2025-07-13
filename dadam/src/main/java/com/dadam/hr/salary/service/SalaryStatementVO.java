@@ -62,4 +62,8 @@ public class SalaryStatementVO {
     private String deptName;
     /** 직급명 */
     private String positionName;
+    
+    // === 사원별 급여항목(EMP_ALLOWANCE) 관련 필드 ===
+    /** 사원별 급여항목 리스트 */
+    private java.util.List<java.util.Map<String, Object>> empAllowances;
 } 

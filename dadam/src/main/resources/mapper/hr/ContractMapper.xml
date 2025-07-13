@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.hr.emp.mapper.ContractMapper">
+
+    <!-- === 근로계약 관련 메서드들 === -->
+    
+    <!-- [근로계약 목록 조회] -->
+    <select id="findContractList" parameterType="map" resultType="com.dadam.hr.emp.service.ContractVO">
+        SELECT 
+            c.CONT_CODE,
+            c.CONT_TYPE,
+            c.START_DATE,
+            c.END_DATE,
+            c.ANN_SAL,
+            c.MON_SAL,
+            c.WORK_START,
+            c.WORK_END,
+            c.DAY_WORK_HRS,
+            c.PROB_PERIOD,
+            c.CONT_STATUS,
+            c.TERM_REASON,
+            c.CONT_FILE_PATH,
+            c.CREATED_DATE,
+            c.BONUS,
+            c.EXTRA_ALLOW,
+            c.DEPT_ID,
+            c.COM_ID,
+            c.SAL_PAY_DATE,
+            c.EMP_ID,
+            e.EMP_NAME,
+            d.DEPT_NAME,
+            s.SUB_NAME as CONT_TYPE_NAME
+        FROM CONTRACT c
+        LEFT JOIN EMPLOYEES e ON c.EMP_ID = e.EMP_ID AND c.COM_ID = e.COM_ID
+        LEFT JOIN DEPARTMENTS d ON c.DEPT_ID = d.DEPT_CODE AND c.COM_ID = d.COM_ID
+        LEFT JOIN SUBCODES s ON c.CONT_TYPE = s.SUB_CODE AND c.COM_ID = s.COM_ID AND s.MAIN_CODE = 'emp'
+        WHERE c.COM_ID = #{comId}
+        <if test="empId != null and empId != ''">
+            AND c.EMP_ID = #{empId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (e.EMP_NAME LIKE '%' || #{keyword} || '%' OR d.DEPT_NAME LIKE '%' || #{keyword} || '%')
+        </if>
+        ORDER BY c.CREATED_DATE DESC
+    </select>
+
+    <!-- [근로계약 상세 조회] -->
+    <select id="getContractDetail" parameterType="map" resultType="com.dadam.hr.emp.service.ContractVO">
+        SELECT 
+            c.CONT_CODE,
+            c.CONT_TYPE,
+            c.START_DATE,
+            c.END_DATE,
+            c.ANN_SAL,
+            c.MON_SAL,
+            c.WORK_START,
+            c.WORK_END,
+            c.DAY_WORK_HRS,
+            c.PROB_PERIOD,
+            c.CONT_STATUS,
+            c.TERM_REASON,
+            c.CONT_FILE_PATH,
+            c.CREATED_DATE,
+            c.BONUS,
+            c.EXTRA_ALLOW,
+            c.DEPT_ID,
+            c.COM_ID,
+            c.SAL_PAY_DATE,
+            c.EMP_ID,
+            e.EMP_NAME,
+            d.DEPT_NAME,
+            s.SUB_NAME as CONT_TYPE_NAME
+        FROM CONTRACT c
+        LEFT JOIN EMPLOYEES e ON c.EMP_ID = e.EMP_ID AND c.COM_ID = e.COM_ID
+        LEFT JOIN DEPARTMENTS d ON c.DEPT_ID = d.DEPT_CODE AND c.COM_ID = d.COM_ID
+        LEFT JOIN SUBCODES s ON c.CONT_TYPE = s.SUB_CODE AND c.COM_ID = s.COM_ID AND s.MAIN_CODE = 'emp'
+        WHERE c.EMP_ID = #{empId} AND c.COM_ID = #{comId}
+    </select>
+
+    <!-- [근로계약 등록] -->
+    <insert id="insertContract" parameterType="com.dadam.hr.emp.service.ContractVO">
+        INSERT INTO CONTRACT (
+            CONT_CODE,
+            CONT_TYPE,
+            START_DATE,
+            END_DATE,
+            ANN_SAL,
+            MON_SAL,
+            WORK_START,
+            WORK_END,
+            DAY_WORK_HRS,
+            PROB_PERIOD,
+            CONT_STATUS,
+            TERM_REASON,
+            CONT_FILE_PATH,
+            CREATED_DATE,
+            BONUS,
+            EXTRA_ALLOW,
+            DEPT_ID,
+            COM_ID,
+            SAL_PAY_DATE,
+            EMP_ID
+        ) VALUES (
+            #{contCode},
+            #{contType},
+            #{startDate},
+            #{endDate},
+            #{annSal},
+            #{monSal},
+            #{workStart},
+            #{workEnd},
+            #{dayWorkHrs},
+            #{probPeriod},
+            #{contStatus},
+            #{termReason},
+            #{contFilePath},
+            SYSDATE,
+            #{bonus},
+            #{extraAllow},
+            #{deptId},
+            #{comId},
+            #{salPayDate},
+            #{empId}
+        )
+    </insert>
+
+    <!-- [근로계약 수정] -->
+    <update id="updateContract" parameterType="com.dadam.hr.emp.service.ContractVO">
+        UPDATE CONTRACT SET
+            CONT_TYPE = #{contType},
+            START_DATE = #{startDate},
+            END_DATE = #{endDate},
+            ANN_SAL = #{annSal},
+            MON_SAL = #{monSal},
+            WORK_START = #{workStart},
+            WORK_END = #{workEnd},
+            DAY_WORK_HRS = #{dayWorkHrs},
+            PROB_PERIOD = #{probPeriod},
+            CONT_STATUS = #{contStatus},
+            TERM_REASON = #{termReason},
+            CONT_FILE_PATH = #{contFilePath},
+            BONUS = #{bonus},
+            EXTRA_ALLOW = #{extraAllow},
+            DEPT_ID = #{deptId},
+            SAL_PAY_DATE = #{salPayDate}
+        WHERE EMP_ID = #{empId} AND COM_ID = #{comId}
+    </update>
+
+    <!-- [근로계약 삭제] -->
+    <delete id="deleteContract" parameterType="map">
+        DELETE FROM CONTRACT 
+        WHERE EMP_ID = #{empId} AND COM_ID = #{comId}
+    </delete>
+
+    <!-- [최대 계약코드 조회] -->
+    <select id="getMaxContractCode" resultType="string">
+        SELECT NVL(MAX(CONT_CODE), 'CONT0000') FROM CONTRACT
+    </select>
+
+</mapper> 

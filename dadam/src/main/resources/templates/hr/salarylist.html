@@ -133,7 +133,7 @@
                         name: 'salaryMonth',
                         width: 80,
                         align: 'center'
-    },
+                    },
                     {
                         header: '사원번호',
                         name: 'empNo',
@@ -228,29 +228,36 @@
 
         // 급여명세 목록 조회
         function searchSalaryList() {
-            const searchData = {
-                salaryYear: $('#searchYear').val(),
-                salaryMonth: $('#searchMonth').val(),
-                empName: $('#searchEmpName').val(),
-                status: $('#searchStatus').val()
+            // 검색 파라미터 객체화 (salaryitem.html 참고)
+            const paramObj = {
+                comId: 'com-101', // 회사ID 반드시 포함
+                salaryYear: $('#searchYear').val() || '',
+                salaryMonth: $('#searchMonth').val() || '',
+                empName: $('#searchEmpName').val() || '',
+                status: $('#searchStatus').val() || ''
+                // 필요시 empNo, deptCode 등 추가
             };
-
             $.ajax({
                 url: '/erp/hr/api/salary/list',
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify(searchData),
+                data: JSON.stringify(paramObj),
                 success: function(response) {
                     if (response.success) {
-                        salaryGrid.resetData(response.data);
+                        // 동적 컬럼 처리 예시 (salaryitem.html 참고)
+                        // 예: response.data.forEach(row => { row.dynamicCol = ... })
+                        salaryGrid.resetData(response.data || []);
+                        $('#noResultMsg').toggle(!response.data || response.data.length === 0);
                         Swal.fire({
                             icon: 'success',
                             title: '조회 완료',
                             text: '급여명세 목록을 조회했습니다.',
-                            timer: 1500,
+                            timer: 1200,
                             showConfirmButton: false
                         });
                     } else {
+                        salaryGrid.resetData([]);
+                        $('#noResultMsg').show();
                         Swal.fire({
                             icon: 'error',
                             title: '조회 실패',
@@ -259,6 +266,8 @@
                     }
                 },
                 error: function(xhr, status, error) {
+                    salaryGrid.resetData([]);
+                    $('#noResultMsg').show();
                     Swal.fire({
                         icon: 'error',
                         title: '시스템 오류',

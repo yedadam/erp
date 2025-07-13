@@ -75,6 +75,15 @@ public class SalaryItemRestController {
         return salaryItemService.getSalaryItem(comId, allowCode);
     }
 
+    /** 마지막 항목코드 조회 (자동생성용) */
+    @GetMapping("/salaryitem/lastCode")
+    public Map<String, String> getLastAllowCode(@RequestParam String comId) {
+        String lastCode = salaryItemService.getLastAllowCode(comId);
+        Map<String, String> response = new java.util.HashMap<>();
+        response.put("lastCode", lastCode);
+        return response;
+    }
+
     /** 급여항목 등록 (관리자만) */
     @PostMapping("/salaryitem/register")
     public String addSalaryItem(@RequestBody SalaryItemVO vo) {

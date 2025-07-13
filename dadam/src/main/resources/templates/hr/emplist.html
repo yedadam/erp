@@ -158,9 +158,15 @@ body {
 					<li class="nav-item"><a class="nav-link form-tab"
 						data-target="jobInfo">근무정보</a></li>
 					<li class="nav-item"><a class="nav-link form-tab"
-						data-target="resignInfo">퇴직정보</a></li>
+						data-target="contractInfo">근로계약</a></li>
+					<li class="nav-item"><a class="nav-link form-tab"
+						data-target="leaveInfo">연차/휴가</a></li>
+					<li class="nav-item"><a class="nav-link form-tab"
+						data-target="attendanceInfo">근태관리</a></li>
 					<li class="nav-item"><a class="nav-link form-tab"
 						data-target="payInfo">급여정보</a></li>
+					<li class="nav-item"><a class="nav-link form-tab"
+						data-target="resignInfo">퇴직정보</a></li>
 				</ul>
 				<div class="mt-3">
 					<!-- 기본정보 -->
@@ -178,6 +184,19 @@ body {
 							<div class="col-md-6">
 								<label class="form-label">생년월일</label> <input type="date"
 									id="birthDate" name="birthDate" class="form-control">
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">비밀번호<span class="text-danger">*</span></label>
+								<input type="password" id="pwd" name="pwd" class="form-control" 
+									placeholder="초기 비밀번호 입력" required>
+								<small class="form-text text-muted">사원이 로그인 후 변경할 수 있습니다.</small>
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">비밀번호 확인<span class="text-danger">*</span></label>
+								<input type="password" id="pwdConfirm" name="pwdConfirm" class="form-control" 
+									placeholder="비밀번호 재입력" required>
 							</div>
 						</div>
 						<div class="mb-3">
@@ -251,6 +270,136 @@ body {
 							</select>
 						</div>
 					</div>
+					<!-- 근로계약정보 -->
+					<div id="contractInfo" class="form-section">
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">계약 유형</label>
+								<select id="contractType" name="contractType" class="form-select">
+									<option value="">선택</option>
+									<option th:each="wt : ${workTypes}" th:value="${wt.value}" th:text="${wt.text}"></option>
+								</select>
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">계약 시작일</label>
+								<input type="date" id="contractStartDate" name="contractStartDate" class="form-control">
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">계약 종료일</label>
+								<input type="date" id="contractEndDate" name="contractEndDate" class="form-control">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">수습기간(개월)</label>
+								<input type="number" id="probationPeriod" name="probationPeriod" class="form-control" min="0" max="12" placeholder="0">
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">연봉(원)</label>
+								<input type="number" id="annualSalary" name="annualSalary" class="form-control" min="0" step="1000000" placeholder="예: 30000000">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">월급(원)</label>
+								<input type="number" id="monthlySalary" name="monthlySalary" class="form-control" min="0" step="10000" placeholder="예: 2500000">
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">상여금(원)</label>
+								<input type="number" id="bonus" name="bonus" class="form-control" min="0" step="100000" placeholder="예: 3000000">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">추가수당(원)</label>
+								<input type="number" id="additionalAllowance" name="additionalAllowance" class="form-control" min="0" step="10000" placeholder="예: 200000">
+							</div>
+						</div>
+					</div>
+					<!-- 연차/휴가정보 -->
+					<div id="leaveInfo" class="form-section">
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">연차 총일수</label>
+								<input type="number" id="annualLeaveTotal" name="annualLeaveTotal" class="form-control" min="0" max="365" placeholder="15">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">연차 사용일수</label>
+								<input type="number" id="annualLeaveUsed" name="annualLeaveUsed" class="form-control" min="0" max="365" placeholder="0">
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">연차 잔여일수</label>
+								<input type="number" id="annualLeaveRemain" name="annualLeaveRemain" class="form-control" min="0" max="365" placeholder="15" readonly>
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">휴가 정책</label>
+								<select id="leavePolicy" name="leavePolicy" class="form-select">
+									<option value="">선택</option>
+									<option value="연차">연차</option>
+									<option value="반차">반차</option>
+									<option value="병가">병가</option>
+									<option value="공가">공가</option>
+									<option value="특별휴가">특별휴가</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<!-- 근태관리정보 -->
+					<div id="attendanceInfo" class="form-section">
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">근무 유형</label>
+								<select id="workPattern" name="workPattern" class="form-select">
+									<option value="">선택</option>
+									<option value="일반">일반</option>
+									<option value="야간">야간</option>
+									<option value="교대">교대</option>
+									<option value="재택">재택</option>
+								</select>
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">근무 패턴</label>
+								<select id="workSchedule" name="workSchedule" class="form-select">
+									<option value="">선택</option>
+									<option value="월~금">월~금</option>
+									<option value="월~토">월~토</option>
+									<option value="화~토">화~토</option>
+									<option value="교대근무">교대근무</option>
+								</select>
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">출근 시간</label>
+								<input type="time" id="workStartTime" name="workStartTime" class="form-control" value="09:00">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">퇴근 시간</label>
+								<input type="time" id="workEndTime" name="workEndTime" class="form-control" value="18:00">
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">점심시간 시작</label>
+								<input type="time" id="lunchStartTime" name="lunchStartTime" class="form-control" value="12:00">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">점심시간 종료</label>
+								<input type="time" id="lunchEndTime" name="lunchEndTime" class="form-control" value="13:00">
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">연장근무 허용</label>
+								<select id="overtimeAllowed" name="overtimeAllowed" class="form-select">
+									<option value="Y">허용</option>
+									<option value="N">불허</option>
+								</select>
+							</div>
+						</div>
+					</div>
 					<!-- 퇴직정보 -->
 					<div id="resignInfo" class="form-section">
 						<div class="row mb-3">
@@ -276,9 +425,70 @@ body {
 									id="acctNo" name="acctNo" class="form-control">
 							</div>
 						</div>
-						<div class="mb-3">
-							<label class="form-label">기본급(원)</label>
-							<input type="number" id="sal" name="sal" class="form-control" min="0" step="10000" placeholder="예: 2500000">
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">기본급(원)</label>
+								<input type="number" id="sal" name="sal" class="form-control" min="0" step="10000" placeholder="예: 2500000">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">급여 지급일</label>
+								<select id="payDay" name="payDay" class="form-select">
+									<option value="25">25일</option>
+									<option value="20">20일</option>
+									<option value="15">15일</option>
+									<option value="10">10일</option>
+									<option value="5">5일</option>
+								</select>
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">세금 계산 방식</label>
+								<select id="taxCalculation" name="taxCalculation" class="form-select">
+									<option value="종합소득세">종합소득세</option>
+									<option value="분리과세">분리과세</option>
+									<option value="비과세">비과세</option>
+								</select>
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">공제 항목</label>
+								<div id="deductionTypeGroup" class="form-check d-flex flex-column flex-wrap" style="gap: 8px 0; min-width: 120px;">
+									<div class="form-check mb-1">
+										<input class="form-check-input" type="checkbox" name="deductionType" value="4대보험" id="deduct4insur">
+										<label class="form-check-label ms-2" for="deduct4insur">4대보험</label>
+									</div>
+									<div class="form-check mb-1">
+										<input class="form-check-input" type="checkbox" name="deductionType" value="소득세" id="deductIncome">
+										<label class="form-check-label ms-2" for="deductIncome">소득세</label>
+									</div>
+									<div class="form-check mb-1">
+										<input class="form-check-input" type="checkbox" name="deductionType" value="지방세" id="deductLocal">
+										<label class="form-check-label ms-2" for="deductLocal">지방세</label>
+									</div>
+									<div class="form-check mb-1">
+										<input class="form-check-input" type="checkbox" name="deductionType" value="기타공제" id="deductEtc">
+										<label class="form-check-label ms-2" for="deductEtc">기타공제</label>
+									</div>
+								</div>
+								<input type="hidden" id="deductionTypeHidden" name="deductionType">
+								<script>
+								// 체크박스 값 변경 시 hidden에 콤마로 join
+								$('#deductionTypeGroup input[type=checkbox]').on('change', function() {
+									const vals = $('#deductionTypeGroup input[type=checkbox]:checked').map(function(){return this.value;}).get();
+									$('#deductionTypeHidden').val(vals.join(','));
+								});
+								</script>
+							</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">식대 지원(원)</label>
+								<input type="number" id="mealAllowance" name="mealAllowance" class="form-control" min="0" step="1000" placeholder="예: 300000">
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">교통비 지원(원)</label>
+								<input type="number" id="transportAllowance" name="transportAllowance" class="form-control" min="0" step="1000" placeholder="예: 100000">
+							</div>
 						</div>
 						<div class="mb-3">
 							<label class="form-label">적요</label> <input type="text" id="note"
@@ -334,8 +544,14 @@ body {
       // 재직상태, 퇴사사유 등은 동기 처리
       $('#empStatus').empty();
       EMP_STATUS_CODES.forEach(opt => {
-        if(opt.value !== '') $('#empStatus').append(`<option value="${opt.value}">${opt.label}</option>`);
+        // '재직'이 가장 먼저 오도록
+        if(opt.value === 'stt01') $('#empStatus').append(`<option value="${opt.value}">${opt.label}</option>`);
       });
+      EMP_STATUS_CODES.forEach(opt => {
+        if(opt.value !== '' && opt.value !== 'stt01') $('#empStatus').append(`<option value="${opt.value}">${opt.label}</option>`);
+      });
+      // '선택' 옵션은 마지막에 추가(원하면 주석처리 가능)
+      $('#empStatus').append('<option value="">선택</option>');
       $('#resignReason').empty().append('<option value="">선택</option>');
       RESIGN_REASONS.forEach(v => $('#resignReason').append(`<option value="${v}">${v}</option>`));
 
@@ -389,12 +605,26 @@ body {
 
     // 폼 채우기 함수 (select 값도 세팅)
     function fillEmpForm(row) {
+      // 디버깅: 실제 조회되는 데이터 확인
+      console.log('사원 정보 조회:', row);
+      console.log('근태관리 정보:', {
+        workPattern: row.workPattern,
+        workSchedule: row.workSchedule,
+        workStartTime: row.workStartTime,
+        workEndTime: row.workEndTime
+      });
+      
       $('#empId').val(row.empId);
       $('#comId').val(row.comId || 'COM-101');
       $('#empName').val(row.empName);
       $('#birthDate').val(row.birthDate ? row.birthDate.substr(0, 10) : '');
+      
+      // 비밀번호 필드는 비워둠 (보안상)
+      $('#pwd').val('');
+      $('#pwdConfirm').val('');
+      
       $('#addr').val(row.addr);
-      $('#addrDetail').val('');
+      $('#addrDetail').val(row.addrDetail || '');
       $('#tel').val(row.tel);
       $('#email').val(row.email);
       $('#deptCode').val(row.deptCode);
@@ -402,13 +632,110 @@ body {
       $('#hireDate').val(row.hireDate ? row.hireDate.substr(0, 10) : '');
       $('#workType').val(row.workType);
       $('#empStatus').val(row.empStatus);
-      $('#resignDate').val(row.resignDate ? row.resignDate.substr(0, 10) : '');
-      $('#resignReason').val(row.resignReason);
+      
+      // 근로계약 정보
+      $('#contractType').val(row.contractType || row.workType || '정규직');
+      $('#contractStartDate').val(row.contractStartDate ? row.contractStartDate.substr(0, 10) : (row.hireDate ? row.hireDate.substr(0, 10) : ''));
+      $('#contractEndDate').val(row.contractEndDate ? row.contractEndDate.substr(0, 10) : '');
+      $('#probationPeriod').val(row.probationPeriod || 0);
+      $('#annualSalary').val(row.annualSalary || (row.sal ? row.sal * 12 : ''));
+      $('#monthlySalary').val(row.monthlySalary || row.sal || '');
+      $('#bonus').val(row.bonus || 0);
+      $('#additionalAllowance').val(row.additionalAllowance || 0);
+      
+      // 연차/휴가 정보
+      $('#annualLeaveTotal').val(row.annualLeaveTotal || 15);
+      $('#annualLeaveUsed').val(row.annualLeaveUsed || 0);
+      $('#annualLeaveRemain').val(row.annualLeaveRemain || 15);
+      $('#leavePolicy').val(row.leavePolicy || '');
+      
+      // 근태관리 정보
+      // 근무유형에 따른 기본 근태관리 정보 설정
+      const workType = row.workType || '정규직';
+      let defaultWorkPattern = '8시간';
+      let defaultWorkSchedule = '주5일';
+      let defaultStartTime = '09:00';
+      let defaultEndTime = '18:00';
+      
+      // 근무유형별 기본값 설정
+      if (workType === '정규직') {
+        defaultWorkPattern = '8시간';
+        defaultWorkSchedule = '주5일';
+        defaultStartTime = '09:00';
+        defaultEndTime = '18:00';
+      } else if (workType === '계약직') {
+        defaultWorkPattern = '8시간';
+        defaultWorkSchedule = '주5일';
+        defaultStartTime = '09:00';
+        defaultEndTime = '18:00';
+      } else if (workType === '인턴') {
+        defaultWorkPattern = '6시간';
+        defaultWorkSchedule = '주5일';
+        defaultStartTime = '10:00';
+        defaultEndTime = '17:00';
+      } else if (workType === '파트타임') {
+        defaultWorkPattern = '4시간';
+        defaultWorkSchedule = '주3일';
+        defaultStartTime = '10:00';
+        defaultEndTime = '15:00';
+      }
+      
+      $('#workPattern').val(row.workPattern || defaultWorkPattern);
+      $('#workSchedule').val(row.workSchedule || defaultWorkSchedule);
+      $('#workStartTime').val(row.workStartTime || defaultStartTime);
+      $('#workEndTime').val(row.workEndTime || defaultEndTime);
+      $('#lunchStartTime').val(row.lunchStartTime || '12:00');
+      $('#lunchEndTime').val(row.lunchEndTime || '13:00');
+      $('#overtimeAllowed').val(row.overtimeAllowed || 'Y');
+      
+      // 급여 정보
       $('#bank').val(row.bank);
       $('#acctNo').val(row.acctNo);
-      $('#sal').val(row.sal); // 기본급 채우기
+      $('#sal').val(row.sal);
+      $('#payDay').val(row.payDay || '25');
+      $('#taxCalculation').val(row.taxCalculation || '종합소득세');
+      $('#deductionTypeHidden').val(row.deductionType || '4대보험,소득세,지방세,기타공제'); // 체크박스 값 설정
       $('#note').val(row.note);
+      
+      // 사원별 급여항목 정보 가져오기
+      if (row.empId) {
+        $.get('/erp/hr/empAllowances', { empId: row.empId, comId: row.comId }, function(allowances) {
+          // 급여항목 정보 설정 (대소문자 모두 대응)
+          allowances.forEach(function(allowance) {
+            const code = allowance.ALLOW_CODE || allowance.allowCode;
+            const amount = allowance.AMOUNT || allowance.amount || 0;
+            if (code === 'MEAL') {
+              $('#mealAllowance').val(amount);
+            } else if (code === 'TRANSPORT') {
+              $('#transportAllowance').val(amount);
+            }
+          });
+        }).fail(function() {
+          // 급여항목 조회 실패 시 기본값 설정
+          $('#mealAllowance').val(0);
+          $('#transportAllowance').val(0);
+        });
+      } else {
+        // 사원번호가 없으면 기본값 설정
+        $('#mealAllowance').val(0);
+        $('#transportAllowance').val(0);
+      }
+      
+      // 공제항목 체크박스 설정
+      const deductionTypes = (row.deductionType || '4대보험,소득세,지방세,기타공제').split(',');
+      $('#deductionTypeGroup input[type=checkbox]').each(function() {
+        const val = $(this).val();
+        $(this).prop('checked', deductionTypes.includes(val));
+      });
+      
+      // 퇴직 정보
+      $('#resignDate').val(row.resignDate ? row.resignDate.substr(0, 10) : '');
+      $('#resignReason').val(row.resignReason);
+      
       $('#profilePreview').attr('src', row.profileImgPath || '');
+      
+      // 연차 잔여일수 자동 계산
+      calculateAnnualLeaveRemain();
     }
 
     // 검색/필터 이벤트 바인딩
@@ -416,6 +743,17 @@ body {
     $('#searchInput').on('keydown', function (e) { if (e.key === 'Enter') loadEmpList(); });
     $('#statusFilter').on('change', loadEmpList);
 
+    // 연차 잔여일수 자동 계산 함수
+    function calculateAnnualLeaveRemain() {
+      const total = parseInt($('#annualLeaveTotal').val()) || 0;
+      const used = parseInt($('#annualLeaveUsed').val()) || 0;
+      const remain = Math.max(0, total - used);
+      $('#annualLeaveRemain').val(remain);
+    }
+    
+    // 연차 관련 필드 변경 시 자동 계산
+    $('#annualLeaveTotal, #annualLeaveUsed').on('input', calculateAnnualLeaveRemain);
+    
     // 사진 미리보기 기능 추가
     $('#profileImg').on('change', function() {
       const input = this;
@@ -439,6 +777,17 @@ body {
       if (!empName) { alert('성명을 입력하세요.'); $('#empName').focus(); return; }
       if (!deptCode) { alert('부서를 선택하세요.'); $('#deptCode').focus(); return; }
       if (!position) { alert('직급을 선택하세요.'); $('#position').focus(); return; }
+      
+      // 비밀번호 확인 검증 (신규 등록 시에만)
+      const currentEmpId = $('#empId').val();
+      if (!currentEmpId) { // 신규 등록인 경우
+        const pwd = $('#pwd').val();
+        const pwdConfirm = $('#pwdConfirm').val();
+        if (!pwd) { alert('비밀번호를 입력하세요.'); $('#pwd').focus(); return; }
+        if (!pwdConfirm) { alert('비밀번호 확인을 입력하세요.'); $('#pwdConfirm').focus(); return; }
+        if (pwd !== pwdConfirm) { alert('비밀번호가 일치하지 않습니다.'); $('#pwdConfirm').focus(); return; }
+      }
+      
       // ... 필요시 추가 필수값 체크
 
       const form = document.getElementById('empForm');
@@ -533,11 +882,157 @@ body {
         $('#empId').val(nextEmpId);
       });
       $('#profilePreview').attr('src', '/static/img/user-default.png');
-      setSelectOptions();
+      
+      // 새로운 필드들의 기본값 설정
+      $('#annualLeaveTotal').val('15');
+      $('#annualLeaveUsed').val('0');
+      $('#annualLeaveRemain').val('15');
+      
+      // 급여 필드 초기화 (부서/직급 선택 전에는 빈 값)
+      $('#mealAllowance').val('');
+      $('#transportAllowance').val('');
+      $('#sal').val('');
+      $('#bank').val('');
+      $('#acctNo').val('');
+      $('#annualSalary').val('');
+      $('#monthlySalary').val('');
+      $('#bonus').val('');
+      $('#allowance').val('');
+      $('#basicSalary').val('');
+      $('#deductionTypeHidden').val('');
+      $('#workStartTime').val('09:00');
+      $('#workEndTime').val('18:00');
+      $('#lunchStartTime').val('12:00');
+      $('#lunchEndTime').val('13:00');
+      $('#overtimeAllowed').val('Y');
+      $('#payDay').val('25');
+      $('#taxCalculation').val('종합소득세');
+      $('#deductionTypeHidden').val('4대보험,소득세,지방세,기타공제'); // 체크박스 값 설정
+      $('#contractType').val('emp01'); // 정규직
+      $('#empStatus').val('stt01'); // 재직상태 기본값을 '재직'으로 설정
+      
+      // 급여정보 초기화 (부서/직급 선택 전에는 빈 값)
+      $('#mealAllowance').val('');
+      $('#transportAllowance').val('');
+      
+      // 근로계약 초기화 (부서/직급 선택 전에는 빈 값)
+      $('#annualSalary').val('');
+      $('#monthlySalary').val('');
+      $('#bonus').val('');
+      $('#additionalAllowance').val('');
+      
+      // 근태관리 기본값 설정
+      $('#workPattern').val('일반');
+      $('#workSchedule').val('주5일');
+      
+      setSelectOptions(function() {
+        // 옵션 세팅 후 기본값 세팅
+        $('#workType').val('emp01'); // 정규직
+        $('#contractType').val('emp01'); // 정규직
+        $('#empStatus').val('stt01'); // 재직
+      });
       $('.form-tab').removeClass('active');
       $('.form-tab[data-target="basicInfo"]').addClass('active');
       $('.form-section').removeClass('active');
       $('#basicInfo').addClass('active');
+    });
+
+    // 비밀번호 확인 기능
+    $('#pwdConfirm').on('input', function() {
+      const pwd = $('#pwd').val();
+      const pwdConfirm = $(this).val();
+      
+      if (pwd && pwdConfirm) {
+        if (pwd === pwdConfirm) {
+          $(this).removeClass('is-invalid').addClass('is-valid');
+          $('#pwd').removeClass('is-invalid').addClass('is-valid');
+        } else {
+          $(this).removeClass('is-valid').addClass('is-invalid');
+          $('#pwd').removeClass('is-valid').addClass('is-invalid');
+        }
+      } else {
+        $(this).removeClass('is-valid is-invalid');
+        $('#pwd').removeClass('is-valid is-invalid');
+      }
+    });
+    
+    $('#pwd').on('input', function() {
+      const pwd = $(this).val();
+      const pwdConfirm = $('#pwdConfirm').val();
+      
+      if (pwdConfirm) {
+        if (pwd === pwdConfirm) {
+          $(this).removeClass('is-invalid').addClass('is-valid');
+          $('#pwdConfirm').removeClass('is-invalid').addClass('is-valid');
+        } else {
+          $(this).removeClass('is-valid').addClass('is-invalid');
+          $('#pwdConfirm').removeClass('is-valid').addClass('is-invalid');
+        }
+      }
+    });
+
+    // 입사일자 입력 시 계약 시작일 자동 입력
+    $('#hireDate').on('change', function() {
+      const val = $(this).val();
+      if (val) $('#contractStartDate').val(val);
+    });
+    // 계약 시작일 변경 시 입사일자도 동기화(단, hireDate가 비어있으면만)
+    $('#contractStartDate').on('change', function() {
+      const val = $(this).val();
+      if (!$('#hireDate').val()) $('#hireDate').val(val);
+    });
+
+    // 월급 입력 시 연봉 자동 계산
+    $('#monthlySalary').on('input', function() {
+      const monthly = parseInt($(this).val().replace(/[^0-9]/g, '')) || 0;
+      if (monthly > 0) {
+        $('#annualSalary').val(monthly * 12);
+      }
+    });
+    // 연봉 입력 시 월급 자동 계산
+    $('#annualSalary').on('input', function() {
+      const annual = parseInt($(this).val().replace(/[^0-9]/g, '')) || 0;
+      if (annual > 0) {
+        $('#monthlySalary').val(Math.floor(annual / 12));
+      }
+    });
+
+    // 생년월일 입력 시 8자리(YYYYMMDD)만 자동 변환, 그 외에는 변환하지 않음
+    $('#birthDate').on('input', function() {
+      let val = $(this).val().replace(/[^0-9]/g, ''); // 숫자만 추출
+      if (val.length === 8) {
+        val = val.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
+        $(this).val(val);
+      } else if (val.length > 8) {
+        val = val.substring(0, 8).replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
+        $(this).val(val);
+      }
+      // 6자리 등 중간 입력은 변환하지 않음
+    });
+
+    // 저장 버튼 클릭 시 숫자 필드가 비어있으면 0으로 자동 세팅
+    $('#btnSave').on('click', function () {
+      if (!$('#annualLeaveTotal').val()) $('#annualLeaveTotal').val('0');
+      if (!$('#annualLeaveUsed').val()) $('#annualLeaveUsed').val('0');
+      if (!$('#annualLeaveRemain').val()) $('#annualLeaveRemain').val('0');
+      // ... 기존 코드 이어짐 ...
+    });
+
+    // 근무유형별 표준시간 매핑
+    const WORK_TYPE_TIME = {
+      '일반': { start: '09:00', end: '18:00', lunchStart: '12:00', lunchEnd: '13:00' },
+      '야간': { start: '22:00', end: '07:00', lunchStart: '01:00', lunchEnd: '02:00' },
+      '교대': { start: '06:00', end: '15:00', lunchStart: '12:00', lunchEnd: '13:00' },
+      '재택': { start: '09:00', end: '18:00', lunchStart: '12:00', lunchEnd: '13:00' }
+    };
+    $('#workPattern').on('change', function() {
+      const type = $(this).val();
+      if (WORK_TYPE_TIME[type]) {
+        $('#workStartTime').val(WORK_TYPE_TIME[type].start);
+        $('#workEndTime').val(WORK_TYPE_TIME[type].end);
+        $('#lunchStartTime').val(WORK_TYPE_TIME[type].lunchStart);
+        $('#lunchEndTime').val(WORK_TYPE_TIME[type].lunchEnd);
+      }
     });
 
     // 자동 테스트: 존재하지 않는 empId로 empDetail 호출 후 응답 콘솔 출력
@@ -546,6 +1041,125 @@ body {
         console.log('empDetail(없는 사번) 응답:', data);
       });
     });
+
+// =============================
+// [1] 부서/직급별 급여/수당/공제 자동입력 기준표 (샘플)
+// =============================
+const SALARY_STANDARD = {
+  'de1001': { // 경영지원부
+    'pos07': { // 사원
+      annualSalary: 30000000,
+      monthlySalary: 2500000,
+      bonus: 2000000,
+      additionalAllowance: 500000,
+      sal: 2000000,
+      mealAllowance: 100000,
+      transportAllowance: 50000,
+      deductionType: '4대보험,소득세,지방세'
+    }
+  },
+  'de1005': { // 영업부
+    'pos05': { // 대리
+      annualSalary: 35000000,
+      monthlySalary: 2900000,
+      bonus: 2500000,
+      additionalAllowance: 600000,
+      sal: 2300000,
+      mealAllowance: 100000,
+      transportAllowance: 50000,
+      deductionType: '4대보험,소득세,지방세'
+    }
+  },
+  'de1002': { // 인사부
+    'pos04': { // 과장
+      annualSalary: 40000000,
+      monthlySalary: 3300000,
+      bonus: 3000000,
+      additionalAllowance: 700000,
+      sal: 2600000,
+      mealAllowance: 120000,
+      transportAllowance: 60000,
+      deductionType: '4대보험,소득세,지방세,기타공제'
+    }
+  }
+  // ... 필요시 추가
+};
+
+// =============================
+// [2] 부서/직급 선택 시 자동입력 이벤트
+// =============================
+// 부서/직급 select의 value가 코드값으로 세팅되어 있다고 가정
+$('#deptCode, #position').on('change', function() {
+  const dept = $('#deptCode').val();
+  const pos = $('#position').val();
+  console.log('자동입력 트리거 - 부서:', dept, '직급:', pos);
+  if (SALARY_STANDARD[dept] && SALARY_STANDARD[dept][pos]) {
+    const std = SALARY_STANDARD[dept][pos];
+    // 근로계약 탭
+    $('#annualSalary').val(std.annualSalary);
+    $('#monthlySalary').val(std.monthlySalary);
+    $('#bonus').val(std.bonus);
+    $('#additionalAllowance').val(std.additionalAllowance);
+    // 급여정보 탭
+    $('#sal').val(std.sal);
+    $('#mealAllowance').val(std.mealAllowance);
+    $('#transportAllowance').val(std.transportAllowance);
+    // 공제항목 체크박스 자동 체크
+    $('#deductionTypeGroup input[type=checkbox]').each(function() {
+      const val = $(this).val();
+      $(this).prop('checked', std.deductionType.split(',').includes(val));
+    });
+    // 히든필드도 동기화
+    $('#deductionTypeHidden').val(std.deductionType);
+  }
+});
+// 신규 버튼 클릭 시에도 자동입력 이벤트 트리거
+$('#btnNew').on('click', function() {
+  setTimeout(function() {
+    $('#deptCode').trigger('change');
+    $('#position').trigger('change');
+  }, 100); // select 옵션 세팅 후 트리거
+});
+
+// =============================
+// [3] 입사구분(workType) ↔ 계약유형(contractType) 양방향 연동
+// =============================
+$('#workType').on('change', function() {
+  const val = $(this).val();
+  if (val) $('#contractType').val(val);
+});
+$('#contractType').on('change', function() {
+  const val = $(this).val();
+  if (val) $('#workType').val(val);
+});
+
+// 사원별 급여항목 삭제 함수 예시 (기존에 없으면 추가)
+function deleteEmpAllowance(empId, comId, allowCode) {
+  if (!confirm('정말 삭제하시겠습니까?')) return;
+  $.ajax({
+    url: '/erp/hr/deleteEmpAllowance',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ empId, comId, allowCode }),
+    success: function (res) {
+      if (res === 'ok') {
+        alert('급여항목 삭제 완료!');
+        // 삭제 후 급여항목 목록/화면 자동 갱신
+        if (empId) {
+          // 현재 선택된 사원 정보로 다시 채움
+          $.get('/erp/hr/empDetail', { empId: empId }, function(row) {
+            fillEmpForm(row);
+          });
+        } else {
+          loadEmpList();
+        }
+      } else {
+        alert('삭제 실패');
+      }
+    },
+    error: function (xhr) { alert('삭제 실패: ' + xhr.responseText); }
+  });
+}
   </script>
 </body>
 

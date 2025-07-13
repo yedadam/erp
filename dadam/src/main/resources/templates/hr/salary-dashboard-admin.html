@@ -86,6 +86,30 @@
         .badge-pending { background: #ffb300; color: #fff; }
         .badge-error { background: #e57373; color: #fff; }
         .swal2-popup { font-size: 1.1rem !important; }
+        /* 카드와 TOAST UI Grid 모두 상단 라운드 8px로 통일 */
+        .table-container,
+        #payrollGrid .tui-grid-container,
+        #payrollGrid .tui-grid-table,
+        #payrollGrid .tui-grid-header-area {
+          border-top-left-radius: 8px !important;
+          border-top-right-radius: 8px !important;
+        }
+        /* TOAST UI Grid 내부 테이블에도 적용 */
+        #payrollGrid .tui-grid-table {
+          border-radius: 8px 8px 0 0 !important;
+        }
+        /* 필요시, 하단 라운드는 0으로 */
+        #payrollGrid .tui-grid-container,
+        #payrollGrid .tui-grid-table,
+        #payrollGrid .tui-grid-header-area {
+          border-bottom-left-radius: 0 !important;
+          border-bottom-right-radius: 0 !important;
+        }
+        /* TOAST UI Grid 상단 라운드 - 급여항목관리와 동일하게 적용 */
+        #payrollGrid.tui-grid-container {
+            border-radius: 8px 8px 0 0 !important;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>

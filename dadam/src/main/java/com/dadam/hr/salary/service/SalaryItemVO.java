@@ -15,7 +15,7 @@ public class SalaryItemVO {
     private String allowCode;
     /** 항목명 (allow_name) */
     private String allowName;
-    /** 카테고리 (type) */
+    /** 카테고리(항목유형): 기본급, 수당, 복리후생, 상여, 공제, 비과세, 기타 */
     private String type;
     /** 기본값 (default_amount) */
     private java.math.BigDecimal defaultAmount;
@@ -33,4 +33,6 @@ public class SalaryItemVO {
     private String workTypes;
     /** 적용대상 한글명 (work_type_names, 콤마구분) */
     private String workTypeNames;
+    /** 과세여부 (tax_free_yn, Y=과세, N=비과세) */
+    private String taxFreeYn;
 } 

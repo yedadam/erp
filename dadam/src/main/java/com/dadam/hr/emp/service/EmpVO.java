@@ -78,11 +78,94 @@ public class EmpVO {
     /** 연차 잔여일수 */
     private Double annualLeaveRemain;
 
+    // null일 경우 0 반환하는 getter 추가
+    public double getAnnualLeaveTotalSafe() {
+        return annualLeaveTotal != null ? annualLeaveTotal : 0.0;
+    }
+    public double getAnnualLeaveUsedSafe() {
+        return annualLeaveUsed != null ? annualLeaveUsed : 0.0;
+    }
+    public double getAnnualLeaveRemainSafe() {
+        return annualLeaveRemain != null ? annualLeaveRemain : 0.0;
+    }
+
     /**
-     * 연차 총일수 setter (int→double 변환)
+     * 연차 총일수 setter (double 변환)
      * @param total - 연차 총일수
      */
-    public void setAnnualLeaveTotal(int total) {
-        this.annualLeaveTotal = (double) total;
+    public void setAnnualLeaveTotal(double total) {
+        this.annualLeaveTotal = total;
     }
+    public void setAnnualLeaveUsed(double used) {
+        this.annualLeaveUsed = used;
+    }
+    public void setAnnualLeaveRemain(double remain) {
+        this.annualLeaveRemain = remain;
+    }
+    
+    // === 스케줄러에서 사용하는 메서드 ===
+    
+    /**
+     * 사원 유형 조회 (근무유형 반환)
+     * @return 근무유형코드
+     */
+    public String getEmpType() {
+        return this.workType;
+    }
+
+    // === 근로계약 관련 필드 ===
+    /** 계약유형 */
+    private String contractType;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    /** 계약시작일 */
+    private Date contractStartDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    /** 계약종료일 */
+    private Date contractEndDate;
+    /** 수습기간(개월) */
+    private Integer probationPeriod;
+    /** 연봉 */
+    private Integer annualSalary;
+    /** 월급 */
+    private Integer monthlySalary;
+    /** 상여금 */
+    private Integer bonus;
+    /** 추가수당 */
+    private Integer additionalAllowance;
+
+    // === 근태관리 관련 필드 ===
+    /** 근무시작시간 */
+    private String workStartTime;
+    /** 근무종료시간 */
+    private String workEndTime;
+    /** 근무패턴 */
+    private String workPattern;
+    /** 근무스케줄 */
+    private String workSchedule;
+    /** 점심시작시간 */
+    private String lunchStartTime;
+    /** 점심종료시간 */
+    private String lunchEndTime;
+    /** 야근허용여부 */
+    private String overtimeAllowed;
+    
+    // === 급여정보 관련 필드 ===
+    /** 식대수당 */
+    private Integer mealAllowance;
+    /** 교통수당 */
+    private Integer transportAllowance;
+    /** 급여지급일 */
+    private String payDay;
+    /** 세금계산방식 */
+    private String taxCalculation;
+    /** 공제항목 */
+    private String deductionType;
+    /** 휴가정책 */
+    private String leavePolicy;
+    
+    // === 사원별 급여항목(EMP_ALLOWANCE) 관련 필드 ===
+    /** 사원별 급여항목 리스트 */
+    private java.util.List<java.util.Map<String, Object>> empAllowances;
 } 

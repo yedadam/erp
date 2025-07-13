@@ -16,6 +16,8 @@ public interface SalaryItemService {
     List<SalaryItemVO> getSalaryItemList(Map<String, Object> map);
     /** 단일 급여항목 조회 */
     SalaryItemVO getSalaryItem(String comId, String allowCode);
+    /** 마지막 항목코드 조회 (자동생성용) */
+    String getLastAllowCode(String comId);
     /** 급여항목 등록 */
     int addSalaryItem(SalaryItemVO vo);
     /** 급여항목 수정 */

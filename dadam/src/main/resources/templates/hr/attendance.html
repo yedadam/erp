@@ -566,21 +566,92 @@
             }
         }
 
-        // 출근 처리
+        // 위치 기반 출근 처리 (GPS/IP 검증 포함)
         function checkIn() {
+            // 위치 정보 수집
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
             const now = new Date();
             const today = now.toISOString().split('T')[0];
-            
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // 위치 검증 먼저 수행
+                        validateLocation(lat, lng, function(isValid) {
+                            if (isValid) {
+                                // 출근 처리
+                                processCheckIn(now, today, lat, lng);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '위치 검증 실패',
+                                    text: '회사 위치에서 출근해주세요. (GPS/위치 검증 실패)',
+                                    confirmButtonText: '확인'
+                                });
+                            }
+                        });
+                    },
+                    function(error) {
+                        // GPS 실패 시 IP 기반으로만 처리
+                        const now = new Date();
+                        const today = now.toISOString().split('T')[0];
+                        processCheckIn(now, today, null, null);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 60000
+                    }
+                );
+            } else {
+                // GPS 미지원 시 IP 기반으로만 처리
+                const now = new Date();
+                const today = now.toISOString().split('T')[0];
+                processCheckIn(now, today, null, null);
+            }
+        }
+
+        // 위치 검증 함수
+        function validateLocation(lat, lng, callback) {
             $.ajax({
-                url: '/erp/hr/attendanceCheckIn',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
+                url: '/erp/hr/validateLocation',
+                method: 'GET',
+                data: {
+                    gpsInfo: lat + ',' + lng,
+                    locationInfo: lat + ',' + lng
+                },
+                success: function(response) {
+                    callback(response.valid);
+                },
+                error: function() {
+                    callback(false);
+                }
+            });
+        }
+
+        // 출근 처리 함수
+        function processCheckIn(now, today, lat, lng) {
+            const requestData = {
                     comId: currentUser.comId,
                     empId: currentUser.empId,
                     workDate: today,
                     actualStartTime: now.toISOString()
-                }),
+            };
+
+            // 위치 정보가 있으면 헤더에 추가
+            const headers = {};
+            if (lat && lng) {
+                headers['GPS-Info'] = lat + ',' + lng;
+                headers['Location-Info'] = lat + ',' + lng;
+            }
+
+            $.ajax({
+                url: '/erp/hr/attendanceCheckIn',
+                method: 'POST',
+                contentType: 'application/json',
+                headers: headers,
+                data: JSON.stringify(requestData),
                 success: function(response) {
                     if (response.success) {
                         Swal.fire({
@@ -590,18 +661,11 @@
                             confirmButtonText: '확인'
                         });
                         loadAttendanceData();
-                    } else if (response.duplicate) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: response.message || '중복 출근',
-                            text: '오늘 이미 출근 기록이 있습니다.',
-                            confirmButtonText: '확인'
-                        });
                     } else {
                         Swal.fire({
                             icon: 'error',
                             title: response.message || '출근 실패',
-                            text: '출근 기록 중 오류가 발생했습니다.',
+                            text: response.message || '출근 기록 중 오류가 발생했습니다.',
                             confirmButtonText: '확인'
                         });
                     }
@@ -617,21 +681,74 @@
             });
         }
 
-        // 퇴근 처리
+        // 위치 기반 퇴근 처리 (GPS/IP 검증 포함)
         function checkOut() {
+            // 위치 정보 수집
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
             const now = new Date();
             const today = now.toISOString().split('T')[0];
-            
-            $.ajax({
-                url: '/erp/hr/attendanceCheckOut',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // 위치 검증 먼저 수행
+                        validateLocation(lat, lng, function(isValid) {
+                            if (isValid) {
+                                // 퇴근 처리
+                                processCheckOut(now, today, lat, lng);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '위치 검증 실패',
+                                    text: '회사 위치에서 퇴근해주세요. (GPS/위치 검증 실패)',
+                                    confirmButtonText: '확인'
+                                });
+                            }
+                        });
+                    },
+                    function(error) {
+                        // GPS 실패 시 IP 기반으로만 처리
+                        const now = new Date();
+                        const today = now.toISOString().split('T')[0];
+                        processCheckOut(now, today, null, null);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 60000
+                    }
+                );
+            } else {
+                // GPS 미지원 시 IP 기반으로만 처리
+                const now = new Date();
+                const today = now.toISOString().split('T')[0];
+                processCheckOut(now, today, null, null);
+            }
+        }
+
+        // 퇴근 처리 함수
+        function processCheckOut(now, today, lat, lng) {
+            const requestData = {
                     comId: currentUser.comId,
                     empId: currentUser.empId,
                     workDate: today,
                     actualEndTime: now.toISOString()
-                }),
+            };
+
+            // 위치 정보가 있으면 헤더에 추가
+            const headers = {};
+            if (lat && lng) {
+                headers['GPS-Info'] = lat + ',' + lng;
+                headers['Location-Info'] = lat + ',' + lng;
+            }
+
+            $.ajax({
+                url: '/erp/hr/attendanceCheckOut',
+                method: 'POST',
+                contentType: 'application/json',
+                headers: headers,
+                data: JSON.stringify(requestData),
                 success: function(response) {
                     if (response.success) {
                         Swal.fire({
@@ -641,18 +758,11 @@
                             confirmButtonText: '확인'
                         });
                         loadAttendanceData();
-                    } else if (response.duplicate) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: response.message || '중복 퇴근',
-                            text: '오늘 이미 퇴근 기록이 있습니다.',
-                            confirmButtonText: '확인'
-                        });
                     } else {
                         Swal.fire({
                             icon: 'error',
                             title: response.message || '퇴근 실패',
-                            text: '퇴근 기록 중 오류가 발생했습니다.',
+                            text: response.message || '퇴근 기록 중 오류가 발생했습니다.',
                             confirmButtonText: '확인'
                         });
                     }

@@ -1,26 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.dadam.hr.salary.mapper.SalaryItemMapper">
 
-    <resultMap id="SalaryItemMap" type="com.dadam.hr.salary.service.SalaryItemVO">
-      <result property="allowCode" column="allow_code"/>
-      <result property="allowName" column="allow_name"/>
-      <result property="type" column="type"/>
-      <result property="defaultAmount" column="default_amount"/>
-      <result property="acctYn" column="acct_yn"/>
-      <result property="createdDate" column="created_date"/>
-      <result property="note" column="note"/>
-      <result property="comId" column="com_id"/>
-      <!-- 계산방식 매핑 -->
-      <result property="calcType" column="calc_type"/>
-    </resultMap>
-
-    <!-- 전체 급여항목 목록 조회 (동적 조건 처리) -->
+    <!-- 급여항목 목록 조회 (동적 조건) -->
     <select id="selectSalaryItemList" resultMap="SalaryItemMap">
       SELECT 
         ALLOW_CODE,
         ALLOW_NAME,
-        TYPE,
+        TYPE, <!-- 카테고리(항목유형): 기본급, 수당, 복리후생, 상여, 공제, 비과세, 기타 -->
         DEFAULT_AMOUNT,
         ACCT_YN,
         TO_CHAR(CREATED_DATE, 'YYYY-MM-DD') as CREATED_DATE,
@@ -28,6 +17,7 @@
         COM_ID,
         CALC_TYPE,
         WORK_TYPES,
+        TAX_FREE_YN,
         (SELECT LISTAGG(SUB_NAME, ',') WITHIN GROUP (ORDER BY SUB_CODE)
            FROM SUBCODES
           WHERE MAIN_CODE = 'emp'
@@ -54,6 +44,14 @@
           AND ALLOW_CODE = #{allowCode}
     </select>
 
+    <!-- 마지막 항목코드 조회 (자동생성용) -->
+    <select id="selectLastAllowCode" resultType="String">
+        SELECT MAX(ALLOW_CODE) 
+        FROM SALARYITEM 
+        WHERE COM_ID = #{comId}
+          AND ALLOW_CODE LIKE 'ALLOW%'
+    </select>
+
     <!-- 급여항목 등록 (work_types 컬럼 추가) -->
     <insert id="insertSalaryItem" parameterType="com.dadam.hr.salary.service.SalaryItemVO">
         <selectKey resultType="long" keyProperty="id" order="BEFORE">
@@ -68,16 +66,16 @@
 
     <!-- 급여항목 수정 (work_types 컬럼 추가) -->
     <update id="updateSalaryItem" parameterType="com.dadam.hr.salary.service.SalaryItemVO">
-        UPDATE SALARYITEM
-        SET ALLOW_NAME = #{allowName},
+        UPDATE SALARYITEM SET
+            ALLOW_NAME = #{allowName},
             TYPE = #{type},
             DEFAULT_AMOUNT = #{defaultAmount},
             ACCT_YN = #{acctYn},
             NOTE = #{note},
             CALC_TYPE = #{calcType},
             WORK_TYPES = #{workTypes}
-        WHERE ALLOW_CODE = #{allowCode}
-          AND COM_ID = #{comId}
+        WHERE COM_ID = #{comId}
+          AND ALLOW_CODE = #{allowCode}
     </update>
 
     <!-- 급여항목 삭제 -->
@@ -87,21 +85,20 @@
           AND ALLOW_CODE = #{allowCode}
     </delete>
 
-    <!--
-    비고 컬럼 추가
-    ALTER TABLE salaryitem ADD note VARCHAR2(500);
-
-    기존 데이터에 설명 추가 (선택사항)
-    UPDATE salaryitem SET note = '직원의 기본 급여 항목' WHERE allow_code = 'BASIC';
-    UPDATE salaryitem SET note = '직책에 따른 추가 수당' WHERE allow_code = 'POSITION';
-    UPDATE salaryitem SET note = '초과 근무에 대한 추가 지급' WHERE allow_code = 'OVERTIME';
-    UPDATE salaryitem SET note = '식사 관련 수당' WHERE allow_code = 'MEAL';
-    UPDATE salaryitem SET note = '교통비 관련 수당' WHERE allow_code = 'TRANSPORT';
-    UPDATE salaryitem SET note = '소득세 공제' WHERE allow_code = 'INCOME_TAX';
-    UPDATE salaryitem SET note = '국민연금 보험료 공제' WHERE allow_code = 'NATIONAL_PENSION';
-    UPDATE salaryitem SET note = '건강보험료 공제' WHERE allow_code = 'HEALTH_INSURANCE';
-    UPDATE salaryitem SET note = '고용보험료 공제' WHERE allow_code = 'EMPLOYMENT_INSURANCE';
-    UPDATE salaryitem SET note = '지각 시 공제되는 금액' WHERE allow_code = 'LATE_FEE';
-    -->
+    <!-- ResultMap -->
+    <resultMap id="SalaryItemMap" type="com.dadam.hr.salary.service.SalaryItemVO">
+        <result property="allowCode" column="ALLOW_CODE"/>
+        <result property="allowName" column="ALLOW_NAME"/>
+        <result property="type" column="TYPE"/>
+        <result property="defaultAmount" column="DEFAULT_AMOUNT"/>
+        <result property="acctYn" column="ACCT_YN"/>
+        <result property="createdDate" column="CREATED_DATE"/>
+        <result property="note" column="NOTE"/>
+        <result property="comId" column="COM_ID"/>
+        <result property="calcType" column="CALC_TYPE"/>
+        <result property="workTypes" column="WORK_TYPES"/>
+        <result property="taxFreeYn" column="TAX_FREE_YN"/>
+        <result property="workTypeNames" column="WORK_TYPE_NAMES"/>
+    </resultMap>
 
 </mapper> 

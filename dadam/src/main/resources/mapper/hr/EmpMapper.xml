@@ -15,7 +15,7 @@
 		- useAnnualLeave: 연차 사용 처리
 	-->
 
-	<!-- [사원 목록 조회] 사원 전체/검색/필터 조회 -->
+	<!-- [사원 목록 조회] 사원 전체/검색/필터 조회 (근로계약, 근태, 급여 정보 포함) -->
     <select id="findEmpList" resultType="EmpVO" parameterType="map">
         SELECT
             e.emp_id,
@@ -23,7 +23,7 @@
             e.dept_code,
             getDeptName(e.dept_code) AS dept_name,
             e.pwd,
-            getEmpName(emp_id,#{comId}) AS emp_name,
+            getEmpName(e.emp_id,#{comId}) AS emp_name,
             e.email,
             e.tel,
             e.addr,
@@ -45,8 +45,43 @@
             e.note,
             e.annual_leave_total AS annualLeaveTotal,
             e.annual_leave_used AS annualLeaveUsed,
-            (e.annual_leave_total - e.annual_leave_used) AS annualLeaveRemain
+            (e.annual_leave_total - e.annual_leave_used) AS annualLeaveRemain,
+            -- 근로계약 정보 (최신 계약)
+            c.cont_type AS contractType,
+            c.start_date AS contractStartDate,
+            c.end_date AS contractEndDate,
+            c.prob_period AS probationPeriod,
+            c.ann_sal AS annualSalary,
+            c.mon_sal AS monthlySalary,
+            c.bonus,
+            c.extra_allow AS additionalAllowance,
+            -- 근태관리 정보 (기본 근무패턴)
+            c.work_start AS workStartTime,
+            c.work_end AS workEndTime,
+            c.DAY_WORK_HRS AS workPattern
+            -- 급여정보 (최신 급여명세서)
+            -- ss.meal_allow AS mealAllowance
         FROM employees e
+        LEFT JOIN (
+            SELECT emp_id, com_id, cont_type, start_date, end_date, prob_period, ann_sal, mon_sal, bonus, extra_allow, work_start, work_end, day_work_hrs
+            FROM contract
+            WHERE com_id = #{comId}
+            AND (emp_id, created_date) IN (
+                SELECT emp_id, MAX(created_date)
+                FROM contract
+                WHERE com_id = #{comId}
+                GROUP BY emp_id
+            )
+        ) c ON e.emp_id = c.emp_id AND e.com_id = c.com_id
+        LEFT JOIN (
+            SELECT ss.emp_id, ss.COM_ID
+            FROM (
+                SELECT ss.emp_id, ss.COM_ID, ss.CALC_MONTH, ROW_NUMBER() OVER (PARTITION BY ss.emp_id ORDER BY ss.CALC_MONTH DESC) as rn
+                FROM salarystatement ss
+                WHERE ss.COM_ID = #{comId}
+            ) ss
+            WHERE rn = 1
+        ) ss ON e.emp_id = ss.emp_id AND e.com_id = ss.COM_ID
         <where>
             e.com_id = #{comId}
             <if test="keyword != null and keyword != ''">
@@ -68,7 +103,7 @@
     
    
 
-	<!-- [사원 상세 조회] 사원 상세정보 조회 -->
+	<!-- [사원 상세 조회] 사원 상세정보 조회 (최신 근로계약, 근태, 급여, 연차, 급여항목까지 LEFT JOIN) -->
 	<select id="getEmpDetail" parameterType="map" resultType="EmpVO">
 		SELECT e.emp_id, e.com_id, e.dept_code, getDeptName(e.dept_code) AS dept_name, e.pwd, getEmpName(e.emp_id,#{comId}) AS emp_name,
 		e.email, e.tel, e.addr, e.addr_detail AS addrDetail, e.hire_date, e.position, e.resign_date,
@@ -76,8 +111,34 @@
 		e.sal, e.bank, e.acct_no, e.birth_date, e.profile_img_path, e.note,
 		e.annual_leave_total AS annualLeaveTotal,
 		e.annual_leave_used AS annualLeaveUsed,
-		(e.annual_leave_total - e.annual_leave_used) AS annualLeaveRemain
+		(e.annual_leave_total - e.annual_leave_used) AS annualLeaveRemain,
+		-- 최신 근로계약
+		c.cont_type AS contractType,
+		c.start_date AS contractStartDate,
+		c.end_date AS contractEndDate,
+		c.prob_period AS probationPeriod,
+		c.ann_sal AS annualSalary,
+		c.mon_sal AS monthlySalary,
+		c.bonus,
+		c.extra_allow AS additionalAllowance,
+		c.work_start AS workStartTime,
+		c.work_end AS workEndTime,
+		c.day_work_hrs AS workPattern,
+		-- 급여항목(식대, 교통비)
+		NVL((SELECT SUM(amount) FROM EMPALLOWANCE ea WHERE ea.emp_id = e.emp_id AND ea.com_id = e.com_id AND ea.allow_code = 'MEAL'), 0) AS mealAllowance,
+		NVL((SELECT SUM(amount) FROM EMPALLOWANCE ea WHERE ea.emp_id = e.emp_id AND ea.com_id = e.com_id AND ea.allow_code = 'TRANSPORT'), 0) AS transportAllowance
 		FROM employees e
+	LEFT JOIN (
+		SELECT emp_id, com_id, cont_type, start_date, end_date, prob_period, ann_sal, mon_sal, bonus, extra_allow, work_start, work_end, day_work_hrs
+		FROM contract
+		WHERE com_id = #{comId}
+		AND (emp_id, created_date) IN (
+			SELECT emp_id, MAX(created_date)
+			FROM contract
+			WHERE com_id = #{comId}
+			GROUP BY emp_id
+		)
+	) c ON e.emp_id = c.emp_id AND e.com_id = c.com_id
 		WHERE e.emp_id = #{empId}
 		AND e.com_id = #{comId}
 	</select>
@@ -202,6 +263,79 @@
 		(e.annual_leave_total - e.annual_leave_used) AS annualLeaveRemain
 		FROM employees e
 		WHERE e.emp_id = #{empId}
+	</select>
+
+	<!-- [사원별 급여항목(식대, 교통비 등) 조회] -->
+    <select id="findEmpAllowances" parameterType="map" resultType="map">
+      SELECT ALLOW_CODE, AMOUNT, NOTE
+      FROM EMPALLOWANCE
+      WHERE EMP_ID = #{empId}
+        AND COM_ID = #{comId}
+      ORDER BY ALLOW_CODE
+    </select>
+
+	<!-- [사원별 급여항목 등록] -->
+    <insert id="insertEmpAllowance" parameterType="map">
+      INSERT INTO EMPALLOWANCE (EMP_ID, COM_ID, ALLOW_CODE, AMOUNT, NOTE, CREATED_DATE)
+      VALUES (#{empId}, #{comId}, #{allowCode}, #{amount}, #{note}, SYSDATE)
+    </insert>
+
+	<!-- [사원별 급여항목 수정] -->
+    <update id="updateEmpAllowance" parameterType="map">
+      UPDATE EMPALLOWANCE 
+      SET AMOUNT = #{amount}, NOTE = #{note}, UPDATED_DATE = SYSDATE
+      WHERE EMP_ID = #{empId} 
+        AND COM_ID = #{comId} 
+        AND ALLOW_CODE = #{allowCode}
+    </update>
+
+	<!-- [사원별 급여항목 삭제] -->
+    <delete id="deleteEmpAllowance" parameterType="map">
+      DELETE FROM EMPALLOWANCE
+      WHERE EMP_ID = #{empId} 
+        AND COM_ID = #{comId} 
+        AND ALLOW_CODE = #{allowCode}
+    </delete>
+
+	<!-- [사원별 급여항목 일괄 삭제] -->
+    <delete id="deleteAllEmpAllowances" parameterType="map">
+      DELETE FROM EMPALLOWANCE
+      WHERE EMP_ID = #{empId} 
+        AND COM_ID = #{comId}
+    </delete>
+
+	<!-- === 스케줄러에서 사용하는 메서드들 === -->
+	
+	<!-- [신입 사원 조회] 특정 날짜 이후 입사한 사원 조회 -->
+	<select id="selectNewEmployees" parameterType="map" resultType="EmpVO">
+		SELECT e.emp_id, e.com_id, e.dept_code, getDeptName(e.dept_code) AS dept_name, e.pwd, getEmpName(e.emp_id, #{comId}) AS emp_name,
+		e.email, e.tel, e.addr, e.addr_detail AS addrDetail, e.hire_date, e.position, e.resign_date,
+		e.emp_status, e.work_type, e.resign_reason,
+		e.sal, e.bank, e.acct_no, e.birth_date, e.profile_img_path, e.note,
+		e.annual_leave_total AS annualLeaveTotal,
+		e.annual_leave_used AS annualLeaveUsed,
+		(e.annual_leave_total - e.annual_leave_used) AS annualLeaveRemain
+		FROM employees e
+		WHERE e.com_id = #{comId}
+		  AND e.hire_date >= #{date}
+		  AND e.emp_status = '재직'
+		ORDER BY e.hire_date DESC
+	</select>
+
+	<!-- [입사일 기준 사원 조회] 특정 입사일의 사원 조회 -->
+	<select id="selectEmployeesByHireDate" parameterType="map" resultType="EmpVO">
+		SELECT e.emp_id, e.com_id, e.dept_code, getDeptName(e.dept_code) AS dept_name, e.pwd, getEmpName(e.emp_id, #{comId}) AS emp_name,
+		e.email, e.tel, e.addr, e.addr_detail AS addrDetail, e.hire_date, e.position, e.resign_date,
+		e.emp_status, e.work_type, e.resign_reason,
+		e.sal, e.bank, e.acct_no, e.birth_date, e.profile_img_path, e.note,
+		e.annual_leave_total AS annualLeaveTotal,
+		e.annual_leave_used AS annualLeaveUsed,
+		(e.annual_leave_total - e.annual_leave_used) AS annualLeaveRemain
+		FROM employees e
+		WHERE e.com_id = #{comId}
+		  AND TRUNC(e.hire_date) = TRUNC(#{hireDate})
+		  AND e.emp_status = '재직'
+		ORDER BY e.emp_id
 	</select>
 
 </mapper>

@@ -2,36 +2,40 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dadam.hr.salary.mapper.SalaryMapper">
 
-    <!-- [급여명세서 목록 조회] 급여 리스트 조회 -->
-    <select id="selectSalaryList" parameterType="map" resultType="map">
-        SELECT 
-            s.salary_id,
-            s.company_id,
-            s.employee_id,
-            e.employee_name,
-            s.year_month,
-            s.base_salary,
-            s.total_salary,
-            s.net_salary,
-            s.status,
-            s.calculated_at,
-            s.approved_at,
-            s.paid_at,
-            s.remarks
-        FROM salary_master s
-        INNER JOIN employee e ON s.employee_id = e.employee_id
-        WHERE s.company_id = #{companyId}
-        <if test="yearMonth != null and yearMonth != ''">
-            AND s.year_month = #{yearMonth}
+    <!-- 급여명세서 목록 조회 (오라클, VO 기준, 실 DB 구조 100% 반영) -->
+    <select id="selectSalaryList" parameterType="SalaryListVO" resultType="SalaryListVO">
+        SELECT
+            ss.SAL_ID,
+            ss.COM_ID,
+            ss.EMP_ID,
+            e.EMP_NAME,
+            e.DEPT_CODE,
+            e.POSITION,
+            ss.CALC_MONTH,
+            ss.BASE_SAL,
+            ss.BONUS,
+            ss.OT_ALLOW,
+            ss.HOLI_ALLOW,
+            ss.MEAL_ALLOW,
+            ss.SAL1, ss.SAL2, ss.SAL3, ss.SAL4, ss.SAL5,
+            ss.SAL6, ss.SAL7, ss.SAL8, ss.SAL9, ss.SAL10,
+            ss.STATUS,
+            ss.CREATED_DATE
+        FROM SALARYSTATEMENT ss
+        LEFT JOIN EMPLOYEES e
+          ON ss.EMP_ID = e.EMP_ID
+         AND ss.COM_ID = e.COM_ID
+        WHERE ss.COM_ID = #{comId}
+        <if test="calcMonth != null and calcMonth != ''">
+          AND ss.CALC_MONTH = #{calcMonth}
         </if>
-        <if test="employeeName != null and employeeName != ''">
-            AND e.employee_name LIKE CONCAT('%', #{employeeName}, '%')
+        <if test="empName != null and empName != ''">
+          AND e.EMP_NAME LIKE '%' || #{empName} || '%'
         </if>
         <if test="status != null and status != ''">
-            AND s.status = #{status}
+          AND ss.STATUS = #{status}
         </if>
-        ORDER BY s.year_month DESC, e.employee_name ASC
-        LIMIT #{offset}, #{limit}
+        ORDER BY ss.CALC_MONTH DESC, e.EMP_NAME ASC
     </select>
 
     <!-- [급여명세서 상세 조회] 급여 상세정보 조회 -->

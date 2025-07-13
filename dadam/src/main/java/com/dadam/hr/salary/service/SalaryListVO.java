@@ -16,6 +16,7 @@ public class SalaryListVO {
     private String salaryMonth;       // 급여월
     private String empName;           // 사원명
     private String status;            // 상태
+    private String comId;             // 회사ID (추가)
     
     // 급여명세 정보
     private String salaryId;          // 급여명세 ID
@@ -69,6 +70,13 @@ public class SalaryListVO {
     
     public void setStatus(String status) {
         this.status = status;
+    }
+    
+    public String getComId() {
+        return comId;
+    }
+    public void setComId(String comId) {
+        this.comId = comId;
     }
     
     public String getSalaryId() {
@@ -190,6 +198,7 @@ public class SalaryListVO {
                 ", salaryMonth='" + salaryMonth + '\'' +
                 ", empName='" + empName + '\'' +
                 ", status='" + status + '\'' +
+                ", comId='" + comId + '\'' +
                 ", salaryId='" + salaryId + '\'' +
                 ", empNo='" + empNo + '\'' +
                 ", deptName='" + deptName + '\'' +
