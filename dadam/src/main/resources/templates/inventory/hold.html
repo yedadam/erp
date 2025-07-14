@@ -256,6 +256,7 @@ function selectGrid(){
 	    //필드값 구성
 	    columns:[
 	        { header: '홀드코드',name:'holdCode',align:'center'},
+	        { header: '구분코드',name:'code',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
 	        { header: '수량',name:'quantity',align:'center'},
 	        { header: '현재홀드수량',name:'hdqty',align:'center'},
@@ -263,7 +264,7 @@ function selectGrid(){
 	        	filter: 'select'
 	        	,formatter:({ value }) => {
 				    if(value=='출하의뢰'){
-				       return `<span class="start-action">${value}</span>`;
+				       return `<span class="info-action">${value}</span>`;
 				    }else if(value=='재고이동'){
 				       return `<span class="end-action">${value}</span>`;
 				    }
@@ -276,7 +277,7 @@ function selectGrid(){
 					    if(value=='홀드완료'){
 					       return `<span class="start-action">${value}</span>`;
 					    }else if(value=='홀드중'){
-					       return `<span class="info-action">${value}</span>`;
+					       return `<span class="end-action">${value}</span>`;
 					    }
 					    return '';
 					},
@@ -297,6 +298,9 @@ function selectGrid(){
 	// 이벤트 삭제
 	$('#deleteBtn').off('click');
 	$('#saveBtn').off('click');	
+	$('#lotBtn').off('click');
+	$('#shipRequestBtn').off('click');
+	$('#transferModalBtn').off('click');
 	$('#shipRequestModalBtn').remove();
 	$('#transferModalBtn').remove();
 	
@@ -705,12 +709,14 @@ function insertGrid(){
 				data: JSON.stringify(param),
 				success:(result)=>{
 					if(result > 0){
+						console.log(result)
 					Swal.fire({
 						  icon: "success",
 						  title: "홀드 완료!",
 						  text: "홀드가 완료되었습니다."
 						});
 					}else{
+						console.log(result)
 					Swal.fire({
 						  icon: "error",
 						  title: "홀드실패",

@@ -6,6 +6,7 @@
 		SELECT  
 				ho.hold_code,
 		        ho.item_code,
+		        ho.code,
 		        getitemName(ho.item_code) itemName,
 		        ho.quantity,
 		        getsubcode(ho.type) typeName,
@@ -73,7 +74,7 @@
 	MERGE INTO hold ho
 		USING (
 		    SELECT 
-		        #{holdCode} AS hold_code,
+                #{holdCode} AS hold_code,
                 #{itemCode} AS item_code,
                 #{quantity} AS quantity,
                 #{type} AS type,
@@ -85,11 +86,11 @@
 		    FROM dual
 		) data
 		ON (
-		    ho.hold_code = data.hold_code AND ho.item_code = data.item_code AND ho.com_id = data.com_id
+		    ho.code = data.code AND ho.item_code = data.item_code AND ho.com_id = data.com_id
 		)
 		WHEN MATCHED THEN
 		    UPDATE SET 
-		        ho.status = data.status
+		        ho.status = data.status, ho.note = data.note
 		WHEN NOT MATCHED THEN
         INSERT (hold_code, item_code, quantity, type, status, note, com_id, created_date, code)
         values(data.hold_code, data.item_code, data.quantity,data.type, data.status, data.note, data.com_id, sysdate, data.code)

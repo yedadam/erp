@@ -5,8 +5,7 @@
 	layout:fragment="Content">
 <body>
 	<div class="container-fluid mt-4 p-4 rounded shadow-sm">
-		<h3
-			class="mb-4 text-secondary fw-bold border-bottom border-secondary pb-2">출고관리</h3>
+		<h3 class="mb-4 text-secondary fw-bold border-bottom border-secondary pb-2">출고관리</h3>
 
 		<!-- 검색 및 버튼 영역 -->
 		<div class="card mb-3 shadow-sm">
@@ -190,7 +189,7 @@ function outboundList(){
    }).always(function() {
    	 setTimeout(function() {
    		 $('#gridSpinner').removeClass('d-flex').hide();
-   	    }, 500);
+   	    }, 1000);
    });
  };
 // 출고 조회그리드
@@ -412,7 +411,7 @@ function insertGrid(){
 				// 재고이동일떄
 			}else{
 				value.type = 'obt02';
-				value.type = '공장';
+				value.typeName = '공장';
 			}
 		} // for문 종료
 		
@@ -459,7 +458,7 @@ function insertGrid(){
 		data= [];
 		let param = {};
 		  let rowCheck = mainGrid.getCheckedRows();
-		  rowCheck.filter(item =>{
+		  rowCheck.forEach(item =>{
 			  ee = {
 				  lot: item.lot,
 				  holdDtlCode: item.holdDtlCode,
