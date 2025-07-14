@@ -174,12 +174,15 @@
                         width: 100,
                         align: 'center',
                         formatter: function(value) {
-                            switch(value) {
-                                case 'DRAFT': return '<span class="badge badge-secondary">작성중</span>';
-                                case 'APPROVED': return '<span class="badge badge-success">승인완료</span>';
-                                case 'PAID': return '<span class="badge badge-info">지급완료</span>';
-                                default: return value;
-                            }
+                            // 상태 코드 → 한글명+컬러뱃지 매핑
+                            let text = value;
+                            let cls = '';
+                            if(value==='ss01'||value==='DRAFT') { text='대기'; cls='start-action'; }
+                            else if(value==='ss02'||value==='APPROVED') { text='승인완료'; cls='end-action'; }
+                            else if(value==='ss03'||value==='PAID') { text='지급완료'; cls='del-action'; }
+                            else if(value==='CANCEL') { text='취소'; cls='del-action'; }
+                            else { text=value; cls=''; }
+                            return `<span class="${cls}">${text}</span>`;
                         }
                     },
                     {

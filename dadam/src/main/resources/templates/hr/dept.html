@@ -67,6 +67,27 @@
         .table tbody td {
             text-align: center;
         }
+        .status-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  letter-spacing: 0.5px;
+  min-width: 56px;
+  text-align: center;
+}
+.status-active {
+  background: #e6f4ea;
+  color: #1a7f37;
+  border-color: #b7e4c7;
+}
+.status-inactive {
+  background: #fbeaea;
+  color: #c92a2a;
+  border-color: #f5c2c7;
+}
         @media (max-width: 991px) {
             .col-lg-7, .col-lg-5 { flex: 0 0 100%; max-width: 100%; }
         }
@@ -279,9 +300,12 @@
                     { header: '사용여부', name: 'statusText', width: 80, align: 'center',
                         formatter: function(value) {
                             const status = value.row.status;
-                            const color = status === 'Y' ? '#48bb78' : '#a0aec0';
-                            const bgColor = status === 'Y' ? '#c6f6d5' : '#f7fafc';
-                            return `<span style="background: ${bgColor}; color: ${color}; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;">${value.value}</span>`;
+                            // purchase.html 스타일 참고: 진행중/완료/취소 등과 유사하게 색상/클래스 적용
+                            if (status === 'Y') {
+                                return `<span class="status-badge status-active">사용</span>`;
+                            } else {
+                                return `<span class="status-badge status-inactive">미사용</span>`;
+                            }
                         }
                     },
                     { header: '인원수', name: 'employeeCount', width: 80, align: 'center', sortable: true,
