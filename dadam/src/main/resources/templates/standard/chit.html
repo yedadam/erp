@@ -896,9 +896,9 @@
    
    salesGrid.on('click', ev => {
 	   let purOrdCode = salesGrid.getRow(ev.rowKey).ordCode;
-	   let totSupPrice = salesGrid.getRow(ev.rowKey).totPrice;
+	   let totSupPrice = salesGrid.getRow(ev.rowKey).totSupPrice;
 	   let totVatPrice = salesGrid.getRow(ev.rowKey).totVatPrice;
-	   let totAmtSum = salesGrid.getRow(ev.rowKey).totSupPrice;
+	   let totAmtSum = salesGrid.getRow(ev.rowKey).totPrice;
 	   
 	   mainGrid.setValue(mainGrid.getCheckedRowKeys()[0],'articleCode',purOrdCode);
 	   mainGrid.setValue(mainGrid.getCheckedRowKeys()[0],'supplyPrice',totSupPrice);
