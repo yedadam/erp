@@ -90,6 +90,16 @@
 	color: #991b1b; /* 진한 빨강 */
 }
 
+.info-action {
+	display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 12px;
+	border: 1px solid #96FFFF; /* 연한 파랑 */
+	background-color: #C8FFFF; /* 아주 연한 빨강 */
+	color: #32F1FF; /* 진한 파랑 */
+}
+
 .require {
 	color: red;
 }
