@@ -118,4 +118,11 @@ public interface SalaryCalculationMapper {
                                                       @Param("empId") String empId,
                                                       @Param("fromMonth") String fromMonth,
                                                       @Param("toMonth") String toMonth);
+    
+    /**
+     * 급여명세서 저장
+     * @param salaryStatement - 급여명세서 정보
+     * @return 저장된 행 수
+     */
+    public int insertSalaryStatement(com.dadam.hr.salary.service.SalaryStatementVO salaryStatement);
 } 

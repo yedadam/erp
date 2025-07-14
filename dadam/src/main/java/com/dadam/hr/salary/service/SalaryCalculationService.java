@@ -549,7 +549,8 @@ public class SalaryCalculationService {
             statement.setPayMonth(payMonth);
             statement.setBaseSalary((BigDecimal) salaryMaster.get("base_salary"));
             statement.setNetPay((BigDecimal) salaryMaster.get("net_salary"));
-            statement.setCreatedDate(LocalDateTime.now());
+            // 생성일(문자열) yyyy-MM-dd 포맷으로 저장
+            statement.setCreatedDate(java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")));
             statement.setUpdatedDate(LocalDateTime.now());
             
             // 4. 수당/공제 항목 설정 (별도 필드로 저장)

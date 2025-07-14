@@ -3,6 +3,7 @@ package com.dadam.hr.salary.web;
 import com.dadam.hr.salary.service.SalaryCalculationService;
 import com.dadam.hr.salary.service.SalaryStatementVO;
 import com.dadam.hr.salary.service.SalaryPaymentVO;
+import com.dadam.hr.salary.service.SalaryAutoCalculationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +39,9 @@ public class SalaryCalculationController {
 
     @Autowired
     private SalaryCalculationService salaryCalculationService;
+    
+    @Autowired
+    private SalaryAutoCalculationService salaryAutoCalculationService;
 
     /**
      * 현재 사용자의 권한 정보를 가져오는 메서드
@@ -91,6 +96,113 @@ public class SalaryCalculationController {
         }
         
         return salaryCalculationService.getSalaryStatement(empId, payMonth);
+    }
+
+    /**
+     * 급여 자동계산 (개별)
+     * @param request 계산 요청 정보
+     * @return 계산 결과
+     */
+    @PostMapping("/salary/calculate-auto")
+    public ResponseEntity<Map<String, Object>> calculateSalaryAuto(@RequestBody Map<String, Object> request) {
+        try {
+            String empId = (String) request.get("empId");
+            String calcMonth = (String) request.get("calcMonth");
+            String comId = (String) request.get("comId");
+            
+            if (empId == null || calcMonth == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "사원번호와 계산월은 필수입니다.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // comId 기본값 설정
+            if (comId == null || comId.isEmpty()) {
+                comId = "com-101";
+            }
+            
+            // 급여 자동계산 실행
+            SalaryStatementVO result = salaryAutoCalculationService.calculateSalary(empId, calcMonth, comId);
+            
+            // 계산 결과 저장
+            int savedCount = salaryAutoCalculationService.saveSalaryCalculation(result);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "급여 계산이 완료되었습니다.");
+            response.put("data", result);
+            response.put("savedCount", savedCount);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("급여 자동계산 중 오류 발생: {}", e.getMessage(), e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "급여 계산 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
+     * 급여 자동계산 (일괄)
+     * @param request 일괄 계산 요청 정보
+     * @return 계산 결과
+     */
+    @PostMapping("/salary/calculate-batch")
+    public ResponseEntity<Map<String, Object>> calculateSalaryBatch(@RequestBody Map<String, Object> request) {
+        try {
+            @SuppressWarnings("unchecked")
+            List<String> empIds = (List<String>) request.get("empIds");
+            String calcMonth = (String) request.get("calcMonth");
+            String comId = (String) request.get("comId");
+            
+            if (empIds == null || empIds.isEmpty() || calcMonth == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "사원번호 목록과 계산월은 필수입니다.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // comId 기본값 설정
+            if (comId == null || comId.isEmpty()) {
+                comId = "com-101";
+            }
+            
+            List<SalaryStatementVO> results = new ArrayList<>();
+            int successCount = 0;
+            int failCount = 0;
+            
+            // 각 사원별로 급여 계산
+            for (String empId : empIds) {
+                try {
+                    SalaryStatementVO result = salaryAutoCalculationService.calculateSalary(empId, calcMonth, comId);
+                    salaryAutoCalculationService.saveSalaryCalculation(result);
+                    results.add(result);
+                    successCount++;
+                } catch (Exception e) {
+                    log.error("사원 {} 급여 계산 실패: {}", empId, e.getMessage());
+                    failCount++;
+                }
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", String.format("급여 계산 완료 - 성공: %d건, 실패: %d건", successCount, failCount));
+            response.put("data", results);
+            response.put("successCount", successCount);
+            response.put("failCount", failCount);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("급여 일괄계산 중 오류 발생: {}", e.getMessage(), e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "급여 일괄계산 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
     /**
