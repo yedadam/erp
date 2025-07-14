@@ -20,16 +20,16 @@
     </div>
 
     <!-- ✅ 검색 조건 영역 -->
-    <div class="card mb-3 shadow-sm" style="background-color:#f0f8f0">
+    <div class="card mb-3 shadow-sm" >
       <div class="card-body">
         <div class="row g-3 align-items-center">
 
-          <div class="col-md-2">
+<!--           <div class="col-md-2">
             <label class="form-label">연도</label>
             <select id="year" class="form-select">
               <option th:each="y : ${yearList}" th:value="${y}" th:text="${y}" th:selected="${y == param.year}"></option>
             </select>
-          </div>
+          </div> -->
 
           <div class="col-md-2">
             <label class="form-label">반기</label>
@@ -52,7 +52,7 @@
           </div>
 
           <div class="col-md-2 align-self-end">
-            <button type="button" class="btn btn-primary btn-sm w-100" onclick="loadProfitData()">
+            <button type="button" class="btn btn-primary w-100" onclick="loadProfitData()">
               <i class="fas fa-search"></i> 조회
             </button>
           </div>

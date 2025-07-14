@@ -11,7 +11,7 @@
 	       (SELECT subclass_name FROM acct_subclass WHERE subclass_code = a.acct_subclass) AS acct_subclass,
 	       acct_yn, note, created_date, update_date, com_id
 	  FROM account a
-	 WHERE com_id = #{comId}
+	 WHERE a.com_id = #{comId}
 	 ORDER BY acct_code
 </select>
 
@@ -25,7 +25,7 @@
 	       acct_yn, note, created_date, update_date, com_id
 	  FROM account a
 	 WHERE a.acct_type = #{acctType}
-	   AND com_id = #{comId}
+	   AND a.com_id = #{comId}
 	 ORDER BY acct_code
 </select>
 
@@ -52,7 +52,7 @@ SELECT s.subclass_name
   FROM acct_subclass s
   JOIN acct_class c ON s.class_code = c.class_code
  WHERE c.class_name = #{acctClass}
-   AND com_id = #{comId}
+   AND s.com_id = #{comId}
  ORDER BY s.subclass_code
 </select>
 

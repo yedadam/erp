@@ -43,7 +43,7 @@
 				<div class="card border-start border-primary border-4 shadow-sm">
 					<div class="card-body">
 						<div class="card-title text-muted">미결 전표</div>
-						<div class="card-value text-primary">3건</div>
+						<div class="card-value text-primary"></div>
 					</div>
 				</div>
 			</div>
@@ -51,15 +51,15 @@
 				<div class="card border-start border-success border-4 shadow-sm">
 					<div class="card-body">
 						<div class="card-title text-muted">이번 달 수익</div>
-						<div class="card-value text-success">₩12,000,000</div>
+						<div class="card-value text-success"></div>
 					</div>
 				</div>
 			</div>
 			<div class="col">
 				<div class="card border-start border-danger border-4 shadow-sm">
-					<div class="card-body">
+					<div class="card-body">	
 						<div class="card-title text-muted">이번 달 비용</div>
-						<div class="card-value text-danger">₩8,500,000</div>
+						<div class="card-value text-danger"></div>
 					</div>
 				</div>
 			</div>
@@ -67,7 +67,7 @@
 				<div class="card border-start border-warning border-4 shadow-sm">
 					<div class="card-body">
 						<div class="card-title text-muted">통장 잔액</div>
-						<div class="card-value text-warning">₩3,200,000</div>
+						<div class="card-value text-warning"></div>
 					</div>
 				</div>
 			</div>
@@ -127,6 +127,21 @@
 </body>
 
 <script>
+
+$.ajax({
+	  url: '/erp/accounting/maindata',
+	  method: 'GET',
+	  dataType: 'json',
+	  success: function(data) {
+	    $('.card-value.text-primary').text(`${data.pendingChits}건`);
+	    $('.card-value.text-success').text(`₩${data.monthlyRevenue.toLocaleString()}`);
+	    $('.card-value.text-danger').text(`₩${data.monthlyExpense.toLocaleString()}`);
+	    $('.card-value.text-warning').text(`₩${data.bankBalance.toLocaleString()}`);
+	  },
+	  error: function(xhr, status, error) {
+	    console.error('데이터 조회 실패:', error);
+	  }
+	});
   // Toast UI Chart - 월별 수익/비용
   const chartData = {
     categories: ['1월', '2월', '3월', '4월', '5월', '6월'],
