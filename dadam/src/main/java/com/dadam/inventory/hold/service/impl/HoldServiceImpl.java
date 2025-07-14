@@ -64,9 +64,10 @@ public class HoldServiceImpl implements HoldService{
 					vo.setHstatus("hs01");
 					vo.setShipstatus("srd04");
 				}
+				
 			// 홀드 등록
-			holdMapper.insertHoldList(vo);
-			
+			result = holdMapper.insertHoldList(vo);
+			System.out.println(result);
 			// ht01 = 재고이동 ht02 = 출하의뢰
 			// 재고이동
 			 if(vo.getType() == "ht01") {
@@ -89,7 +90,7 @@ public class HoldServiceImpl implements HoldService{
 					// 증감 입력처리
 					holdQty = lot.getQty() + holdQty;
 					lot.setHoldQty(holdQty);
-					result = holdMapper.updateHoldStock(lot);
+					holdMapper.updateHoldStock(lot);
 				}
 		} // for문 종료.
 		

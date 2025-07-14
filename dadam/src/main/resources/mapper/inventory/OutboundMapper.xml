@@ -32,16 +32,12 @@
 		        hod.quantity hdqty,
 		        getsubcode(ho.type) typeName,
 		        ho.type,
-		        getsubCode(hod.status) statusName,
-		        hod.status hstatus,
 		        ho.status,
 		        ho.note,
-		        ho.created_date,
-                nvl(hod.curr_qty,0) curr_qty
+		        ho.created_date
 		FROM holddetail hod left join hold ho
                         on(ho.com_id = hod.com_id AND hod.hold_code = ho.hold_code)
-		WHERE ho.com_id = #{comId} 
-		AND ho.status NOT IN('hs02') AND hod.status NOT IN('hds02')
+		WHERE ho.com_id = #{comId} AND ho.status NOT IN('hs02')
 		ORDER BY hold_dtl_code DESC
 	</select>
 	<!-- 출고 등록 -->
