@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 7.2.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OrderForm" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="81fb4ef6-13cf-49cc-92ed-d860fa5d4c76">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="local_hr"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<style name="orderStyle" pattern="" fontName="훈민정음"/>
+	<queryString>
+		<![CDATA[SELECT emp_id,emp_name,com_id,pwd
+FROM employees
+WHERE emp_id = 'e1003']]>
+	</queryString>
+	<field name="EMP_ID" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="EMP_ID"/>
+	</field>
+	<field name="EMP_NAME" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="EMP_NAME"/>
+	</field>
+	<field name="COM_ID" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="COM_ID"/>
+	</field>
+	<field name="PWD" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="PWD"/>
+	</field>
+	<pageHeader>
+		<band height="120">
+			<staticText>
+				<reportElement x="200" y="0" width="155" height="30" uuid="462d85df-0078-4f6c-8a91-9333f8ccacfc"/>
+				<textElement textAlignment="Center">
+					<font size="20" isBold="true"/>
+				</textElement>
+				<text><![CDATA[주 문 서]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="80" width="555" height="1" uuid="b61ee683-c4b5-41b7-96b5-2f9482de896d"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="30">
+			<rectangle>
+				<reportElement x="0" y="0" width="555" height="30" backcolor="#E8E8E8" uuid="b00317ad-042f-47be-ba41-568e0cf9b407"/>
+				<graphicElement>
+					<pen lineWidth="1.0"/>
+				</graphicElement>
+			</rectangle>
+			<line>
+				<reportElement x="65" y="0" width="1" height="30" uuid="dfa38e55-e9b6-4115-8734-85456d9cfee8"/>
+			</line>
+			<line>
+				<reportElement x="220" y="0" width="1" height="30" uuid="0a422083-4a4b-47c0-a964-894c5c01b96c"/>
+			</line>
+			<line>
+				<reportElement x="325" y="0" width="1" height="30" uuid="0964306d-3322-44bd-a3d3-3a7616cd6d50"/>
+			</line>
+			<line>
+				<reportElement x="380" y="0" width="1" height="30" uuid="b686be34-f75c-4172-b9a5-00b669c4f4c1"/>
+			</line>
+			<line>
+				<reportElement x="465" y="0" width="1" height="30" uuid="f18f2806-67cb-4302-839a-781cb6ede481"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="25">
+			<rectangle>
+				<reportElement x="0" y="0" width="555" height="25" uuid="643392c0-d90a-47f1-aa0e-6fc9ea3b2b92"/>
+				<graphicElement>
+					<pen lineWidth="1.0"/>
+				</graphicElement>
+			</rectangle>
+			<textField>
+				<reportElement x="70" y="5" width="145" height="15" uuid="45a99f0d-fb0c-47e7-9178-27725dc089c0"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{EMP_ID}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="225" y="5" width="95" height="15" uuid="22aa7503-54ba-4f45-93a2-a8bff1f5b4b0"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{EMP_NAME}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="385" y="5" width="75" height="15" uuid="53769a1f-2401-41fa-923c-28c748bbc489"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{COM_ID}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="470" y="5" width="75" height="15" uuid="d164f7e9-ab52-46cf-84ea-3f1bdb2e8fe2"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PWD}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="65" y="0" width="1" height="25" uuid="f3b38e18-7e3e-4ce3-973e-c9fe43dabb06"/>
+			</line>
+			<line>
+				<reportElement x="220" y="0" width="1" height="25" uuid="4f2cb7c6-af96-4fff-8474-be31a4020c3e"/>
+			</line>
+			<line>
+				<reportElement x="325" y="0" width="1" height="25" uuid="f5085e2a-784b-4641-b6ea-507b39d7ddb5"/>
+			</line>
+			<line>
+				<reportElement x="380" y="0" width="1" height="25" uuid="3e560330-7d87-4093-91f5-2f64a5fce6a5"/>
+			</line>
+			<line>
+				<reportElement x="465" y="0" width="1" height="25" uuid="36444aa4-e0f8-40ef-8466-901008501fde"/>
+			</line>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="100"/>
+	</pageFooter>
+</jasperReport>
