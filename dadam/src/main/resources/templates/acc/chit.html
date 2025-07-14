@@ -81,19 +81,19 @@ dialog {
 </style>
 <body class="bg-light">
 	<div class="container-fluid mt-4 p-4 rounded shadow-sm">
-			<div
-				class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
-		<!-- 페이지 타이틀 -->
-		<h3 class="mb-4 text-secondary fw-bold border-bottom">전표관리</h3>
+		<div
+			class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
+			<!-- 페이지 타이틀 -->
+			<h3 class="mb-4 text-secondary fw-bold border-bottom">전표관리</h3>
 
-		<!-- 상단 안내 및 설정버튼 -->
+			<!-- 상단 안내 및 설정버튼 -->
 			<div>
 				<button class="btn btn-outline-secondary btn-sm"
 					onclick="openAutoRuleModal()">자동분개 설정 ⚙️</button>
 				<button class="btn btn-outline-secondary btn-sm"
 					id="columnToggleBtn">메뉴설정 ⚙️</button>
-					</div>
 			</div>
+		</div>
 
 
 
@@ -184,8 +184,8 @@ dialog {
 				</div>
 			</div>
 		</div>
-		
-				<!-- 상단 버튼 -->
+
+		<!-- 상단 버튼 -->
 		<div class="d-flex justify-content-end gap-2 mb-3">
 			<button class="btn btn-primary" id="saveBtn">
 				<i class="fas fa-save"></i> 등록
@@ -196,8 +196,20 @@ dialog {
 		</div>
 
 		<!-- 전표 그리드 -->
-		<div id="chitGrid" class="position-relative"></div>
-
+		<div id="mainGridWrapper"
+			class="position-relative border rounded p-3 bg-white shadow-sm">
+			<div id="chitGrid" class="position-relative"></div>
+			<div id="gridSpinner"
+				class="position-absolute top-0 start-0 w-100 h-100 bg-white d-flex align-items-center justify-content-center"
+				style="top: 38px; display: none; z-index: 10;">
+				<dotlottie-player
+					src="https://lottie.host/e8b36d4d-46d8-429f-98b8-d8c1c4dde598/p6hfbX0nTd.lottie"
+					background="transparent" speed="1"
+					style="width: 200px; height: 100px;" loop autoplay>
+				</dotlottie-player>
+			</div>
+			
+		</div>
 	</div>
 
 	<!-- 컬럼 설정 다이얼로그 -->
@@ -334,7 +346,7 @@ const chitGrid = new tui.Grid({
      						    :''},			    
    { header: '계정과목', name: 'acctCode', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.aname || row.ANAME },
    { header: '전표구분', name: 'iType', editor: { type: indTypeEditor }, formatter: ({ row }) => row.iname || row.INAME },
-   { header: '금액', name: 'iPrice', editor: { type: 'text' } },
+   { header: '금액', name: 'iPrice', align: 'right', editor: { type: 'text' }, formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '' },
    { name: 'ANAME', hidden: true  },
    { name: 'INAME', hidden: true  },
    { header: '담당부서', name: 'deptCode', hidden: true },
@@ -362,11 +374,11 @@ const chitGrid = new tui.Grid({
  ]
 });
 
-chitGrid.on('beforeEdit', ev => {
+/* chitGrid.on('beforeEdit', ev => {
 	  const row = chitGrid.getRow(ev.rowKey);
 	  const isParent = row._attributes?.tree?.parent === undefined;
 	  if (isParent) ev.stop(); // 부모 행은 편집 불가
-	});
+	}); */
 
 
 /* 그리드 검사
@@ -846,7 +858,11 @@ function chitList() {
 	      console.error("전표 조회 실패:", error);
 	      alert("전표 데이터를 불러오는 중 오류가 발생했습니다.");
 	    }
-	  });
+	  }).always(function() {
+     	 setTimeout(function() {
+    		 $('#gridSpinner').removeClass('d-flex').hide();
+    	    }, 850);
+    })
 	}
 // 첫 데이터 로딩
 chitList();
@@ -1129,5 +1145,8 @@ $('#chitSearchBtn').on('click', function() {
 $('#chitInput').on('keydown', function(e) {
   if (e.keyCode === 13) $('#chitSearchBtn').click();
 });
+
+
+
 </script>
 </html>

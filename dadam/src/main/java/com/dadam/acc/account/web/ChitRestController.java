@@ -145,4 +145,6 @@ public class ChitRestController {
         // comId는 인증에서 추출
         return chitService.chitAutoComplete(type, value);
     }
+    
+    
 }
