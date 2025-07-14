@@ -487,7 +487,7 @@
 			//채크
 			for(item of checkedRows){
 			    let check = mainGrid.getRow(item.rowKey).status
-			    if(check=='cst02' || check=='cst03'){
+			    if(check=='cst02' || check=='cst03' || check=='cst04'){
 			    	Swal.fire('실패','이미 결제건에 대해새선 삭제가 불가합니다.', 'error');
 			    	return;
 			    }

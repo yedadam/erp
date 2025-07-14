@@ -80,19 +80,19 @@ signatures
      * @throws Exception 예외 발생 시 던짐
      */
     @RequestMapping("/report")
-    public ModelAndView report2(@RequestParam String subsCode , HttpServletResponse response) throws Exception {
+    public ModelAndView report2(@RequestParam String subsCode, HttpServletResponse response) throws Exception {
         ModelAndView mv = new ModelAndView();
 
         // jasper 커스텀뷰 세팅
         mv.setView(jasperDownCommon);
 
-        // 보고서 템플릿경로 지정
+        // 보고서 템플릿 파일명 (InputStream으로 처리할 것이므로 경로 그대로 넘김)
         mv.addObject("filename", "/report/taxinvoice.jasper");
-        String reportDirPath = this.getClass().getResource("/report/").getPath();
-        // 보고서 파라미터 넣기
+
+        // 파라미터 설정 (REPORT_DIR 제거)
         HashMap<String, Object> map = new HashMap<>();
         map.put("p_subsCode", subsCode);
-        map.put("REPORT_DIR", reportDirPath);
+        // map.put("REPORT_DIR", reportDirPath);  // ← 삭제
         mv.addObject("param", map);
 
         return mv;

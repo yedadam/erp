@@ -177,7 +177,7 @@
                                     STATUS,
                                     COM_ID,
                                     PUR_ORD_CODE)
-VALUES (#{purOrdDtlCode},#{itemCode},#{quantity},#{supPrice},#{vatPrice},#{totPrice},'pds-01',#{comId},#{purOrdCode})
+VALUES (#{purOrdDtlCode},#{itemCode},#{quantity},#{supPrice},#{vatPrice},#{totPrice},'pds01',#{comId},#{purOrdCode})
 </insert>
 <!-- 상태값 변경 -->
 <update id ="reqStatusUpdate">
