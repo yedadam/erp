@@ -54,6 +54,8 @@
 		.row-selected {
     		background-color: #e6f2ff !important;
   		}	
+
+
 	</style>
 </head>
 <body class="bg-light">
@@ -63,7 +65,7 @@
 <!-- 검색창 그룹 -->
 <div class="card mb-3 shadow-sm">
   <div class="card-body">
-    <div class="row g-3 align-items-start">
+   <div class="row g-3 align-items-center">
       
       <!-- 1) 검색 조건 -->
       <div class="col-md-4">
@@ -115,7 +117,7 @@
       </div>
       
       <!-- 4) 검색 버튼 (아래로 내림) -->
-      <div class="col-md-2 align-self-end">
+       <div class="col-md-2">
         <button class="btn btn-primary w-100" id="orderSearchBtn">
           <i class="fas fa-search"></i> 검색
         </button>
@@ -173,17 +175,17 @@
 
 	
 		<!-- 상세 버튼 정렬 -->
-			  <div class="row mb-3">	
+			  <div class="row mb-3  mt-4">	
         		<div class="col-12 d-flex justify-content-end">
                 <div class="btn-group-custom">
                 	<button class="btn btn-secondary me-2" id="addRowdtl">
-                        <i class="fas fa-pen"></i>  상세행추가
+                        <i class="fas fa-pen"></i> 행추가
                     </button>
 					<!-- <button class="btn btn-warning" id="modRowdtl">
 						<i class="fas fa-eye"></i>  상세수정
 					</button> -->
                     <button class="btn btn-danger me-2" id="delRowdtl">
-                        <i class="fas fa-trash"></i> 상세행삭제
+                        <i class="fas fa-trash"></i> 행삭제
                     </button>
                 </div>
             </div>
@@ -442,6 +444,7 @@ if(pageStatus=='register'){
 			perPage: 5,
 			useClient: true,
 		},
+  
 		//필드값 구성
 		columns: [
 			{header: '주문번호',name: 'ordCode',	align: 'center',width: 100,	},
@@ -523,7 +526,7 @@ if(pageStatus=='register'){
 				// 	ordDtlGrid.setValue(i, "ordCode", orderGrid.getRow(ev.rowKey).ordCode);
 				// }
 				if (ordDtlGrid.getData()[i].quantity == null) {
-					ordDtlGrid.setValue(i, "quantity", 1); //수량null값 이면 default 1로 부여하기로함   
+				//	ordDtlGrid.setValue(i, "quantity", 1); 수량null값 이면 default 1로 부여하기로함   
 				}
 				ordDtlGrid.setValue(i, "totPrice",
 					ordDtlGrid.getData()[i].supPrice +
@@ -555,10 +558,11 @@ if(pageStatus=='register'){
 	let ordDtlGrid = new tui.Grid({
 		el: document.getElementById('ordDtlGrid'),
 		rowHeaders: ['checkbox'],
+		scrollY:true, 
 		columns: [
-			{header: '주문상세정보',name: 'ordDtlCode',	align: 'center',width: 110},
-			{header: '품목코드',name: 'itemCode',align: 'center',editor:'text',width:100},
-			{header: '품목명',name: 'name',align: 'left',resizable: true,width:180},
+			{header: '주문상세정보',name: 'ordDtlCode',	align: 'center',width:150},
+			{header: '품목코드',name: 'itemCode',align: 'center',editor:'text',width:150},
+			{header: '품목명',name: 'name',align: 'left',resizable: true},
 			{header: '단가',name: 'price',	align: 'right',
 				formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원',},
 			{header: '수량',name: 'quantity',align: 'center',	
@@ -708,6 +712,8 @@ if(pageStatus=='register'){
 			},
 			success: function (result) {
 				//console.log('주문상세정보 불러오기', result);
+				
+				ordDtlGrid.refreshLayout(); 
 				ordDtlGrid.resetData(result);
 				console.log('상세정보조회',result);
 			}
@@ -884,31 +890,31 @@ if(pageStatus=='register'){
 			Swal.fire({
 				icon: "error",
 				title: "error",
-				text: "주문디테일을 선택해주세요"
+				text: "주문할 상품을 선택해주세요"
 			});
 			return;
 		}
 
 				
-		let noItemCode; 
-	//console.log('ordDtlGrid 주문등록버튼=>',ordDtlGrid.getData()[0].itemCode); 새로 생성된 행이 있을경우 
-	if(ordDtlGrid.getModifiedRows().createdRows){	
-			for(let i=0; i<ordDtlGrid.getModifiedRows().createdRows.length;i++){
+// 		let noItemCode; 
+// 	//console.log('ordDtlGrid 주문등록버튼=>',ordDtlGrid.getData()[0].itemCode); 새로 생성된 행이 있을경우 
+// 	if(ordDtlGrid.getModifiedRows().createdRows){	
+// 			for(let i=0; i<ordDtlGrid.getModifiedRows().createdRows.length;i++){
 
-				if(!ordDtlGrid.getModifiedRows().createdRows[i].itemCode){
-					 noItemCode='y'; 
-				}
+// 				if(!ordDtlGrid.getModifiedRows().createdRows[i].itemCode){
+// 					 noItemCode='y'; 
+// 				}
 
-			}
-			if(noItemCode=='y'){
-			Swal.fire({
-					icon: "error",
-					title: "error",
-					text: "주문할 상품을 선택하시오"
-				});
-				return;
-			}
-}
+// 			}
+// 			if(noItemCode=='y'){
+// 			Swal.fire({
+// 					icon: "error",
+// 					title: "error",
+// 					text: "주문할 상품을 선택하시오"
+// 				});
+// 				return;
+// 			}
+// }
 
 		const dtlObj = ordDtlGrid.getModifiedRows(); 
 		let totSup=0; 

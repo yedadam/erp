@@ -3,6 +3,7 @@ package com.dadam.sales.order.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +21,7 @@ import com.dadam.security.service.LoginUserAuthority;
 public class OrderServiceImpl implements OrderService {
 	
 	 String comId = "com-101";
+	 String userId="e1001"; 
 	    public void initAuthInfo() {
 	        //로그인 객체값 연결
 	        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -29,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
 	        if (principal instanceof LoginUserAuthority) {
 	        	LoginUserAuthority user = (LoginUserAuthority) principal;
 	            comId = user.getComId();
+	            userId=user.getUserId(); 
 	            System.out.println("회사명: " + comId);
 	        }
 	    }
@@ -56,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
 	public int orderInsert(OrdReqVO ord) {
 		initAuthInfo(); 
 		ord.getOrd().setComId(comId);
-		
+		ord.getOrd().setEmpId(userId);
 		//String ordCode=ord.getOrd().getOrdCode();
 		
 		orderMapper.orderInsert(ord.getOrd()); //헤더 제일먼저 insert 무조건 ord_code가 생김  
@@ -96,6 +99,8 @@ public class OrderServiceImpl implements OrderService {
 	public int updOrder(OrdersVO ord) {
 		initAuthInfo();
 		ord.setComId(comId);
+		ord.setEmpId(userId);
+		
 		orderMapper.updOrder(ord); // 주문수정하기
 		return 0;
 	}
@@ -106,6 +111,7 @@ public class OrderServiceImpl implements OrderService {
 		String ordCode=dtl.getOrdCode(); // ord-101 프론트에서 ordCode 받아와야 함 
 		System.out.println("ordCode 잘 받아오는지 확인하기 !!!!"+ordCode);
 		dtl.setComId(comId);
+		
 		Long  total=0L;
 		for(int i=0;i<orderMapper.findOrdListByOrdNo(ordCode).size();i++) {
 			total+=orderMapper.findOrdListByOrdNo(ordCode).get(i).getTotPrice();
@@ -146,7 +152,7 @@ public class OrderServiceImpl implements OrderService {
 		
 	
 		req.getOrd().setComId(comId);
-			
+		req.getOrd().setEmpId(userId);	
 		orderMapper.updOrder(req.getOrd()); 
 		
 		//주문등록할때 updated된 행도 수정해줘야함 
