@@ -543,7 +543,6 @@
     //버튼클릭시 발동
     let front;
     $('#saveBtn').on('click', ev => {
-
       //추가버튼 클릭시
       if (pageStatus == 'add') {         
           //front 정의 
@@ -566,6 +565,15 @@
                     creditPrice:Number(mainGrid.getData()[0].creditPrice), //여신금액 
                     creditBalPrice:Number(mainGrid.getData()[0].creditPrice)  //여신잔량 
                   };
+            if(!front.vdrCode || !front.vdrName || !front.addr ||  !front.bizNo || !front.acctNo ){
+                		Swal.fire({
+                      icon: "error",
+                      title: "error",
+                      text: "필요항목을 모두 기입해주세요"
+			              })
+                return; 
+            }      
+
         //등록함수발동
         venderAdd(); //등록처리됨 
         mainGrid.uncheckAll();
