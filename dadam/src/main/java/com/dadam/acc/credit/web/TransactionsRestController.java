@@ -2,8 +2,11 @@ package com.dadam.acc.credit.web;
 
 import com.dadam.acc.credit.service.TransactionsService;
 import com.dadam.acc.credit.service.TransactionsVO;
-
+import com.dadam.standard.vender.mapper.VenderMapper;
+import com.dadam.standard.vender.service.VenderVO;
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +21,9 @@ public class TransactionsRestController {
 	
     @Autowired
     TransactionsService transactionsService;
+
+    @Autowired
+    private VenderMapper venderMapper;
 
     @GetMapping("/transactions")
     public List<TransactionsVO> getAll(String comId) {
@@ -34,4 +40,10 @@ public class TransactionsRestController {
         return Map.of("result", "success", "message", "입출금 등록 완료");
     }
 
+    @GetMapping("/venderAll")
+    public List<VenderVO> venderAll(@RequestParam String comId,
+                                    @RequestParam(required = false, defaultValue = "") String type,
+                                    @RequestParam(required = false, defaultValue = "") String value) {
+        return transactionsService.findVenders(comId, type, value);
+    }
 } 	

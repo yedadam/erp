@@ -29,6 +29,38 @@
     <div id="tranGrid" class="position-relative" style="min-height: 400px;"></div>
 
   </div>
+  <!-- 거래처 모달 추가 -->
+  <div class="modal fade" id="vdrModal" tabindex="-1" aria-labelledby="vdrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="vdrModalLabel">거래처 선택</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- 검색창 -->
+          <div class="position-relative mb-3" style="max-width: 500px;">
+            <div class="input-group">
+              <select class="form-select" id="vdrSearchSelect" style="max-width: 30%;">
+                <option value="vdrCode">거래처코드</option>
+                <option value="vdrName">거래처명</option>
+                <option value="addr">주소</option>
+              </select>
+              <input type="text" class="form-control" id="vdrSearchInput" placeholder="검색어 입력">
+              <button class="btn btn-outline-secondary" type="button" id="vdrSearchBtn">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+          <!-- 그리드 -->
+          <div id="vdrGrid" style="height:250px;"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 
 <script>
@@ -87,17 +119,17 @@ function fetchData() {
 fetchData();
 	
         //행추가
-        $('#btn-add').on('click', function () {
-        	tranGrid.appendRow({
-        		  deposit: '',
-        		  withdraw: '',
-        		  balance: '',
-        		  txnName: '',
-        		  bank: '',
-        		  acctNo: '',
-        		  txnMemo: ''
-        		});
-        	});
+$('#btn-add').on('click', function () {
+  tranGrid.appendRow({
+    deposit: '',
+    withdraw: '',
+    balance: '',
+    txnName: '',
+    bank: '',
+    acctNo: '',
+    txnMemo: ''
+  }, { at: 0 });  // ← 가장 위에 추가
+});
         
      // 저장 버튼
         $('#btn-save').on('click', function () {
@@ -121,6 +153,7 @@ fetchData();
 
       return {
         txnName: row.txnName,
+        vdrCode: row.vdrCode,
         txnType,
         price,
         balance: row.balance,
@@ -147,4 +180,93 @@ fetchData();
     }
   });
 });
+
+// 거래처 그리드 및 모달 연동
+let vdrGrid;
+let vdrAll = [];
+let selectedTranRowKey = null;
+
+// 거래처 목록 불러오기 (검색조건 반영)
+function fetchVdrList() {
+  const type = $('#vdrSearchSelect').val();
+  const keyword = $('#vdrSearchInput').val().trim();
+  const params = { comId };
+
+  if (keyword) {
+    params['type'] = type;
+    params['value'] = keyword;
+  }
+
+  $.ajax({
+    url: '/erp/accounting/venderAll',
+    method: 'GET',
+    data: params,
+    success: function (result) {
+      vdrAll = result;
+      vdrGrid.resetData(vdrAll);
+      vdrGrid.refreshLayout();
+    }
+  });
+}
+
+// 검색 버튼/엔터 이벤트
+$(document).on('click', '#vdrSearchBtn', fetchVdrList);
+$(document).on('keydown', '#vdrSearchInput', function(e) {
+  if (e.key === 'Enter') fetchVdrList();
+});
+
+// openVdrModal에서 fetchVdrList 호출로 변경
+function openVdrModal(rowKey) {
+  selectedTranRowKey = rowKey;
+
+  if (!vdrGrid) {
+    vdrGrid = new tui.Grid({
+      el: document.getElementById('vdrGrid'),
+      scrollX: true,
+      scrollY: true,
+      rowHeaders: ['checkbox'],
+      pageOptions: { perPage: 5, useClient: true },
+      columns: [
+        { header: '거래처코드', name: 'vdrCode', align: 'center', width: 120 },
+        { header: '거래처명', name: 'vdrName', align: 'center', width: 120 },
+        { header: '주소', name: 'addr', align: 'center', width: 200 },
+        { header: '은행', name: 'bank', align: 'center', width: 120 },
+        { header: '계좌번호', name: 'acctNo', align: 'center', width: 180 }
+      ]
+    });
+
+    vdrGrid.on('click', (ev) => {
+      const rowData = vdrGrid.getRow(ev.rowKey);
+      if (!rowData) return;
+      tranGrid.setValue(selectedTranRowKey, 'txnName', rowData.vdrName);
+      tranGrid.setValue(selectedTranRowKey, 'acctNo', rowData.acctNo);
+
+      const vdrModalInstance = bootstrap.Modal.getOrCreateInstance(document.getElementById('vdrModal'));
+      vdrModalInstance.hide();
+      vdrGrid.uncheckAll();
+    });
+  }
+
+  // ✅ 모달 먼저 열고 → 렌더링 이후 → 데이터를 세팅
+  const vdrModal = new bootstrap.Modal(document.getElementById('vdrModal'));
+  vdrModal.show();
+
+  setTimeout(() => {
+    fetchVdrList(); // ← 이 타이밍에 resetData()가 실행되어야 정상 렌더링 됨
+  }, 200);
+}
+
+
+// 이름 셀 클릭 시 모달 오픈
+tranGrid.on('click', (ev) => {
+  if (ev.columnName === 'txnName') {
+    openVdrModal(ev.rowKey);
+  }
+});
+
+// tranGrid 컬럼에 vdrCode 추가 (숨김)
+tranGrid.setColumns([
+  ...tranGrid.getColumns(),
+  { header: '거래처코드', name: 'vdrCode', hidden: true }
+]);
     </script>

@@ -50,7 +50,44 @@
 		)
 	</insert>
 
-
+  <select id="findVenders" resultType="com.dadam.standard.vender.service.VenderVO">
+    SELECT 
+      vdr_code    AS vdrCode,
+      type,
+      vdr_name    AS vdrName,
+      biz_no      AS bizNo,
+      ceo_name    AS ceoName,
+      addr,
+      addr_detail AS addrDetail,
+      email,
+      tel,
+      bank,
+      acct_no     AS acctNo,
+      credit_period AS creditPeriod,
+      credit_price  AS creditPrice,
+      credit_bal_price AS creditBalPrice,
+      discount,
+      com_id      AS comId,
+      emp_id      AS empId
+    FROM vender
+    WHERE com_id = #{comId}
+      AND type = 'vt01'
+    <choose>
+      <when test="type == 'vdrCode'">
+        AND vdr_code LIKE '%'||#{value}||'%'
+      </when>
+      <when test="type == 'vdrName'">
+        AND vdr_name LIKE '%'||#{value}||'%'
+      </when>
+      <when test="type == 'addr'">
+        AND addr LIKE '%'||#{value}||'%'
+      </when>
+      <when test="type == 'acctNo'">
+        AND acct_no LIKE '%'||#{value}||'%'
+      </when>
+    </choose>
+    ORDER BY vdr_code DESC
+  </select>
 
 
 </mapper> 
