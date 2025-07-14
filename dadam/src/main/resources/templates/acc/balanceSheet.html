@@ -15,7 +15,6 @@
 		<div class="d-flex justify-content-between align-items-center mb-2">
 			<div>
 				<h3 class="mb-1 text-secondary fw-bold border-bottom pb-2">재무상태표</h3>
-				<small class="text-muted">※ 연도 및 분기별 조회 가능 · 요약 보기 기능 제공</small>
 			</div>
 			<div>
 				<button id="excel" class="btn btn-outline-dark btn-sm">
@@ -27,17 +26,17 @@
 		</div>
 
 		<!-- 검색 필터 영역 -->
-		<div class="card mb-3 shadow-sm" style="background-color: #f0f8f0">
+		<div class="card mb-3 shadow-sm">
 			<div class="card-body">
 				<div class="row g-3 align-items-center">
 
-					<div class="col-md-2">
+<!-- 					<div class="col-md-2">
 						<label class="form-label">연도</label> <select id="year"
 							class="form-select">
 							<option th:each="y : ${yearList}" th:value="${y}" th:text="${y}"
 								th:selected="${y == param.year}"></option>
 						</select>
-					</div>
+					</div> -->
 
 					<div class="col-md-2">
 						<label class="form-label">반기</label> <select id="half"
@@ -60,7 +59,7 @@
 					</div>
 
 					<div class="col-md-2 align-self-end">
-						<button type="button" class="btn btn-primary btn-sm w-100"
+						<button type="button" class="btn btn-primary w-100"
 							onclick="loadBalanceData()">
 							<i class="fas fa-search"></i> 조회
 						</button>
@@ -329,12 +328,12 @@ function addNetIncomeRow(data) {
   const netIncome = totalRevenue - totalExpense;
   return [
     ...data,
-    {
+/*     {
       acctTypeName: '당기손이익',
       name: '',
       balance: netIncome,
       isSummary: true
-    }
+    } */
   ];
 }
 
