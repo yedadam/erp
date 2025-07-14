@@ -114,7 +114,7 @@
 		<div
 			class="d-flex justify-content-between align-items-center mt-3 mb-3">
 			<div>
-				<h5 class="mb-0">발주상세</h5>
+				<h5 class="mb-0">구매상세</h5>
 			</div>
 			<div>
 				<div class="btn-group">
@@ -312,12 +312,12 @@
             },
             // 필드값 구성
             columns: [
-                {header: '발주코드', name: 'purOrdCode', align: 'center', width: 120},
+                {header: '구매코드', name: 'purOrdCode', align: 'center', width: 120},
                 {header: '거래처이름', name: 'vdrName', align: 'center', editor: 'text',customHeader:getName('거래처이름')},
                 {header: '거래처코드', name: 'vdrCode', align: 'center', editor: 'text'},
-                {header: '발주일자', name: 'purOrdDate', align: 'center', editor: 'datePicker' ,customHeader:getName('발주일자')},
+                {header: '구매일자', name: 'purOrdDate', align: 'center', editor: 'datePicker' ,customHeader:getName('구매일자')},
                 {header: '납기예정일자', name: 'expDlvDate', align: 'center', editor: 'datePicker',customHeader:getName('납기예정일자')},
-                {header: '발주의뢰코드', name: 'purReqCode', align: 'center'},
+                {header: '구매의뢰코드', name: 'purReqCode', align: 'center'},
                 {header: '담당자', name: 'empName', align: 'center'},
                 {header: '담당자코드', name: 'empId', align: 'center'},
                 {header: '처리상태', name: 'status', align: 'center',
@@ -368,8 +368,8 @@
            
             // 필드값 구성
             columns: [
-                {header: '발주코드', name: 'purOrdCode', align: 'center', width: 120},
-                {header: '발주상세코드', name: 'purOrdDtlCode', align: 'center'},
+                {header: '구매코드', name: 'purOrdCode', align: 'center', width: 120},
+                {header: '구매상세코드', name: 'purOrdDtlCode', align: 'center'},
                 {header: '폼목코드' ,name: 'itemCode', align: 'center'},
                 {header: '품목이름', name: 'itemName', align: 'center',customHeader:getName('품목이름')},
                 {header: '수량', name: 'quantity', align: 'center', editor: 'text',customHeader:getName('수량'),
