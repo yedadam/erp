@@ -43,7 +43,7 @@ public class AnnualLeaveScheduler {
     /**
      * 매일 새벽 1시 실행 - 새로운 입사자 확인 및 연차 부여
      */
-    @Scheduled(cron = "0 0 1 * * ?")
+    //@Scheduled(cron = "0 0 1 * * ?")
     public void checkNewEmployees() {
         log.info("새로운 입사자 연차 부여 스케줄러 시작");
         
@@ -78,7 +78,7 @@ public class AnnualLeaveScheduler {
     /**
      * 매일 새벽 2시 실행 - 연차 만료 및 갱신 처리
      */
-    @Scheduled(cron = "0 0 2 * * ?")
+    //@Scheduled(cron = "0 0 2 * * ?")
     public void updateAnnualLeave() {
         log.info("연차 만료 및 갱신 스케줄러 시작");
         
@@ -104,7 +104,7 @@ public class AnnualLeaveScheduler {
     /**
      * 매월 1일 새벽 3시 실행 - 월별 연차 통계 생성
      */
-    @Scheduled(cron = "0 0 3 1 * ?")
+    //@Scheduled(cron = "0 0 3 1 * ?")
     public void generateMonthlyLeaveStatistics() {
         log.info("월별 연차 통계 생성 스케줄러 시작");
         

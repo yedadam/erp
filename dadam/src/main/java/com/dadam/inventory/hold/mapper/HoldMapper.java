@@ -20,7 +20,10 @@ public interface HoldMapper {
 	// lot 모달 조회
 	public List<HoldVO> selectHoldLotList(HoldVO vo);
 	// 홀드등록
+	public int selectHoldKey(HoldVO list);
+	public String getHoldCode(HoldVO list);
 	public int insertHoldList(HoldVO list);
+	public int updateHoldList(HoldVO list);
 	// 홀드Lot등록
 	public int insertHoldLotList(LotVO list);
 	// 홀드 등록할때 상태 값 변경

@@ -65,8 +65,33 @@
 		FROM stock st
 		WHERE com_id = #{comId} AND item_code =  #{itemCode} AND quantity > hold_qty
 	</select>
-	<!-- 홀드 등록 -->
-	<update id="insertHoldList" parameterType="HoldVO">
+	<!-- 업데이트일때 pk가져오기.. -->
+	<select id="getHoldCode" parameterType="HoldVO" resultType="string">
+	    SELECT hold_code FROM hold
+	    WHERE code = #{code} AND item_code = #{itemCode} AND com_id = #{comId}
+	</select>
+	<!--등록일지 업데이트일지 확인하기위한 조회... -->
+	<select id="selectHoldKey" parameterType="HoldVO" resultType="int">
+		SELECT COUNT(*) 
+	    FROM hold
+	    WHERE code = #{code} AND item_code = #{itemCode} AND com_id = #{comId}
+	</select>
+	<!-- 홀드 등록 머지문은 안됨...-->
+	<insert id="insertHoldList" parameterType="HoldVO">
+		<selectKey resultType="string" keyProperty="holdCode" order="BEFORE">
+			SELECT 'hold-' || (NVL(MAX(TO_NUMBER(SUBSTR(hold_code,6))),100)+1) holdCode
+			FROM hold
+		</selectKey>
+	 INSERT INTO hold(hold_code, item_code, quantity, type, status, note, com_id, created_date, code)
+     VALUES (#{holdCode}, #{itemCode}, #{quantity}, #{type}, #{hstatus}, #{note}, #{comId}, sysdate, #{code})
+	</insert>
+	<update id="updateHoldList" parameterType="HoldVO">
+	    UPDATE hold
+	    SET status = #{hstatus}, note = #{note}
+	    WHERE code = #{code} AND item_code = #{itemCode} AND com_id = #{comId}
+	</update>
+	
+	<!-- <insert id="insertHoldList" parameterType="HoldVO">
 		<selectKey resultType="string" keyProperty="holdCode" order="BEFORE">
 			SELECT 'hold-' || (NVL(MAX(TO_NUMBER(SUBSTR(hold_code,6))),100)+1) holdCode
 			FROM hold
@@ -94,7 +119,8 @@
 		WHEN NOT MATCHED THEN
         INSERT (hold_code, item_code, quantity, type, status, note, com_id, created_date, code)
         values(data.hold_code, data.item_code, data.quantity,data.type, data.status, data.note, data.com_id, sysdate, data.code)
-	</update>
+	</insert> -->
+	
 	<!-- 홀드디테일 등록 -->
 	<insert id="insertHoldLotList" parameterType="LotVO">
 		<selectKey resultType="string" keyProperty="holdDtlCode" order="BEFORE">
@@ -114,7 +140,7 @@
 	<update id="updateHoldShipRequestDetail" parameterType="HoldVO">
 		UPDATE shiprequestdetail
 		SET status = #{shipstatus}
-		WHERE com_id = #{comId} AND ship_req_dtl_code = #{shipReqDtlCode}
+		WHERE com_id = #{comId} AND ship_req_dtl_code = #{code}
 	</update>
 	<!-- 현재 입력된값 가져오기 -->
 	<select id="selectHoldStockHoldQty" parameterType="LotVO" resultType="int">
