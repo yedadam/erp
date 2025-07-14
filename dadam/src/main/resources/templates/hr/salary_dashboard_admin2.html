@@ -72,6 +72,48 @@
             border-radius: 8px 8px 0 0 !important;
             overflow: hidden;
         }
+        .badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 2px solid;
+            margin: 2px 0;
+        }
+        .badge-outline.badge-yellow {
+            color: #b58900;
+            border-color: #ffe066;
+            background: #fffbe6;
+        }
+        .badge-outline.badge-green {
+            color: #228b22;
+            border-color: #b7efc5;
+            background: #f6ffed;
+        }
+        .badge-outline.badge-blue {
+            color: #2563eb;
+            border-color: #a5b4fc;
+            background: #f0f7ff;
+        }
+        /* 관리 아이콘 버튼 크기/간격 조정 */
+        #salaryGrid .btn.btn-sm {
+            padding: 2px 4px !important;
+            margin-right: 2px !important;
+            min-width: 28px;
+            width: 28px;
+            height: 28px;
+            box-sizing: border-box;
+        }
+        #salaryGrid .btn.btn-sm:last-child {
+            margin-right: 0 !important;
+        }
+        #salaryGrid .manage-btn-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2px;
+        }
     </style>
 </head>
 <body>
@@ -79,11 +121,7 @@
     <!-- 페이지 타이틀 + 헤더 버튼 (밑줄 위로 자연스럽게 padding 조정) -->
     <div class="d-flex justify-content-between align-items-end mb-3 border-bottom border-secondary pb-2" style="padding-bottom: 0.25rem !important;">
       <h3 class="text-secondary fw-bold mb-0" style="padding-right: 16px; padding-bottom: 0.25rem;">급여관리</h3>
-      <div class="d-flex gap-2" style="padding-bottom: 0.25rem;">
-        <button class="btn btn-outline-secondary" id="calcBtnHeader"><i class="fas fa-calculator"></i> 급여계산</button>
-        <button class="btn btn-outline-info" id="approveAllBtnHeader"><i class="fas fa-check-double"></i> 일괄승인</button>
-        <button class="btn btn-outline-success" id="payAllBtnHeader"><i class="fas fa-money-bill-wave"></i> 일괄지급</button>
-      </div>
+      <!-- 버튼 영역 삭제 -->
     </div>
 
     <!-- 대시보드 카드 영역 (재고 메인과 동일한 스타일) -->
@@ -215,8 +253,9 @@
     <div class="d-flex justify-content-between align-items-center button-area mt-2 mb-2 flex-wrap" style="min-height:40px;">
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-outline-primary" id="settingBtn"><i class="fas fa-cogs"></i> 항목설정</button>
-        <button class="btn btn-outline-success" id="excelBtn2"><i class="fas fa-file-excel"></i> 엑셀</button>
-        <button class="btn btn-outline-danger" id="pdfBtn"><i class="fas fa-file-pdf"></i> 명세서</button>
+        <button class="btn btn-outline-secondary" id="calcBtnHeader"><i class="fas fa-calculator"></i> 급여계산</button>
+        <button class="btn btn-outline-info" id="approveAllBtnHeader"><i class="fas fa-check-double"></i> 일괄승인</button>
+        <button class="btn btn-outline-success" id="payAllBtnHeader"><i class="fas fa-money-bill-wave"></i> 일괄지급</button>
       </div>
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-outline-primary" id="addBtn2"><i class="fas fa-plus"></i> 추가</button>
@@ -282,13 +321,16 @@
       { header: '수당합계', name: 'allowanceTotal', align: 'right', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : '-' },
       { header: '공제합계', name: 'deductionTotal', align: 'right', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : '-' },
       { header: '실수령액', name: 'netSalary', align: 'right', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : '-' },
-      { header: '지급상태', name: 'status', align: 'center',
+      { header: '지급상태', name: 'status', align: 'center', escapeHTML: false,
         formatter: ({value}) => {
-          if(value==='PAID') return '<span class="badge-status badge-paid">지급완료</span>';
-          if(value==='WAIT') return '<span class="badge-status badge-wait">지급대기</span>';
-          if(value==='CALC') return '<span class="badge-status badge-calc">계산완료</span>';
-          if(value==='정상') return '<span class="badge-status badge-calc">정상</span>';
-          return value || '-';
+          if (!value) return '-';
+          let text = value.trim();
+          let cls = '';
+          if (text === 'ss01' || text.toUpperCase() === 'WAIT' || text === '대기') { text = '대기'; cls = 'start-action'; }
+          else if (text === 'ss02' || text.toUpperCase() === 'APPROVE' || text === '승인' || text === '승인 완료') { text = '승인'; cls = 'end-action'; }
+          else if (text === 'ss03' || text.toUpperCase() === 'PAID' || text === '지급완료' || text === '지급 완료') { text = '지급완료'; cls = 'del-action'; }
+          else { cls = ''; }
+          return `<span class="${cls}">${text}</span>`;
         }
       },
       { header: '지급일', name: 'createdDate', align: 'center' },
@@ -296,13 +338,21 @@
         header: '관리',
         name: 'manage',
         align: 'center',
+        minWidth: 120,
+        width: 130,
+        maxWidth: 150,
         formatter: ({ row }) => `
-          <button class="btn btn-sm btn-outline-primary me-1" onclick="printPayslip('${row.empId}')">
-            <i class="fas fa-file-alt"></i>
-          </button>
-          <button class="btn btn-sm btn-outline-info" onclick="viewDetail('${row.empId}')">
-            <i class="fas fa-eye"></i>
-          </button>
+          <div class="manage-btn-group">
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="printPayslip('${row.empId}')">
+              <i class="fas fa-file-alt fa-sm"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-success me-1" onclick="downloadExcel('${row.empId}')">
+              <i class="fas fa-file-excel fa-sm"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-info" onclick="viewDetail('${row.empId}')">
+              <i class="fas fa-eye fa-sm"></i>
+            </button>
+          </div>
         `
       }
     ];
@@ -521,6 +571,10 @@
     grid.on('check', function(ev) {
       $('#deleteBtn2').prop('disabled', grid.getCheckedRowKeys().length === 0);
     });
+    // 엑셀 다운로드 함수(임시)
+    window.downloadExcel = function(empNo) {
+      Swal.fire('엑셀 다운로드', '사번: '+empNo, 'success');
+    }
   </script>
 </body>
 </html> 

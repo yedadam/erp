@@ -199,16 +199,18 @@ body {
 									placeholder="비밀번호 재입력" required>
 							</div>
 						</div>
-						<div class="mb-3">
-							<label class="form-label">주소</label>
-							<div class="input-group">
-								<input type="text" id="addr" name="addr" class="form-control"
-									readonly>
-								<button type="button" id="btnAddr"
-									class="btn btn-outline-secondary">주소검색</button>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label class="form-label">주소</label>
+								<div class="input-group">
+									<input type="text" id="addr" name="addr" class="form-control" placeholder="주소" readonly>
+									<button type="button" id="btnAddr" class="btn btn-outline-secondary">주소검색</button>
+								</div>
 							</div>
-							<input type="text" id="addrDetail" name="addrDetail"
-								class="form-control mt-2" placeholder="상세주소">
+							<div class="col-md-6">
+								<label class="form-label">상세주소</label>
+								<input type="text" id="addrDetail" name="addrDetail" class="form-control" placeholder="상세주소">
+							</div>
 						</div>
 						<div class="row mb-3">
 							<div class="col-md-6">
@@ -680,7 +682,7 @@ body {
         defaultEndTime = '15:00';
       }
       
-      $('#workPattern').val(row.workPattern || defaultWorkPattern);
+      $('#workPattern').val(row.workPattern || '');
       $('#workSchedule').val(row.workSchedule || defaultWorkSchedule);
       $('#workStartTime').val(row.workStartTime || defaultStartTime);
       $('#workEndTime').val(row.workEndTime || defaultEndTime);
@@ -897,7 +899,7 @@ body {
       $('#annualSalary').val('');
       $('#monthlySalary').val('');
       $('#bonus').val('');
-      $('#allowance').val('');
+      $('#additionalAllowance').val('');
       $('#basicSalary').val('');
       $('#deductionTypeHidden').val('');
       $('#workStartTime').val('09:00');
