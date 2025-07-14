@@ -56,7 +56,7 @@ WHERE t.subs_code =  $P{p_subsCode}]]>
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
-				<imageExpression><![CDATA[$P{REPORT_DIR} + "taxinvoice.jpg"]]></imageExpression>
+				<imageExpression><![CDATA[this.getClass().getResourceAsStream("/report/taxinvoice.jpg")]]></imageExpression>
 			</image>
 			<textField>
 				<reportElement style="han_font" x="21" y="478" width="101" height="19" uuid="90461ec4-1138-479a-9948-47c45f470bb1">
