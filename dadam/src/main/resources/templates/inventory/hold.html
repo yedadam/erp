@@ -3,127 +3,121 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
-<head>
-<style>
-.main-table {
-	border: 2px solid #0d6efd;
-}
-
-.main-table th {
-	background-color: #e3f2fd;
-	text-align: center;
-	vertical-align: middle;
-	font-weight: bold;
-	border: 1px solid #ddd;
-}
-
-.main-table td {
-	text-align: center;
-	vertical-align: middle;
-	border: 1px solid #ddd;
-}
-
-.detail-table {
-	margin-top: 20px;
-}
-
-.detail-table th {
-	background-color: #f8f9fa;
-	text-align: center;
-	font-size: 14px;
-	padding: 8px;
-}
-
-.detail-table td {
-	text-align: center;
-	font-size: 14px;
-	padding: 8px;
-}
-
-.search-container {
-	margin-bottom: 20px;
-}
-
-.btn-group-custom {
-	margin-bottom: 20px;
-}
-
-.tui-pagination {
-	padding-bottom: 10px;
-}
-
-.start-action {
-	display: inline-block;
-	padding: 3px 8px;
-	font-size: 12px;
-	border-radius: 12px;
-	border: 1px solid #facc15; /* 연한 노랑 */
-	background-color: #fefce8; /* 연노랑 배경 */
-	color: #92400e; /* 진한 주황갈색 */
-}
-
-.end-action {
-	display: inline-block;
-	padding: 3px 8px;
-	font-size: 12px;
-	border-radius: 12px;
-	border: 1px solid #22c55e; /* 연초록 */
-	background-color: #ecfdf5; /* 아주 연한 민트 */
-	color: #065f46; /* 진한 초록 */
-}
-
-.del-action {
-	display: inline-block;
-	padding: 3px 8px;
-	font-size: 12px;
-	border-radius: 12px;
-	border: 1px solid #f87171; /* 연한 빨강 */
-	background-color: #fef2f2; /* 아주 연한 빨강 */
-	color: #991b1b; /* 진한 빨강 */
-}
-
-.require {
-	color: red;
-}
-</style>
-</head>
-<body class="bg-light">
-	<div class="container-fluid mt-4">
+<body>
+	<div class="container-fluid mt-4 p-4 rounded shadow-sm">
 		<h3 class="mb-4">홀드관리</h3>
-		<!-- 검색 및 버튼 영역 -->
-		<div class="row mb-3">
-			<div class="col-md-6">
-				<div class="input-group search-container" style="width: 400px;">
-					<input type="text" class="form-control" placeholder="검색어를 입력하세요">
-					<button class="btn btn-outline-secondary" type="button">
-						<i class="fas fa-search"></i>
-					</button>
-				</div>
+		 <!-- 검색 및 버튼 영역 -->
+			    <div class="card mb-3 shadow-sm">
+				  <div class="card-body">
+				    <div class="row g-3 align-items-center">
+			
+			      <!-- 검색 조건 -->
+			      <div class="col-md-3">
+			        <label for="orderSelect" class="form-label">검색 조건</label>
+			        <div class="input-group">
+			           <select class="form-select" id="purSelect" style="max-width: 30%;">
+			            <option value="purOrdCode" selected>발주코드</option>
+			            <option value="empName">담당자</option>
+			            <option value="vdrName">거래처이름</option>
+			          </select>
+			          <input type="text" class="form-control" id="purInput" placeholder="검색어 입력">
+			        </div>
+			        <ul id="purList"
+					            class="list-group position-absolute w-100 shadow-sm"
+					            style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+					</ul>
+			      </div>
+					
+			      <!-- 날짜 시작 -->
+			      <div class="col-md-2">
+			        <label for="expDlvStartDate" class="form-label">납기예정기일자</label>
+			        <input type="date" id="expDlvStartDate" class="form-control">
+			      </div>
+								
+			      <!-- 날짜 종료 -->
+			      <div class="col-md-2">
+			                <label for="expDlvEndDate" class="form-label"></label>
+			        <input type="date" id="expDlvEndDate" class="form-control">
+			      </div>
+			
+			      <!-- 상태 -->
+			      <div class="col-md-3">
+			        <label class="form-label d-block">진행 상태</label>
+			        <div class="d-flex gap-2 flex-wrap">
+			          <div class="form-check">
+			            <input class="form-check-input" type="radio" name="purStatus" id="statusAll" value="" checked>
+			            <label class="form-check-label" for="statusAll">전체</label>
+			          </div>
+			          <div class="form-check">
+			            <input class="form-check-input" type="radio" name="purStatus" id="status1" value="pst01">
+			            <label class="form-check-label" for="status1">진행중</label>
+			          </div>
+			          <div class="form-check">
+			            <input class="form-check-input" type="radio" name="purStatus" id="status2" value="pst02">
+			            <label class="form-check-label" for="status2">완료</label>
+			          </div>
+			          <div class="form-check">
+			            <input class="form-check-input" type="radio" name="purStatus" id="status3" value="pst03">
+			            <label class="form-check-label" for="status3">취소</label>
+			          </div>
+			        </div>
+			      </div>
+			
+			      <!-- 검색 버튼 -->
+			      <div class="col-md-2 d-flex align-items-end">
+			        <button class="btn btn-primary w-100" id="purSearchBtn">
+			          <i class="fas fa-search"></i> 검색
+			        </button>
+			      </div>
+			
+			    </div>
+			  </div>
 			</div>
-
 			<!-- custom button -->
-			<div class="col-md-6 text-end">
-				<div class="btn-group-custom" id="btnGroup">
-					<button class="btn btn-secondary me-1" id="insertBtn">
+			<div class="d-flex justify-content-end align-items-center mb-3">
+				<div class="d-flex flex-wrap gap-2" id="btnGroup">
+					<button class="btn btn-secondary me-2" id="insertBtn">
 						<i class="fas fa-pen"></i> 추가</button>
-					<button class="btn btn-warning me-1" id="selectBtn">
+					<button class="btn btn-warning me-2" id="selectBtn">
 						<i class="fas fa-eye"></i> 조회
 					</button>
-					<button class="btn btn-danger me-1" id="deleteBtn">
+					<button class="btn btn-danger me-2" id="deleteBtn">
 						<i class="fas fa-trash"></i> 삭제
 					</button>
-					<button class="btn btn-primary me-1" id="saveBtn">
+					<button class="btn btn-primary me-2" id="saveBtn">
 						<i class="fas fa-save"></i> 저장
 					</button>
 				</div>
 			</div>
-		</div>
-		<!-- 메인 그리드 -->
-		<div id="mainGrid"></div>
+			
+			<div id="mainGridWrapper" class="position-relative border rounded p-3 bg-white shadow-sm">
+			<!-- 메인 그리드 -->
+			<div id="mainGrid"></div>
+			
+				<!-- Lottie 로딩 바 애니메이션 -->
+		      <div id="gridSpinner"
+		           class="position-absolute top-0 start-0 w-100 h-100 bg-white d-flex align-items-center justify-content-center"
+		           style="top: 38px; display: none; z-index: 10;">
+		        <dotlottie-player
+		            src="https://lottie.host/e8b36d4d-46d8-429f-98b8-d8c1c4dde598/p6hfbX0nTd.lottie"
+		            background="transparent" speed="1"
+		            style="width: 200px; height: 100px;" loop autoplay>
+		        </dotlottie-player>
+		      </div>
+	      </div>
+	      	<div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+		      	<div>
+					<h5 class="mb-0">홀드상세</h5>
+				</div>
+			</div>
+			<div class="position-relative border rounded p-3 bg-white shadow-sm">
+					<div id="subGrid"></div>
+			</div>
 	</div>
-	<div class="container-fluid mt-4">
-		<div id="subGrid"></div>
-	</div>
+	
+	
+	
+	
 	<!-- 출하의뢰를 위한 모달 -->
 	<div class="modal fade" id="shipRequestModal" tabindex="-1"
 		aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -192,16 +186,16 @@
 		</div>
 	</div>
 <script th:inline="javascript">
-//필수값 가져오기
 let holdGrid;
-// 초기 조회
-changeView('조회');
-
+//필수값 별찍기
 function getName(name){
 	const header = document.createElement('span');
 	header.innerHTML=`<span class="require">* </span>${name}`
 	return header;
-};
+}
+// 초기 조회
+changeView('조회');
+
 // 페이지 상태
 $('#insertBtn').on('click', function() {
 	changeView('등록');
@@ -238,8 +232,15 @@ function holdList(){
 		,data: {comId}
 	   ,success:function(result) {
 		   holdGrid.resetData(result);
-	   } // ajax호출 끝
-	})
+	   },
+       error: function(xhr, status, error) {
+           console.log("실패:", xhr.status, error);
+       }
+   }).always(function() {
+   	 setTimeout(function() {
+   		 $('#gridSpinner').removeClass('d-flex').hide();
+   	    }, 500);
+   });
  };
  
 // 조회 그리드
@@ -260,9 +261,25 @@ function selectGrid(){
 	        { header: '현재홀드수량',name:'hdqty',align:'center'},
 	        { header: '구분',name:'typeName',align:'center',
 	        	filter: 'select'
+	        	,formatter:({ value }) => {
+				    if(value=='출하의뢰'){
+				       return `<span class="start-action">${value}</span>`;
+				    }else if(value=='재고이동'){
+				       return `<span class="end-action">${value}</span>`;
+				    }
+				    return '';
+				},
 	        	},
 	        { header: '상태',name:'statusName',align:'center',
 	        	filter: 'select'
+	        		,formatter:({ value }) => {
+					    if(value=='홀드완료'){
+					       return `<span class="start-action">${value}</span>`;
+					    }else if(value=='홀드중'){
+					       return `<span class="info-action">${value}</span>`;
+					    }
+					    return '';
+					},
 	        	},
 	        { header: '등록일자',name:'createdDate',align:'center'},
 	        { header: '비고',name:'note',align:'center'}
@@ -276,7 +293,7 @@ function selectGrid(){
 	$('#btnGroup').prepend('<button class="btn btn-secondary me-2" id="insertBtn"><i class="fas fa-pen"></i> 추가</button>'); */
 	$('#selectBtn').prop('disabled', true);
 	$('#insertBtn').prop('disabled', false);
-	
+	$('#gridSpinner').addClass('d-flex').show();
 	// 이벤트 삭제
 	$('#deleteBtn').off('click');
 	$('#saveBtn').off('click');	
