@@ -340,7 +340,7 @@
 	let newOrdPlus; //상단헤더에서  새로추가한 행번호
 	let newDtlList = []; //[] 새로운 주문상세 행번호를 받아옴  
 	let pageStatus='search'; //페이지 기본값 search로 두기 
-
+	let ordTot; 
 
 	var payMethod = /*[[${payMethod}]]*/ [];
 	var ordStatus = /*[[${status}]]*/ [];  
@@ -539,6 +539,9 @@ if(pageStatus=='register'){
 		console.log('null값 방지', ordDtlGrid.getData());
 	})
 	orderGrid.on('afterChange', ev => {
+
+
+
 		if (ev.changes[0].columnName == 'vdrCode') {
 			let vdrCode = ev.changes[0].value; //거래처번호  
 			for (let i = 0; i < vdrAll.length; i++) { //[{},{},{}] 거래처리스트중에 해당하는 
@@ -973,11 +976,11 @@ if(pageStatus=='register'){
 	//주문 상세 저장
 	$('#saveRowdtl').on('click', function(){
 		//validation 체크 
-
+		
 		//기존 상세저장 
 		if(pageStatus=='search'){
 		let test = ordDtlGrid.getData();
-		let updHeader = orderGrid.getCheckedRows()[0]; //납기일자,지불방식 {ordCode:"ord-129",payMethod:"opm01"}
+		let updHeader = orderGrid.getCheckedRows()[0]; //납기일자,지불방식 {ordCode:"ord-129",payMethod:"opm01"} 수정할때는 반드시 체크 해야함 
 		if(updHeader.status=='ost02' ||updHeader.status=='ost03'){
   	Swal.fire({
 				icon: "error",
@@ -1005,6 +1008,21 @@ if(pageStatus=='register'){
 				});
 				return false;
 		}
+
+		if(orderGrid.getCheckedRows()[0].creditBalPrice<orderGrid.getCheckedRows()[0].totPrice){
+			Swal.fire({
+					title: "여신잔액이 부족합니다",
+					icon: "error",
+					draggable: true
+				});
+
+				orderGrid.setValue(orderGrid.getCheckedRowKeys()[0],"totPrice",ordTot);
+
+				return false;
+		}
+
+
+
 
 		dtlObj=ordDtlGrid.getModifiedRows(); //{createdRows:[{ },{ },{ }],        }
 		for(let i=0; i<dtlObj.createdRows.length;i++){
@@ -1304,7 +1322,7 @@ if(pageStatus=='register'){
 		else if(pageStatus=='search'){
 			//
 			const check=orderGrid.getCheckedRows()[0];  
-			if(check?.discount){
+	    if(check?.discount){
 			vdrdiscount=(orderGrid.getCheckedRows()[0].discount)/100;
 			}else if(!check?.discount){
 				Swal.fire({
@@ -1312,8 +1330,14 @@ if(pageStatus=='register'){
 				text: "수정할 주문건을 선택해주세요",
 				icon: "question"
 			});
+		 }
+		 if(check?.totPrice){
+		 			ordTot=check.totPrice; 
 			}
 		}
+		
+		
+
 
 		let supPrice = (ev.changes[0].value * ordDtlGrid.getRow(ev.changes[0].rowKey).price)*(1-vdrdiscount);  
 		let discPrice = (ev.changes[0].value * ordDtlGrid.getRow(ev.changes[0].rowKey).price)*(vdrdiscount); //할인가격 거래처정보 불러온뒤 계산 반영	
