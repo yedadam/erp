@@ -11,6 +11,7 @@ import com.dadam.acc.credit.mapper.TransactionsMapper;
 import com.dadam.acc.credit.service.TransactionsService;
 import com.dadam.acc.credit.service.TransactionsVO;
 import com.dadam.security.service.LoginUserAuthority;
+import com.dadam.standard.vender.service.VenderVO;
 
 @Service
 public class TransactionsServiceImpl implements TransactionsService {
@@ -52,5 +53,9 @@ public class TransactionsServiceImpl implements TransactionsService {
         transactionsMapper.insert(vo);
     }
 
+    @Override
+    public List<VenderVO> findVenders(String comId, String type, String value) {
+        return transactionsMapper.findVenders(comId, type, value);
+    }
 
 } 
