@@ -567,6 +567,7 @@ function insertGrid(){
 		let rowData = holdGrid.getRow(rowKey);
 		code = rowData.code;
 		let totqty = Number(rowData.hdqty);
+		console.log(totqty)
 		// 입력한값의 전체를 합산
 		check.forEach((item)=>{
 			sum += Number(item.qty)
