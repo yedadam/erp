@@ -231,9 +231,6 @@
           return `<span style="color: ${color}">${display}</span>`;
         };
 
-
-
-
   $('#vdrInput').on('keyup',ev => {
 		 setupAutocomplete({
 			    inputSelector: '#vdrInput',                              //인풋에 겁색값
@@ -351,7 +348,7 @@
       //추가버튼 활성화
       newBtn.prop('disabled', false);
       $.ajax({
-        url: "/erp/standard/venderAllList",
+        url: "/erp/standard/venderAll",
         method: "GET",
         success: function (result) {
           console.log('mainList불러오기',result)
@@ -495,9 +492,8 @@
    
     //등록함수
     function venderAdd() {
-      let mainGridInfo = mainGrid.getData(); //[{},{},{}]
-     // let detailGridInfo = detailGrid.getData(); //[{}]
-      //메인 그리드 해당 값이 기입했는지 체크
+      let mainGridInfo = mainGrid.getData();
+
       let mainResult = mainGridInfo.every(item => {
         return item.vdrName &&
                 item.type&&
@@ -505,7 +501,7 @@
       })
       
  
-   //   console.log(detailResult)
+      //console.log(detailResult)
       //값 체크
       if (!mainResult) {
         Swal.fire('실패', '메인 그리드에 입력란들을 기입하세요', 'error');

@@ -128,11 +128,8 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public int deleteOrdDtl(String ordDtlCode) {
 		initAuthInfo();
-		// 상세 삭제하고 나면 주문금액만큼 order 테이블에 가격 만큼 -,수량,공급가액,부가세,총가격,할인가격 싹다 update 처리 되야함  
-		
+		// 상세 삭제하고 나면 주문금액만큼 order 테이블에 가격 만큼 -,수량,공급가액,부가세,총가격,할인가격 싹다 update 처리 되야함  		
 		orderMapper.deleteOrdDtl(ordDtlCode,comId);
-		
-		
 		return 0;
 	}		
 	@Override

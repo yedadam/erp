@@ -448,20 +448,20 @@
             // 필드값 구성
             columns: [
             {header:'주문코드', name: 'ordCode', align: 'center'},
-			{header:'거래처코드', name: 'vdrCode', align: 'center'},
-			{header:'거래처명', name: 'vdrName', align: 'center'},
-        	{header:'등록일자', name: 'createdDate', align: 'center'},
-        	{header:'상태', name: 'status', align: 'center',
-				formatter:({value})=>formatReqStatus(value)},
+						{header:'거래처코드', name: 'vdrCode', align: 'center'},
+						{header:'거래처명', name: 'vdrName', align: 'center'},
+        		{header:'등록일자', name: 'createdDate', align: 'center'},
+        		{header:'상태', name: 'status', align: 'center',
+							formatter:({value})=>formatReqStatus(value)},
             {header:'총공급세',	name: 'totSupPrice',	align:'right',
-				 		formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},   
-                {header:'총부가세',	name: 'totVatPrice',	align:'right',
+				 			formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},   
+            {header:'총부가세',	name: 'totVatPrice',	align:'right',
 				    	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
-                {header:'총할인금액',	name: 'totDisc',	align:'right',
+            {header:'총할인금액',	name: 'totDisc',	align:'right',
 				    	formatter: ({value}) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},      
-                {header:'총금액합계',	name: 'totPrice',	align:'right',
+            {header:'총금액합계',	name: 'totPrice',	align:'right',
 				     	formatter: ({ value }) => (value == null || value === 0) ? '' : value.toLocaleString() + '원'},
-				{header:'납기일자', name: 'reqDlvDate', align: 'center'}		  
+						{header:'납기일자', name: 'reqDlvDate', align: 'center'}		  
             ]
         });
       //vdr 모달안에  vdrGrid 생성  
@@ -492,7 +492,7 @@
             	{header:'창고코드',name:'whCode',align:'center'},
             	{header:'창고이름',name:'name',align:'center'}, 
             	{header:'위치정보',name:'locCode',align:'center'},
-				{header:'메모',name:'note',align:'center'}]	
+							{header:'메모',name:'note',align:'center'}]	
 		})
 
 		warehouseGrid.on('click',ev=>{
@@ -645,9 +645,7 @@
         			requestGrid.refreshLayout();
         })
 			}
-		
 		})
-
 
 		//주문의뢰 모달창
 		function requestModal(){	
