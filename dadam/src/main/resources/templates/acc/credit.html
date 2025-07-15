@@ -16,7 +16,6 @@
 	color: #fff;
 	text-align: center;
 }
-
 </style>
 <!-- 자동완성 js import -->
 </head>
@@ -28,12 +27,10 @@
 
 		<!-- 헤더 설명 -->
 		<div class="d-flex justify-content-between align-items-center mb-3">
-			<small class="text-muted"> ※ 조회 / 여신금액 초과 / 여신기간 초과 시 표시 예정 ·
-				공통코드 처리 예정 </small>
 		</div>
 
 		<!-- 거래처 분류 탭(전체/공급처/거래처) 주석 처리 -->
-<!-- 
+		<!-- 
 		<div class="btn-group mb-3" role="group" aria-label="거래처 분류">
 			<button type="button" class="btn btn-outline-primary active"
 				id="tabAll">전체</button>
@@ -44,7 +41,19 @@
 
 		<!-- 메인 거래처 원장 그리드 -->
 		<div class="mb-4">
-			<div id="creGrid" class="position-relative"></div>
+			<div id="mainGridWrapper"
+				class="position-relative border rounded p-3 bg-white shadow-sm">
+				<div id="creGrid" class="position-relative"></div>
+				<div id="gridSpinner"
+					class="position-absolute top-0 start-0 w-100 h-100 bg-white d-flex align-items-center justify-content-center"
+					style="top: 50px; display: none; z-index: 50;">
+					<dotlottie-player
+						src="https://lottie.host/e8b36d4d-46d8-429f-98b8-d8c1c4dde598/p6hfbX0nTd.lottie"
+						background="transparent" speed="1"
+						style="width: 200px; height: 100px;" loop autoplay>
+					</dotlottie-player>
+				</div>
+			</div>
 		</div>
 
 		<!-- 상세 거래 내역 -->
@@ -59,7 +68,7 @@
 		</div>
 
 		<!-- 공급처 상세 거래 내역, 공급처 상세 거래 내역 모달, detailGridSupplier 등 공급처 관련 HTML 전체 주석 처리 -->
-<!-- 
+		<!-- 
 		<div id="detailSupplierContainer" class="mt-4" style="display: none;">
 			<hr>
 			<div class="d-flex justify-content-between align-items-center mb-2">
@@ -277,7 +286,11 @@ function creditList() {
     },
     error: function() {
     }
-  });
+  }).always(function() {
+		 setTimeout(function() {
+			 $('#gridSpinner').removeClass('d-flex').hide();
+		    }, 700);
+	});
 }
 
 // =====================

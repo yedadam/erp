@@ -3,63 +3,80 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
-  <body class="bg-light">
-  <div class="container-fluid mt-4 p-4 rounded shadow-sm">
+<body class="bg-light">
+	<div class="container-fluid mt-4 p-4 rounded shadow-sm">
 
-    <!-- ✅ 헤더 + 부가기능 -->
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <div>
-        <h3 class="mb-1 text-secondary fw-bold border-bottom pb-2">입출금내역 관리</h3>
-      </div>
-      <!-- 우측에 버튼이 필요하면 여기에 -->
-    </div>
+		<!-- ✅ 헤더 + 부가기능 -->
+		<div class="d-flex justify-content-between align-items-center mb-2">
+			<div>
+				<h3 class="mb-1 text-secondary fw-bold border-bottom pb-2">입출금내역
+					관리</h3>
+			</div>
+			<!-- 우측에 버튼이 필요하면 여기에 -->
+		</div>
 
-    <!-- ✅ 주요 기능 버튼 영역 -->
-    <div class="d-flex justify-content-end flex-wrap gap-2 mb-3">
-      <button id="btn-add" class="btn btn-outline-primary btn-sm">
-        <i class="fas fa-plus"></i> 행추가
-      </button>
-      <button id="btn-save" class="btn btn-primary btn-sm">
-        <i class="fas fa-save"></i> 저장
-      </button>
-    </div>
+		<!-- ✅ 주요 기능 버튼 영역 -->
+		<div class="d-flex justify-content-end flex-wrap gap-2 mb-3">
+			<button id="btn-add" class="btn btn-outline-primary btn-sm">
+				<i class="fas fa-plus"></i> 행추가
+			</button>
+			<button id="btn-save" class="btn btn-primary btn-sm">
+				<i class="fas fa-save"></i> 저장
+			</button>
+		</div>
 
-    <!-- ✅ 그리드 영역 -->
-    <div id="tranGrid" class="position-relative" style="min-height: 400px;"></div>
-
-  </div>
-  <!-- 거래처 모달 추가 -->
-  <div class="modal fade" id="vdrModal" tabindex="-1" aria-labelledby="vdrModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="vdrModalLabel">거래처 선택</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <!-- 검색창 -->
-          <div class="position-relative mb-3" style="max-width: 500px;">
-            <div class="input-group">
-              <select class="form-select" id="vdrSearchSelect" style="max-width: 30%;">
-                <option value="vdrCode">거래처코드</option>
-                <option value="vdrName">거래처명</option>
-                <option value="addr">주소</option>
-              </select>
-              <input type="text" class="form-control" id="vdrSearchInput" placeholder="검색어 입력">
-              <button class="btn btn-outline-secondary" type="button" id="vdrSearchBtn">
-                <i class="fas fa-search"></i>
-              </button>
-            </div>
-          </div>
-          <!-- 그리드 -->
-          <div id="vdrGrid" style="height:250px;"></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-        </div>
-      </div>
-    </div>
-  </div>
+		<!-- ✅ 그리드 영역 -->
+		<div id="mainGridWrapper"
+			class="position-relative border rounded p-3 bg-white shadow-sm">
+			<div id="tranGrid" class="position-relative"></div>
+			<div id="gridSpinner"
+				class="position-absolute top-0 start-0 w-100 h-100 bg-white d-flex align-items-center justify-content-center"
+				style="top: 50px; display: none; z-index: 50;">
+				<dotlottie-player
+					src="https://lottie.host/e8b36d4d-46d8-429f-98b8-d8c1c4dde598/p6hfbX0nTd.lottie"
+					background="transparent" speed="1"
+					style="width: 200px; height: 100px;" loop autoplay>
+				</dotlottie-player>
+			</div>
+		</div>
+	</div>
+	<!-- 거래처 모달 추가 -->
+	<div class="modal fade" id="vdrModal" tabindex="-1"
+		aria-labelledby="vdrModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="vdrModalLabel">거래처 선택</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<!-- 검색창 -->
+					<div class="position-relative mb-3" style="max-width: 500px;">
+						<div class="input-group">
+							<select class="form-select" id="vdrSearchSelect"
+								style="max-width: 30%;">
+								<option value="vdrCode">거래처코드</option>
+								<option value="vdrName">거래처명</option>
+								<option value="addr">주소</option>
+							</select> <input type="text" class="form-control" id="vdrSearchInput"
+								placeholder="검색어 입력">
+							<button class="btn btn-outline-secondary" type="button"
+								id="vdrSearchBtn">
+								<i class="fas fa-search"></i>
+							</button>
+						</div>
+					</div>
+					<!-- 그리드 -->
+						<div id="vdrGrid"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 
 <script>
@@ -68,21 +85,29 @@ const tranGrid = new tui.Grid({
 	  scrollX: false,
 	  scrollY: false,
 	  bodyHeight: 400,
+	  pageOptions: { perPage: 10, useClient: true },
+	  rowKey: 'txnHistCode', // rowKey 필드 지정
 	  columns: [
 	    { header: '코드', name: 'txnHistCode', editor: 'text', hidden: true },
 	    { header: '거래일자', name: 'txnDate' },
 	    { header: '입출금구분', name: 'txnType', editor: 'text', hidden: true },
-	    { header: '이름', name: 'txnName', width: 200,
-	    	  formatter: ({ value }) => `
-	    	    <div class="d-flex justify-content-between align-items-center">
-	    	      <span class="txn-name-text">${value || ''}</span>
-	    	      <button class="btn btn-sm btn-light border vdr-btn" title="거래처 선택">
-	    	        <i class="fas fa-search"></i>
-	    	      </button>
-	    	    </div>
-	    	  `,
-	    	  editor: 'text'
-	    	},
+	    { header: '이름', name: 'txnName', width: 220, editor: 'text',
+	      formatter: ({ value }) => `
+	        <div style="display:flex; align-items:center;">
+	          <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${value || ''}</span>
+	          <button class="btn btn-xs btn-light border vdr-btn" style="margin-left:4px; padding:2px 6px; font-size:12px;">
+	            <i class="fas fa-search"></i>
+	          </button>
+	        </div>
+	      `
+	    },
+	    { header: '', name: 'selectVdr', width: 40, hidden: true ,
+	      formatter: () => `
+	        <button class="btn btn-xs btn-light border vdr-btn" style="padding:2px 6px; font-size:12px;">
+	          <i class="fas fa-search"></i>
+	        </button>
+	      `
+	    },
 	    { header: '입금', name: 'deposit', editor: 'text', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '' },
 	    { header: '출금', name: 'withdraw', editor: 'text', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '' },
 	    { header: '잔액', name: 'balance', align: 'right', formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '' },
@@ -93,18 +118,12 @@ const tranGrid = new tui.Grid({
 	  ],
 	  data: []
 	});
-//버튼 클릭 시 모달 오픈
-$('#tranGrid').on('click', '.vdr-btn', function (e) {
-  const cellEl = $(this).closest('td')[0];
-  const cellInfo = tranGrid.getCellIndex(cellEl);
-  const rowKey = cellInfo?.rowKey;
-
-  if (rowKey == null) return;
-
-  console.log('[모달 오픈] rowKey:', rowKey);
-  openVdrModal(rowKey);
-
-  e.stopPropagation();
+	
+// 별도 버튼 컬럼 클릭 이벤트
+tranGrid.on('click', ev => {
+  if (ev.columnName === 'txnName' && $(ev.nativeEvent.target).closest('.vdr-btn').length) {
+    openVdrModal(ev.rowKey);
+  }
 });
 
 // 입출금내역 목록 아작스
@@ -128,7 +147,11 @@ function fetchData() {
     },
     error: function () {
     }
-  });
+  }).always(function() {
+		 setTimeout(function() {
+			 $('#gridSpinner').removeClass('d-flex').hide();
+		    }, 750);
+	});
 }
         
         
@@ -137,7 +160,15 @@ fetchData();
 	
         //행추가
 $('#btn-add').on('click', function () {
+  // 기존 데이터에서 txnHistCode 최대값 + 1로 임시 부여 (숫자형일 때)
+  const data = tranGrid.getData();
+  const maxTxnHistCode = data.length > 0
+    ? Math.max(...data.map(r => Number(r.txnHistCode) || 0))
+    : 0;
+  const newTxnHistCode = maxTxnHistCode + 1;
+
   tranGrid.appendRow({
+    txnHistCode: newTxnHistCode, // 임시 rowKey 부여
     deposit: '',
     withdraw: '',
     balance: '',
@@ -145,7 +176,7 @@ $('#btn-add').on('click', function () {
     bank: '',
     acctNo: '',
     txnMemo: ''
-  }, { at: 0 });  // ← 가장 위에 추가
+  }, { at: 0, rowKey: newTxnHistCode }); // rowKey를 두 번째 인자에 명시
 });
         
      // 저장 버튼
@@ -223,7 +254,7 @@ function fetchVdrList() {
       vdrGrid.resetData(vdrAll);
       vdrGrid.refreshLayout();
     }
-  });
+  })
 }
 
 // 검색 버튼/엔터 이벤트
@@ -232,8 +263,68 @@ $(document).on('keydown', '#vdrSearchInput', function(e) {
   if (e.key === 'Enter') fetchVdrList();
 });
 
-// openVdrModal에서 fetchVdrList 호출로 변경
 function openVdrModal(rowKey) {
+  selectedTranRowKey = Number(rowKey); // number로 저장
+
+  const vdrModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('vdrModal'));
+  vdrModal.show();
+
+  // 1. 모달 show 이후 grid 생성 또는 데이터 세팅
+  setTimeout(() => {
+    if (!vdrGrid) {
+      vdrGrid = new tui.Grid({
+        el: document.getElementById('vdrGrid'),
+        scrollX: true,
+        scrollY: true,
+        rowHeaders: ['checkbox'],
+        pageOptions: { perPage: 5, useClient: true },
+        columns: [
+          { header: '거래처코드', name: 'vdrCode', align: 'center' },
+          { header: '거래처명', name: 'vdrName', align: 'center' },
+          { header: '주소', name: 'addr', align: 'center' },
+          { header: '은행', name: 'bank', align: 'center' },
+          { header: '계좌번호', name: 'acctNo', align: 'center' }
+        ]
+      });
+    }
+
+    // 🔁 항상 이벤트 바인딩
+    bindVdrGridEvent();
+    fetchVdrList();
+  }, 200);
+}
+
+	
+	
+function bindVdrGridEvent() {
+	  vdrGrid.off('click');
+	  vdrGrid.on('click', (ev) => {
+	    const rowData = vdrGrid.getRow(ev.rowKey);
+	    console.log('[선택한 거래처]', rowData);
+	    console.log('[적용 대상 rowKey]', selectedTranRowKey);
+
+	    if (!rowData || selectedTranRowKey == null) return;
+
+	    // ✅ 편집 종료 후 값 입력
+	    tranGrid.finishEditing();
+
+	    tranGrid.setValue(selectedTranRowKey, 'txnName', rowData.vdrName);
+	    tranGrid.setValue(selectedTranRowKey, 'acctNo', rowData.acctNo);
+	    tranGrid.setValue(selectedTranRowKey, 'bank', rowData.bank);	    
+	    tranGrid.setValue(selectedTranRowKey, 'vdrCode', rowData.vdrCode);
+
+	    const vdrModalInstance = bootstrap.Modal.getOrCreateInstance(document.getElementById('vdrModal'));
+	    vdrModalInstance.hide();
+	    vdrGrid.uncheckAll();
+	  });
+	}
+
+
+
+
+
+// openVdrModal에서 fetchVdrList 호출로 변경
+/* function openVdrModal(rowKey) {
   selectedTranRowKey = rowKey;
 
   if (!vdrGrid) {
@@ -244,11 +335,11 @@ function openVdrModal(rowKey) {
       rowHeaders: ['checkbox'],
       pageOptions: { perPage: 5, useClient: true },
       columns: [
-        { header: '거래처코드', name: 'vdrCode', align: 'center', width: 120 },
-        { header: '거래처명', name: 'vdrName', align: 'center', width: 120 },
-        { header: '주소', name: 'addr', align: 'center', width: 200 },
-        { header: '은행', name: 'bank', align: 'center', width: 120 },
-        { header: '계좌번호', name: 'acctNo', align: 'center', width: 180 }
+        { header: '거래처코드', name: 'vdrCode', align: 'center' },
+        { header: '거래처명', name: 'vdrName', align: 'center' },
+        { header: '주소', name: 'addr', align: 'center' },
+        { header: '은행', name: 'bank', align: 'center' },
+        { header: '계좌번호', name: 'acctNo', align: 'center' }
       ]
     });
 
@@ -264,14 +355,14 @@ function openVdrModal(rowKey) {
     });
   }
 
-  // ✅ 모달 먼저 열고 → 렌더링 이후 → 데이터를 세팅
+  // 모달 먼저 열고 → 렌더링 이후 → 데이터를 세팅
   const vdrModal = new bootstrap.Modal(document.getElementById('vdrModal'));
   vdrModal.show();
 
   setTimeout(() => {
     fetchVdrList(); // ← 이 타이밍에 resetData()가 실행되어야 정상 렌더링 됨
   }, 200);
-}
+} */
 
 /* tranGrid.on('dblclick', (ev) => {
 	  if (ev.columnName === 'txnName') {

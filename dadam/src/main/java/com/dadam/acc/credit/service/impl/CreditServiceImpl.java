@@ -1,7 +1,6 @@
 package com.dadam.acc.credit.service.impl;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +34,12 @@ public class CreditServiceImpl implements CreditService{
 	@Autowired CreditMapper creditMapper;
 
 	@Override
-	public List<CreditVO> creditFindAll(String comId, String type) {
+	public List<CreditVO> creditFindAll(@Param("comId") String comId) {
 	 	   Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 	       System.out.println(auth+"===========");
 		initAuthInfo();
 
-		return creditMapper.creditFindAll(comId, type);
+		return creditMapper.creditFindAll(comId);
 	}
 
 	@Override
@@ -50,25 +49,4 @@ public class CreditServiceImpl implements CreditService{
 		return result;
 	}
 
-	@Override
-	public List<CreditVO> creditSearch(Map<String, Object> params) {
-	    String comId = this.comId;
-	    params.put("comId", comId);
-	    return creditMapper.creditSearch(params);
-	}
-
-	@Override
-	public List<CreditVO> detailFindSupplier(String vdrCode, String comId) {
-		initAuthInfo();
-		return creditMapper.detailFindSupplier(vdrCode, comId);
-	}
-
-	@Override
-	public List<Map<String, Object>> purchaseSummary(String vdrCode, String comId) {
-		return creditMapper.purchaseSummary(vdrCode, comId);
-	}
-	@Override
-	public List<Map<String, Object>> purchaseDetail(String purOrdCode) {
-		return creditMapper.purchaseDetail(purOrdCode);
-	}
 }
