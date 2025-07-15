@@ -2,6 +2,7 @@ package com.dadam.sales.order.web;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
+import com.dadam.common.JasperDownCommon;
 import com.dadam.common.service.CodeService;
 import com.dadam.common.service.CodeVO;
 import com.dadam.sales.order.service.OrdDtlVO;
@@ -30,6 +33,7 @@ import com.dadam.standard.vender.service.VenderService;
 import com.dadam.standard.vender.service.VenderVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Controller
@@ -136,4 +140,26 @@ public class OrderController {
 	public String test() {
 		return "sales/test";
 	}
+	
+	@Autowired
+    private JasperDownCommon jasperDownCommon;
+	
+	@RequestMapping("/report")
+    public ModelAndView report2( HttpServletResponse response) throws Exception {
+        ModelAndView mv = new ModelAndView();
+
+        // jasper 커스텀뷰 세팅
+        mv.setView(jasperDownCommon);
+
+        // 보고서 템플릿 파일명 (InputStream으로 처리할 것이므로 경로 그대로 넘김)
+        mv.addObject("filename", "/report/order_10.jasper");
+
+        // 파라미터 설정 (REPORT_DIR 제거)
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("p_ord_code", "ord-102");
+        // map.put("REPORT_DIR", reportDirPath);  // ← 삭제
+        mv.addObject("param", map);
+
+        return mv;
+    }
 }
