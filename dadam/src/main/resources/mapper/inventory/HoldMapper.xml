@@ -127,14 +127,29 @@
 			SELECT 'holddt-' || (NVL(MAX(TO_NUMBER(SUBSTR(hold_dtl_code,8))),100)+1) holdDtlCode
 			FROM holddetail
 		</selectKey>
-	INSERT INTO holddetail(hold_dtl_code, hold_code, lot, quantity, com_id)
-	values(
-			#{holdDtlCode},
-			#{holdCode},
-			#{lot},
-			#{qty},
-			#{comId}
-			)
+	MERGE INTO holddetail hod
+    USING (
+            SELECT
+                    #{holdDtlCode} AS hold_dtl_code,
+                    #{holdCode} AS hold_code,
+                    #{lot} AS lot,
+                    #{qty} AS quantity,
+                    #{comId} AS com_id
+            FROM dual
+        	)data
+    ON(hod.hold_code = data.hold_code AND hod.com_id = data.com_id AND hod.lot = data.lot)
+    WHEN MATCHED THEN
+        UPDATE SET hod.quantity = hod.quantity + data.quantity
+            
+    WHEN NOT MATCHED THEN
+        INSERT(hold_dtl_code, hold_code, lot, quantity, com_id)
+            VALUES(
+                    data.hold_dtl_code,
+                    data.hold_code,
+                    data.lot,
+                    data.quantity,
+                    data.com_id
+                    )
 	</insert>
 	<!-- 홀드등록할때 출하의뢰상세 상태값 변경 -->
 	<update id="updateHoldShipRequestDetail" parameterType="HoldVO">
