@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 7.2.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OrderForm" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a1b2c3d4-e5f6-7890-abcd-ef1234567890">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="dadam"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="P_ORD_CODE" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT o.ord_code, o.vdr_code, v.vdr_name, v.addr, o.tot_price, o.tot_sup_price, o.tot_vat_price, o.req_dlv_date
+FROM orders o 
+JOIN vender v ON(o.vdr_code=v.vdr_code) 
+WHERE ord_code= $P{P_ORD_CODE}]]>
+	</queryString>
+	<field name="ord_code" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="ord_code"/>
+		<property name="com.jaspersoft.studio.field.label" value="ord_code"/>
+	</field>
+	<field name="vdr_code" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="vdr_code"/>
+		<property name="com.jaspersoft.studio.field.label" value="vdr_code"/>
+	</field>
+	<field name="vdr_name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="vdr_name"/>
+		<property name="com.jaspersoft.studio.field.label" value="vdr_name"/>
+	</field>
+	<field name="addr" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="addr"/>
+		<property name="com.jaspersoft.studio.field.label" value="addr"/>
+	</field>
+	<field name="tot_price" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="tot_price"/>
+		<property name="com.jaspersoft.studio.field.label" value="tot_price"/>
+	</field>
+	<field name="tot_sup_price" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="tot_sup_price"/>
+		<property name="com.jaspersoft.studio.field.label" value="tot_sup_price"/>
+	</field>
+	<field name="tot_vat_price" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="tot_vat_price"/>
+		<property name="com.jaspersoft.studio.field.label" value="tot_vat_price"/>
+	</field>
+	<field name="req_dlv_date" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.name" value="req_dlv_date"/>
+		<property name="com.jaspersoft.studio.field.label" value="req_dlv_date"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="79" backcolor="#006699" uuid="b2c3d4e5-f6a7-8901-bcde-f23456789012"/>
+				<staticText>
+					<reportElement x="20" y="20" width="200" height="35" forecolor="#FFFFFF" uuid="c3d4e5f6-a7b8-9012-cdef-345678901234"/>
+					<textElement>
+						<font size="24" isBold="true"/>
+					</textElement>
+					<text><![CDATA[주문서]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="400" y="20" width="135" height="35" forecolor="#FFFFFF" uuid="d4e5f6a7-b8c9-0123-def4-056789012345"/>
+					<textElement textAlignment="Right">
+						<font size="14" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Purchase Order]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="10" width="100" height="20" uuid="e5f6a7b8-c9d0-1234-ef56-789012345678"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[주문번호:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="10" width="200" height="20" uuid="f6a7b8c9-d0e1-2345-f678-90123456789a"/>
+				<textFieldExpression><![CDATA[$F{ord_code}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="350" y="10" width="100" height="20" uuid="a7b8c9d0-e1f2-3456-789a-bcdef0123456"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[출력일자:]]></text>
+			</staticText>
+			<textField pattern="yyyy-MM-dd">
+				<reportElement x="450" y="10" width="100" height="20" uuid="b8c9d0e1-f2a3-4567-89ab-cdef01234567"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="150" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="10" width="555" height="20" uuid="c9d0e1f2-a3b4-5678-9abc-def012345678"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[공급업체 정보]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="30" width="555" height="1" uuid="d0e1f2a3-b4c5-6789-abcd-ef0123456789"/>
+			</line>
+			<staticText>
+				<reportElement x="10" y="40" width="100" height="20" uuid="e1f2a3b4-c5d6-789a-bcde-f01234567890"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[업체코드:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="110" y="40" width="200" height="20" uuid="f2a3b4c5-d6e7-89ab-cdef-012345678901"/>
+				<textFieldExpression><![CDATA[$F{vdr_code}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="65" width="100" height="20" uuid="a3b4c5d6-e7f8-9abc-def0-123456789012"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[업체명:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="110" y="65" width="400" height="20" uuid="b4c5d6e7-f8a9-abcd-ef01-234567890123"/>
+				<textFieldExpression><![CDATA[$F{vdr_name}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="90" width="100" height="20" uuid="c5d6e7f8-a9ba-bcde-f012-345678901234"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[주소:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="110" y="90" width="400" height="20" uuid="d6e7f8a9-babc-def0-1234-567890123456"/>
+				<textFieldExpression><![CDATA[$F{addr}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="115" width="100" height="20" uuid="e7f8a9ba-bcde-f012-3456-789012345678"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[납기요청일:]]></text>
+			</staticText>
+			<textField pattern="yyyy-MM-dd">
+				<reportElement x="110" y="115" width="200" height="20" uuid="f8a9babc-def0-1234-5678-90123456789a"/>
+				<textFieldExpression><![CDATA[$F{req_dlv_date}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="200" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="10" width="555" height="20" uuid="a9babc12-def0-1234-5678-90123456789b"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[주문 상세 정보]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="30" width="555" height="1" uuid="babc1234-def0-1234-5678-90123456789c"/>
+			</line>
+			<frame>
+				<reportElement mode="Opaque" x="0" y="40" width="555" height="30" backcolor="#E6E6E6" uuid="abc12345-def0-1234-5678-90123456789d"/>
+				<staticText>
+					<reportElement x="10" y="5" width="100" height="20" uuid="bc123456-def0-1234-5678-90123456789e"/>
+					<textElement>
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[구분]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="200" y="5" width="100" height="20" uuid="c1234567-def0-1234-5678-90123456789f"/>
+					<textElement textAlignment="Right">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[금액]]></text>
+				</staticText>
+			</frame>
+			<staticText>
+				<reportElement x="10" y="80" width="100" height="20" uuid="12345678-def0-1234-5678-901234567890"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[공급가액:]]></text>
+			</staticText>
+			<textField pattern="#,##0">
+				<reportElement x="200" y="80" width="100" height="20" uuid="23456789-def0-1234-5678-901234567891"/>
+				<textElement textAlignment="Right">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tot_sup_price}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="105" width="100" height="20" uuid="3456789a-def0-1234-5678-901234567892"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[부가세:]]></text>
+			</staticText>
+			<textField pattern="#,##0">
+				<reportElement x="200" y="105" width="100" height="20" uuid="456789ab-def0-1234-5678-901234567893"/>
+				<textElement textAlignment="Right">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tot_vat_price}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="10" y="130" width="290" height="1" uuid="56789abc-def0-1234-5678-901234567894"/>
+			</line>
+			<staticText>
+				<reportElement x="10" y="135" width="100" height="20" uuid="6789abcd-def0-1234-5678-901234567895"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[총 금액:]]></text>
+			</staticText>
+			<textField pattern="#,##0">
+				<reportElement x="200" y="135" width="100" height="20" uuid="789abcde-def0-1234-5678-901234567896"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tot_price}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="100" splitType="Stretch">
+			<line>
+				<reportElement x="0" y="10" width="555" height="1" uuid="89abcdef-0123-4567-8901-23456789abcd"/>
+			</line>
+			<staticText>
+				<reportElement x="0" y="20" width="100" height="20" uuid="9abcdef0-1234-5678-9012-3456789abcde"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[담당자:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="200" y="20" width="100" height="20" uuid="abcdef01-2345-6789-0123-456789abcdef"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[승인자:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="50" width="555" height="20" uuid="bcdef012-3456-7890-1234-56789abcdef0"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[본 주문서는 시스템에서 자동 생성된 문서입니다.]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="450" y="75" width="80" height="20" uuid="cdef0123-4567-8901-2345-6789abcdef01"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="530" y="75" width="40" height="20" uuid="def01234-5678-9012-3456-789abcdef012"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

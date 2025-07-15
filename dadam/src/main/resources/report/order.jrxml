@@ -4,25 +4,36 @@
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="local_hr"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="dadam"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="378"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="611"/>
 	<style name="orderStyle" pattern="" fontName="훈민정음"/>
+	<parameter name="ordCode" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$F{ORD_CODE}]]></defaultValueExpression>
+	</parameter>
 	<queryString>
-		<![CDATA[SELECT emp_id,emp_name,com_id,pwd
-FROM employees
-WHERE emp_id = 'e1003']]>
+		<![CDATA[SELECT ord_code,tot_price,tot_sup_price,tot_vat_price,vdr_code,req_dlv_date
+FROM orders 
+WHERE ord_code='ord-101']]>
 	</queryString>
-	<field name="EMP_ID" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.label" value="EMP_ID"/>
+	<field name="ORD_CODE" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="ORD_CODE"/>
 	</field>
-	<field name="EMP_NAME" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.label" value="EMP_NAME"/>
+	<field name="TOT_PRICE" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="TOT_PRICE"/>
 	</field>
-	<field name="COM_ID" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.label" value="COM_ID"/>
+	<field name="TOT_SUP_PRICE" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="TOT_SUP_PRICE"/>
 	</field>
-	<field name="PWD" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.label" value="PWD"/>
+	<field name="TOT_VAT_PRICE" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="TOT_VAT_PRICE"/>
+	</field>
+	<field name="VDR_CODE" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="VDR_CODE"/>
+	</field>
+	<field name="REQ_DLV_DATE" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="REQ_DLV_DATE"/>
 	</field>
 	<pageHeader>
 		<band height="120">
@@ -47,16 +58,13 @@ WHERE emp_id = 'e1003']]>
 				</graphicElement>
 			</rectangle>
 			<line>
-				<reportElement x="65" y="0" width="1" height="30" uuid="dfa38e55-e9b6-4115-8734-85456d9cfee8"/>
+				<reportElement x="80" y="0" width="1" height="30" uuid="dfa38e55-e9b6-4115-8734-85456d9cfee8"/>
 			</line>
 			<line>
-				<reportElement x="220" y="0" width="1" height="30" uuid="0a422083-4a4b-47c0-a964-894c5c01b96c"/>
+				<reportElement x="221" y="0" width="1" height="30" uuid="0a422083-4a4b-47c0-a964-894c5c01b96c"/>
 			</line>
 			<line>
 				<reportElement x="325" y="0" width="1" height="30" uuid="0964306d-3322-44bd-a3d3-3a7616cd6d50"/>
-			</line>
-			<line>
-				<reportElement x="380" y="0" width="1" height="30" uuid="b686be34-f75c-4172-b9a5-00b669c4f4c1"/>
 			</line>
 			<line>
 				<reportElement x="465" y="0" width="1" height="30" uuid="f18f2806-67cb-4302-839a-781cb6ede481"/>
@@ -64,43 +72,22 @@ WHERE emp_id = 'e1003']]>
 		</band>
 	</columnHeader>
 	<detail>
-		<band height="25">
+		<band height="30">
 			<rectangle>
 				<reportElement x="0" y="0" width="555" height="25" uuid="643392c0-d90a-47f1-aa0e-6fc9ea3b2b92"/>
 				<graphicElement>
 					<pen lineWidth="1.0"/>
 				</graphicElement>
 			</rectangle>
-			<textField>
-				<reportElement x="70" y="5" width="145" height="15" uuid="45a99f0d-fb0c-47e7-9178-27725dc089c0"/>
-				<textElement>
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{EMP_ID}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="225" y="5" width="95" height="15" uuid="22aa7503-54ba-4f45-93a2-a8bff1f5b4b0"/>
-				<textElement>
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{EMP_NAME}]]></textFieldExpression>
-			</textField>
 			<textField pattern="#,##0">
-				<reportElement x="385" y="5" width="75" height="15" uuid="53769a1f-2401-41fa-923c-28c748bbc489"/>
+				<reportElement x="110" y="5" width="80" height="15" uuid="d164f7e9-ab52-46cf-84ea-3f1bdb2e8fe2"/>
 				<textElement textAlignment="Right">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{COM_ID}]]></textFieldExpression>
-			</textField>
-			<textField pattern="#,##0">
-				<reportElement x="470" y="5" width="75" height="15" uuid="d164f7e9-ab52-46cf-84ea-3f1bdb2e8fe2"/>
-				<textElement textAlignment="Right">
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{PWD}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{TOT_PRICE}.longValue()]]></textFieldExpression>
 			</textField>
 			<line>
-				<reportElement x="65" y="0" width="1" height="25" uuid="f3b38e18-7e3e-4ce3-973e-c9fe43dabb06"/>
+				<reportElement x="80" y="0" width="1" height="25" uuid="f3b38e18-7e3e-4ce3-973e-c9fe43dabb06"/>
 			</line>
 			<line>
 				<reportElement x="220" y="0" width="1" height="25" uuid="4f2cb7c6-af96-4fff-8474-be31a4020c3e"/>
@@ -109,12 +96,46 @@ WHERE emp_id = 'e1003']]>
 				<reportElement x="325" y="0" width="1" height="25" uuid="f5085e2a-784b-4641-b6ea-507b39d7ddb5"/>
 			</line>
 			<line>
-				<reportElement x="380" y="0" width="1" height="25" uuid="3e560330-7d87-4093-91f5-2f64a5fce6a5"/>
-			</line>
-			<line>
 				<reportElement x="465" y="0" width="1" height="25" uuid="36444aa4-e0f8-40ef-8466-901008501fde"/>
 			</line>
+			<textField pattern="#,##0">
+				<reportElement x="380" y="24" width="75" height="3" uuid="573461c2-ac81-4f3f-8641-a0e6678d02bf"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TOT_VAT_PRICE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="0" y="7" width="70" height="18" uuid="53769a1f-2401-41fa-923c-28c748bbc489"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ORD_CODE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="200" y="5" width="145" height="20" uuid="17c60aa8-162d-4f6c-9638-bab9d230107b"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TOT_SUP_PRICE}.longValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="466" y="9" width="150" height="15" uuid="880cc2b8-ace6-4f51-8768-5ea1e6b8a18c"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{REQ_DLV_DATE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="326" y="6" width="145" height="20" uuid="5c63ca9c-b371-43c1-a90f-47ca4841ccd6"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TOT_VAT_PRICE}.longValue()]]></textFieldExpression>
+			</textField>
 		</band>
+		<band height="50"/>
+		<band height="50"/>
 	</detail>
 	<pageFooter>
 		<band height="100"/>
