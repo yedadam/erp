@@ -2,10 +2,28 @@
 <html xmlns:th="http://www.thymeleaf.org" th:fragment="HeaderFragment">
 
 <head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@2.1.2/css/SpoqaHanSansNeo.css">
+<style>
+  .special-font {
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+}
+ .special-font:hover {
+   color: #ffc107; 
+ }
+.nav-link-darknavy {
+  color: #1976D2 !important;
+  border-bottom: 1px solid #1976D2;
+  font-weight: 300;
+  background-color: rgba(25, 118, 210, 0.1); /* 약간의 배경 강조 */
+  border-radius: 5px;
+}
+</style>
 </head>
 <body>
 	<!-- Topbar -->
-	<nav class="navbar navbar-expand navbar-light bg-lightt topbar mb-4 static-top shadow"style="height: 70px">
+	<nav class="navbar navbar-expand navbar-light bg-lightt topbar mb-4 static-top shadow"style="height: 45px">
 
 		<!-- Sidebar Toggle (Topbar) -->
 		<button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -17,37 +35,37 @@
 			<div class="mx-auto d-flex">
 				<ul class="navbar-nav flex-row align-items-center">
 					<li class="nav-item mx-2"><a
-						th:class="${activeMenu == 'home'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
+						th:class="${activeMenu == 'home'} ? 'nav-link fw-bold nav-link-darknavy special-font' : 'nav-link fw-bold text-white special-font'"
 						th:href="@{/erp}">대시보드</a></li>
 					<li class="nav-item mx-2"><a
-						th:class="${activeMenu == 'standard'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
+						th:class="${activeMenu == 'standard'} ? 'nav-link fw-bold nav-link-darknavy special-font' : 'nav-link fw-bold text-white special-font'"
 						th:href="@{/erp/standard}">기준정보</a></li>
 	
 					<li class="nav-item mx-2"
 						th:if="${#authentication.principal.optionCode == 'oc-102' or #authentication.principal.optionCode == 'oc-103'}">
 						<a
-						th:class="${activeMenu == 'sales'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
+						th:class="${activeMenu == 'sales'} ? 'nav-link fw-bold nav-link-darknavy special-font' : 'nav-link fw-bold text-white special-font'"
 						th:href="@{/erp/sales}">영업</a>
 					</li>
 	
 					<li class="nav-item mx-2"
 						th:if="${#authentication.principal.optionCode == 'oc-102' or #authentication.principal.optionCode == 'oc-103'}">
 						<a
-						th:class="${activeMenu == 'inventory'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
+						th:class="${activeMenu == 'inventory'} ? 'nav-link fw-bold nav-link-darknavy special-font' : 'nav-link fw-bold text-white special-font'"
 						th:href="@{/erp/inventory}">재고</a>
 					</li>
 	
 					<li class="nav-item mx-2"
 						th:if="${#authentication.principal.optionCode == 'oc-101' or #authentication.principal.optionCode == 'oc-103'}">
 						<a
-						th:class="${activeMenu == 'hr'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
+						th:class="${activeMenu == 'hr'} ? 'nav-link fw-bold nav-link-darknavy special-font' : 'nav-link fw-bold text-white special-font'"
 						th:href="@{/erp/hr}">인사</a>
 					</li>
 	
 					<li class="nav-item mx-2"
 						th:if="${#authentication.principal.optionCode == 'oc-101' or #authentication.principal.optionCode == 'oc-103'}">
 						<a
-						th:class="${activeMenu == 'accounting'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
+						th:class="${activeMenu == 'accounting'} ? 'nav-link fw-bold nav-link-darknavy special-font' : 'nav-link fw-bold text-white special-font'"
 						th:href="@{/erp/accounting}">회계</a>
 					</li>
 	
@@ -110,7 +128,7 @@
 			<!-- 로그인 사용자 -->
 			<li class="nav-item dropdown no-arrow" sec:authorize="isAuthenticated()">
 				<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-					<span class="me-2 d-none d-lg-inline text-gray-600 small" th:text="${#authentication.principal.username}"></span>
+					<span class="me-2 d-none d-lg-inline text-white-600 small" th:text="${#authentication.principal.username}"></span>
 					<img class="img-profile rounded-circle" src="/img/undraw_profile.svg">
 				</a>
 				<div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
