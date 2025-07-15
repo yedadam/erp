@@ -13,4 +13,6 @@ public interface SalaryStatementService {
     int removeSalaryStatement(java.util.Map<String, Object> param);
     List<SalaryStatementVO> getSalaryStatementList(String empId, String comId);
     List<SalaryStatementVO> getSalaryStatementList(java.util.Map<String, Object> param);
+    /** salId 중복 체크 */
+    boolean existsBySalId(String salId);
 } 

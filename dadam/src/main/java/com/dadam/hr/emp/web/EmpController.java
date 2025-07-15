@@ -273,9 +273,9 @@ public class EmpController {
         String empId = param.get("empId");
         String newPassword = param.get("newPassword");
         // 본인만 비밀번호 변경 가능
-        if (!empId.equals(userInfo.get("empId"))) {
+        /*if (!empId.equals(userInfo.get("empId"))) {
             return "unauthorized";
-        }
+        }*/
         EmpVO empVO = new EmpVO();
         empVO.setEmpId(empId);
         empVO.setPwd(newPassword);

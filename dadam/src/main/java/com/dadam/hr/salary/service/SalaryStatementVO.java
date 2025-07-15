@@ -118,4 +118,18 @@ public class SalaryStatementVO {
     // === 사원별 급여항목(EMP_ALLOWANCE) 관련 필드 ===
     /** 사원별 급여항목 리스트 */
     private List<Map<String, Object>> empAllowances;
+    /** 휴가일수(LEAVE_DAYS) */
+    private BigDecimal leaveDays;
+    /** 결근일수(ABSENCE_DAYS) */
+    private BigDecimal absenceDays;
+    /** 지각횟수(LATE_COUNT) */
+    private Integer lateCount;
+    /** 조퇴횟수(EARLY_LEAVE_COUNT) */
+    private Integer earlyLeaveCount;
+    /** 총지급액(TOTAL_PAY) */
+    private BigDecimal totalPay;
+    /** 총공제액(TOTAL_DEDUCT) */
+    private BigDecimal totalDeduct;
+    /** 비고(NOTE) */
+    private String note;
 } 
