@@ -4,85 +4,99 @@
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
 <body class="bg-light">
-  <div class="container-fluid mt-4 p-4 rounded shadow-sm">
+	<div class="container-fluid mt-4 p-4 rounded shadow-sm">
 
-    <!-- ✅ 헤더 + 부가기능 -->
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <div>
-        <h3 class="mb-1 text-secondary fw-bold border-bottom pb-2">손익계산서</h3>
-        <small class="text-muted">※ 연도 및 분기별 조회 가능 · 요약 보기 기능 제공</small>
-      </div>
-      <div>
-        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="showProfitSummary()">
-          요약 보기
-        </button>
-      </div>
-    </div>
+		<!-- ✅ 헤더 + 부가기능 -->
+		<div class="d-flex justify-content-between align-items-center mb-2">
+			<div>
+				<h3 class="mb-1 text-secondary fw-bold border-bottom pb-2">손익계산서</h3>
+			</div>
+			<div>
+				<button type="button" class="btn btn-outline-secondary btn-sm"
+					onclick="showProfitSummary()">요약 보기</button>
+			</div>
+		</div>
 
-    <!-- ✅ 검색 조건 영역 -->
-    <div class="card mb-3 shadow-sm" >
-      <div class="card-body">
-        <div class="row g-3 align-items-center">
+		<!-- ✅ 검색 조건 영역 -->
+		<div class="card mb-3 shadow-sm">
+			<div class="card-body">
+				<div class="row g-3 align-items-center">
 
-<!--           <div class="col-md-2">
+					<!--           <div class="col-md-2">
             <label class="form-label">연도</label>
             <select id="year" class="form-select">
               <option th:each="y : ${yearList}" th:value="${y}" th:text="${y}" th:selected="${y == param.year}"></option>
             </select>
           </div> -->
 
-          <div class="col-md-2">
-            <label class="form-label">반기</label>
-            <select id="half" class="form-select">
-              <option value="">전체</option>
-              <option value="H1">상반기</option>
-              <option value="H2">하반기</option>
-            </select>
-          </div>
+					<div class="col-md-2">
+						<label class="form-label">반기</label> <select id="half"
+							class="form-select">
+							<option value="">전체</option>
+							<option value="H1">상반기</option>
+							<option value="H2">하반기</option>
+						</select>
+					</div>
 
-          <div class="col-md-2">
-            <label class="form-label">분기</label>
-            <select id="quarter" class="form-select">
-              <option value="">전체</option>
-              <option value="Q1">1분기</option>
-              <option value="Q2">2분기</option>
-              <option value="Q3">3분기</option>
-              <option value="Q4">4분기</option>
-            </select>
-          </div>
+					<div class="col-md-2">
+						<label class="form-label">분기</label> <select id="quarter"
+							class="form-select">
+							<option value="">전체</option>
+							<option value="Q1">1분기</option>
+							<option value="Q2">2분기</option>
+							<option value="Q3">3분기</option>
+							<option value="Q4">4분기</option>
+						</select>
+					</div>
 
-          <div class="col-md-2 align-self-end">
-            <button type="button" class="btn btn-primary w-100" onclick="loadProfitData()">
-              <i class="fas fa-search"></i> 조회
-            </button>
-          </div>
+					<div class="col-md-2 align-self-end">
+						<button type="button" class="btn btn-primary w-100"
+							onclick="loadProfitData()">
+							<i class="fas fa-search"></i> 조회
+						</button>
+					</div>
 
-        </div>
-      </div>
-    </div>
+				</div>
+			</div>
+		</div>
 
-    <!-- ✅ 그리드 영역 -->
-    <div id="profitGrid" class="position-relative" style="min-height: 500px;"></div>
+		<!-- ✅ 그리드 영역 -->
+		<div id="mainGridWrapper"
+			class="position-relative border rounded p-3 bg-white shadow-sm">
+			<div id="profitGrid" class="position-relative"
+				style="min-height: 500px;"></div>
+			<div id="gridSpinner"
+				class="position-absolute top-0 start-0 w-100 h-100 bg-white d-flex align-items-center justify-content-center"
+				style="top: 50px; display: none; z-index: 50;">
+				<dotlottie-player
+					src="https://lottie.host/e8b36d4d-46d8-429f-98b8-d8c1c4dde598/p6hfbX0nTd.lottie"
+					background="transparent" speed="1"
+					style="width: 200px; height: 100px;" loop autoplay>
+				</dotlottie-player>
+			</div>
+		</div>
+	</div>
 
-  </div>
-
-  <!-- ✅ 손익 요약 모달 -->
-  <div class="modal fade" id="profitSummaryModal" tabindex="-1" aria-labelledby="profitSummaryLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="profitSummaryLabel">손익 요약</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
-        </div>
-        <div class="modal-body" id="profitSummaryContent">
-          <!-- 내용 삽입 -->
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">닫기</button>
-        </div>
-      </div>
-    </div>
-  </div>
+	<!-- ✅ 손익 요약 모달 -->
+	<div class="modal fade" id="profitSummaryModal" tabindex="-1"
+		aria-labelledby="profitSummaryLabel" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="profitSummaryLabel">손익 요약</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+				<div class="modal-body" id="profitSummaryContent">
+					<!-- 내용 삽입 -->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary btn-sm"
+						data-bs-dismiss="modal">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 
 
@@ -199,7 +213,10 @@ function loadProfitData() {
     error: function() {
     }
   }).always(function() {
-  });
+		 setTimeout(function() {
+			 $('#gridSpinner').removeClass('d-flex').hide();
+		    }, 700);
+	});
 }
 
 
