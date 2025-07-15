@@ -93,4 +93,9 @@ public class SalaryStatementRestController {
         result.put("message", success ? "삭제 성공" : "삭제 실패");
         return result;
     }
+
+    @GetMapping("/check-duplicate")
+    public boolean checkDuplicate(@RequestParam String salId) {
+        return salaryStatementService.existsBySalId(salId);
+    }
 } 

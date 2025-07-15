@@ -114,6 +114,49 @@
             align-items: center;
             gap: 2px;
         }
+        /* 급여명세서 지급상태 배지 salaryitem.html과 동일하게 */
+        .status-badge {
+            display: inline-block;
+            padding: 1px 8px; /* 높이 살짝 줄임 */
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: normal;
+            border: 1px solid #e2e8f0;
+            letter-spacing: 0.5px;
+            min-width: 56px;
+            text-align: center;
+        }
+        .status-wait {
+            background: #fffbe6;
+            color: #b58900;
+            border-color: #ffe066;
+        }
+        .status-approve {
+            background: #e6f4ea;
+            color: #1a7f37;
+            border-color: #b7e4c7;
+        }
+        .status-done {
+            background: #fbeaea;
+            color: #c92a2a;
+            border-color: #f5c2c7;
+        }
+        .icon-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            color: #3b82f6;
+            cursor: pointer;
+            outline: none;
+        }
+        .icon-btn:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        .icon-btn:hover {
+            color: #2563eb;
+        }
     </style>
 </head>
 <body>
@@ -142,49 +185,49 @@
           </div>
         </div>
       </div>
-      <!-- 급여 총액 -->
+      <!-- 총 지급액 -->
       <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-success h-100 py-2">
           <div class="card-body">
             <div class="row no-gutters align-items-center">
               <div class="col mr-2">
-                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">급여 총액</div>
+                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">총 지급액</div>
                 <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalSalary">0원</div>
               </div>
               <div class="col-auto">
-                <i class="fas fa-coins fa-2x text-gray-300"></i>
+                <i class="fas fa-wallet fa-2x text-gray-300"></i>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <!-- 지급 현황 -->
+      <!-- 총 공제액 -->
       <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-info h-100 py-2">
           <div class="card-body">
             <div class="row no-gutters align-items-center">
               <div class="col mr-2">
-                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">지급 현황</div>
-                <div class="h5 mb-0 font-weight-bold text-gray-800" id="payStatus">-</div>
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">총 공제액</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalDeduction">0원</div>
               </div>
               <div class="col-auto">
-                <i class="fas fa-credit-card fa-2x text-gray-300"></i>
+                <i class="fas fa-minus-circle fa-2x text-gray-300"></i>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <!-- 초과근무 시간 -->
+      <!-- 실수령액 -->
       <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-warning h-100 py-2">
           <div class="card-body">
             <div class="row no-gutters align-items-center">
               <div class="col mr-2">
-                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">초과근무 시간</div>
-                <div class="h5 mb-0 font-weight-bold text-gray-800" id="otHours">0h</div>
+                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">실수령액</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalNetSalary">0원</div>
               </div>
               <div class="col-auto">
-                <i class="fas fa-clock fa-2x text-gray-300"></i>
+                <i class="fas fa-hand-holding-usd fa-2x text-gray-300"></i>
               </div>
             </div>
           </div>
@@ -252,15 +295,16 @@
     <!-- 그리드 위 버튼 영역 (좌: 급여계산/엑셀/명세서, 우: 추가/삭제/저장) -->
     <div class="d-flex justify-content-between align-items-center button-area mt-2 mb-2 flex-wrap" style="min-height:40px;">
       <div class="d-flex gap-2 flex-wrap">
-        <button class="btn btn-outline-primary" id="settingBtn"><i class="fas fa-cogs"></i> 항목설정</button>
-        <button class="btn btn-outline-secondary" id="calcBtnHeader"><i class="fas fa-calculator"></i> 급여계산</button>
-        <button class="btn btn-outline-info" id="approveAllBtnHeader"><i class="fas fa-check-double"></i> 일괄승인</button>
-        <button class="btn btn-outline-success" id="payAllBtnHeader"><i class="fas fa-money-bill-wave"></i> 일괄지급</button>
+        <button class="btn btn-outline-secondary btn" id="calcBtnHeader"><i class="fas fa-calculator"></i> 급여계산</button>
+        <button class="btn btn-outline-info btn" id="approveAllBtnHeader"><i class="fas fa-check-double"></i> 일괄승인</button>
+        <button class="btn btn-outline-success btn" id="payAllBtnHeader"><i class="fas fa-money-bill-wave"></i> 일괄지급</button>
+        <button class="btn btn-outline-dark btn" id="exportPayslipBtn"><i class="fas fa-file-pdf"></i> 명세서출력</button>
+        <button class="btn btn-outline-warning btn" id="emailPayslipBtn"><i class="fas fa-envelope"></i> 명세서 이메일발송</button>
       </div>
       <div class="d-flex gap-2 flex-wrap">
-        <button class="btn btn-outline-primary" id="addBtn2"><i class="fas fa-plus"></i> 추가</button>
-        <button class="btn btn-danger" id="deleteBtn2" disabled><i class="fas fa-trash"></i> 삭제</button>
-        <button class="btn btn-success" id="saveBtn2" disabled><i class="fas fa-save"></i> 저장</button>
+        <button class="btn btn-outline-primary btn" id="addBtn2"><i class="fas fa-plus"></i> 추가</button>
+        <button class="btn btn-danger btn" id="deleteBtn2" disabled><i class="fas fa-trash"></i> 삭제</button>
+        <button class="btn btn-success btn" id="saveBtn2" disabled><i class="fas fa-save"></i> 저장</button>
       </div>
     </div>
 
@@ -268,6 +312,73 @@
     <div id="salaryGrid" class="grid-area"></div>
     <div id="noResultMsg" class="text-center text-muted my-4" style="display:none;">
       🔍 검색 조건에 맞는 항목이 없습니다.
+    </div>
+  </div>
+
+  <!-- 사원 검색 모달 -->
+  <div class="modal fade" id="empModal" tabindex="-1" aria-labelledby="empModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="empModalLabel">사원 검색</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="input-group mb-3" style="max-width: 400px; margin-left: 12px;">
+            <select class="form-select" id="empSelect" style="max-width: 30%;">
+              <option value="empId" selected>사원번호</option>
+              <option value="empName">사원명</option>
+            </select>
+            <input type="text" class="form-control" id="empInput" placeholder="검색어 입력">
+            <button class="btn btn-outline-secondary" type="button" id="empSearchBtn">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+          <div class="container-fluid">
+            <div id="empGrid"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 급여항목 관리 모달 -->
+  <div class="modal fade" id="salaryItemModal" tabindex="-1" aria-labelledby="salaryItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="salaryItemModalLabel">급여항목 관리</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered align-middle text-center">
+            <thead>
+              <tr>
+                <th>항목명</th>
+                <th>코드</th>
+                <th>카테고리</th>
+                <th>계산방식</th>
+                <th>적용대상</th>
+                <th>사용여부</th>
+                <th>비고</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="salaryItemTableBody">
+              <!-- JS로 동적 행 추가 -->
+            </tbody>
+          </table>
+          <button class="btn btn-outline-primary" id="addSalaryItemBtn">항목 추가</button>
+          <button class="btn btn-outline-danger" id="deleteSalaryItemBtn">항목 삭제</button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" id="saveSalaryItemBtn">저장</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -279,8 +390,8 @@
       $.get('/erp/hr/salary/dashboard', function(data) {
         $('#totalEmp').text(data.totalEmp || 0);
         $('#totalSalary').text(data.totalSalary ? data.totalSalary.toLocaleString() + '원' : '0원');
-        $('#payStatus').text(data.payStatus || '-');
-        $('#otHours').text(data.otHours ? data.otHours + 'h' : '0h');
+        $('#totalDeduction').text(data.totalDeduction ? data.totalDeduction.toLocaleString() + '원' : '0원');
+        $('#totalNetSalary').text(data.totalNetSalary ? data.totalNetSalary.toLocaleString() + '원' : '0원');
       });
     }
     // 부서 옵션 동적 로딩 (API 경로 및 필드명 수정)
@@ -309,8 +420,8 @@
       { header: '사원번호', name: 'empId', align: 'center', editor: 'text' },
       { header: '사원명', name: 'empName', align: 'center', editor: 'text' },
       { header: '부서명', name: 'deptName', align: 'center', editor: 'text' },
-      { header: '기본급', name: 'baseSal', align: 'right', editor: 'text', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : '-' },
-      { header: 'OT수당', name: 'otAllow', align: 'right', editor: 'text', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : '-' },
+      { header: '기본급', name: 'baseSal', dataType: 'number',align: 'right', editor: 'text', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : 0 },
+      { header: 'OT수당', name: 'otAllow', dataType: 'number',align: 'right', editor: 'text', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : 0 },
       ...allowanceSettings.filter(s => s.enabled).map((setting, i) => ({
         header: setting.label || `수당${i+1}`,
         name: `sal${i+1}`,
@@ -318,38 +429,34 @@
         editor: 'text',
         formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : '-'
       })),
-      { header: '수당합계', name: 'allowanceTotal', align: 'right', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : '-' },
-      { header: '공제합계', name: 'deductionTotal', align: 'right', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : '-' },
-      { header: '실수령액', name: 'netSalary', align: 'right', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : '-' },
-      { header: '지급상태', name: 'status', align: 'center', escapeHTML: false,
-        formatter: ({value}) => {
+      { header: '수당합계', name: 'allowanceTotal', dataType: 'number',align: 'right', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : 0, editor: false },
+      { header: '공제합계', name: 'deductionTotal', dataType: 'number',align: 'right', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : 0, editor: false },
+      { header: '실수령액', name: 'netSalary', dataType: 'number', align: 'right', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : 0, editor: false },
+      { header: '지급상태', name: 'status', align: 'center',
+        editor: {
+          type: 'select',
+          options: {
+            listItems: [
+              { text: '대기', value: 'ss01' },
+              { text: '승인', value: 'ss02' },
+              { text: '지급완료', value: 'ss03' }
+            ]
+          }
+        },
+        formatter: ({ value }) => {
           if (!value) return '-';
-          let text = value.trim();
-          let cls = '';
-          if (text === 'ss01' || text.toUpperCase() === 'WAIT' || text === '대기') { text = '대기'; cls = 'start-action'; }
-          else if (text === 'ss02' || text.toUpperCase() === 'APPROVE' || text === '승인' || text === '승인 완료') { text = '승인'; cls = 'end-action'; }
-          else if (text === 'ss03' || text.toUpperCase() === 'PAID' || text === '지급완료' || text === '지급 완료') { text = '지급완료'; cls = 'del-action'; }
-          else { cls = ''; }
-          return `<span class="${cls}">${text}</span>`;
+          if (value === 'ss01' || value === '대기') return '<span class="status-badge status-wait">대기</span>';
+          if (value === 'ss02' || value === '승인') return '<span class="status-badge status-approve">승인</span>';
+          if (value === 'ss03' || value === '지급완료') return '<span class="status-badge status-done">지급완료</span>';
+          return value;
         }
       },
       { header: '지급일', name: 'createdDate', align: 'center' },
       {
-        header: '관리',
-        name: 'manage',
-        align: 'center',
-        minWidth: 120,
-        width: 130,
-        maxWidth: 150,
+        header: '상세', name: 'manage', align: 'center', minWidth: 60, width: 70, maxWidth: 80,
         formatter: ({ row }) => `
           <div class="manage-btn-group">
-            <button class="btn btn-sm btn-outline-primary me-1" onclick="printPayslip('${row.empId}')">
-              <i class="fas fa-file-alt fa-sm"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-success me-1" onclick="downloadExcel('${row.empId}')">
-              <i class="fas fa-file-excel fa-sm"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-info" onclick="viewDetail('${row.empId}')">
+            <button class="icon-btn" onclick="viewDetail('${row.empId}')" title="급여명세서">
               <i class="fas fa-eye fa-sm"></i>
             </button>
           </div>
@@ -384,6 +491,7 @@
     // 필터/검색
     function filterSalaryList() {
       const paramObj = {
+        comId: 'com-101', // 회사ID 기본값 항상 포함
         keyword: $('#searchInput2').val(),
         dept: $('#deptFilter2').val(),
         calcMonth: $('#salaryMonthFilter').val(),
@@ -424,76 +532,67 @@
     window.paySalary = function(empNo) {
       Swal.fire('지급처리', '사번: '+empNo, 'success');
     }
-    // 급여계산 버튼 클릭 시
-    $('#calcBtnHeader').on('click', function() {
-        const selectedRows = grid.getCheckedRowKeys();
-        if (selectedRows.length === 0) {
-            Swal.fire('⚠ 계산할 항목을 선택해주세요.', '', 'warning');
-            return;
+    // 명세서출력 버튼
+    $('#exportPayslipBtn').on('click', function() {
+      Swal.fire('명세서출력', '선택된(또는 전체) 사원의 명세서를 PDF로 출력합니다. (예시)', 'info');
+    });
+    // 명세서 이메일발송 버튼
+    $('#emailPayslipBtn').on('click', function() {
+      Swal.fire('명세서 이메일발송', '선택된(또는 전체) 사원의 명세서를 이메일로 발송합니다. (예시)', 'info');
+    });
+    // 항목설정 버튼
+    // 급여계산 버튼 (공제합계 직접 합산, NaN 완전 방지)
+    function safeNumber(val) {
+      if (val === undefined || val === null || val === '-' || val === '') return 0;
+      if (typeof val === 'number') return val;
+      if (typeof val === 'string') {
+        const num = parseInt(val.replace(/[^0-9\-]/g, ''));
+        return isNaN(num) ? 0 : num;
+      }
+      return 0;
+    }
+    $('#calcBtnHeader').off('click').on('click', function() {
+      const checkedRowKeys = grid.getCheckedRowKeys();
+      console.log(grid.getData());
+      if (checkedRowKeys.length === 0) {
+        Swal.fire('알림', '계산할 행을 선택하세요.', 'info');
+        return;
+      }
+      checkedRowKeys.forEach(rowKey => {
+        const row = grid.getRow(rowKey);
+        // 수당합계
+        const baseSal = safeNumber(row.baseSal);
+        const otAllow = safeNumber(row.otAllow);
+        const sal1 = safeNumber(row.sal1);
+        const sal2 = safeNumber(row.sal2);
+        // 필요시 sal3~sal10도 추가
+        const allowanceTotal = baseSal + otAllow + sal1 + sal2;
+        grid.setValue(rowKey, 'allowanceTotal', allowanceTotal > 0 ? allowanceTotal.toLocaleString() + '원' : 0);
+        // 공제합계: deductionTotal가 없으면 각 항목 직접 합산
+        let deductionTotal = safeNumber(row.deductionTotal);
+        if (!deductionTotal) {
+          deductionTotal =
+            safeNumber(row.incTax) +
+            safeNumber(row.natPension) +
+            safeNumber(row.healthInsur) +
+            safeNumber(row.empInsur) +
+            safeNumber(row.ltcInsur);
         }
-        
-        const calcMonth = $('#salaryMonthFilter').val();
-        if (!calcMonth) {
-            Swal.fire('⚠ 급여년월을 선택해주세요.', '', 'warning');
-            return;
-        }
-        
-        // 선택된 사원번호 추출
-        const empIds = [];
-        selectedRows.forEach(rowKey => {
-            const rowData = grid.getRow(rowKey);
-            if (rowData && rowData.empId) {
-                empIds.push(rowData.empId);
-            }
-        });
-        
-        if (empIds.length === 0) {
-            Swal.fire('⚠ 유효한 사원번호가 없습니다.', '', 'warning');
-            return;
-        }
-        
-        // 로딩 표시
-        Swal.fire({
-            title: '급여 계산 중...',
-            text: '잠시만 기다려주세요.',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-        
-        // 급여 자동계산 API 호출
-        $.ajax({
-            url: '/erp/hr/salary/calculate-batch',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                empIds: empIds,
-                calcMonth: calcMonth,
-                comId: 'com-101'
-            }),
-            success: function(response) {
-                if (response.success) {
-                    Swal.fire({
-                        title: '✔ 계산 완료',
-                        text: response.message,
-                        icon: 'success',
-                        confirmButtonText: '확인'
-                    }).then(() => {
-                        // 목록 새로고침
-                        filterSalaryList();
-                        // 대시보드 업데이트
-                        loadDashboard();
-                    });
-                } else {
-                    Swal.fire('❌ 계산 실패', response.message, 'error');
-                }
-            },
-            error: function(xhr, status, error) {
-                Swal.fire('❌ 오류', '급여 계산 중 오류가 발생했습니다.', 'error');
-                console.error('급여 계산 오류:', error);
-            }
-        });
+        grid.setValue(rowKey, 'deductionTotal', deductionTotal > 0 ? deductionTotal.toLocaleString() + '원' : 0);
+        // 실수령액: netSalary
+        const netPay = allowanceTotal - deductionTotal;
+        grid.setValue(rowKey, 'netSalary', !isNaN(netPay) ? netPay.toLocaleString() + '원' : 0);
+      });
+      Swal.fire('✔ 계산 완료', '선택된 행의 실수령액이 계산되었습니다.', 'success');
+      console.log(grid.getData());
+    });
+    // 일괄승인 버튼
+    $('#approveAllBtnHeader').on('click', function() {
+      Swal.fire('일괄승인', '선택된 급여명세서를 승인 처리합니다. (예시)', 'info');
+    });
+    // 일괄지급 버튼
+    $('#payAllBtnHeader').on('click', function() {
+      Swal.fire('일괄지급', '선택된 급여명세서를 지급 처리합니다. (예시)', 'info');
     });
     // --- 급여항목 관리와 동일한 추가/삭제/저장 기능 구현 (salaryGrid 대상) ---
     // 추가 버튼: 새 행 추가
@@ -504,7 +603,7 @@
       const dd = String(today.getDate()).padStart(2, '0');
       const todayStr = `${yyyy}-${mm}-${dd}`;
       grid.prependRow({
-        empId: '', empName: '', deptName: '', baseSal: '', otAllow: '', netSalary: '', status: '', createdDate: todayStr
+        empId: '', empName: '', deptName: '', baseSal: '', otAllow: '', netSalary: '', status: 'ss01', createdDate: todayStr
       }, { focus: true });
       setTimeout(() => {
         grid.focusAt(0, 'empId');
@@ -558,9 +657,58 @@
         cancelButtonText: '취소'
       }).then((result) => {
         if (result.isConfirmed) {
-          // 실제 저장 로직(API 연동) 필요
-          Swal.fire('✔ 저장 완료', '신규/수정 항목이 성공적으로 저장되었습니다.', 'success');
-          $('#saveBtn2').prop('disabled', true);
+          // 신규 행 저장 전 salId 자동 생성 (DB 통일 규칙: sal+숫자사번+_+YYYYMM)
+          createdRows.forEach(row => {
+            if (!row.salId || row.salId === '') {
+              let calcMonth = row.calcMonth;
+              if (!calcMonth && row.createdDate) {
+                const date = row.createdDate.split('T')[0] || row.createdDate;
+                const parts = date.split('-');
+                if (parts.length >= 2) calcMonth = parts[0] + '-' + parts[1];
+              }
+              if (row.empId && calcMonth) {
+                // 사원번호에서 숫자만 추출, 급여월에서 하이픈 제거
+                const empIdNum = row.empId.replace(/[^0-9]/g, '');
+                const calcMonthNum = calcMonth.replace(/-/g, '');
+                row.salId = 'sal' + empIdNum + '_' + calcMonthNum;
+              }
+            }
+          });
+          // --- salId 중복 체크 Ajax 추가 ---
+          const salId = createdRows[0].salId;
+          $.ajax({
+            url: '/erp/hr/check-duplicate', // 경로 수정: /erp/hr/salary/check-duplicate → /erp/hr/check-duplicate
+            method: 'GET',
+            data: { salId },
+            success: function(isDuplicate) {
+              if (isDuplicate === true || isDuplicate === 'true') {
+                Swal.fire('❌ 중복', '이미 등록된 급여명세입니다.', 'error');
+                return;
+              }
+              // 신규 행 저장
+              const saveCreated = createdRows.length > 0 ? $.ajax({
+                url: '/erp/hr/add',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(createdRows[0]),
+              }) : Promise.resolve();
+              Promise.all([saveCreated]).then(() => {
+                Swal.fire('✔ 저장 완료', '신규/수정 항목이 성공적으로 저장되었습니다.', 'success');
+                // 검색 조건 전체로 초기화 후 DB에서 다시 조회
+                $('#searchInput2').val('');
+                $('#deptFilter2').val('');
+                $('#salaryMonthFilter').val('');
+                $('input[name="payStatusRadio"][value=""]').prop('checked', true);
+                filterSalaryList();
+                loadDashboard();
+              }).catch(() => {
+                Swal.fire('❌ 저장 실패', '저장 중 오류가 발생했습니다.', 'error');
+              });
+            },
+            error: function() {
+              Swal.fire('❌ 오류', '중복 체크 중 오류가 발생했습니다.', 'error');
+            }
+          });
         }
       });
     });
@@ -575,6 +723,103 @@
     window.downloadExcel = function(empNo) {
       Swal.fire('엑셀 다운로드', '사번: '+empNo, 'success');
     }
+    // ToastUI Grid 테마 적용 (거래처와 동일)
+    tui.Grid.applyTheme('default', {
+      cell: { evenRow: { background: '#fafbfc' }, oddRow: { background: '#fff' } },
+      row: { hover: { background: '#f1f3f5' } }
+    });
+    // 사원목록 그리드 생성
+    const empGrid = new tui.Grid({
+      el: document.getElementById('empGrid'),
+      scrollX: false,
+      scrollY: true,
+      bodyHeight: 350,
+      pageOptions: { perPage: 10, useClient: true },
+      columns: [
+        {header: '사원번호', name: 'empId', align: 'center'},
+        {header: '사원명', name: 'empName', align: 'center'},
+        {header: '부서명', name: 'deptName', align: 'center'}, // editor는 동적으로 세팅
+        {header: '직위', name: 'positionName', align: 'center'},
+        {header: '입사일', name: 'hireDate', align: 'center'},
+        {header: '재직상태', name: 'empStatusName', align: 'center'},
+        {header: '연락처', name: 'tel', align: 'center'}
+      ]
+    });
+    // 사원목록 그리드 클릭 시 메인 그리드에 값 반영
+    empGrid.on('click', function(ev) {
+      if (!ev.targetType || ev.targetType !== 'cell') return;
+      const row = empGrid.getRow(ev.rowKey);
+      if (window.selectedEmpRowKey != null) {
+        grid.setValue(window.selectedEmpRowKey, 'empId', row.empId);
+        grid.setValue(window.selectedEmpRowKey, 'empName', row.empName);
+        grid.setValue(window.selectedEmpRowKey, 'deptName', row.deptName);
+        grid.setValue(window.selectedEmpRowKey, 'baseSal', row.sal); // 기본급 자동 입력
+        $('#empModal').modal('hide');
+      }
+    });
+    // 메인 그리드 셀 클릭 시 사원 검색 모달 오픈
+    grid.on('click', function(ev) {
+      if (!ev.targetType || ev.targetType !== 'cell') return;
+      if (ev.columnName === 'empId' || ev.columnName === 'empName') {
+        empModalOpen(ev.rowKey);
+      }
+    });
+    // 사원 검색 기능
+    $('#empSearchBtn').on('click', function() {
+      empModalOpen(window.selectedEmpRowKey);
+    });
+    $('#empInput').on('keydown', function(e) {
+      if (e.keyCode === 13) $('#empSearchBtn').click();
+    });
+    // 사원 검색 모달 오픈 함수
+    async function empModalOpen(rowKey) {
+      $('#empModal').modal('show');
+      const type = $('#empSelect').val();
+      const value = $('#empInput').val();
+      let param = {};
+      if (value) param.keyword = value;
+     await $.ajax({
+        url: '/erp/hr/empListAjax',
+        method: 'GET',
+        data: param,
+         success: function(result) {
+           empGrid.resetData(result);
+        }
+      });
+      window.selectedEmpRowKey = rowKey;
+    }
+    $('#empModal').on('shown.bs.modal', function(){
+      empGrid.refreshLayout();
+    })
+    // 메인 그리드 부서명 드롭다운 옵션 동적 세팅
+    let mainDeptOptions = [];
+    function loadDeptOptionsForMainGrid() {
+      $.get('/erp/hr/dept', function(list) {
+        mainDeptOptions = list.map(d => ({ text: d.deptName, value: d.deptName }));
+        grid.setColumns(grid.getColumns().map(col => {
+          if (col.name === 'deptName') {
+            return {
+              ...col,
+              editor: { type: 'select', options: { listItems: mainDeptOptions } }
+            };
+          }
+          return col;
+        }));
+        grid.refreshLayout();
+      });
+    }
+    $(function() {
+      loadDeptOptionsForMainGrid();
+    });
+    // 지급상태 변경 함수
+    window.approveStatus = function(rowKey) {
+      grid.setValue(rowKey, 'status', '승인');
+      Swal.fire('승인 처리', '해당 급여명세서가 승인되었습니다.', 'success');
+    };
+    window.payStatus = function(rowKey) {
+      grid.setValue(rowKey, 'status', '지급완료');
+      Swal.fire('지급완료 처리', '해당 급여명세서가 지급완료로 변경되었습니다.', 'success');
+    };
   </script>
 </body>
 </html> 

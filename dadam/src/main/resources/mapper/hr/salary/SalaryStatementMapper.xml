@@ -30,7 +30,7 @@
             s.sal10 AS sal10,
             (NVL(s.sal1,0) + NVL(s.sal2,0) + NVL(s.sal3,0) + NVL(s.sal4,0) + NVL(s.sal5,0) + NVL(s.sal6,0) + NVL(s.sal7,0) + NVL(s.sal8,0) + NVL(s.sal9,0) + NVL(s.sal10,0)) AS allowanceTotal,
             (NVL(s.inc_tax,0) + NVL(s.nat_pension,0) + NVL(s.health_insur,0) + NVL(s.emp_insur,0) + NVL(s.ltc_insur,0)) AS deductionTotal,
-            s.net_salary AS net_salary,
+            nvl(s.net_salary, 0) AS net_salary,
             s.status AS status,
             TO_CHAR(s.created_date, 'YYYY-MM-DD') AS createdDate,
             e.emp_name AS emp_name,
@@ -39,16 +39,18 @@
         FROM salarystatement s
         JOIN employees e ON s.emp_id = e.emp_id AND s.com_id = e.com_id
         LEFT JOIN departments d ON e.dept_code = d.dept_code
-        WHERE s.com_id = #{comId}
-        <if test="emp_id != null and emp_id != ''">
-            AND s.emp_id = #{emp_id}
-        </if>
-        <if test="calc_month != null and calc_month != ''">
-            AND s.calc_month = #{calc_month}
-        </if>
-        <if test="keyword != null and keyword != ''">
-            AND (e.emp_name LIKE '%' || #{keyword} || '%' OR s.sal_id LIKE '%' || #{keyword} || '%')
-        </if>
+        <where>
+            s.com_id = #{comId}
+            <if test="emp_id != null and emp_id != ''">
+                AND s.emp_id = #{emp_id}
+            </if>
+            <if test="calc_month != null and calc_month != ''">
+                AND s.calc_month = #{calc_month}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (e.emp_name LIKE '%' || #{keyword} || '%' OR s.sal_id LIKE '%' || #{keyword} || '%')
+            </if>
+        </where>
         ORDER BY s.calc_month DESC
     </select>
     <!-- 단일 급여명세서 상세 조회 (sal_id 기준) -->
@@ -106,4 +108,8 @@
     <delete id="deleteSalaryStatement" parameterType="map">
         DELETE FROM salarystatement WHERE sal_id = #{salId} AND com_id = #{comId}
     </delete>
+    <!-- salId 중복 체크 -->
+    <select id="existsBySalId" resultType="int" parameterType="string">
+        SELECT COUNT(1) FROM SALARYSTATEMENT WHERE SAL_ID = #{salId}
+    </select>
 </mapper> 

@@ -311,6 +311,17 @@
       { header: '설명', name: 'note', editor: 'text',
         formatter: ({ value }) => `<span title="${value || ''}">${value || ''}</span>` },
       { header: '생성일', name: 'createdDate', align: 'center', formatter: ({value}) => value || '-', sortable: true },
+      { header: '지급상태', name: 'status', align: 'center', width: 100,
+        formatter: ({ value }) => {
+          let text = value;
+          let cls = '';
+          if (value === 'ss01' || value === 'WAIT' || value === '대기') { text = '대기'; cls = 'start-action'; }
+          else if (value === 'ss02' || value === 'APPROVE' || value === '승인' || value === '승인 완료') { text = '승인'; cls = 'end-action'; }
+          else if (value === 'ss03' || value === 'PAID' || value === '지급완료' || value === '지급 완료') { text = '지급완료'; cls = 'del-action'; }
+          else { text = value; cls = ''; }
+          return `<span class="${cls}">${text}</span>`;
+        }
+      }
     ];
     // 숨김 컬럼 예시 (실제 DB용, 필요시 추가)
     // { name: 'companyId', hidden: true },
@@ -409,6 +420,7 @@
         acctYn: 'Y',
         createdDate: todayStr,
         note: '',
+        status: 'ss01' // 기본값으로 설정
       }, { focus: true });
           
       setTimeout(() => {
@@ -436,6 +448,7 @@
             acctYn: 'Y',
             createdDate: todayStr,
             note: '',
+            status: 'ss01' // 기본값으로 설정
           }, { focus: true });
           
           setTimeout(() => {

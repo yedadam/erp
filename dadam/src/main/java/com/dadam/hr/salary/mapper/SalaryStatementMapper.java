@@ -21,4 +21,6 @@ public interface SalaryStatementMapper {
     
     /** 사원별 급여항목(EMP_ALLOWANCE) 조회 */
     public List<java.util.Map<String, Object>> selectEmpAllowances(java.util.Map<String, Object> param);
+    /** salId 중복 체크 */
+    int existsBySalId(String salId);
 } 
