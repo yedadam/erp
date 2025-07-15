@@ -95,9 +95,6 @@
 			
 			<!-- 기준정보 -->
 			<div th:if="${activeMenu == 'standard'}">
-            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
-                기준정보
-            </div>
             <li class="nav-item">
                 <a class="nav-link" href="/erp/standard/vender">
                     <i class="fas fa-fw fa-chart-area"></i>
@@ -129,9 +126,6 @@
 			<!-- 영업 -->
 			<div  th:if="${activeMenu == 'sales'}">
             <!-- Heading -->
-            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
-                영업
-            </div>
             <!-- Nav Item - Charts -->
             <li class="nav-item">
              <!-- <a class="nav-link" th:href="@{/erp/sales/quote}">
@@ -164,8 +158,6 @@
 			<!-- 재고 -->
 			<div  th:if="${activeMenu == 'inventory'}">
             <!-- Heading -->
-	            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 1.2rem; color:white">
-	            </div>
 	            <!-- Nav Item - Charts -->
 	            <li class="nav-item">
 	                <a class="nav-link" href="/erp/inventory/warehouse">
@@ -222,9 +214,6 @@
 			
 			<!-- 인사 -->
 			<div  th:if="${activeMenu == 'hr'}">
-            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
-                인사
-            </div>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/erp/hr/emp-all}">
                     <i class="fas fa-fw fa-chart-bar"></i>
@@ -279,9 +268,6 @@
 			
 			<!-- 회계 -->
 			<div  th:if="${activeMenu == 'accounting'}">
-            <div class="sidebar-heading d-flex justify-content-center align-items-center" style="font-size: 0.8rem; margin-top: 20px;">
-                회계
-            </div>
             <li class="nav-item">
                 <a class="nav-link" href="/erp/accounting/account">
                     <i class="fas fa-fw fa-chart-area"></i>
@@ -336,17 +322,6 @@
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
-            <!-- Sidebar Toggler (Sidebar) -->
-            <!-- <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div> -->
-
-           <!-- Sidebar Message -->
-            <!-- <div class="sidebar-card d-none d-lg-flex">
-                <img class="sidebar-card-illustration mb-2" src="/img/undraw_rocket.svg" alt="...">
-                <p class="text-center mb-2"><strong>SB Admin Pro</strong> is packed with premium features, components, and more!</p>
-                <a class="btn btn-success btn-sm" href="https://startbootstrap.com/theme/sb-admin-pro">Upgrade to Pro!</a>
-            </div> -->
 
         </ul>
 
