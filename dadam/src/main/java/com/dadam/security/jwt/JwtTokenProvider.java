@@ -1,7 +1,7 @@
 package com.dadam.security.jwt;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
+//import io.jsonwebtoken.*;
+//import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,22 +38,21 @@ public class JwtTokenProvider {
      * @return JWT 토큰
      */
     public String generateToken(Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
-        
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("username", userDetails.getUsername());
-        claims.put("authorities", userDetails.getAuthorities());
-        
-        return Jwts.builder()
-                .setSubject(userDetails.getUsername())
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
-                .compact();
+		/*
+		 * UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+		 * 
+		 * Date now = new Date(); Date expiryDate = new Date(now.getTime() +
+		 * jwtExpirationMs);
+		 * 
+		 * Map<String, Object> claims = new HashMap<>(); claims.put("username",
+		 * userDetails.getUsername()); claims.put("authorities",
+		 * userDetails.getAuthorities());
+		 * 
+		 * return Jwts.builder() .setSubject(userDetails.getUsername())
+		 * .setClaims(claims) .setIssuedAt(now) .setExpiration(expiryDate)
+		 * .signWith(getSigningKey(), SignatureAlgorithm.HS512) .compact();
+		 */
+    	return null;
     }
 
     /**
@@ -63,13 +62,13 @@ public class JwtTokenProvider {
      * @return 사용자명
      */
     public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        
-        return claims.getSubject();
+		/*
+		 * Claims claims = Jwts.parserBuilder() .setSigningKey(getSigningKey()) .build()
+		 * .parseClaimsJws(token) .getBody();
+		 * 
+		 * return claims.getSubject();
+		 */
+    	return null;
     }
 
     /**
@@ -79,15 +78,12 @@ public class JwtTokenProvider {
      * @return 유효성 여부
      */
     public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
+		/*
+		 * try { Jwts.parserBuilder() .setSigningKey(getSigningKey()) .build()
+		 * .parseClaimsJws(token); return true; } catch (JwtException |
+		 * IllegalArgumentException e) { return false; }
+		 */
+    	return false;
     }
 
     /**
@@ -96,12 +92,12 @@ public class JwtTokenProvider {
      * @param token JWT 토큰
      * @return 클레임
      */
-    public Claims getClaimsFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+    public void getClaimsFromToken(String token) {
+		/*
+		 * return Jwts.parserBuilder() .setSigningKey(getSigningKey()) .build()
+		 * .parseClaimsJws(token) .getBody();
+		 */
+    	
     }
 
     /**
@@ -110,7 +106,8 @@ public class JwtTokenProvider {
      * @return SecretKey
      */
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+		/* return Keys.hmacShaKeyFor(jwtSecret.getBytes()); */
+    	return null;
     }
 
     /**
@@ -120,13 +117,12 @@ public class JwtTokenProvider {
      * @return 만료 여부
      */
     public boolean isTokenExpired(String token) {
-        try {
-            Claims claims = getClaimsFromToken(token);
-            Date expiration = claims.getExpiration();
-            return expiration.before(new Date());
-        } catch (Exception e) {
-            return true;
-        }
+		/*
+		 * try { Claims claims = getClaimsFromToken(token); Date expiration =
+		 * claims.getExpiration(); return expiration.before(new Date()); } catch
+		 * (Exception e) { return true; }
+		 */
+    	return false;
     }
 
     /**
@@ -136,12 +132,11 @@ public class JwtTokenProvider {
      * @return 회사 ID
      */
     public String getComIdFromToken(String token) {
-        try {
-            Claims claims = getClaimsFromToken(token);
-            return claims.get("comId", String.class);
-        } catch (Exception e) {
-            return null;
-        }
+		/*
+		 * try { Claims claims = getClaimsFromToken(token); return claims.get("comId",
+		 * String.class); } catch (Exception e) { return null; }
+		 */
+    	return null;
     }
 
     /**
@@ -151,11 +146,10 @@ public class JwtTokenProvider {
      * @return 권한 정보
      */
     public String getAuthorityFromToken(String token) {
-        try {
-            Claims claims = getClaimsFromToken(token);
-            return claims.get("authority", String.class);
-        } catch (Exception e) {
-            return null;
-        }
+		/*
+		 * try { Claims claims = getClaimsFromToken(token); return
+		 * claims.get("authority", String.class); } catch (Exception e) { return null; }
+		 */
+    	return null;
     }
 } 

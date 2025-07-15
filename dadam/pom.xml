@@ -140,7 +140,7 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 		
-		<!-- JWT 라이브러리 -->
+<!--		 JWT 라이브러리 
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -158,7 +158,7 @@
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
-	</dependencies>
+-->	</dependencies>
 
 	<repositories>
 		<repository>
