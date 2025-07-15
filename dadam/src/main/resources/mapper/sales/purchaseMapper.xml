@@ -184,7 +184,7 @@ VALUES (#{purOrdDtlCode},#{itemCode},#{quantity},#{supPrice},#{vatPrice},#{totPr
   	UPDATE purchaseRequest
 	SET status = #{status}
 	WHERE pur_req_code =#{purReqCode}
-	AND com_id = #{comId}
+	AND com_id = #{comId} 
 </update>
 <!-- 발주 메인 업데이트 -->
 <update id ="purOrderUpdate">

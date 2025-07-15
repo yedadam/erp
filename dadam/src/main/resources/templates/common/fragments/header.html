@@ -5,7 +5,7 @@
 </head>
 <body>
 	<!-- Topbar -->
-	<nav class="navbar navbar-expand navbar-light bg-lightt topbar mb-4 static-top shadow">
+	<nav class="navbar navbar-expand navbar-light bg-lightt topbar mb-4 static-top shadow"style="height: 70px">
 
 		<!-- Sidebar Toggle (Topbar) -->
 		<button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -13,43 +13,47 @@
 		</button>
 
 		<!-- Main Menu (Center aligned) -->
-		<div class="mx-auto d-flex">
-			<ul class="navbar-nav flex-row align-items-center">
-
-				<li class="nav-item mx-2"><a
-					th:class="${activeMenu == 'standard'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
-					th:href="@{/erp/standard}">기준정보</a></li>
-
-				<li class="nav-item mx-2"
-					th:if="${#authentication.principal.optionCode == 'oc-102' or #authentication.principal.optionCode == 'oc-103'}">
-					<a
-					th:class="${activeMenu == 'sales'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
-					th:href="@{/erp/sales}">영업</a>
-				</li>
-
-				<li class="nav-item mx-2"
-					th:if="${#authentication.principal.optionCode == 'oc-102' or #authentication.principal.optionCode == 'oc-103'}">
-					<a
-					th:class="${activeMenu == 'inventory'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
-					th:href="@{/erp/inventory}">재고</a>
-				</li>
-
-				<li class="nav-item mx-2"
-					th:if="${#authentication.principal.optionCode == 'oc-101' or #authentication.principal.optionCode == 'oc-103'}">
-					<a
-					th:class="${activeMenu == 'hr'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
-					th:href="@{/erp/hr}">인사</a>
-				</li>
-
-				<li class="nav-item mx-2"
-					th:if="${#authentication.principal.optionCode == 'oc-101' or #authentication.principal.optionCode == 'oc-103'}">
-					<a
-					th:class="${activeMenu == 'accounting'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
-					th:href="@{/erp/accounting}">회계</a>
-				</li>
-
-			</ul>
-		</div>
+		<div class='text-start'>
+			<div class="mx-auto d-flex">
+				<ul class="navbar-nav flex-row align-items-center">
+					<li class="nav-item mx-2"><a
+						th:class="${activeMenu == 'home'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
+						th:href="@{/erp}">대시보드</a></li>
+					<li class="nav-item mx-2"><a
+						th:class="${activeMenu == 'standard'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
+						th:href="@{/erp/standard}">기준정보</a></li>
+	
+					<li class="nav-item mx-2"
+						th:if="${#authentication.principal.optionCode == 'oc-102' or #authentication.principal.optionCode == 'oc-103'}">
+						<a
+						th:class="${activeMenu == 'sales'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
+						th:href="@{/erp/sales}">영업</a>
+					</li>
+	
+					<li class="nav-item mx-2"
+						th:if="${#authentication.principal.optionCode == 'oc-102' or #authentication.principal.optionCode == 'oc-103'}">
+						<a
+						th:class="${activeMenu == 'inventory'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
+						th:href="@{/erp/inventory}">재고</a>
+					</li>
+	
+					<li class="nav-item mx-2"
+						th:if="${#authentication.principal.optionCode == 'oc-101' or #authentication.principal.optionCode == 'oc-103'}">
+						<a
+						th:class="${activeMenu == 'hr'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
+						th:href="@{/erp/hr}">인사</a>
+					</li>
+	
+					<li class="nav-item mx-2"
+						th:if="${#authentication.principal.optionCode == 'oc-101' or #authentication.principal.optionCode == 'oc-103'}">
+						<a
+						th:class="${activeMenu == 'accounting'} ? 'nav-link fw-bold nav-link-darknavy' : 'nav-link fw-bold text-white'"
+						th:href="@{/erp/accounting}">회계</a>
+					</li>
+	
+				</ul>
+			</div>
+	</div>
 
 
 		<!-- Topbar Navbar -->
