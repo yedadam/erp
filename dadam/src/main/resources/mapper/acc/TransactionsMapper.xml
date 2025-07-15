@@ -57,7 +57,7 @@
       vdr_name    AS vdrName,
       biz_no      AS bizNo,
       ceo_name    AS ceoName,
-      addr,
+      addr ,
       addr_detail AS addrDetail,
       email,
       tel,
