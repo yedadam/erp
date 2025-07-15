@@ -90,10 +90,10 @@
 				</button>
 			</div>
 		</div>
-		<div id="mainGridWrapper"
-			class="position-relative border rounded p-3 bg-white shadow-sm">
+		<div id="mainGridWrapper" class="position-relative border rounded p-3 bg-white shadow-sm">
 			<!-- 메인 그리드 -->
 			<div id="mainGrids"></div>
+			
 			<div id="gridSpinner"
 				class="position-absolute top-0 start-0 w-100 h-100 bg-white d-flex align-items-center justify-content-center"
 				style="top: 38px; display: none; z-index: 10;">
@@ -175,12 +175,15 @@ function changeView(viewType){
 
 // 조회 그리드 데이터
 function outboundList(){
-	$('#gridSpinner').addClass('d-flex').show();
 	$.ajax({
 		url:"/erp/inventory/outboundList",
 		method:"GET"
 		,data: {comId}
 	   ,success:function(result) {
+		   console.log(result)
+		   result.forEach((item)=>{
+			   item.reqQty = item.quantity - item.currQty;
+		   })
 		   mainGrid.resetData(result);
 	   },
        error: function(xhr, status, error) {
@@ -189,7 +192,7 @@ function outboundList(){
    }).always(function() {
    	 setTimeout(function() {
    		 $('#gridSpinner').removeClass('d-flex').hide();
-   	    }, 1000);
+   	    }, 500);
    });
  };
 // 출고 조회그리드
@@ -198,7 +201,7 @@ function selectGrid(){
 	$('#saveBtn').remove();
 	$('#selectBtn').prop('disabled', true);
 	$('#insertBtn').prop('disabled', false);
-	
+	$('#gridSpinner').addClass('d-flex').show();
 	// 출고 그리드 생성
 	mainGrid = new tui.Grid({
 	    el: document.getElementById('mainGrids'),
@@ -211,9 +214,11 @@ function selectGrid(){
 	    //필드값 구성
 	    columns:[
 	    	{ header: '출고코드',name:'outCode',align:'center'},
-	        { header: '참조코드',name:'code',align:'center'},
 	        { header: 'LOT',name:'lot',align:'center'},
-	        { header: '출고수량',name:'quantity',align:'center'},
+	        { header: '홀드수량',name:'quantity',align:'center'},
+	        { header: '기출고량',name:'currQty',align:'center'},
+	        { header: '미출고량',name:'reqQty',align:'center'},
+	        { header: '참조코드',name:'code',align:'center'},
 	        { header: '구분',name:'typeName',align:'center',
 	        	filter: 'select'
 	        	},
@@ -234,11 +239,9 @@ function holdList(){
 		method:"GET"
 		,data: {comId}
 	   ,success:function(result) {	
-		   console.log('result', result)
 		   result.forEach((item)=>{
 			 item.reqQty = item.hdqty - item.currQty;
 		   })
-		   console.log('holdList', result)
 		   mainGrid.resetData(result);
 	   } // ajax호출 끝
 	})
@@ -275,14 +278,13 @@ function insertGrid(){
 	    },
 	    //필드값 구성
 	    columns:[
+	    	{ header: '항목코드',name:'code',align:'center'},
 	    	{ header: '홀드상세코드',name:'holdDtlCode',align:'center'},
 	    	{ header: 'LOT',name:'lot',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
-	        { header: '발주서수량',name:'hqty',align:'center'},
 	        { header: '홀드수량',name:'hdqty',align:'center'},
 	        { header: '기출고량',name:'currQty',align:'center'},
-	        { header: '출고예정수량',name:'reqQty',align:'center'},
-	    	{ header: '항목코드',name:'code',align:'center'},
+	        { header: '미출고량',name:'reqQty',align:'center'},
 	        { header: '구분',name:'typeName',align:'center',
 	        	filter: 'select'
 	        	},
@@ -293,23 +295,6 @@ function insertGrid(){
 	        { header: '비고',name:'note',align:'center'}
 	    ],
 	});
-	/* 
-	// 홀드상세그리드
-	subGrid = new tui.Grid({
-	    el: document.getElementById('subGrids'),
-	    rowHeaders: ['rowNum'],
-	    //페이지네이션
-	    pageOptions: {
-	        perPage: 5,
-	        useClient: true,
-	    },
-	    //필드값 구성
-	    columns:[
-	        { header: '홀드상세코드',name:'holdDtlCode',align:'center'},
-	        { header: 'lot',name:'lot',align:'center'},
-	        { header: '수량',name:'quantity',align:'center', dataType: 'number'},
-	    ],
-	}); // 그리드 끝 */
 	
 	// 출고처리 모달그리드
 	outboundGrid = new tui.Grid({
@@ -325,9 +310,9 @@ function insertGrid(){
 			    	{ header: '항목코드', name: 'code', align:'center'},
 			    	{ header: '구분',name:'typeName',align:'center', filter: 'select'},
 			    	{ header: '상태',name:'statusName',align:'center', filter: 'select'},
-			    	{ header: '남은홀드수량', name: 'quantity', align:'center', dataType: 'number'},
+			    	{ header: '홀드수량', name: 'hdqty', align:'center', dataType: 'number'},
 			    	{ header: '기출고량', name: 'currQty', align:'center', dataType: 'number'},
-			    	{ header: '출고예정수량', name: 'reqQty', align:'center', dataType: 'number'},
+			    	{ header: '미출고량', name: 'reqQty', align:'center', dataType: 'number'},
 			    	{ header: '출고수량', name: 'qty', align:'center', editor: 'text', dataType: 'number'},
 			    	{ header: '비고', name: 'note', align:'center', editor: 'text'}
 	    		],
@@ -340,6 +325,7 @@ function insertGrid(){
 	// 출고 모달 저장이벤트
 	$('#registerBtn').on('click', ()=>{
 		let data = outboundGrid.getData();
+		console.log(data)
 		// 벨리데이션 체크 + 등록을 위한 변수처리s
 		for(let value of data){
 			// 입력한 값이 number타입으로 변환
@@ -351,7 +337,7 @@ function insertGrid(){
 				Swal.fire({
 					  icon: "error",
 					  title: "수량 올바르게 입력 안됨!",
-					  text: "수량을 입력해주세요!"
+					  text: "수량을 올바르게 입력해주세요!"
 					});
 				return;
 			// 의뢰 수량보다 높게 입력한경우
@@ -359,36 +345,23 @@ function insertGrid(){
 				Swal.fire({
 					  icon: "error",
 					  title: "의뢰 수량보다 많습니다!",
-					  text: "수량을 입력해주세요!"
+					  text: "수량을 올바르게 입력해주세요!"
 					});
 				return;
 			}else if(value.qty > value.reqQty){
 				Swal.fire({
 					  icon: "error",
 					  title: "미 출고량보다 많습니다!",
-					  text: "수량을 입력해주세요!"
+					  text: "수량을 올바르게 입력해주세요!"
 					});
 				return;
-			}
-			// 상태값 처리 출고 상태값
-			// ht01 == 재고이동 ht02 == 출하의뢰
-			if(value.type === 'ht02'){
-				value.type = 'obt01';
-				value.typeName = '거래처';
-				// obs01 = 대기 02 = 부분출고 03 = 출고완료 reqQty=미출고량
-				// hs01 = 부분홀드 02 = 처리완료 03 = 출고보류
-				// hds01 = 홀드중 02 = 홀드종료
-				if(value.status == 'hds01' && value.qty == value.reqQty){
-					value.status = 'obs03';
-					value.statusName = '출고완료';
-				}else{
-					value.status = 'obs02';
-					value.statusName = '부분출고';
-				}
-				// 재고이동일떄
-			}else{
-				value.type = 'obt02';
-				value.typeName = '공장';
+			}else if(value.qty > value.hdqty){
+				Swal.fire({
+					  icon: "error",
+					  title: "현재 홀드된 수량보다 많습니다!",
+					  text: "수량을 올바르게 입력해주세요!"
+					});
+				return
 			}
 		} // for문 종료
 		
@@ -398,26 +371,24 @@ function insertGrid(){
 			contentType: 'application/json',
 			data: JSON.stringify(data),
 			success:(result)=>{
-			if(result > 0){
-			Swal.fire({
-				  icon: "success",
-				  title: "출고 완료!",
-				  text: "출고가 완료되었습니다."
-				});
-			}else{
-				Swal.fire({
-					  icon: "error",
-					  title: "출고 실패!",
-					  text: "출고가 실패했습니다."
-					});
-			}
+				
+				if(result > 0){
+					Swal.fire({
+						  icon: "success",
+						  title: "출고 완료!",
+						  text: "출고가 완료되었습니다."
+						});
+				}else{
+					Swal.fire({
+						  icon: "error",
+						  title: "출고 실패!",
+						  text: "출고가 실패했습니다."
+						});
+				}
 			// 모달닫기
 			$('#outboundModal').modal('hide');
 			// 메인그리드 새로고침
-			holdList();
-			mainGrid.uncheckAll();
-			outboundGrid.refreshLayout();
-			mainGrid.refreshLayout();
+			changeView('조회');
 			}
 		}); // ajax 끝
 	})
@@ -448,7 +419,8 @@ function insertGrid(){
 				  status: item.status,
 				  itemCode: item.itemCode,
 				  itemName: item.itemName,
-				  quantity : item.quantity,
+				  hqty : item.hqty,
+				  hdqty : item.hdqty,
 				  currQty : item.currQty,
 				  reqQty : item.reqQty,
 				  price: item.price,

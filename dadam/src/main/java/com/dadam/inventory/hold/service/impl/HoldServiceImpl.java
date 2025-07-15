@@ -49,6 +49,7 @@ public class HoldServiceImpl implements HoldService{
 		for(HoldVO vo : list) {
 			// 홀드 디테일 먼저 등록
 			List<LotVO> lotList = vo.getLotList();
+			System.out.println(vo);
 			int qty = 0;
 			int holdQty = 0;
 			// 홀드 디테일 등록
@@ -66,28 +67,20 @@ public class HoldServiceImpl implements HoldService{
 				vo.setHstatus("hs01");
 				vo.setShipstatus("srd04");
 			}
-			System.out.println("vo는" + vo);
-			System.out.println("qty는" + qty);
-			System.out.println("Quantity는" + vo.getQuantity());
-			System.out.println("출하의뢰 상태값" + vo.getShipstatus());
 			// 홀드 등록
 			// 홀드 등록된게 있는지 확인
 			int checking = holdMapper.selectHoldKey(vo);
 			
 			// 이전에 홀드 등록된게 없다면 등록
 			// 등록은 selectKek가 있음
-			System.out.println("여기까지오나?");
 			if(checking == 0) {
-				result = holdMapper.insertHoldList(vo);
+				result += holdMapper.insertHoldList(vo);
 			}else {
 				// 있다면.. 업데이트
-				System.out.println("여기까지오나?");
-				result = holdMapper.updateHoldList(vo);
+				result += holdMapper.updateHoldList(vo);
 				String holcode = holdMapper.getHoldCode(vo);
-				System.out.println(holcode);
 				vo.setHoldCode(holcode);
 			}
-			System.out.println("vo" + vo);
 			// ht01 = 재고이동 ht02 = 출하의뢰
 			// 재고이동
 			 if("ht01".equals(vo.getType())) {
@@ -99,16 +92,16 @@ public class HoldServiceImpl implements HoldService{
 			// 홀드 디테일 등록
 			for(LotVO lot : lotList) {
 				// holdDetail에 lot등록
-				// 디테일에 있는 holdCode를 옮겨담음... 이거떄문에!!!!!
+				// 디테일에 있는 holdCode를 옮겨담음...
 				lot.setHoldCode(vo.getHoldCode());
 				lot.setComId(vo.getComId());
 				holdMapper.insertHoldLotList(lot);
 				// 조회 후 등록된 값을 val에 담고. 
-				holdQty = holdMapper.selectHoldStockHoldQty(lot);
+				result += holdQty = holdMapper.selectHoldStockHoldQty(lot);
 				// 증감 입력처리
 				holdQty = lot.getQty() + holdQty;
 				lot.setHoldQty(holdQty);
-				holdMapper.updateHoldStock(lot);
+				result += holdMapper.updateHoldStock(lot);
 			}
 		} // for문 종료.
 		

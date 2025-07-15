@@ -42,7 +42,7 @@
 	         where pur_ord_dtl_code = pod.pur_ord_dtl_code AND com_id = #{comId}),0) curr_qty
 	FROM purchaseOrderDetail pod join purchaseOrder po
 	                               on(pod.pur_ord_code=po.pur_ord_code AND pod.com_id = po.com_id)
-	WHERE pod.com_id = #{comId} and pod.status not in('pds03')
+	WHERE pod.com_id = #{comId} and pod.status not in('pds03') AND po.status IN('pst01')
 	ORDER BY pur_ord_code DESC
 	</select>
 	
@@ -133,10 +133,4 @@
 	<update id="prcPurchaseOrderStatus" parameterType="PurchaseVO">
 	{ CALL prc_purchaseOrder_status( #{purOrdDtlCode, mode=IN, jdbcType=VARCHAR})}
 	</update>
-	<!-- 이 방법은 안됨. 트랜젝션이 닫히지 않은 상태에서 재조회해도 같은결과만 나오기 떄문... -->
-	<!-- <select id="purchaseCurrQty" parameterType="PurchaseVO" resultType="int">
-		SELECT max(curr_qty) curr_qty
-		FROM purchase
-		WHERE com_id = #{comId} AND pur_ord_dtl_code = #{purOrdDtlCode}
-	</select> -->
 </mapper>
