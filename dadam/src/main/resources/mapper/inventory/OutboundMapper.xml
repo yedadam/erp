@@ -4,6 +4,7 @@
 	<!-- 기본 조회 출고리스트 -->
 	<select id="selectOutBoundList" resultType="OutboundVO" parameterType="OutboundVO">
 		SELECT    out_code
+				, hold_dtl_code
 				, code
 				, emp_id
 				, quantity
@@ -15,11 +16,12 @@
 				, getsubcode(status) statusName
 				, lot
 				, note
+				, curr_qty
 		FROM outbound
 		WHERE com_id = #{comId}
 		ORDER BY out_code DESC
 	</select>
-	<!-- 등록할떄 사용하는 홀드리스트 -->
+	<!-- 등록할떄 사용하는 홀드리스트 홀드가 끝나지 않으면 보이지않음-->
 	<select id="selectHoldOutboundList" resultType="HoldVO" parameterType="HoldVO">
 		SELECT  
 				ho.hold_code,
@@ -35,14 +37,14 @@
 		        ho.status,
 		        getsubcode(ho.status) statusName,
 		        ho.note,
-		        ho.created_date
+		        ho.created_date,
+		        nvl((SELECT max(curr_qty)
+		        	 FROM outbound
+		        	 WHERE hold_dtl_code = hod.hold_dtl_code AND com_id = hod.com_id), 0) currQty
 		FROM holddetail hod left join hold ho
                         on(ho.com_id = hod.com_id AND hod.hold_code = ho.hold_code)
-		WHERE ho.com_id = #{comId}
+		WHERE ho.com_id = #{comId} AND ho.status NOT IN('hs03', 'hs01')
 		ORDER BY hold_dtl_code DESC
-	</select>
-	<select id="selectOutboundcurrQty" resultType="OutboundVO" parameterType="OutboundVO">
-		SELECT 	
 	</select>
 	
 	<!-- 출고 등록 -->
@@ -53,6 +55,7 @@
 		</selectKey>
 		INSERT INTO outbound(
         out_code,
+        hold_dtl_code,
         code,
         emp_id,
         created_date,
@@ -64,14 +67,8 @@
 		quantity,
 		curr_qty,
 		lot)
-		VALUES(#{outCode}, #{code}, #{empId}, sysdate, #{type}, #{status}, #{note}, #{comId},#{itemCode}, #{qty}, #{quantity},#{lot})
+		VALUES(#{outCode}, #{holdDtlCode}, #{code}, #{empId}, sysdate, #{type}, #{status}, #{note}, #{comId}, #{itemCode}, #{hqty}, #{currQty}, #{lot})
 	</insert>
-	<!-- 홀드수량 조회 -->
-	<select id="selectOutboundHoldDetailCurrQty" parameterType="OutboundVO" resultType="HoldVO">
-		SELECT com_id, hold_dtl_code, quantity
-		FROM  holddetail
-		WHERE com_id = #{comId} AND hold_dtl_code = #{holdDtlCode}
-	</select>
 	<!-- 출고등록시 출하의뢰 상태값 변경, 출고일자 등록 -->
 	<update id="updateOutboundShipRequestDetail" parameterType="OutboundVO">
 		UPDATE shiprequestdetail
@@ -82,30 +79,30 @@
 	<!-- 홀드 상태 반영 -->
 	<update id="updateOutboundHoldStatus" parameterType="OutboundVO">
 		UPDATE hold
-		SET status = #{holdstatus}
+		SET status = #{hstatus}
 		WHERE hold_code = #{holdCode} AND com_id = #{comId}
 	</update>
 	
-	<!-- 홀드상세 수량 반영 (미출고량)-->
-	<update id="updateOutboundHOldDetail" parameterType="OutboundVO">
-		UPDATE holddetail
-		SET status = #{hdstatus}
-		WHERE com_id = #{comId} AND hold_dtl_code = #{holdDtlCode}
-	</update>
-	<!-- 출고 후 재고 수량 조회 수량제대로넣어야함.-->
+	<!-- 출고 후 재고수량조회 수량 제대로넣어야함.-->
 	<select id="selectOutboundStock" parameterType="OutboundVO" resultType="HoldVO">
-		SELECT hold_qty, quantity, com_id, lot
+		SELECT hold_qty, quantity
 		FROM stock
 		WHERE com_id = #{comId} AND lot = #{lot}
 	</select>
-	<!-- 출고 후 재고 수량 변경 수량제대로넣어야함.-->
-	<update id="updateOutboundStock" parameterType="OutboundVO">
+	<!-- 출고 후 재고수량변경 수량제대로넣어야함.-->
+	<update id="updateOutboundStock" parameterType="HoldVO">
 		UPDATE stock
 		SET	   	hold_qty = #{holdQty},
 				quantity = #{quantity}
 		WHERE com_id = #{comId} AND lot = #{lot}
 	</update>
+	<!-- 주문과 출하의뢰 상태값 변경 프로시저 -->
 	<update id="prcShipRequestStatus" parameterType="OutboundVO">
 	{ CALL prc_order_status( #{code, mode=IN, jdbcType=VARCHAR})}
 	</update>
+	<select id="sumOutbound" parameterType="OutboundVO" resultType="int">
+		SELECT sum(quantity)
+		FROM holddetail
+		WHERE com_id =#{comId} AND hold_code = #{holdCode}
+	</select>
 </mapper>

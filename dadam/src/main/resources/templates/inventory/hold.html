@@ -116,9 +116,6 @@
 			</div>
 	</div>
 	
-	
-	
-	
 	<!-- 출하의뢰를 위한 모달 -->
 	<div class="modal fade" id="shipRequestModal" tabindex="-1"
 		aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -410,6 +407,7 @@ function insertGrid(){
 	        { header: '출하상세코드',name:'shipReqDtlCode',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
 	        { header: '수량',name:'quantity',align:'center'},
+	        { header: '홀드수량',name:'hdqty',align:'center'},
 	        { header: '상태',name:'statusName',align:'center',
 	        	filter: 'select'
 	        	},
@@ -568,7 +566,6 @@ function insertGrid(){
 		let rowData = holdGrid.getRow(rowKey);
 		code = rowData.code;
 		let totqty = Number(rowData.hdqty);
-		console.log(totqty)
 		// 입력한값의 전체를 합산
 		check.forEach((item)=>{
 			sum += Number(item.qty)
@@ -614,13 +611,6 @@ function insertGrid(){
 			return;
 		// sum = 각lot의 수량
 		}
-		/* else if(sum < rowData.quantity){
-			holdGrid.setValue(rowKey, 'status', 'hs1')
-			holdGrid.setValue(rowKey, 'statusName', '홀드중')
-		}else{
-			holdGrid.setValue(rowKey, 'status', 'hs02')
-			holdGrid.setValue(rowKey, 'statusName', '홀드완료')
-		} */
 		// 파라메타 담기
 		checkData = check.map((item)=> ({
 					lot: item.lot,
@@ -677,7 +667,7 @@ function insertGrid(){
 		if(ch.length > 0){
 			let param = [];
 			let lotparam = [];
-			for(let item of holdGrid.getData()){
+			for(let item of ch){
 				// 벨리데이션 체크용
 				lotparam = lotList.get(item.code);
 				if(lotparam == undefined){
@@ -698,10 +688,11 @@ function insertGrid(){
 								, note : item.note				// 비고
 								, code : item.code				// 참조 테이블 코드
 								, comId : comId
+								, totqty : item.hdqty			// 이전 홀드량
 								, lotList : lotList.get(item.code)
-								, totqty : item.totqty			// 이전 홀드량
 				}
 				param.push(saveData)
+				console.log(param)
 			}
 			// 등록 홀드
 		 $.ajax({
@@ -710,15 +701,16 @@ function insertGrid(){
 				contentType: "application/json",
 				data: JSON.stringify(param),
 				success:(result)=>{
+						console.log('result' + result)
 					if(result > 0){
-						console.log(result)
+						console.log('resultsu' + result)
 					Swal.fire({
 						  icon: "success",
 						  title: "홀드 완료!",
 						  text: "홀드가 완료되었습니다."
 						});
 					}else{
-						console.log(result)
+						console.log('resulterr' + result)
 					Swal.fire({
 						  icon: "error",
 						  title: "홀드실패",
@@ -735,7 +727,8 @@ function insertGrid(){
 				  text: "출하의뢰, 재고이동버튼으로 선택해주세요"
 				});
 		}
-		});// 등록함수 끝
+		});
+	// 등록함수 끝
 		
 		// 셀클릭 자동체크
 		stklot.on('dblclick', (ev)=>{

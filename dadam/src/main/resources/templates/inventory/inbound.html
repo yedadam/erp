@@ -3,23 +3,79 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{common/layouts/default_layout}"
 	layout:fragment="Content">
-<body class="bg-light">
-	<div class="container-fluid mt-4">
+<body>
+	<div class="container-fluid mt-4 p-4 rounded shadow-sm">
 		<h3 class="mb-4">입고관리</h3>
 		<!-- 검색 및 버튼 영역 -->
-		<div class="row mb-3">
-			<div class="col-md-6">
-				<div class="input-group search-container" style="width: 400px;">
-					<input type="text" class="form-control" placeholder="검색어를 입력하세요">
-					<button class="btn btn-outline-secondary" type="button">
-						<i class="fas fa-search"></i>
-					</button>
-				</div>
+		<div class="card mb-3 shadow-sm">
+				  <div class="card-body">
+				    <div class="row g-3 align-items-center">
+			
+			      <!-- 검색 조건 -->
+			      <div class="col-md-3">
+			        <label for="orderSelect" class="form-label">검색 조건</label>
+			        <div class="input-group">
+			           <select class="form-select" id="purSelect" style="max-width: 30%;">
+			            <option value="purOrdCode" selected>발주코드</option>
+			            <option value="empName">담당자</option>
+			            <option value="vdrName">거래처이름</option>
+			          </select>
+			          <input type="text" class="form-control" id="purInput" placeholder="검색어 입력">
+			        </div>
+			        <ul id="purList"
+					            class="list-group position-absolute w-100 shadow-sm"
+					            style="top: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; display: none;">
+					</ul>
+			      </div>
+					
+			      <!-- 날짜 시작 -->
+			      <div class="col-md-2">
+			        <label for="expDlvStartDate" class="form-label">납기예정기일자</label>
+			        <input type="date" id="expDlvStartDate" class="form-control">
+			      </div>
+								
+			      <!-- 날짜 종료 -->
+			      <div class="col-md-2">
+			                <label for="expDlvEndDate" class="form-label"></label>
+			        <input type="date" id="expDlvEndDate" class="form-control">
+			      </div>
+			
+			      <!-- 상태 -->
+			      <div class="col-md-3">
+			        <label class="form-label d-block">진행 상태</label>
+			        <div class="d-flex gap-2 flex-wrap">
+			          <div class="form-check">
+			            <input class="form-check-input" type="radio" name="purStatus" id="statusAll" value="" checked>
+			            <label class="form-check-label" for="statusAll">전체</label>
+			          </div>
+			          <div class="form-check">
+			            <input class="form-check-input" type="radio" name="purStatus" id="status1" value="pst01">
+			            <label class="form-check-label" for="status1">진행중</label>
+			          </div>
+			          <div class="form-check">
+			            <input class="form-check-input" type="radio" name="purStatus" id="status2" value="pst02">
+			            <label class="form-check-label" for="status2">완료</label>
+			          </div>
+			          <div class="form-check">
+			            <input class="form-check-input" type="radio" name="purStatus" id="status3" value="pst03">
+			            <label class="form-check-label" for="status3">취소</label>
+			          </div>
+			        </div>
+			      </div>
+			
+			      <!-- 검색 버튼 -->
+			      <div class="col-md-2 d-flex align-items-end">
+			        <button class="btn btn-primary w-100" id="purSearchBtn">
+			          <i class="fas fa-search"></i> 검색
+			        </button>
+			      </div>
+			
+			    </div>
+			  </div>
 			</div>
-
 			<!-- custom button -->
-			<div class="col-md-6 text-end">
-				<div class="btn-group-custom" id="btnGroup">
+			<div class="d-flex justify-content-end align-items-center mb-3">
+				<div class="d-flex flex-wrap gap-2" id="btnGroup">
 					<button class="btn btn-secondary me-1" id="insertBtn">
 						<i class="fas fa-pen"></i> 추가
 					</button>
@@ -28,14 +84,19 @@
 					</button>
 				</div>
 			</div>
-		</div>
+	<div id="mainGridWrapper" class="position-relative border rounded p-3 bg-white shadow-sm">
 		<!-- 메인 그리드 -->
 		<div id="mainGrids"></div>
-	</div>
-
-	<div class="container-fluid mt-4">
-		<!--  -->
-		<div id="subGrids"></div>
+		<!-- Lottie 로딩 바 애니메이션 -->
+      <div id="gridSpinner"
+        class="position-absolute top-0 start-0 w-100 h-100 bg-white d-flex align-items-center justify-content-center"
+         		style="top: 38px; display: none; z-index: 10;">
+        <dotlottie-player
+            src="https://lottie.host/e8b36d4d-46d8-429f-98b8-d8c1c4dde598/p6hfbX0nTd.lottie"
+          		background="transparent" speed="1"
+          		style="width: 200px; height: 100px;" loop autoplay>
+        </dotlottie-player>
+      </div>
 	</div>
 
 	<!-- 입고를 위한 모달 -->
@@ -67,47 +128,8 @@
 			</div>
 		</div>
 	</div>
-	<!--                                   -->
-	<!-- <div class="container-fluid mt-4">
-		<h3 class="mb-4">입고관리</h3>
-			<div class="btn-group-custom">
-					<button class="btn btn-warning" id="purchasePage" type="button"><i class="fas fa-check-circle"></i> 주문입고</button>
-					<button class="btn btn-secondary" id="inboundPage" type="button"><i class="fas fa-right-left"></i> 생산입고</button>
-					<button class="btn btn-secondary" id="purchaseOrderPage" type="button"><i class="fas fa-right-left"></i> 발주의뢰</button>
-			</div>
-			
-
-
-		검색 및 버튼 영역
-		<div class="row mb-3">
-			<div class="col-md-6 text-start">
-				<div class="input-group search-container" style="width: 400px;">
-					<input type="text" class="form-control" placeholder="검색어를 입력하세요">
-					<button class="btn btn-outline-secondary" type="button">
-						<i class="fas fa-search"></i>
-					</button>
-				</div>
-			</div>
-
-			custom button
-			<div class="col-md-6 text-end">
-				<div class="btn-group-custom">
-					<button class="btn btn-danger" id="reset">
-						<i class="fas fa-square-minus"></i> 초기화
-					</button>
-					<button class="btn btn-primary" data-bs-toggle="modal"
-						data-bs-target="#inboundModal" id="inModal">
-						<i class="fas fa-warehouse"></i> 입고
-					</button>
-				</div>
-			</div>
-		</div>
-</div> -->
-
-	<!-- 메인 그리드 -->
-	<div id="Grids"></div>
-
-	<script th:inline="javascript">
+</div>
+<script th:inline="javascript">
 
 //그리드 전역 등록
 let mainGrid;
@@ -155,8 +177,15 @@ function purchaseList(){
 		data: {comId},
 	    success:function(result) {
 	    	mainGrid.resetData(result);
-	   } // ajax호출 끝
-	})
+	   },
+       error: function(xhr, status, error) {
+           console.log("실패:", xhr.status, error);
+       }
+   }).always(function() {
+   	 setTimeout(function() {
+   		 $('#gridSpinner').removeClass('d-flex').hide();
+   	    }, 500);
+   });
 }
 
 // 조회 그리드
@@ -166,6 +195,7 @@ function selectGrid(){
 	// 버튼 비활성화
 	$('#selectBtn').prop('disabled', true);
 	$('#insertBtn').prop('disabled', false);
+	$('#gridSpinner').addClass('d-flex').show();
 	
 	mainGrid = new tui.Grid({
 		//toastui 아이디 가져오기
@@ -205,6 +235,7 @@ function purchaseOrderList(){
 		method:"GET",
 		data: {comId},
 	    success:function(result) {
+	    	// 남은수량 계산
 	    	result.forEach((item)=>{
 	    		item.reqQty= item.quantity - item.currQty;
 	    	});

@@ -42,9 +42,8 @@ public class InventoryHoldRestController {
 	
 	// hold등록
 	@PostMapping("/inserthold")
-	public String insertHoldList(@RequestBody List<HoldVO> list) {
-		holdservice.insertHoldList(list);
-		return null;
+	public int insertHoldList(@RequestBody List<HoldVO> list) {
+		return holdservice.insertHoldList(list);
 	}
 	// 홀드 상세 조회
 	@GetMapping("/holdDetailList")
