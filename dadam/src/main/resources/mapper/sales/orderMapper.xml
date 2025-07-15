@@ -13,7 +13,7 @@
         o.tot_vat_price,
         o.tot_disc,
 		v.credit_price,
-		v.credit_bal_price,
+		v.credit_bal_price, 
 		o.pay_method,
 		o.status,
 		v.discount,
