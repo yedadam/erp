@@ -25,8 +25,14 @@
         ) AS WORK_TYPE_NAMES
       FROM SALARYITEM
       WHERE COM_ID = #{comId}
-      <if test="type != null and type != ''">
+      <if test="type == 'not공제'">
+        AND TYPE != '공제'
+      </if>
+      <if test="type != null and type != '' and type != 'not공제'">
         AND TYPE = #{type}
+      </if>
+      <if test="taxFreeYn != null and taxFreeYn != ''">
+        AND TAX_FREE_YN = #{taxFreeYn}
       </if>
       <if test="acctYn != null and acctYn != ''">
         AND ACCT_YN = #{acctYn}

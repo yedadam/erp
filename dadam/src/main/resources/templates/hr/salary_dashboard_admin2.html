@@ -422,13 +422,7 @@
       { header: '부서명', name: 'deptName', align: 'center', editor: 'text' },
       { header: '기본급', name: 'baseSal', dataType: 'number',align: 'right', editor: 'text', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : 0 },
       { header: 'OT수당', name: 'otAllow', dataType: 'number',align: 'right', editor: 'text', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : 0 },
-      ...allowanceSettings.filter(s => s.enabled).map((setting, i) => ({
-        header: setting.label || `수당${i+1}`,
-        name: `sal${i+1}`,
-        align: 'right',
-        editor: 'text',
-        formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : '-'
-      })),
+      // sal1~sal10(allowanceSettings 기반) 컬럼 완전 삭제
       { header: '수당합계', name: 'allowanceTotal', dataType: 'number',align: 'right', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : 0, editor: false },
       { header: '공제합계', name: 'deductionTotal', dataType: 'number',align: 'right', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : 0, editor: false },
       { header: '실수령액', name: 'netSalary', dataType: 'number', align: 'right', formatter: ({ value }) => value ? Number(value).toLocaleString() + '원' : 0, editor: false },
@@ -469,7 +463,7 @@
       data: [],
       scrollX: false,
       scrollY: true,
-      bodyHeight: 245,
+      bodyHeight: 280,
       rowHeaders: ['checkbox'],
       columns: columns
     });
@@ -541,7 +535,7 @@
       Swal.fire('명세서 이메일발송', '선택된(또는 전체) 사원의 명세서를 이메일로 발송합니다. (예시)', 'info');
     });
     // 항목설정 버튼
-    // 급여계산 버튼 (공제합계 직접 합산, NaN 완전 방지)
+    // NaN 방지 및 단순화된 safeNumber 함수
     function safeNumber(val) {
       if (val === undefined || val === null || val === '-' || val === '') return 0;
       if (typeof val === 'number') return val;
@@ -551,40 +545,28 @@
       }
       return 0;
     }
+    // 급여계산 버튼(단순화/NaN 방지)
     $('#calcBtnHeader').off('click').on('click', function() {
       const checkedRowKeys = grid.getCheckedRowKeys();
-      console.log(grid.getData());
       if (checkedRowKeys.length === 0) {
         Swal.fire('알림', '계산할 행을 선택하세요.', 'info');
         return;
       }
       checkedRowKeys.forEach(rowKey => {
         const row = grid.getRow(rowKey);
-        // 수당합계
-        const baseSal = safeNumber(row.baseSal);
-        const otAllow = safeNumber(row.otAllow);
-        const sal1 = safeNumber(row.sal1);
-        const sal2 = safeNumber(row.sal2);
-        // 필요시 sal3~sal10도 추가
-        const allowanceTotal = baseSal + otAllow + sal1 + sal2;
+        // ① 수당 항목 배열(필요시 sal3~sal10까지 확장)
+        const allowanceFields = ['baseSal', 'otAllow', 'sal1', 'sal2', 'sal3', 'sal4', 'sal5', 'sal6', 'sal7', 'sal8', 'sal9', 'sal10'];
+        const allowanceTotal = allowanceFields.reduce((sum, key) => sum + safeNumber(row[key]), 0);
         grid.setValue(rowKey, 'allowanceTotal', allowanceTotal > 0 ? allowanceTotal.toLocaleString() + '원' : 0);
-        // 공제합계: deductionTotal가 없으면 각 항목 직접 합산
-        let deductionTotal = safeNumber(row.deductionTotal);
-        if (!deductionTotal) {
-          deductionTotal =
-            safeNumber(row.incTax) +
-            safeNumber(row.natPension) +
-            safeNumber(row.healthInsur) +
-            safeNumber(row.empInsur) +
-            safeNumber(row.ltcInsur);
-        }
+        // ② 공제 항목 배열(필요시 추가)
+        const deductionFields = ['incTax', 'natPension', 'healthInsur', 'empInsur', 'ltcInsur'];
+        const deductionTotal = deductionFields.reduce((sum, key) => sum + safeNumber(row[key]), 0);
         grid.setValue(rowKey, 'deductionTotal', deductionTotal > 0 ? deductionTotal.toLocaleString() + '원' : 0);
-        // 실수령액: netSalary
+        // ③ 실수령액
         const netPay = allowanceTotal - deductionTotal;
         grid.setValue(rowKey, 'netSalary', !isNaN(netPay) ? netPay.toLocaleString() + '원' : 0);
       });
       Swal.fire('✔ 계산 완료', '선택된 행의 실수령액이 계산되었습니다.', 'success');
-      console.log(grid.getData());
     });
     // 일괄승인 버튼
     $('#approveAllBtnHeader').on('click', function() {

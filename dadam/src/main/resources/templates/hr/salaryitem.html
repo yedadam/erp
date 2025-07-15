@@ -74,6 +74,8 @@
               <option value="">전체</option>
               <option value="기본급">기본급</option>
               <option value="수당">수당</option>
+              <option value="복리후생">복리후생</option>
+              <option value="상여">상여</option>
               <option value="공제">공제</option>
             </select>
           </div>
@@ -136,6 +138,15 @@
         </button>
       </div>
     </div>
+    <!-- nav-tabs 탭 영역 수정: 사용자정의항목 탭 삭제 -->
+    <ul class="nav nav-tabs mb-2" id="salaryitemTabNav" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-allow" type="button" role="tab">수당항목</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-deduct" type="button" role="tab">공제항목</button>
+      </li>
+    </ul>
     <!-- TOAST UI Grid -->
     <div id="salaryItemGrid" class="grid-area"></div>
     <!-- 검색 결과 없음 메시지 -->
@@ -169,8 +180,6 @@
               <option value="복리후생">복리후생</option>
               <option value="상여">상여</option>
               <option value="공제">공제</option>
-              <option value="비과세">비과세</option>
-              <option value="기타">기타</option>
             </select>
           </div>
           <div class="mb-2">
@@ -237,7 +246,8 @@
       'emp03': '임시직',
       'emp04': '파견직',
       'emp05': '위촉직',
-      'emp06': '일용직'
+      'emp06': '일용직',
+      'ALL': '전체'
     };
     const calcTypeOptions = [
       { text: '고정액', value: '고정액' },
@@ -259,9 +269,7 @@
         { text: '수당', value: '수당' },
         { text: '복리후생', value: '복리후생' },
         { text: '상여', value: '상여' },
-        { text: '공제', value: '공제' },
-        { text: '비과세', value: '비과세' },
-        { text: '기타', value: '기타' }
+        { text: '공제', value: '공제' }
       ]}}},
       { header: '금액', name: 'defaultAmount', align: 'right', editor: { type: 'text', options: { inputType: 'number' } },
         formatter: ({value}) => value ? value.toLocaleString() + '원' : '-', sortable: true },
@@ -286,6 +294,8 @@
           type: 'select',
           options: {
             listItems: [
+              { text: '선택', value: '' },
+              { text: '전체', value: 'ALL' },
               { text: '정규직', value: 'emp01' },
               { text: '계약직', value: 'emp02' },
               { text: '임시직', value: 'emp03' },
@@ -295,7 +305,16 @@
             ]
           }
         },
-        formatter: ({ value }) => value ? empTypeMap[value] || value : '-'
+        formatter: ({ value }) => {
+          if (!value) return '선택';
+          if (value === 'ALL') return '전체';
+          const allCodes = ['emp01','emp02','emp03','emp04','emp05','emp06'];
+          const selected = value.split(',').map(v => v.trim()).filter(Boolean);
+          if (selected.length === allCodes.length && allCodes.every(code => selected.includes(code))) {
+            return '전체';
+          }
+          return selected.map(code => empTypeMap[code] || code).join(', ');
+        }
       },
       { header: '상태', name: 'acctYn', align: 'center', editor: { type: 'select', options: { listItems: [
         { text: 'Y', value: 'Y' }, { text: 'N', value: 'N' }
@@ -311,17 +330,8 @@
       { header: '설명', name: 'note', editor: 'text',
         formatter: ({ value }) => `<span title="${value || ''}">${value || ''}</span>` },
       { header: '생성일', name: 'createdDate', align: 'center', formatter: ({value}) => value || '-', sortable: true },
-      { header: '지급상태', name: 'status', align: 'center', width: 100,
-        formatter: ({ value }) => {
-          let text = value;
-          let cls = '';
-          if (value === 'ss01' || value === 'WAIT' || value === '대기') { text = '대기'; cls = 'start-action'; }
-          else if (value === 'ss02' || value === 'APPROVE' || value === '승인' || value === '승인 완료') { text = '승인'; cls = 'end-action'; }
-          else if (value === 'ss03' || value === 'PAID' || value === '지급완료' || value === '지급 완료') { text = '지급완료'; cls = 'del-action'; }
-          else { text = value; cls = ''; }
-          return `<span class="${cls}">${text}</span>`;
-        }
-      }
+      // 지급상태 → 수정일로 변경, 날짜 타입으로 표시
+      { header: '수정일', name: 'updatedDate', align: 'center', formatter: ({value}) => value || '-', sortable: true }
     ];
     // 숨김 컬럼 예시 (실제 DB용, 필요시 추가)
     // { name: 'companyId', hidden: true },
@@ -360,17 +370,52 @@
       });
     }
 
-    // 필터/검색
-    function filterSalaryItems() {
+    // 탭 클릭 이벤트 및 데이터 로딩 함수 수정: 사용자정의항목 관련 코드 삭제
+    let currentTab = 'allow'; // 기본값: 수당항목
+
+    function loadSalaryItemsByTab(tab) {
+      currentTab = tab;
+      // 탭 스타일 변경
+      $('#salaryitemTabNav .nav-link').removeClass('active');
+      let typeParam = $('#categoryFilter').val();
+      let taxFreeYnParam = $('#taxFilter').val();
+      if(tab === 'deduct') {
+        $('#tab-deduct').addClass('active');
+        typeParam = '공제';
+      } else if(tab === 'allow') {
+        $('#tab-allow').addClass('active');
+        // 전체 선택 시 typeParam을 '공제'가 아닌 값만 조회하도록 별도 처리
+        if (!typeParam) typeParam = 'not공제';
+      }
       const paramObj = {
         comId: 'com-101',
-        type: $('#categoryFilter').val(), // category → type
-        taxFreeYn: $('#taxFilter').val(), // 과세여부 필터 추가
-        acctYn: $('input[name="salaryStatus"]:checked').val(), // status → acctYn
-        keyword: $('#searchInput').val()
+        type: typeParam,
+        taxFreeYn: taxFreeYnParam,
+        acctYn: $('input[name="salaryStatus"]:checked').val(),
+        keyword: $('#searchInput').val(),
+        tab: tab // 'allow', 'deduct'
       };
-      console.log('필터 파라미터:', paramObj); // 값 확인용
-      commonSearchObject(paramObj, '/erp/hr/salaryitem/list', grid);
+      $.ajax({
+        url: '/erp/hr/salaryitem/list',
+        method: 'GET',
+        data: paramObj,
+        success: function(result) {
+          grid.resetData(result);
+          $('#noResultMsg').toggle(result.length === 0);
+        },
+        error: function(xhr, status, error) {
+          Swal.fire('❌ 오류', '데이터 조회 중 오류가 발생했습니다.', 'error');
+        }
+      });
+    }
+
+    // 탭 버튼 이벤트: 사용자정의항목 관련 코드 삭제
+    $('#tab-allow').on('click', function() { loadSalaryItemsByTab('allow'); });
+    $('#tab-deduct').on('click', function() { loadSalaryItemsByTab('deduct'); });
+
+    // 기존 filterSalaryItems 함수도 탭 상태 반영하도록 수정
+    function filterSalaryItems() {
+      loadSalaryItemsByTab(currentTab);
     }
     // 카테고리/진행상태는 즉시 필터링
     $('#categoryFilter').on('change', filterSalaryItems);
@@ -384,64 +429,36 @@
       if (e.keyCode === 13) filterSalaryItems();
     });
     // 페이지 로딩 시 전체 리스트 자동 조회
-    window.addEventListener('DOMContentLoaded', filterSalaryItems);
+    window.addEventListener('DOMContentLoaded', function() {
+      loadSalaryItemsByTab('allow');
+    });
 
     // 추가 버튼 클릭 시 오늘 날짜, 활성 상태 자동 세팅
     $('#addBtn').on('click', function() {
+      // 현재 탭에 따라 코드 prefix 결정
+      let prefix = (currentTab === 'deduct') ? 'DED' : 'ALLOW';
       // 마지막 항목코드 조회하여 다음 번호 생성
       $.ajax({
         url: '/erp/hr/salaryitem/lastCode',
         method: 'GET',
-        data: { comId: 'com-101' },
+        data: { comId: 'com-101', prefix: prefix },
         success: function(response) {
-          let nextCode = 'ALLOW01'; // 기본값
-          
+          let nextCode = prefix + '01'; // 기본값
           if (response.lastCode) {
-            // 마지막 코드에서 숫자 부분 추출하여 +1
             const lastCode = response.lastCode;
-            if (lastCode.startsWith('ALLOW')) {
-              const numStr = lastCode.substring(5); // "01", "02" 등
-              const nextNum = parseInt(numStr) + 1;
-              nextCode = 'ALLOW' + String(nextNum).padStart(2, '0'); // 2자리로 포맷
+            if (lastCode.startsWith(prefix)) {
+              const numStr = lastCode.substring(prefix.length); // "01", "02" 등
+              const nextNum = parseInt(numStr, 10) + 1;
+              nextCode = prefix + String(nextNum).padStart(2, '0');
             }
           }
-          
-      const today = new Date();
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const dd = String(today.getDate()).padStart(2, '0');
-      const todayStr = `${yyyy}-${mm}-${dd}`;
-          
-      grid.prependRow({
-            allowCode: nextCode,
-        allowName: '',
-        type: '',
-        defaultAmount: '',
-        acctYn: 'Y',
-        createdDate: todayStr,
-        note: '',
-        status: 'ss01' // 기본값으로 설정
-      }, { focus: true });
-          
-      setTimeout(() => {
-            grid.focusAt(0, 'allowName'); // 항목명 입력 셀로 포커스
-        // 스크롤을 맨 위로 이동
-        const gridBody = document.querySelector('.tui-grid-body-area');
-        if (gridBody) gridBody.scrollTop = 0;
-      }, 100);
-          
-          $('#saveBtn').prop('disabled', false);
-        },
-        error: function() {
-          // API 호출 실패 시 기본값으로 생성
           const today = new Date();
           const yyyy = today.getFullYear();
           const mm = String(today.getMonth() + 1).padStart(2, '0');
           const dd = String(today.getDate()).padStart(2, '0');
           const todayStr = `${yyyy}-${mm}-${dd}`;
-          
           grid.prependRow({
-            allowCode: 'ALLOW01',
+            allowCode: nextCode,
             allowName: '',
             type: '',
             defaultAmount: '',
@@ -450,14 +467,37 @@
             note: '',
             status: 'ss01' // 기본값으로 설정
           }, { focus: true });
-          
+          setTimeout(() => {
+            grid.focusAt(0, 'allowName'); // 항목명 입력 셀로 포커스
+            const gridBody = document.querySelector('.tui-grid-body-area');
+            if (gridBody) gridBody.scrollTop = 0;
+          }, 100);
+          $('#saveBtn').prop('disabled', false);
+        },
+        error: function() {
+          // API 호출 실패 시 기본값으로 생성
+          let prefix = (currentTab === 'deduct') ? 'DED' : 'ALLOW';
+          const today = new Date();
+          const yyyy = today.getFullYear();
+          const mm = String(today.getMonth() + 1).padStart(2, '0');
+          const dd = String(today.getDate()).padStart(2, '0');
+          const todayStr = `${yyyy}-${mm}-${dd}`;
+          grid.prependRow({
+            allowCode: prefix + '01',
+            allowName: '',
+            type: '',
+            defaultAmount: '',
+            acctYn: 'Y',
+            createdDate: todayStr,
+            note: '',
+            status: 'ss01' // 기본값으로 설정
+          }, { focus: true });
           setTimeout(() => {
             grid.focusAt(0, 'allowName');
             const gridBody = document.querySelector('.tui-grid-body-area');
             if (gridBody) gridBody.scrollTop = 0;
           }, 100);
-          
-      $('#saveBtn').prop('disabled', false);
+          $('#saveBtn').prop('disabled', false);
         }
       });
     });
@@ -677,6 +717,9 @@
         const $select = $('select[name="workTypes"]');
         $select.empty();
         const gridOptions = [];
+        // '전체' 옵션을 맨 앞에 추가
+        $select.append('<option value="ALL">전체</option>');
+        gridOptions.push({ text: '전체', value: 'ALL' });
         data.forEach(item => {
           $select.append(`<option value="${item.subCode}">${item.subName}</option>`);
           gridOptions.push({ text: item.subName, value: item.subCode });
@@ -696,8 +739,6 @@
         <option value="복리후생">복리후생</option>
         <option value="상여">상여</option>
         <option value="공제">공제</option>
-        <option value="비과세">비과세</option>
-        <option value="기타">기타</option>
       `);
       $('#taxFilter').html(`
         <option value="">전체</option>
@@ -705,36 +746,6 @@
         <option value="N">비과세</option>
       `);
     });
-
-    // 저장/수정 시 calcType, workTypes 값 처리
-    $('#salaryItemForm').on('submit', function(e) {
-      e.preventDefault();
-      const formData = $(this).serializeArray();
-      const workTypes = $('select[name="workTypes"]').val();
-      const calcType = $('select[name="calcType"]').val();
-      const data = {};
-      formData.forEach(f => data[f.name] = f.value);
-      data.workTypes = workTypes ? workTypes.join(',') : '';
-      data.calcType = calcType;
-      $.ajax({
-        url: '/erp/hr/salaryitem/register', // 또는 /modify
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(data),
-        success: function(res) {
-          if (res === 'ok') {
-            Swal.fire('✔ 저장 완료', '급여항목이 저장되었습니다.', 'success');
-            $('#salaryItemModal').modal('hide');
-            // 그리드 새로고침 등
-          } else {
-            Swal.fire('❌ 오류', '저장에 실패했습니다.', 'error');
-          }
-        },
-        error: function() {
-          Swal.fire('❌ 오류', '저장 중 오류가 발생했습니다.', 'error');
-        }
-      });
-    });
   </script>
 </body>
-</html> 
+</html>
