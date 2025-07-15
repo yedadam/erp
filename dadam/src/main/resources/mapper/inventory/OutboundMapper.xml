@@ -33,6 +33,7 @@
 		        getsubcode(ho.type) typeName,
 		        ho.type,
 		        ho.status,
+		        getsubcode(ho.status) statusName,
 		        ho.note,
 		        ho.created_date
 		FROM holddetail hod left join hold ho
