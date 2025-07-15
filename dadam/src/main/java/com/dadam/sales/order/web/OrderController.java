@@ -145,9 +145,9 @@ public class OrderController {
     private JasperDownCommon jasperDownCommon;
 	
 	@RequestMapping("/report")
-    public ModelAndView report2( HttpServletResponse response) throws Exception {
+    public ModelAndView report2(@RequestParam(name="ordCode") String ordCode ,HttpServletResponse response) throws Exception {
         ModelAndView mv = new ModelAndView();
-
+        	
         // jasper 커스텀뷰 세팅
         mv.setView(jasperDownCommon);
 
@@ -156,7 +156,8 @@ public class OrderController {
 
         // 파라미터 설정 (REPORT_DIR 제거)
         HashMap<String, Object> map = new HashMap<>();
-        map.put("p_ord_code", "ord-102");
+        map.put("P_ORD_CODE", ordCode);
+        
         // map.put("REPORT_DIR", reportDirPath);  // ← 삭제
         mv.addObject("param", map);
 

@@ -3,6 +3,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OrderForm" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a1b2c3d4-e5f6-7890-abcd-ef1234567890">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="dadam"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<style name="han_font" fontName="훈민정음"/>
 	<parameter name="P_ORD_CODE" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[SELECT o.ord_code, o.vdr_code, v.vdr_name, v.addr, o.tot_price, o.tot_sup_price, o.tot_vat_price, o.req_dlv_date
@@ -69,7 +70,7 @@ WHERE ord_code= $P{P_ORD_CODE}]]>
 	<pageHeader>
 		<band height="35" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="10" width="100" height="20" uuid="e5f6a7b8-c9d0-1234-ef56-789012345678"/>
+				<reportElement style="han_font" x="0" y="10" width="100" height="20" uuid="e5f6a7b8-c9d0-1234-ef56-789012345678"/>
 				<textElement>
 					<font size="12" isBold="true"/>
 				</textElement>
@@ -80,7 +81,7 @@ WHERE ord_code= $P{P_ORD_CODE}]]>
 				<textFieldExpression><![CDATA[$F{ord_code}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="350" y="10" width="100" height="20" uuid="a7b8c9d0-e1f2-3456-789a-bcdef0123456"/>
+				<reportElement style="han_font" x="350" y="10" width="100" height="20" uuid="a7b8c9d0-e1f2-3456-789a-bcdef0123456"/>
 				<textElement>
 					<font size="12" isBold="true"/>
 				</textElement>
@@ -95,7 +96,7 @@ WHERE ord_code= $P{P_ORD_CODE}]]>
 	<columnHeader>
 		<band height="150" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="10" width="555" height="20" uuid="c9d0e1f2-a3b4-5678-9abc-def012345678"/>
+				<reportElement style="han_font" x="0" y="10" width="555" height="20" uuid="c9d0e1f2-a3b4-5678-9abc-def012345678"/>
 				<textElement>
 					<font size="14" isBold="true"/>
 				</textElement>
@@ -105,7 +106,7 @@ WHERE ord_code= $P{P_ORD_CODE}]]>
 				<reportElement x="0" y="30" width="555" height="1" uuid="d0e1f2a3-b4c5-6789-abcd-ef0123456789"/>
 			</line>
 			<staticText>
-				<reportElement x="10" y="40" width="100" height="20" uuid="e1f2a3b4-c5d6-789a-bcde-f01234567890"/>
+				<reportElement style="han_font" x="10" y="40" width="100" height="20" uuid="e1f2a3b4-c5d6-789a-bcde-f01234567890"/>
 				<textElement>
 					<font size="12" isBold="true"/>
 				</textElement>
@@ -116,7 +117,7 @@ WHERE ord_code= $P{P_ORD_CODE}]]>
 				<textFieldExpression><![CDATA[$F{vdr_code}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="10" y="65" width="100" height="20" uuid="a3b4c5d6-e7f8-9abc-def0-123456789012"/>
+				<reportElement style="han_font" x="10" y="65" width="100" height="20" uuid="a3b4c5d6-e7f8-9abc-def0-123456789012"/>
 				<textElement>
 					<font size="12" isBold="true"/>
 				</textElement>
@@ -127,7 +128,7 @@ WHERE ord_code= $P{P_ORD_CODE}]]>
 				<textFieldExpression><![CDATA[$F{vdr_name}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="10" y="90" width="100" height="20" uuid="c5d6e7f8-a9ba-bcde-f012-345678901234"/>
+				<reportElement style="han_font" x="10" y="90" width="100" height="20" uuid="c5d6e7f8-a9ba-bcde-f012-345678901234"/>
 				<textElement>
 					<font size="12" isBold="true"/>
 				</textElement>
@@ -138,7 +139,7 @@ WHERE ord_code= $P{P_ORD_CODE}]]>
 				<textFieldExpression><![CDATA[$F{addr}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="10" y="115" width="100" height="20" uuid="e7f8a9ba-bcde-f012-3456-789012345678"/>
+				<reportElement style="han_font" x="10" y="115" width="100" height="20" uuid="e7f8a9ba-bcde-f012-3456-789012345678"/>
 				<textElement>
 					<font size="12" isBold="true"/>
 				</textElement>
@@ -165,14 +166,14 @@ WHERE ord_code= $P{P_ORD_CODE}]]>
 			<frame>
 				<reportElement mode="Opaque" x="0" y="40" width="555" height="30" backcolor="#E6E6E6" uuid="abc12345-def0-1234-5678-90123456789d"/>
 				<staticText>
-					<reportElement x="10" y="5" width="100" height="20" uuid="bc123456-def0-1234-5678-90123456789e"/>
+					<reportElement style="han_font" x="250" y="5" width="100" height="20" uuid="bc123456-def0-1234-5678-90123456789e"/>
 					<textElement>
 						<font size="12" isBold="true"/>
 					</textElement>
 					<text><![CDATA[구분]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="200" y="5" width="100" height="20" uuid="c1234567-def0-1234-5678-90123456789f"/>
+					<reportElement x="440" y="5" width="100" height="20" uuid="c1234567-def0-1234-5678-90123456789f"/>
 					<textElement textAlignment="Right">
 						<font size="12" isBold="true"/>
 					</textElement>
@@ -180,45 +181,45 @@ WHERE ord_code= $P{P_ORD_CODE}]]>
 				</staticText>
 			</frame>
 			<staticText>
-				<reportElement x="10" y="80" width="100" height="20" uuid="12345678-def0-1234-5678-901234567890"/>
+				<reportElement style="han_font" x="250" y="80" width="100" height="20" uuid="12345678-def0-1234-5678-901234567890"/>
 				<textElement>
 					<font size="12"/>
 				</textElement>
 				<text><![CDATA[공급가액:]]></text>
 			</staticText>
 			<textField pattern="#,##0">
-				<reportElement x="200" y="80" width="100" height="20" uuid="23456789-def0-1234-5678-901234567891"/>
+				<reportElement x="440" y="80" width="100" height="20" uuid="23456789-def0-1234-5678-901234567891"/>
 				<textElement textAlignment="Right">
 					<font size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{tot_sup_price}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="10" y="105" width="100" height="20" uuid="3456789a-def0-1234-5678-901234567892"/>
+				<reportElement style="han_font" x="250" y="105" width="100" height="20" uuid="3456789a-def0-1234-5678-901234567892"/>
 				<textElement>
 					<font size="12"/>
 				</textElement>
 				<text><![CDATA[부가세:]]></text>
 			</staticText>
 			<textField pattern="#,##0">
-				<reportElement x="200" y="105" width="100" height="20" uuid="456789ab-def0-1234-5678-901234567893"/>
+				<reportElement x="440" y="105" width="100" height="20" uuid="456789ab-def0-1234-5678-901234567893"/>
 				<textElement textAlignment="Right">
 					<font size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{tot_vat_price}]]></textFieldExpression>
 			</textField>
 			<line>
-				<reportElement x="10" y="130" width="290" height="1" uuid="56789abc-def0-1234-5678-901234567894"/>
+				<reportElement x="250" y="130" width="290" height="1" uuid="56789abc-def0-1234-5678-901234567894"/>
 			</line>
 			<staticText>
-				<reportElement x="10" y="135" width="100" height="20" uuid="6789abcd-def0-1234-5678-901234567895"/>
+				<reportElement style="han_font" x="250" y="135" width="100" height="20" uuid="6789abcd-def0-1234-5678-901234567895"/>
 				<textElement>
 					<font size="12" isBold="true"/>
 				</textElement>
 				<text><![CDATA[총 금액:]]></text>
 			</staticText>
 			<textField pattern="#,##0">
-				<reportElement x="200" y="135" width="100" height="20" uuid="789abcde-def0-1234-5678-901234567896"/>
+				<reportElement x="440" y="135" width="100" height="20" uuid="789abcde-def0-1234-5678-901234567896"/>
 				<textElement textAlignment="Right">
 					<font size="12" isBold="true"/>
 				</textElement>
@@ -235,21 +236,21 @@ WHERE ord_code= $P{P_ORD_CODE}]]>
 				<reportElement x="0" y="10" width="555" height="1" uuid="89abcdef-0123-4567-8901-23456789abcd"/>
 			</line>
 			<staticText>
-				<reportElement x="0" y="20" width="100" height="20" uuid="9abcdef0-1234-5678-9012-3456789abcde"/>
+				<reportElement style="han_font" x="240" y="20" width="100" height="20" uuid="9abcdef0-1234-5678-9012-3456789abcde"/>
 				<textElement>
 					<font size="10" isBold="true"/>
 				</textElement>
 				<text><![CDATA[담당자:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="200" y="20" width="100" height="20" uuid="abcdef01-2345-6789-0123-456789abcdef"/>
+				<reportElement style="han_font" x="440" y="20" width="100" height="20" uuid="abcdef01-2345-6789-0123-456789abcdef"/>
 				<textElement>
 					<font size="10" isBold="true"/>
 				</textElement>
 				<text><![CDATA[승인자:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="50" width="555" height="20" uuid="bcdef012-3456-7890-1234-56789abcdef0"/>
+				<reportElement style="han_font" x="0" y="50" width="555" height="20" uuid="bcdef012-3456-7890-1234-56789abcdef0"/>
 				<textElement textAlignment="Center">
 					<font size="10"/>
 				</textElement>

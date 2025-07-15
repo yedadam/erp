@@ -138,6 +138,9 @@
     <button id="excel" class="btn btn-success">
       <i class="fas fa-file-excel"></i> 엑셀
     </button>
+    <button id="pdfBtn" class="btn btn-danger">
+      <i class="fas fa-trash"></i> pdf다운
+    </button>
     <button id="addRow" class="btn btn-secondary">
       <i class="fas fa-plus"></i> 주문추가
     </button>
@@ -1471,6 +1474,19 @@ if(pageStatus=='register'){
     }
  
 });
+$('#pdfBtn').on('click', ev=> {
+	
+	if(!orderGrid.getCheckedRows()[0]?.ordCode){
+		  Swal.fire('실패','다운받을 pdf를 체크해주세요','error');
+			return; 
+	}else if(orderGrid.getCheckedRows()[0]?.ordCode){	
+		let ordCode=orderGrid.getCheckedRows()[0].ordCode; 
+		location.href = `/erp/sales/report?ordCode=${ordCode}`;		
+	}	
+})
+
+  
+  
 
 
 	//주문등록 할때 이거 주석처리 하면 안넘어감;; 
