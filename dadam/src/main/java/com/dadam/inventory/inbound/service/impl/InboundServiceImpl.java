@@ -45,8 +45,10 @@ public class InboundServiceImpl implements InboundService{
 			String checkpur = vo.getPurOrdDtlCode();
 			// 입고항목 등록
 			// 가장 높은 수량을 가져와서 변수저장
+			
 			// 이 방법은 안됨. 트랜젝션이 닫히지 않은 상태에서 재조회해도 같은결과만 나오기 떄문.
 			// inboundMapper.purchaseCurrQty(vo);
+			
 			// 한종류의 발주상세는 가능한데 여러건이라면 중복되기 때문에 초기화 과정이 필요함.
 			// purdtl가 현재 vo의 값과 같다면 또는 널이 아니라면
 			if(purdtl != null && checkpur.equals(purdtl)) {

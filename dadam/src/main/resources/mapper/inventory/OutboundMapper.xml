@@ -16,7 +16,7 @@
 				, lot
 				, note
 		FROM outbound
-		WHERE com_id = #{comId} AND status NOT IN('obs03')
+		WHERE com_id = #{comId}
 		ORDER BY out_code DESC
 	</select>
 	<!-- 등록할떄 사용하는 홀드리스트 -->
@@ -38,9 +38,13 @@
 		        ho.created_date
 		FROM holddetail hod left join hold ho
                         on(ho.com_id = hod.com_id AND hod.hold_code = ho.hold_code)
-		WHERE ho.com_id = #{comId} AND ho.status NOT IN('hs02')
+		WHERE ho.com_id = #{comId}
 		ORDER BY hold_dtl_code DESC
 	</select>
+	<select id="selectOutboundcurrQty" resultType="OutboundVO" parameterType="OutboundVO">
+		SELECT 	
+	</select>
+	
 	<!-- 출고 등록 -->
 	<insert id="insertOutbound" parameterType="OutboundVO">
 		<selectKey resultType="string" keyProperty="outCode" order="BEFORE">
@@ -58,9 +62,16 @@
         com_id,
         item_code,
 		quantity,
+		curr_qty,
 		lot)
-		VALUES(#{outCode}, #{code}, #{empId}, sysdate, #{type}, #{status}, #{note}, #{comId},#{itemCode}, #{qty}, #{lot})
+		VALUES(#{outCode}, #{code}, #{empId}, sysdate, #{type}, #{status}, #{note}, #{comId},#{itemCode}, #{qty}, #{quantity},#{lot})
 	</insert>
+	<!-- 홀드수량 조회 -->
+	<select id="selectOutboundHoldDetailCurrQty" parameterType="OutboundVO" resultType="HoldVO">
+		SELECT com_id, hold_dtl_code, quantity
+		FROM  holddetail
+		WHERE com_id = #{comId} AND hold_dtl_code = #{holdDtlCode}
+	</select>
 	<!-- 출고등록시 출하의뢰 상태값 변경, 출고일자 등록 -->
 	<update id="updateOutboundShipRequestDetail" parameterType="OutboundVO">
 		UPDATE shiprequestdetail
@@ -74,16 +85,11 @@
 		SET status = #{holdstatus}
 		WHERE hold_code = #{holdCode} AND com_id = #{comId}
 	</update>
-	<select id="selectOutboundHoldDetailCurrQty" parameterType="OutboundVO" resultType="HoldVO">
-		SELECT curr_qty, com_id, hold_dtl_code, quantity
-		FROM  holddetail
-		WHERE com_id = #{comId} AND hold_dtl_code = #{holdDtlCode}
-	</select>
+	
 	<!-- 홀드상세 수량 반영 (미출고량)-->
 	<update id="updateOutboundHOldDetail" parameterType="OutboundVO">
 		UPDATE holddetail
-		SET curr_qty = #{holdQty},
-			status = #{hdstatus}
+		SET status = #{hdstatus}
 		WHERE com_id = #{comId} AND hold_dtl_code = #{holdDtlCode}
 	</update>
 	<!-- 출고 후 재고 수량 조회 수량제대로넣어야함.-->
