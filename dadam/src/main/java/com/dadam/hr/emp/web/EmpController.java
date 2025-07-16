@@ -91,7 +91,8 @@ public class EmpController {
         @RequestParam(required = false) String comId,
         @RequestParam(required = false) String keyword,
         @RequestParam(required = false) String status,
-        @RequestParam(required = false) String dept
+        @RequestParam(required = false) String dept,
+        @RequestParam(required = false) String workType
     ) {
         if (comId == null || comId.isEmpty()) comId = "com-101";
         java.util.Map<String, Object> param = new java.util.HashMap<>();
@@ -99,6 +100,7 @@ public class EmpController {
         param.put("keyword", keyword);
         param.put("status", status);
         param.put("dept", dept);
+        param.put("workType", workType);
         return empService.findEmpList(param);
     }
 

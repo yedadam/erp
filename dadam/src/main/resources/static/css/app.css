@@ -1542,4 +1542,10 @@ a {
 .icon-mid:before {
     vertical-align: middle
 }
+
+/* 우측 정렬 컬럼 패딩 */
+.tui-grid-cell[data-column-name="hireDate"] .tui-grid-cell-content,
+.tui-grid-cell[data-column-name="salaryType"] .tui-grid-cell-content {
+  padding-right: 30px !important;
+}
    

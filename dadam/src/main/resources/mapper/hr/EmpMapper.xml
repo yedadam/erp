@@ -95,6 +95,9 @@
             <if test="dept != null and dept != ''">
                 AND e.dept_code = #{dept}
             </if>
+            <if test="workType != null and workType != ''">
+                AND e.work_type = #{workType}
+            </if>
         </where>
         ORDER BY e.emp_id
     </select>
