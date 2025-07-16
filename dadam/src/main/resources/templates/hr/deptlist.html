@@ -90,10 +90,11 @@
         method: "GET",
         data: {},
         success: function(result) {
-          parentDeptOptions = (result || []).map(d => ({
+          parentDeptOptions = [{ text: '', value: '' }]; // 빈값 기본 추가
+          parentDeptOptions = parentDeptOptions.concat((result || []).map(d => ({
             text: d.deptName,
             value: d.deptCode
-          }));
+          })));
           if (callback) callback();
         }
       });
@@ -135,11 +136,6 @@
         columns: [
           { header: '부서코드', name: 'deptCode', align: 'center', editor: false },
           { header: '부서명', name: 'deptName', align: 'center', editor: 'text' },
-          { header: '상위부서', name: 'parentDeptName', align: 'center',
-        	formatter: function({ row }) {
-              return row.parentDeptCode ? `<span>${row.parentDeptCode}</span>` : '';
-           }
-          },
           // 상위부서: select editor + 텍스트 표시
           { header: '상위부서', name: 'parentDeptCode', align: 'center',
             formatter: function({ value }) {
@@ -219,12 +215,12 @@
         const mm = String(today.getMonth() + 1).padStart(2, '0');
         const dd = String(today.getDate()).padStart(2, '0');
         const todayStr = `${yyyy}-${mm}-${dd}`;
-        // 한 행만 추가
+        // 한 행만 추가 (가장 위에 추가)
         mainGrid.appendRow({
           deptCode: 'de' + String(maxNum + 1).padStart(4, '0'),
           createdDateStr: todayStr,
           acctYn: 'Y'
-        });
+        }, { at: 0 });
       });
       /* $('#searchBtn').off('click').on('click', function() {
         let value = $('#searchValue').val();

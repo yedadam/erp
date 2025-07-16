@@ -134,10 +134,7 @@
             <label for="joinTypeFilter" class="form-label">입사구분</label>
             <select class="form-select" id="joinTypeFilter">
               <option value="">전체</option>
-              <option value="정규직">정규직</option>
-              <option value="계약직">계약직</option>
-              <option value="임시직">임시직</option>
-              <option value="일용직">일용직</option>
+              <!-- 공통코드(emp)로 동적 생성 -->
             </select>
           </div>
           <div class="col-md-2">
@@ -152,25 +149,10 @@
           </div>
           <div class="col-md-3">
             <label class="form-label d-block">재직상태</label>
-            <div class="d-flex gap-2 flex-wrap">
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="empStatusRadio" id="empStatusAll" value="" checked>
-                <label class="form-check-label" for="empStatusAll">전체</label>
-		</div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="empStatusRadio" id="empStatusEmployed" value="재직">
-                <label class="form-check-label" for="empStatusEmployed">재직</label>
-				</div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="empStatusRadio" id="empStatusLeave" value="휴직">
-                <label class="form-check-label" for="empStatusLeave">휴직</label>
-				</div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="empStatusRadio" id="empStatusRetired" value="퇴사">
-                <label class="form-check-label" for="empStatusRetired">퇴사</label>
-				</div>
-				</div>
-				</div>
+            <div class="d-flex gap-2 flex-wrap" id="empStatusRadioGroup">
+              <!-- 공통코드(stt)로 동적 생성 -->
+            </div>
+          </div>
           <div class="col-md-2 d-flex align-items-end ms-auto justify-content-end">
             <button class="btn btn-primary w-100" id="searchBtn"><i class="fas fa-search"></i> 검색</button>
 				</div>
@@ -194,6 +176,33 @@
 	<script src="https://uicdn.toast.com/grid/latest/tui-grid.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
+    // 공통코드 기반 동적 옵션 생성
+    function loadCommonCodes(mainCode, $target, type) {
+      $.get('/common/codes', { mainCode: mainCode }, function(data) {
+        if(type === 'select') {
+          $target.empty().append('<option value="">전체</option>');
+          data.forEach(item => {
+            $target.append(`<option value="${item.subCode}">${item.subName}</option>`);
+          });
+        } else if(type === 'radio') {
+          $target.empty();
+          $target.append(`
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="empStatusRadio" id="empStatusAll" value="" checked>
+              <label class="form-check-label" for="empStatusAll">전체</label>
+            </div>
+          `);
+          data.forEach(item => {
+            $target.append(`
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="empStatusRadio" id="empStatus_${item.subCode}" value="${item.subCode}">
+                <label class="form-check-label" for="empStatus_${item.subCode}">${item.subName}</label>
+              </div>
+            `);
+          });
+        }
+      });
+    }
     // 대시보드 데이터 로딩 (API 연동 필요)
     function loadEmpDashboard() {
       $.get('/erp/hr/emp/dashboard', function(data) {
@@ -216,28 +225,11 @@
     }
     // TOAST UI Grid 컬럼 정의 (최종 추천 컬럼만)
     const columns = [
-      { header: '입사구분', name: 'workTypeName', align: 'center' },
-      { header: '입사일', name: 'hireDate', align: 'center', formatter: ({value}) => value ? value.toString().substring(0,10) : '' },
-      { header: '사원번호', name: 'empId', align: 'center' },
-      { header: '성명', name: 'empName', align: 'center' },
-      { header: '부서', name: 'deptName', align: 'center' },
-      { header: '직급', name: 'positionName', align: 'center' },
-      { header: '급여(구분)', name: 'salaryType', align: 'right',
-        formatter: ({row}) => {
-          if (row.sal) return row.sal.toLocaleString() + '원(월급)';
-          if (row.hourlyWage) return row.hourlyWage.toLocaleString() + '원(시급)';
-          return '-';
-        }
-      },
-      { header: '연차(총/사용/잔여)', name: 'annualLeave', align: 'center',
-        formatter: ({row}) => {
-          if (row.annualLeaveTotal !== undefined)
-            return `${row.annualLeaveTotal || 0}/${row.annualLeaveUsed || 0}/${row.annualLeaveRemain || 0}`;
-          return '-';
-        }
-      },
-      { header: '재직상태', name: 'empStatusName', align: 'center',
-        formatter: ({ value }) => {
+      { name: 'empId', header: '사원번호', sortable: true, align: 'center', width: 90 },
+      { name: 'empName', header: '성명', sortable: true, align: 'center' },
+      { name: 'deptName', header: '부서', sortable: true, align: 'center' },
+      { name: 'positionName', header: '직급', formatter: ({row}) => row.positionName || '-', align: 'center' },
+      { name: 'empStatusName', header: '재직상태', formatter: ({ value }) => {
           if (!value) return '-';
           let text = value.trim();
           let cls = '';
@@ -246,8 +238,19 @@
           else if (text === '퇴사') { cls = 'badge-status badge-leave'; }
           else { cls = 'badge-status badge-total'; }
           return `<span class="${cls}">${text}</span>`;
-        }
-      }
+        }, align: 'center', width: 80 },
+      { name: 'workTypeName', header: '근무유형', formatter: ({row}) => row.workTypeName || '-', align: 'center', width: 90 },
+      { name: 'hireDate', header: '입사일', sortable: true, formatter: ({value}) => value ? value.substring(0,10) : '-', align: 'right' },
+      { name: 'salaryType', header: '급여구분', formatter: ({row}) => {
+          if (row.sal) return row.sal.toLocaleString() + '원(월급)';
+          if (row.hourlyWage) return row.hourlyWage.toLocaleString() + '원(시급)';
+          return '-';
+        }, align: 'right' },
+      { name: 'annualLeave', header: '연차(총/사용/잔여)', formatter: ({row}) => {
+          if (row.annualLeaveTotal !== undefined)
+            return `${row.annualLeaveTotal || 0}/${row.annualLeaveUsed || 0}/${row.annualLeaveRemain || 0}`;
+          return '-';
+        }, align: 'center' },
     ];
     // 그리드 생성
     const grid = new tui.Grid({
@@ -299,8 +302,8 @@
       const paramObj = {
         keyword: $('#searchInput').val(),
         dept: $('#deptFilter').val(),
-        workType: $('#joinTypeFilter').val(), // joinType → workType으로 변경
-        empStatus: $('input[name="empStatusRadio"]:checked').val()
+        status: $('input[name="empStatusRadio"]:checked').val(), // empStatus → status
+        workType: $('#joinTypeFilter').val()
       };
       commonSearchObject(paramObj, '/erp/hr/empListAjax', grid);
     }
@@ -311,11 +314,13 @@
     $('#searchBtn').on('click', filterEmpList);
     $('#deptFilter').on('change', filterEmpList);
     $('#joinTypeFilter').on('change', filterEmpList);
-    $('input[name="empStatusRadio"]').on('change', filterEmpList);
-    // 초기화 시 자동 조회
+    $(document).on('change', 'input[name="empStatusRadio"]', filterEmpList);
+    // 초기화 시 자동 조회 및 공통코드 옵션 동적 생성
     $(function() {
       loadEmpDashboard();
       loadDeptOptions();
+      loadCommonCodes('emp', $('#joinTypeFilter'), 'select');
+      loadCommonCodes('stt', $('#empStatusRadioGroup'), 'radio');
       filterEmpList();
     });
     // 엑셀다운로드 버튼 이벤트
