@@ -100,9 +100,10 @@
 	<update id="prcShipRequestStatus" parameterType="OutboundVO">
 	{ CALL prc_order_status( #{code, mode=IN, jdbcType=VARCHAR})}
 	</update>
+	<!-- 속해있는 모든 lot의 출고수량 -->
 	<select id="sumOutbound" parameterType="OutboundVO" resultType="int">
-		SELECT sum(quantity)
-		FROM holddetail
-		WHERE com_id =#{comId} AND hold_code = #{holdCode}
+		SELECT nvl(sum(quantity), 0)
+		FROM outbound
+		WHERE com_id =#{comId} AND hold_dtl_code = #{holdDtlCode}
 	</select>
 </mapper>

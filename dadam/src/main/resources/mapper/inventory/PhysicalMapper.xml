@@ -62,7 +62,7 @@
 			SELECT 'pscd-' || (NVL(MAX(TO_NUMBER(SUBSTR(phy_dtl_code,5))),100)+1) phyDtlCode
 			FROM physicaldetail
 		</selectKey>
-	INSERT INTO physical(
+	INSERT INTO physicaldetail(
 						phy_dtl_code,
                         phy_code,
                         lot,
@@ -83,9 +83,9 @@
 	</insert>
 	<!-- 창고 -->
 	<select id="physicalWarehouseList" resultType="WarehouseVO" parameterType="String">
-		SELECT wh_code, name, type, note
+		SELECT wh_code, name , type, getsubcode(type) typeName, note
 		FROM warehouse
-        WHERE w.com_id = #{comId}
+        WHERE com_id = #{comId}
 	</select>
 	<!-- 품목,위치 -->
 	<select id="physicalWarehousedetailList" resultType="WarehouseVO" parameterType="String">

@@ -16,6 +16,7 @@ public class WarehouseVO {
 	private String whCode;
 	private String name;
 	private String type;
+	private String typeName;
 	private String note;
 	private String comId;
 	private String locCode;
