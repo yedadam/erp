@@ -38,7 +38,6 @@ public class InboundServiceImpl implements InboundService{
 	public int insertPurchaseInbound(List<PurchaseVO> list) {
 		Map<String, String> map = new HashMap<>();
 		int result = 0;
-		int Curr = 0;
 		int sumqty = 0;
 		String purdtl = null;
 		for (PurchaseVO vo : list) {

@@ -46,11 +46,12 @@ public class OutboundServiceImpl implements OutboundService{
 	}
 	// 출고등록 
 	/*
-	 * 출고테이블 등록 *
-	 * 출하의뢰상세 상태값 변경 *
-	 * 홀드테이블 상태값 변경 *
+	 * 출고테이블 등록
+	 * 출하의뢰상세 상태값 변경
+	 * 홀드테이블 상태값 변경
 	 * 재고테이블 수량 조회
 	 * 재고테이블 수량 변경
+	 * 홀드테이블 상태값 변경 프로시저(예정)
 	 * 출하의뢰 상태값 변경 프로시저
 	 * */
 	@Override
@@ -67,7 +68,6 @@ public class OutboundServiceImpl implements OutboundService{
 			// 총 갯수
 			sum = outboundmapper.sumOutbound(vo);
 			// 출하의뢰라면...
-			System.out.println("vo: " + vo);
 			if("ht02".equals(vo.getType())) {
 				vo.setType("obt01");
 				// status 값 변경

@@ -49,7 +49,6 @@ public class HoldServiceImpl implements HoldService{
 		for(HoldVO vo : list) {
 			// 홀드 디테일 먼저 등록
 			List<LotVO> lotList = vo.getLotList();
-			System.out.println(vo);
 			int qty = 0;
 			int holdQty = 0;
 			// 홀드 디테일 등록

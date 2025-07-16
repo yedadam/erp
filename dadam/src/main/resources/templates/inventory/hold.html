@@ -387,7 +387,8 @@ function insertGrid(){
 		$('#selectBtn').prop('disabled', false);
 		$('#insertBtn').prop('disabled', true);
 		// 출하의뢰 버튼 생성
-		$('#btnGroup').prepend('<button class="btn btn-info me-1" id="shipRequestModalBtn" data-bs-toggle="modal" data-bs-target="#shipRequestModal">출하의뢰</button> <button class="btn btn-info me-1" id="transferModalBtn" data-bs-toggle="modal" data-bs-target="#transferModal">재고이동</button>');
+		$('#btnGroup').prepend('<button class="btn btn-info me-1" id="shipRequestModalBtn" data-bs-toggle="modal" data-bs-target="#shipRequestModal">출하의뢰</button>'); 
+		//<button class="btn btn-info me-1" id="transferModalBtn" data-bs-toggle="modal" data-bs-target="#transferModal">재고이동</button>');
 		// 이벤트 차단
 		$('#saveBtn').off('click');	
 		
@@ -478,6 +479,10 @@ function insertGrid(){
 	        { header: '수량',name:'qty',align:'center', editor: 'text'},
 	        { header: '위치',name:'locCode',align:'center'}
 	    ],
+	    columnOptions: {
+			frozenCount: 5,
+			frozenBorderWidth: 2
+    		}
 	});
 	
 	// LOT선택된 후 그리드
@@ -692,7 +697,6 @@ function insertGrid(){
 								, lotList : lotList.get(item.code)
 				}
 				param.push(saveData)
-				console.log(param)
 			}
 			// 등록 홀드
 		 $.ajax({
