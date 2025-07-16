@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dadam.inventory.physical.mapper.PhysicalMapper;
+import com.dadam.inventory.physical.service.PhysicalDetailVO;
 import com.dadam.inventory.physical.service.PhysicalService;
 import com.dadam.inventory.physical.service.PhysicalVO;
 import com.dadam.inventory.warehouse.service.WarehouseVO;
@@ -41,6 +42,19 @@ public class PhysicalServiceImpl implements PhysicalService{
 	@Override
 	public List<WarehouseVO> physicalWarehousedetailList(String comId, String whCode) {
 		return physicalmapper.physicalWarehousedetailList(comId,whCode);
+	}
+
+	@Override
+	public int insertPhysical(PhysicalVO vo) {
+		// 실사등록
+		int result = physicalmapper.insertPhysical(vo);
+		List<PhysicalDetailVO> detail = vo.getSub();
+		// 실사 상세 등록
+		for(PhysicalDetailVO list : detail) {
+			list.setPhyCode(vo.getPhyCode());
+			physicalmapper.insertPhysicalDetail(list);
+		}
+		return result;
 	}
 	
 }

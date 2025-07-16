@@ -1,7 +1,9 @@
 package com.dadam.inventory.physical.service;
 
 import java.util.Date;
+import java.util.List;
 
+import com.dadam.inventory.hold.service.LotVO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
@@ -26,4 +28,5 @@ public class PhysicalVO {
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date createdDate;
 	private String comId;
+	private List<PhysicalDetailVO> sub;
 }

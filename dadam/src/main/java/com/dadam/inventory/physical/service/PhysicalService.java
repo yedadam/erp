@@ -13,4 +13,6 @@ public interface PhysicalService {
 	public List<WarehouseVO> physicalWarehouseList(String comId);
 	// 창고상세 조회
 	public List<WarehouseVO> physicalWarehousedetailList(String comId, String whCode);
+	// 실사 등록
+	public int insertPhysical(PhysicalVO vo);
 }
