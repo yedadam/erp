@@ -187,7 +187,22 @@ function selectGrid(){
 	        { header: '비고',name:'note',align:'center'},
 	    ],
 	});
-	
+	mainGrid.on('click', (ev)=>{
+	    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    return;
+		  }
+		let { rowKey, columnName } = ev;
+		// 상세 
+		$.ajax({
+			url:"/erp/inventory/selectPhysicalDetail",
+			method:"GET",
+			data: {comId},
+		    success:function(result) {
+		    	subGrid.resetData(result);
+		   } // ajax호출 끝
+		})
+	});
 }// 조회 그리드
 // 등록 그리드
 function insertGrid(){
@@ -204,7 +219,8 @@ function insertGrid(){
 	    },
 	    //필드값 구성
 	    columns:[
-	        { header: '창고명',name:'whName',align:'center', editor:'text'},
+	        { header: '창고코드',name:'whCode',align:'center'},
+	        { header: '창고명',name:'name',align:'center'},
 	        { header: '담당자',name:'phyEmpName',align:'center'},
 	        { header: '등록일자',name:'createdDate',align:'center'},
 	        { header: '비고',name:'note',align:'center', editor:'text'},
@@ -232,7 +248,7 @@ function insertGrid(){
 	// 창고 모달
 	warehouseGrid = new tui.Grid({
 	    el: document.getElementById('warehouseGrids'),
-	    rowHeaders: ['rowNum'],
+	    rowHeaders: ['checkbox'],
 	    //페이지네이션
 	    pageOptions: {
 	        perPage: 5,
@@ -240,15 +256,14 @@ function insertGrid(){
 	    },
 	    //필드값 구성
 	    columns:[
-	        { header: '품목명',name:'itemName',align:'center'},
-	        { header: '보관위치',name:'locCode',align:'center'},
-	        { header: 'lot',name:'lot',align:'center'},
-	        { header: '수량',name:'quantity',align:'center'},
+	        { header: '창고코드',name:'whCode',align:'center'},
+	        { header: '창고명',name:'name',align:'center'},
+	        { header: '구분',name:'typeName',align:'center'},
 	        { header: '비고',name:'note',align:'center'},
 	    ],
 	});
 	// 품목 모달
-	itemgrid = new tui.Grid({
+	itemGrid = new tui.Grid({
 	    el: document.getElementById('itemgrids'),
 	    rowHeaders: ['rowNum'],
 	    //페이지네이션
@@ -273,24 +288,89 @@ function insertGrid(){
 			    return;
 			  }
 			let { rowKey, columnName } = ev;
-			if(columnName == 'whName'){
+			console.log(columnName)
+			if(columnName == 'name' && columnName == 'whCode'){
 				$('#warehouseModal').modal('show');
+				
+				$.ajax({
+					url:"/erp/inventory/physicalWarehouseList",
+					method:"GET",
+					data: {comId},
+				    success:function(result) {
+				    	warehouseGrid.resetData(result);
+				   } // ajax호출 끝
+				})
+				
 			}
 		});
-	
-		// 상세창 모달 이쪽 고쳐는중
+		 // 모달안에서 그리드부를떄 참고.
+		$('#warehouseModal').on('shown.bs.modal',function(){
+			warehouseGrid.refreshLayout();
+		})
+		
+		 // 모달안에서 그리드부를떄 참고.
+		$('#itemModal').on('shown.bs.modal',function(){
+			itemGrid.refreshLayout();
+		})
+		
+	// itemGrid
 	subGrid.on('click', (ev)=>{
 	    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
 		if (!ev.targetType || ev.targetType !== 'cell') {
 		    return;
 		  }
 		let { rowKey, columnName } = ev;
-		console.log(columnName)
-		if(columnName == 'itemName'){
+		if(columnName == 'itemName' && columnName == 'itemCode'){
 			$('#itemModal').modal('show');
+			$.ajax({
+				url:"/erp/inventory/physicalWarehousedetailList",
+				method:"GET",
+				data: {comId},
+			    success:function(result) {
+			    	itemGrid.resetData(result);
+			   } // ajax호출 끝
+			})
 		}
 	});
+	// 선택
+	$('#warehouseBtn').on('click',()=>{
+		let checkRow = warehouseGrid.getCheckedRows();
+	})
 	
+	radioGrid(warehouseGrid);
+	radioGrid(itemGrid);
+	
+	function radioGrid(grids){
+		// 라디오버튼처럼 사용
+		grids.on('click', (ev) => {
+			if (!ev.targetType || ev.targetType !== 'cell') {
+			    // 셀이 아닌 곳 클릭 시 이벤트 무시 
+			    return;
+			  }
+		  let checkedRows = grids.getCheckedRowKeys();
+		  if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
+			  grids.uncheckAll();
+			  grids.check(ev.rowKey);  
+		  }
+		});
+	};
+	
+		warehouseGrid.on('click', (ev) => {
+			if (!ev.targetType || ev.targetType !== 'cell') {
+			    // 셀이 아닌 곳 클릭 시 이벤트 무시
+			    return;
+			  }
+			// 코드
+			let codes = warehouseGrid.getRow(ev.rowKey).whCode;
+			// 이름
+			let names = warehouseGrid.getRow(ev.rowKey).Name;
+			
+			// 메인그리드로 전달
+			mainGrid.setValue(0,'whCode',codes)
+			mainGrid.setValue(0,'Name',names)
+			
+			$('#warehouseModal').modal('hide');
+		})
 }
 
 
