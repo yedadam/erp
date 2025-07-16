@@ -180,13 +180,15 @@
            		        success: function(result) {
            		            if(result.match_cnt == "1") {
                             	//성공
-	           		            $('#accSameCheck').text('사용 가능한 사업자번호입니다');
+	           		            $('#accSameCheck').text('✅사용 가능한 사업자번호입니다');
+	           		         	$('#accSameCheck').css('color','green');
 	             				$('#accSameCheck').show();
 	             				check= false;
 	             				
            		            } else {
                             	//실패
-           		             	$('#accSameCheck').text('존재하지 않는 사업자번호입니다.');
+           		             	$('#accSameCheck').text('⛔존재하지 않는 사업자번호입니다.');
+           		           		$('#accSameCheck').css('color','red');
 	             				$('#accSameCheck').show();
 	             				check = true;
            		            }
@@ -207,11 +209,13 @@
         		type: "GET",
         		success: function(result){
         			if(result>0){
-        				$('#idSameCheck').text('이미 있는 아이디입니다.');
+        				$('#idSameCheck').text('⛔이미 있는 아이디입니다.');
+        				$('#idSameCheck').css('color','red');
         				$('#idSameCheck').show();
         				check=true;
         			}else{
-        				$('#idSameCheck').text('가입이 가능한 아이디입니다.');
+        				$('#idSameCheck').text('✅가입이 가능한 아이디입니다.');
+        				$('#idSameCheck').css('color','green');
         				$('#idSameCheck').show();
         				check= false;
         			}
@@ -227,11 +231,13 @@
         	let pwdCheck = $('#pwdCheck').val();
         	let check = true
         	if(pwd!=pwdCheck){
-        		$('#pwdSameCheck').text('비밀번호가 일치하지 않습니다..');
+        		$('#pwdSameCheck').text('⛔비밀번호가 일치하지 않습니다..');
+        		$('#pwdSameCheck').css('color','red');
 				$('#pwdSameCheck').show();
         		check= true;
         	}else{
-        		$('#pwdSameCheck').text('비밀번호가 일치합니다.');
+        		$('#pwdSameCheck').text('✅비밀번호가 일치합니다.');
+        		$('#pwdSameCheck').css('color','green');
 				$('#pwdSameCheck').show();
         		check= false;
         	}
