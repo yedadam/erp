@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.dadam.inventory.physical.service.PhysicalDetailVO;
 import com.dadam.inventory.physical.service.PhysicalVO;
 import com.dadam.inventory.warehouse.service.WarehouseVO;
 
@@ -17,4 +18,7 @@ public interface PhysicalMapper {
 	public List<WarehouseVO> physicalWarehouseList(String comId);
 	// 창고상세 조회
 	public List<WarehouseVO> physicalWarehousedetailList(String comId, String whCode);
+	// 실사 등록
+	public int insertPhysical(PhysicalVO vo);
+	public int insertPhysicalDetail(PhysicalDetailVO vo);
 }

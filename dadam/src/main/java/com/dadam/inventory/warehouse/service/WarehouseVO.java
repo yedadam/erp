@@ -21,6 +21,8 @@ public class WarehouseVO {
 	private String comId;
 	private String locCode;
 	private String itemCode;
+	private String itemName;
+	private String lot;
 	private int quantity;
-	private int hold_qty;
+	private int holdQty;
 }

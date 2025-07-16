@@ -223,8 +223,7 @@ function insertGrid(){
 	        { header: '창고명',name:'name',align:'center'},
 	        { header: '담당자',name:'phyEmpName',align:'center'},
 	        { header: '등록일자',name:'createdDate',align:'center'},
-	        { header: '비고',name:'note',align:'center', editor:'text'},
-	        { header: '반영',name:'apprDate',align:'center'}
+	        { header: '비고',name:'note',align:'center', editor:'text'}
 	    ],
 	});
 	
@@ -238,11 +237,13 @@ function insertGrid(){
 	    },
 	    //필드값 구성
 	    columns:[
-	        { header: '품목명',name:'itemName',align:'center'},
+	    	{ header: '품목명',name:'itemName',align:'center'},
 	        { header: '보관위치',name:'locCode',align:'center'},
 	        { header: 'lot',name:'lot',align:'center'},
-	        { header: '수량',name:'quantity',align:'center'},
-	        { header: '비고',name:'note',align:'center'},
+	        { header: '재고수량',name:'quantity',align:'center'},
+	        { header: '홀드수량',name:'holdQty',align:'center'},
+	        { header: '실사수량',name:'qty',align:'center', editor: 'text', dataType: 'number'},
+	        { header: '비고',name:'note',align:'center', editor: 'text'},
 	    ],
 	});
 	// 창고 모달
@@ -265,7 +266,7 @@ function insertGrid(){
 	// 품목 모달
 	itemGrid = new tui.Grid({
 	    el: document.getElementById('itemgrids'),
-	    rowHeaders: ['rowNum'],
+	    rowHeaders: ['checkbox'],
 	    //페이지네이션
 	    pageOptions: {
 	        perPage: 5,
@@ -273,23 +274,26 @@ function insertGrid(){
 	    },
 	    //필드값 구성
 	    columns:[
-	        { header: '품목명',name:'itemName',align:'center'},
 	        { header: '보관위치',name:'locCode',align:'center'},
+	        { header: '품목명',name:'itemName',align:'center'},
 	        { header: 'lot',name:'lot',align:'center'},
 	        { header: '수량',name:'quantity',align:'center'},
+	        { header: '홀드수량',name:'holdQty',align:'center'},
 	        { header: '비고',name:'note',align:'center'},
 	    ],
 	});
 	// 여기에 등록 이벤트 추가
+	let mainRowKey;
 	// 메인 모달
 		mainGrid.on('click', (ev)=>{
 		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
 			if (!ev.targetType || ev.targetType !== 'cell') {
 			    return;
 			  }
+		    
+			mainRowKey = ev.rowKey;
 			let { rowKey, columnName } = ev;
-			console.log(columnName)
-			if(columnName == 'name' && columnName == 'whCode'){
+			if(columnName == 'name' || columnName == 'whCode'){
 				$('#warehouseModal').modal('show');
 				
 				$.ajax({
@@ -303,6 +307,27 @@ function insertGrid(){
 				
 			}
 		});
+	
+		// itemGrid
+		subGrid.on('click', (ev)=>{
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
+			if (!ev.targetType || ev.targetType !== 'cell') {
+			    return;
+			  }
+			let whCode = mainGrid.getValue(mainRowKey, 'whCode');
+			let { rowKey, columnName } = ev;
+			if(columnName == 'itemName' || columnName == 'itemCode'){
+				$('#itemModal').modal('show');
+				$.ajax({
+					url:"/erp/inventory/physicalWarehousedetailList",
+					method:"GET",
+					data: {comId, whCode},
+				    success:function(result) {
+				    	itemGrid.resetData(result);
+				   } // ajax호출 끝
+				})
+			}
+		});
 		 // 모달안에서 그리드부를떄 참고.
 		$('#warehouseModal').on('shown.bs.modal',function(){
 			warehouseGrid.refreshLayout();
@@ -312,68 +337,87 @@ function insertGrid(){
 		$('#itemModal').on('shown.bs.modal',function(){
 			itemGrid.refreshLayout();
 		})
+	// 선택한 값 sub그리드로 옮기기
+	$('#itemBtn').on('click',()=>{
+		let checkRow = itemGrid.getCheckedRows();
+		subGrid.resetData(checkRow);
+		subGrid.uncheckAll();
+		itemGrid.uncheckAll();
 		
-	// itemGrid
-	subGrid.on('click', (ev)=>{
-	    // 셀이 아닌 곳 클릭 시 이벤트 무시 (체크 상태 변경 안함)
-		if (!ev.targetType || ev.targetType !== 'cell') {
-		    return;
-		  }
-		let { rowKey, columnName } = ev;
-		if(columnName == 'itemName' && columnName == 'itemCode'){
-			$('#itemModal').modal('show');
-			$.ajax({
-				url:"/erp/inventory/physicalWarehousedetailList",
-				method:"GET",
-				data: {comId},
-			    success:function(result) {
-			    	itemGrid.resetData(result);
-			   } // ajax호출 끝
-			})
-		}
-	});
-	// 선택
-	$('#warehouseBtn').on('click',()=>{
-		let checkRow = warehouseGrid.getCheckedRows();
+		$('#itemModal').modal('hide');
 	})
 	
 	radioGrid(warehouseGrid);
-	radioGrid(itemGrid);
 	
-	function radioGrid(grids){
-		// 라디오버튼처럼 사용
-		grids.on('click', (ev) => {
-			if (!ev.targetType || ev.targetType !== 'cell') {
-			    // 셀이 아닌 곳 클릭 시 이벤트 무시 
-			    return;
-			  }
-		  let checkedRows = grids.getCheckedRowKeys();
-		  if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
-			  grids.uncheckAll();
-			  grids.check(ev.rowKey);  
+	warehouseGrid.on('click', (ev) => {
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시
+		    return;
 		  }
-		});
-	};
+		// 코드
+		let codes = warehouseGrid.getRow(ev.rowKey).whCode;
+		// 이름
+		let names = warehouseGrid.getRow(ev.rowKey).name;
+		
+		// 메인그리드로 전달
+		mainGrid.setValue(0,'whCode',codes)
+		mainGrid.setValue(0,'name',names)
+		
+		$('#warehouseModal').modal('hide');
+	})
 	
-		warehouseGrid.on('click', (ev) => {
-			if (!ev.targetType || ev.targetType !== 'cell') {
-			    // 셀이 아닌 곳 클릭 시 이벤트 무시
-			    return;
-			  }
-			// 코드
-			let codes = warehouseGrid.getRow(ev.rowKey).whCode;
-			// 이름
-			let names = warehouseGrid.getRow(ev.rowKey).Name;
-			
-			// 메인그리드로 전달
-			mainGrid.setValue(0,'whCode',codes)
-			mainGrid.setValue(0,'Name',names)
-			
-			$('#warehouseModal').modal('hide');
-		})
-}
+	// 저장 이벤트
+	$('#saveBtn').on('click', ()=>{
+		// 입력한 데이터 가져오기
+		let main = mainGrid.getData();
+		let sub = subGrid.getData();
+		main.forEach((item)=>{
+			item.phyEmpName = empId;
+			item.comId = comId;
+			item.sub = sub;
+		});
+		let param = main[0];
+		console.log(param)
+		 $.ajax({
+				url:"/erp/inventory/insertPhysical",
+				method:"POST",
+				contentType: "application/json",
+				data: JSON.stringify(param),
+				success:(result)=>{
+					if(result > 0){
+					Swal.fire({
+						  icon: "success",
+						  title: "등록 완료!",
+						  text: "등록 완료되었습니다."
+						});
+					}else{
+					Swal.fire({
+						  icon: "error",
+						  title: "등록 실패!",
+						  text: "등록이 실패했습니다."
+						});
+					}
+					changeView('조회');
+				}
+			});
+	})
+} // insertGrid
 
-
+// 체크박스 라디오처럼 사용
+function radioGrid(grids){
+	// 라디오버튼처럼 사용
+	grids.on('click', (ev) => {
+		if (!ev.targetType || ev.targetType !== 'cell') {
+		    // 셀이 아닌 곳 클릭 시 이벤트 무시 
+		    return;
+		  }
+	  let checkedRows = grids.getCheckedRowKeys();
+	  if (checkedRows.length > 1 || checkedRows[0] !== ev.rowKey) {
+		  grids.uncheckAll();
+		  grids.check(ev.rowKey);  
+	  }
+	});
+};
 </script>
 </body>
 </html>
