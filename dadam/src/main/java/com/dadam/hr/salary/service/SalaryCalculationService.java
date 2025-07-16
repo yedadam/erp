@@ -15,12 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dadam.hr.salary.mapper.SalaryMapper;
-import com.dadam.hr.attendance.mapper.AttendanceManageMapper;
+// import com.dadam.hr.attendance.mapper.AttendanceManageMapper;
 import com.dadam.hr.emp.mapper.EmpMapper;
 import com.dadam.hr.salary.service.SalaryCalculationVO;
 import com.dadam.hr.salary.service.SalaryDetailVO;
 import com.dadam.hr.attendance.service.AttendanceStatisticsVO;
-import com.dadam.hr.attendance.mapper.AttendanceStatsMapper;
 import com.dadam.hr.salary.service.SalaryStatementVO;
 import com.dadam.hr.salary.service.SalaryItemVO;
 import com.dadam.hr.salary.service.SalaryItemService;
@@ -44,9 +43,6 @@ public class SalaryCalculationService {
 
     @Autowired
     private SalaryMapper salaryMapper;
-    
-    @Autowired
-    private AttendanceStatsMapper attendanceMapper;
     
     @Autowired
     private EmpMapper employeeMapper;
@@ -120,7 +116,14 @@ public class SalaryCalculationService {
             attendanceParams.put("empId", employeeId.toString());
             attendanceParams.put("yearMonth", yearMonth);
             attendanceParams.put("comId", companyId);
-            AttendanceStatisticsVO attendanceStats = attendanceMapper.getAttendanceStatistics(attendanceParams);
+            AttendanceStatisticsVO attendanceStats = new AttendanceStatisticsVO(); // AttendanceStatsMapper 대신 직접 객체 생성
+            // attendanceStats.setTotalWorkDays(attendanceParams.get("totalWorkDays"));
+            // attendanceStats.setTotalWorkHours(attendanceParams.get("totalWorkHours"));
+            // attendanceStats.setOvertimeHours(attendanceParams.get("overtimeHours"));
+            // attendanceStats.setNightHours(attendanceParams.get("nightHours"));
+            // attendanceStats.setHolidayHours(attendanceParams.get("holidayHours"));
+            // attendanceStats.setYearMonth(yearMonth);
+            
             if (attendanceStats == null) {
                 log.warn("근태 통계를 찾을 수 없습니다: 사원ID={}, 년월={}", employeeId, yearMonth);
                 return null;

@@ -52,4 +52,9 @@ public class SalaryStatementServiceImpl implements SalaryStatementService {
     public int removeSalaryStatement(java.util.Map<String, Object> param) {
         return salaryStatementMapper.deleteSalaryStatement(param);
     }
+
+    @Override
+    public boolean existsBySalId(String salId) {
+        return salaryStatementMapper.existsBySalId(salId) > 0;
+    }
 } 

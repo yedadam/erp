@@ -1,49 +1,45 @@
 package com.dadam.hr.attendance.service;
 
-import lombok.Data;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 /**
  * 근태 정보 VO
+ * 출근현황, 통계, 그리드용
  */
-@Data
 public class AttendanceVO {
-    /** 근태코드 */
-    private String attendanceCode;
-    /** 회사ID */
-    private String comId;
-    /** 사원번호 */
-    private String empId;
-    /** 근무일자 */
-    private LocalDate workDate;
-    /** 기준 출근시간 */
-    private LocalDateTime standardStartTime;
-    /** 기준 퇴근시간 */
-    private LocalDateTime standardEndTime;
-    /** 실제 출근시간 */
-    private LocalDateTime actualStartTime;
-    /** 실제 퇴근시간 */
-    private LocalDateTime actualEndTime;
-    /** 연장근무시간 */
-    private BigDecimal overtimeHrs;
-    /** 상태코드 */
-    private String status;         // 정상/지각/조퇴/결근 등 (공통코드)
-    /** 휴일여부 (Y/N) */
-    private String isHoliday;
-    /** 근무유형코드 */
-    private String workType;       // 정상/재택/외근 등 (공통코드)
-    /** 출퇴근 시도 IP */
-    private String checkIp;
-    /** GPS 정보 */
-    private String gpsInfo;
-    /** 위치 정보 */
-    private String locationInfo;
-    /** 비고 */
-    private String note;
-    /** 생성일시 */
-    private LocalDateTime createdAt;
-    /** 수정일시 */
-    private LocalDateTime updatedAt;
+    private String attendanceCode; // 근태코드
+    private String empId;         // 사원ID
+    private String empName;       // 사원명
+    private String deptCode;      // 부서코드
+    private String deptName;      // 부서명
+    private String workDate;      // 근무일자
+    private String checkIn;       // 출근시간
+    private String checkOut;      // 퇴근시간
+    private String ip;            // 출근IP
+    private String status;        // 상태(정상/지각/결근 등)
+    private String loc;           // 위치
+    private String comId;         // 회사ID
+
+    public String getAttendanceCode() { return attendanceCode; }
+    public void setAttendanceCode(String attendanceCode) { this.attendanceCode = attendanceCode; }
+    public String getEmpId() { return empId; }
+    public void setEmpId(String empId) { this.empId = empId; }
+    public String getEmpName() { return empName; }
+    public void setEmpName(String empName) { this.empName = empName; }
+    public String getDeptCode() { return deptCode; }
+    public void setDeptCode(String deptCode) { this.deptCode = deptCode; }
+    public String getDeptName() { return deptName; }
+    public void setDeptName(String deptName) { this.deptName = deptName; }
+    public String getWorkDate() { return workDate; }
+    public void setWorkDate(String workDate) { this.workDate = workDate; }
+    public String getCheckIn() { return checkIn; }
+    public void setCheckIn(String checkIn) { this.checkIn = checkIn; }
+    public String getCheckOut() { return checkOut; }
+    public void setCheckOut(String checkOut) { this.checkOut = checkOut; }
+    public String getIp() { return ip; }
+    public void setIp(String ip) { this.ip = ip; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public String getLoc() { return loc; }
+    public void setLoc(String loc) { this.loc = loc; }
+    public String getComId() { return comId; }
+    public void setComId(String comId) { this.comId = comId; }
 } 

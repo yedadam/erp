@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dadam.hr.attendance.mapper.AttendanceMapper">
+    <!-- 출근 현황 리스트 조회 -->
+    <select id="findAttendanceList" resultType="com.dadam.hr.attendance.service.AttendanceVO">
+        SELECT a.attendance_code AS attendanceCode,
+               a.emp_id AS empId,
+               e.emp_name AS empName,
+               e.dept_code AS deptCode,
+               d.dept_name AS deptName,
+               TO_CHAR(a.work_date, 'YYYY-MM-DD') AS workDate,
+               TO_CHAR(a.actual_start_time, 'HH24:MI') AS checkIn,
+               TO_CHAR(a.actual_end_time, 'HH24:MI') AS checkOut,
+               a.check_ip AS ip,
+               a.status AS status,
+               a.location_info AS loc,
+               a.com_id AS comId
+          FROM attendance a
+          JOIN employees e ON a.emp_id = e.emp_id AND a.com_id = e.com_id
+          JOIN departments d ON e.dept_code = d.dept_code AND e.com_id = d.com_id
+         WHERE a.com_id = #{comId}
+           AND a.work_date = #{date}
+         ORDER BY e.dept_code, e.emp_id
+    </select>
+</mapper> 
