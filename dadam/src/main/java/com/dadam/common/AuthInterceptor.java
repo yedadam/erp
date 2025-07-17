@@ -20,9 +20,10 @@ public class AuthInterceptor implements HandlerInterceptor{
    @Override
    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 	   
-	   String optionCode = "com-101";
-	   Date subsExipriation = Date.valueOf(LocalDate.now().plusDays(1));
-	   String authCode = "auth";
+	   //초기값
+	   String optionCode = "";
+	   Date subsExipriation = null;
+	   String authCode = "";
        //로그인 객체값 연결
        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
        //로그인 객체 가져오기
@@ -41,8 +42,6 @@ public class AuthInterceptor implements HandlerInterceptor{
 	   
 	   // 권한 체크 로직
        String uri = request.getRequestURI();
-       System.out.println("오스");
-       	System.out.println(authCode);
 		 if(subsExipriation.toLocalDate().isBefore(LocalDate.now())) {
 			 response.sendRedirect("/error/403.html");
 	         return false;
