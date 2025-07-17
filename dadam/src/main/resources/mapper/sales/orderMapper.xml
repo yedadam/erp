@@ -42,7 +42,6 @@
 		</if>	
 		<if test="status != null and status !=  ''">
 		AND o.status=#{status}		
-		
 		</if>
 		order by o.ord_code desc			
 	</select>
