@@ -50,7 +50,7 @@
                                     	left join hold ho
                                         on(ho.code = sd.ship_req_dtl_code AND ho.com_id = sd.com_id)
         WHERE sd.com_id = #{comId} AND sd.status in('srd04','srd01')
-        ORDER BY ship_req_dtl_code
+        ORDER BY ship_req_dtl_code DESC
 	</select>
 	
 	<!-- LOT모달 조회 -->
