@@ -15,12 +15,7 @@
 	border-right: 1px solid #e5e7eb !important;
 	color: #374151 !important;
 }
- .tui-grid-cell-content {
-	background: #ffffff !important;
-}
-.tui-grid-cell{
-	background: #ffffff !important;
-}
+
 
 .tui-grid-body-area .tui-grid-row:hover .tui-grid-cell {
 	background-color: #f8fafc !important;
