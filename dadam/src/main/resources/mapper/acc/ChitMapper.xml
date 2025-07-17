@@ -201,9 +201,7 @@
 	<update id="update" parameterType="ChitVO">
 		UPDATE chit
 		SET
-		phy_emp_id =
-		#{empId}
-		, status = 'cst02'
+		  status = 'cst02'
 		, note = #{note}
 		, update_date = SYSDATE
 		WHERE chit_code = #{chitCode}

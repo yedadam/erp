@@ -437,11 +437,11 @@
 				    return '';
 				},
              },
-            {header: '공급가액', name: 'supplyPrice', align: 'center', 
+            {header: '공급가액', name: 'supplyPrice', align: 'right', 
             	 formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : ''},
-            {header: '부가세', name: 'vatPrice', align: 'center',
+            {header: '부가세', name: 'vatPrice', align: 'right',
             		 formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : ''},
-            {header: '금액합계', name: 'totPrice', align: 'center', 
+            {header: '금액합계', name: 'totPrice', align: 'right', 
             	formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '' },
         ],
     });
