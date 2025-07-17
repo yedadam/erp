@@ -46,7 +46,8 @@ const itemGrid = new tui.Grid({
             showClearBtn: true
           }},
         { header: '품목구분', name:'type', align:'center',editor:'text', filter:'select'},
-        { header: '단가', name:'price', align:'center', editor:'text', filter:'number'},
+        { header: '단가', name:'price', align:'right', editor:'text', filter:'number'
+        	, formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '' },
     ],
 });
 

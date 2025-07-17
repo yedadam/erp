@@ -220,16 +220,40 @@
     const addrModal = bootstrap.Modal.getInstance(document.getElementById('addrModal')); //주소모달 객체선언 
     let fullAddr;
     const grayFormatter = ({ value, row }) => {
-          console.log('row=>',row);
-          let  display = row.type==='vt02'? ' ' : value; 
-          if(value==null){
-             display=' '; 
-          }
-          
-          // row.type 이 vt02 면 회색(#999), 아니면 기본 색
-          const color = row.type === 'vt02' ? '#999' : 'inherit';
-          return `<span style="color: ${color}">${display}</span>`;
-        };
+    	  console.log('row =>', row);
+
+    	  // vt02면 무조건 공백
+    	  let display = row.type === 'vt02' ? ' ' : value;
+
+    	  // null이거나 undefined면 공백
+    	  if (value == null) {
+    	    display = ' ';
+    	  } else if (row.type !== 'vt02') {
+    	    display = `${value} 개월`; // 값이 있을 때만 '개월' 붙이기
+    	  }
+
+    	  // 색상 지정
+    	  const color = row.type === 'vt02' ? '#999' : 'inherit';
+
+    	  return `<span style="color: ${color}">${display}</span>`;
+    	};
+        const grayPayFormatter = ({ value, row }) => {
+        	  console.log('row =>', row);
+
+        	  // 1. 표시할 값 결정: vt02는 공백, null도 공백, 아니면 숫자 포맷
+        	  let display = ' ';
+
+        	  if (row.type !== 'vt02' && value != null) {
+        	    // 숫자인 경우: 1,000원 형식으로 포맷
+        	    display = parseInt(value).toLocaleString() + '원';
+        	  }
+
+        	  // 2. 색상 결정: vt02는 회색, 아니면 기본
+        	  const color = row.type === 'vt02' ? '#999' : 'inherit';
+
+        	  // 3. HTML 반환
+        	  return `<span style="color: ${color}">${display}</span>`;
+          };
 
   $('#vdrInput').on('keyup',ev => {
 		 setupAutocomplete({
@@ -295,16 +319,16 @@
         {header: '은행',name: 'bank',align: 'center',editor: 'text'},
         {header: '계좌번호',name: 'acctNo',align: 'center',editor: 'text', width: 120},
         {header: '여신기간',name: 'creditPeriod',align: 'center', editor:'text', 
-          formatter: grayFormatter
+          formatter: grayFormatter, 
         },
         {header: '여신금액',name: 'creditPrice',align: 'right',editor: 'text',
-            formatter: grayFormatter}, 
+            formatter: grayPayFormatter}, 
          {header: '여신잔량', name: 'creditBalPrice',align: 'right',
-            formatter: grayFormatter
+            formatter: grayPayFormatter
          }
       ],
     });
-    // 상세그리드
+    // 상세그리드 , formatter: ({ value }) => value ? parseInt(value).toLocaleString() + '원' : '' 
   //  let detailGrid = new tui.Grid({
   //     // toastui 아이디 가져오기
   //     el: document.getElementById('detailGrid'),

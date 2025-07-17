@@ -332,11 +332,11 @@
     				    return '';
     				},
                  },
-                {header: '총공급가액', name: 'totSupPrice', align: 'center', 
+                {header: '총공급가액', name: 'totSupPrice', align: 'right', 
                 	formatter: function(price){ return priceFormat(price.value)+'원'; },},
-                {header: '총부가세', name: 'totVatPrice', align: 'center',
+                {header: '총부가세', name: 'totVatPrice', align: 'right',
                 	formatter: function(price){ return priceFormat(price.value)+'원';},	},
-                {header: '총금액합계', name: 'totAmtSum', align: 'center', formatter: function(price){ return priceFormat(price.value)+'원';},	
+                {header: '총금액합계', name: 'totAmtSum', align: 'right', formatter: function(price){ return priceFormat(price.value)+'원';},	
                 },
             ],
         });
