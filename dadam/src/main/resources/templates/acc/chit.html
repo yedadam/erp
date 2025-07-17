@@ -339,9 +339,9 @@ const chitGrid = new tui.Grid({
 	   formatter: ({ value }) => value === 'tay02' ? '<span class="grid-action">계산서 발행</span>' 
 			   				   : value === 'tay01' ? '<span class="grid-action">발행 완료</span>' : '', hidden: true  },
    { header: '결제상태', name: 'status', align: 'center', width: 80,
-     	formatter: ({ value }) => value === '등록' ? '<span class="grid-action">등록</span>' 
+     	formatter: ({ value }) => value === '등록' ? '<span class="grid-action ">등록</span>' 
      						    : value === '결제' ? '<button class="btn grid-action payCheck">결제</button>' 
-     						    : value === '결제완료' ? '<span class="grid-acction">결제완료</span>' 
+     						    : value === '결제완료' ? '<span class="end-action">결제완료</span>' 
      						    : value === '변려' ? '<button class="btn grid-action reject-btn">반려</button>' 
      						    :''},			    
    { header: '계정과목', name: 'acctCode', editor: { type: acctTypeEditor }, formatter: ({ row }) => row.aname || row.ANAME },
