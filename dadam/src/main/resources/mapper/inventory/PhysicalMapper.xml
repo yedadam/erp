@@ -21,7 +21,7 @@
 		ORDER BY phy_code DESC
 	</select>
 	<!--실사상세 조회 -->
-	<select id="selectPhysicalDetailList" resultType="PhysicalVO" parameterType="PhysicalVO">
+	<select id="selectPhysicalDetailList" resultType="PhysicalDetailVO" parameterType="PhysicalDetailVO">
 		SELECT  
 				phy_dtl_code,
 				phy_code,
@@ -29,6 +29,7 @@
 				getitemName(item_code) itemName,
 				quantity,
 				lot,
+				loc_code,
 				note,
 				com_id
 		FROM physicaldetail
@@ -51,23 +52,24 @@
 	VALUES(         
 						#{phyCode},
 	                    #{whCode},
-	                    #{phyEmpId},
+	                    #{empId},
 	                    sysdate,
 	                    #{note},
 	                    #{comId})
 	</insert>
 	<!-- insert physicalDetail -->
+	<select id="selectPhysicalDetailKey" resultType="string">
+		SELECT 'pscd-' || (NVL(MAX(TO_NUMBER(SUBSTR(phy_dtl_code,6))),100)+1) phyDtlCode
+		FROM physicaldetail
+	</select>
 	<insert id="insertPhysicalDetail" parameterType="PhysicalDetailVO">
-		<selectKey resultType="string" keyProperty="phyDtlCode" order="BEFORE">
-			SELECT 'pscd-' || (NVL(MAX(TO_NUMBER(SUBSTR(phy_dtl_code,6))),100)+1) phyDtlCode
-			FROM physicaldetail
-		</selectKey>
 	INSERT INTO physicaldetail(
 						phy_dtl_code,
                         phy_code,
                         lot,
                         item_code,
                         quantity,
+                        curr_qty,
                         note,
                         loc_code,
                         com_id)
@@ -77,6 +79,7 @@
 	                    #{lot},
 	                    #{itemCode},
 	                    #{quantity},
+	                    #{currQty},
 	                    #{note},
 	                    #{locCode},
 	                    #{comId})
@@ -94,4 +97,5 @@
 						on(st.com_id = whl.com_id AND st.loc_code = whl.loc_code)
         WHERE whl.com_id = #{comId} AND whl.wh_code = #{whCode}
 	</select>
+	<!-- 등록 -->
 </mapper>

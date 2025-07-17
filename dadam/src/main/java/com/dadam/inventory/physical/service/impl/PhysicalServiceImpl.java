@@ -29,8 +29,8 @@ public class PhysicalServiceImpl implements PhysicalService{
 	
 	// 실사상세내용조회
 	@Override
-	public List<PhysicalVO> selectPhysicalDetailList(PhysicalVO list) {
-		List<PhysicalVO> lists = physicalmapper.selectPhysicalDetailList(list);
+	public List<PhysicalDetailVO> selectPhysicalDetailList(String comId, String phyCode) {
+		List<PhysicalDetailVO> lists = physicalmapper.selectPhysicalDetailList(comId, phyCode);
 		return lists;
 	}
 
@@ -50,8 +50,18 @@ public class PhysicalServiceImpl implements PhysicalService{
 		int result = physicalmapper.insertPhysical(vo);
 		List<PhysicalDetailVO> detail = vo.getSub();
 		// 실사 상세 등록
+		String phyDtlCode = physicalmapper.selectPhysicalDetailKey();
+		String str = phyDtlCode.substring(0,5);
+		int number = Integer.parseInt(phyDtlCode.substring(5));
+		String newCode = null;
 		for(PhysicalDetailVO list : detail) {
+			if(newCode != null) {
+				number ++;
+			}
+			newCode = str + String.format("%03d", number);
+			list.setPhyDtlCode(newCode);
 			list.setPhyCode(vo.getPhyCode());
+			list.setComId(vo.getComId());
 			physicalmapper.insertPhysicalDetail(list);
 		}
 		return result;
