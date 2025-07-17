@@ -85,7 +85,7 @@
 							<i class="fas fa-warehouse"></i> 선택
 						</button>
 					</div>
-					<div id="itemgrids"></div>
+					<div id="itemGrids"></div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary"
@@ -111,19 +111,23 @@ $('#selectBtn').on('click', function() {
 });
 $('#insertBtn').on('click', function() {
 	changeView('등록');
-	mainGrid.appendRow();
-	subGrid.appendRow();
 });
 
 // 페이지 전환 처리
 function changeView(viewType){
+	// 그리드 초기화
 	if(mainGrid) {
-		// 그리드 초기화
 		mainGrid.destroy();
-		// dom 초기화
-		$('#mainGrids').html('');
-		$('#subGrids').html('');
 	}
+	if(subGrid) {
+	    subGrid.destroy();
+	}
+	// dom 초기화
+	$('#mainGrids').html('');
+	$('#subGrids').html('');
+	$('#warehouseGrids').html('');
+	$('#itemGrids').html('');
+		
 	// 그리드 변경
 	if(viewType === '조회'){
 		selectGrid();
@@ -148,7 +152,8 @@ function mainList(){
 function selectGrid(){
 	$('#selectBtn').prop('disabled', true);
 	$('#insertBtn').prop('disabled', false);
-	
+	$('#deleteBtn').prop('disabled', true);
+	$('#btnGroup').prepend('<button class="btn btn-success me-1" id="appBtn"><i class="fas fa-check"></i> 승인 </button>');
 	mainGrid = new tui.Grid({
 	    el: document.getElementById('mainGrids'),
 	    rowHeaders: ['checkbox'],
@@ -160,7 +165,7 @@ function selectGrid(){
 	    //필드값 구성
 	    columns:[
 	        { header: '실사코드',name:'phyCode',align:'center'},
-	        { header: '창고명',name:'whCode',align:'center', editor:'text'},
+	        { header: '창고명',name:'whName',align:'center', editor:'text'},
 	        { header: '담당자',name:'phyEmpName',align:'center'},
 	        { header: '승인자',name:'apprEmpName',align:'center'},
 	        { header: '등록일자',name:'createdDate',align:'center'},
@@ -171,7 +176,7 @@ function selectGrid(){
 	
 	subGrid = new tui.Grid({
 	    el: document.getElementById('subGrids'),
-	    rowHeaders: ['checkbox'],
+	    rowHeaders: ['rowNum'],
 	    //페이지네이션
 	    pageOptions: {
 	        perPage: 5,
@@ -183,7 +188,8 @@ function selectGrid(){
 	        { header: '품목명',name:'phyDtlCode',align:'center'},
 	        { header: 'lot',name:'lot',align:'center'},
 	        { header: '품목명',name:'itemName',align:'center'},
-	        { header: '수량',name:'quantity',align:'center'},
+	        { header: '수량',name:'quantity',align:'right'},
+	        { header: '실사수량',name:'currQty',align:'right'},
 	        { header: '비고',name:'note',align:'center'},
 	    ],
 	});
@@ -193,25 +199,39 @@ function selectGrid(){
 		    return;
 		  }
 		let { rowKey, columnName } = ev;
+		let rowData = mainGrid.getRow(rowKey);
+		let phyCode = rowData.phyCode;
 		// 상세 
 		$.ajax({
 			url:"/erp/inventory/selectPhysicalDetail",
 			method:"GET",
-			data: {comId},
+			data: {comId, phyCode},
 		    success:function(result) {
 		    	subGrid.resetData(result);
 		   } // ajax호출 끝
 		})
 	});
+	radioGrid(mainGrid);
+	
+	// 승인 이벤트
+	$('#appBtn').on('click',()=>{
+		let check = mainGrid.getCheckedRows();
+		let data = subGrid.getData();
+		console.log(check);
+		console.log(data);
+		
+		
+	})
+	
 }// 조회 그리드
 // 등록 그리드
 function insertGrid(){
 	$('#selectBtn').prop('disabled', false);
 	$('#insertBtn').prop('disabled', true);
-	
+	$('#deleteBtn').prop('disabled', false);
+	$('#appBtn').remove();
 	mainGrid = new tui.Grid({
 	    el: document.getElementById('mainGrids'),
-	    rowHeaders: ['checkbox'],
 	    //페이지네이션
 	    pageOptions: {
 	        perPage: 5,
@@ -222,7 +242,6 @@ function insertGrid(){
 	        { header: '창고코드',name:'whCode',align:'center'},
 	        { header: '창고명',name:'name',align:'center'},
 	        { header: '담당자',name:'phyEmpName',align:'center'},
-	        { header: '등록일자',name:'createdDate',align:'center'},
 	        { header: '비고',name:'note',align:'center', editor:'text'}
 	    ],
 	});
@@ -240,12 +259,15 @@ function insertGrid(){
 	    	{ header: '품목명',name:'itemName',align:'center'},
 	        { header: '보관위치',name:'locCode',align:'center'},
 	        { header: 'lot',name:'lot',align:'center'},
-	        { header: '재고수량',name:'quantity',align:'center'},
-	        { header: '홀드수량',name:'holdQty',align:'center'},
-	        { header: '실사수량',name:'qty',align:'center', editor: 'text', dataType: 'number'},
+	        { header: '재고수량',name:'quantity',align:'right'},
+	        { header: '홀드수량',name:'holdQty',align:'right'},
+	        { header: '실사수량',name:'currQty',align:'right', editor: 'text'},
 	        { header: '비고',name:'note',align:'center', editor: 'text'},
 	    ],
 	});
+	data = {phyEmpName:empName};
+	mainGrid.appendRow(data);
+	subGrid.appendRow();
 	// 창고 모달
 	warehouseGrid = new tui.Grid({
 	    el: document.getElementById('warehouseGrids'),
@@ -265,7 +287,7 @@ function insertGrid(){
 	});
 	// 품목 모달
 	itemGrid = new tui.Grid({
-	    el: document.getElementById('itemgrids'),
+	    el: document.getElementById('itemGrids'),
 	    rowHeaders: ['checkbox'],
 	    //페이지네이션
 	    pageOptions: {
@@ -277,8 +299,8 @@ function insertGrid(){
 	        { header: '보관위치',name:'locCode',align:'center'},
 	        { header: '품목명',name:'itemName',align:'center'},
 	        { header: 'lot',name:'lot',align:'center'},
-	        { header: '수량',name:'quantity',align:'center'},
-	        { header: '홀드수량',name:'holdQty',align:'center'},
+	        { header: '수량',name:'quantity',align:'right'},
+	        { header: '홀드수량',name:'holdQty',align:'right'},
 	        { header: '비고',name:'note',align:'center'},
 	    ],
 	});
@@ -337,8 +359,9 @@ function insertGrid(){
 		$('#itemModal').on('shown.bs.modal',function(){
 			itemGrid.refreshLayout();
 		})
+		radioGrid(warehouseGrid);
 	// 선택한 값 sub그리드로 옮기기
-	$('#itemBtn').on('click',()=>{
+	$('#itemBtn').off('click').on('click',()=>{
 		let checkRow = itemGrid.getCheckedRows();
 		subGrid.resetData(checkRow);
 		subGrid.uncheckAll();
@@ -346,14 +369,12 @@ function insertGrid(){
 		
 		$('#itemModal').modal('hide');
 	})
-	
-	radioGrid(warehouseGrid);
-	
 	warehouseGrid.on('click', (ev) => {
 		if (!ev.targetType || ev.targetType !== 'cell') {
 		    // 셀이 아닌 곳 클릭 시 이벤트 무시
 		    return;
 		  }
+		
 		// 코드
 		let codes = warehouseGrid.getRow(ev.rowKey).whCode;
 		// 이름
@@ -372,7 +393,7 @@ function insertGrid(){
 		let main = mainGrid.getData();
 		let sub = subGrid.getData();
 		main.forEach((item)=>{
-			item.phyEmpName = empId;
+			item.empId = empId;
 			item.comId = comId;
 			item.sub = sub;
 		});
@@ -401,6 +422,7 @@ function insertGrid(){
 				}
 			});
 	})
+	
 } // insertGrid
 
 // 체크박스 라디오처럼 사용

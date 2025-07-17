@@ -21,6 +21,7 @@ public class PhysicalVO {
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date phyDate;		// 반영일자
 	private String phyEmpId;	// 담당자
+	private String empId;	// 담당자
 	private String phyEmpName;	
 	private String apprEmpId;	// 승인자
 	private String apprEmpName;

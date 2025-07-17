@@ -256,30 +256,31 @@ function selectGrid(){
 	        { header: '홀드코드',name:'holdCode',align:'center'},
 	        { header: '구분코드',name:'code',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
-	        { header: '수량',name:'quantity',align:'center'},
-	        { header: '현재홀드수량',name:'hdqty',align:'center'},
+	        { header: '수량',name:'quantity',align:'right'},
+	        { header: '현재홀드수량',name:'hdqty',align:'right'},
 	        { header: '구분',name:'typeName',align:'center',
 	        	filter: 'select'
 	        	,formatter:({ value }) => {
-				    if(value=='출하의뢰'){
-				       return `<span class="info-action">${value}</span>`;
-				    }else if(value=='재고이동'){
-				       return `<span class="end-action">${value}</span>`;
-				    }
-				    return '';
-				},
+				    if(value=='재고이동'){
+					       return `<span class="end-action">${value}</span>`;
+					    }else{
+					       return `<span class="start-action">${value}</span>`;
+					    }
+		        	},
 	        	},
 	        { header: '상태',name:'statusName',align:'center',
 	        	filter: 'select'
-	        		,formatter:({ value }) => {
-					    if(value=='홀드완료'){
-					       return `<span class="start-action">${value}</span>`;
-					    }else if(value=='홀드중'){
-					       return `<span class="end-action">${value}</span>`;
-					    }
-					    return '';
-					},
-	        	},
+	        		, formatter:({ value }) => {
+    				    if(value=='홀드중'){
+    				       return `<span class="start-action">${value}</span>`;
+    				    }else if(value=='홀드완료'){
+    				       return `<span class="end-action">${value}</span>`;
+    				    }else if(value=='출고완료'){
+    				       return `<span class="del-action">${value}</span>`;
+    				    }
+    				    return '';
+		        },
+	        },
 	        { header: '등록일자',name:'createdDate',align:'center'},
 	        { header: '비고',name:'note',align:'center'}
 	        /* { header: '출고예정일',name:'shipExpDate',align:'center'}, */
@@ -315,7 +316,7 @@ function selectGrid(){
 	    columns:[
 	        { header: '홀드상세코드',name:'holdDtlCode',align:'center'},
 	        { header: 'lot',name:'lot',align:'center'},
-	        { header: '예약재고',name:'quantity',align:'center'}
+	        { header: '예약재고',name:'quantity',align:'right'}
 	    ],
 	});
 	
@@ -361,10 +362,31 @@ function insertGrid(){
 	        			return '<span class="badge text-bg-danger fs-6">선택</span>'
 	        	}
 	        },
-	        { header: '필요수량',name:'quantity',align:'center'},
-	        { header: '현재홀드수량',name:'hdqty',align:'center'},
-	        { header: '분류',name:'typeName',align:'center'},
-	        { header: '상태',name:'statusName',align:'center'},
+	        { header: '필요수량',name:'quantity',align:'right'},
+	        { header: '현재홀드수량',name:'hdqty',align:'right'},
+	        { header: '분류',name:'typeName',align:'center'
+	        	 , formatter:({ value }) => {
+				    if(value=='출하의뢰'){
+				       return `<span class="start-action">${value}</span>`;
+				    }else{
+				    	return `<span class="info-action">${value}</span>`;
+				    }
+				    return '';
+	        	}, 
+	        },
+	        { header: '상태',name:'statusName',align:'center'
+	        	, formatter:({ value }) => {
+				    if(value=='홀드중'){
+				       return `<span class="start-action">${value}</span>`;
+				    }else if(value=='홀드완료'){
+				       return `<span class="end-action">${value}</span>`;
+				    }else if(value=='출고완료'){
+				       return `<span class="del-action">${value}</span>`;
+				    }else if(value=='출고중'){
+				    	return `<span class="info-action">${value}</span>`;
+				    }
+				    return '';
+	        	},},
 	        { header: '의뢰등록일',name:'createdDate',align:'center'},
 	        { header: '출고예정일',name:'date',align:'center'},
 	        { header: '출고위치',name:'location',align:'center'},
@@ -405,13 +427,25 @@ function insertGrid(){
 	    },
 	    //필드값 구성
 	    columns:[
-	        { header: '출하상세코드',name:'shipReqDtlCode',align:'center'},
+	        { header: '출하코드',name:'shipReqCode',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
-	        { header: '수량',name:'quantity',align:'center'},
-	        { header: '홀드수량',name:'hdqty',align:'center'},
+	        { header: '수량',name:'quantity',align:'right'},
+	        { header: '홀드수량',name:'hdqty',align:'right'},
 	        { header: '상태',name:'statusName',align:'center',
-	        	filter: 'select'
-	        	},
+		        	filter: 'select'
+		        	, formatter:({ value }) => {
+					    if(value=='출하의뢰'){
+					       return `<span class="start-action">${value}</span>`;
+					    }else if(value=='부분출고'){
+					       return `<span class="end-action">${value}</span>`;
+					    }else if(value=='홀드중'){
+					       return `<span class="del-action">${value}</span>`;
+					    }else if(value=='홀드완료'){
+						   return `<span class="info-action">${value}</span>`;
+					    return '';
+		        	}
+		        },
+	        },
 	        { header: '거래처',name:'vdrName',align:'center'},
 	        { header: '담당자',name:'empName',align:'center'},
 	        { header: '등록일',name:'createdDate',align:'center'},

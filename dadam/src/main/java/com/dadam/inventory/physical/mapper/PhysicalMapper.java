@@ -13,7 +13,7 @@ public interface PhysicalMapper {
 	// 실사 조회
 	public List<PhysicalVO> selectPhysicalList(String comId);
 	// 실사 상세 조회
-	public List<PhysicalVO> selectPhysicalDetailList(PhysicalVO list);
+	public List<PhysicalDetailVO> selectPhysicalDetailList(String comId, String phyCode);
 	// 창고 조회
 	public List<WarehouseVO> physicalWarehouseList(String comId);
 	// 창고상세 조회
@@ -21,4 +21,5 @@ public interface PhysicalMapper {
 	// 실사 등록
 	public int insertPhysical(PhysicalVO vo);
 	public int insertPhysicalDetail(PhysicalDetailVO vo);
+	public String selectPhysicalDetailKey();
 }

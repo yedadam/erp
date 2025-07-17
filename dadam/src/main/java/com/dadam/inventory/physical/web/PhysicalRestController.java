@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dadam.inventory.physical.service.PhysicalDetailVO;
 import com.dadam.inventory.physical.service.PhysicalService;
 import com.dadam.inventory.physical.service.PhysicalVO;
 import com.dadam.inventory.warehouse.service.WarehouseVO;
@@ -28,10 +29,10 @@ public class PhysicalRestController {
 		return physicalservice.selectPhysicalList(comId);
 	}
 	
-	// 실사 리스트
+	// 실사 상세리스트
 	@GetMapping("/selectPhysicalDetail")
-	public List<PhysicalVO> selectPhysicalDetailList(PhysicalVO vo) {
-		return physicalservice.selectPhysicalDetailList(vo);
+	public List<PhysicalDetailVO> selectPhysicalDetailList(@RequestParam String comId, @RequestParam String phyCode) {
+		return physicalservice.selectPhysicalDetailList(comId, phyCode);
 	}
 	// 창고 리스트
 	@GetMapping("/physicalWarehouseList")

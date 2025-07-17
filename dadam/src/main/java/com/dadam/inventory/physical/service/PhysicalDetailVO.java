@@ -19,7 +19,9 @@ public class PhysicalDetailVO {
 	private String phyCode;		// 창고코드
 	private String lot;		// 창고이름
 	private String itemCode;	// 담당자
-	private int quantity;	// 담당자
+	private String itemName;	// 담당자
+	private int quantity;	// 이전수량
+	private int currQty;	// 입력수량
 	private String locCode;	
 	private String note;
 	private String comId;

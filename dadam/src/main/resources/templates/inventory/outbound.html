@@ -221,9 +221,27 @@ function selectGrid(){
 	        { header: '참조코드',name:'code',align:'center'},
 	        { header: '구분',name:'typeName',align:'center',
 	        	filter: 'select'
-	        	},
+	        	, formatter:({ value }) => {
+   				    if(value=='거래처'){
+   				       return `<span class="start-action">${value}</span>`;
+   				    }else if(value=='공장'){
+   				       return `<span class="del-action">${value}</span>`;
+   				    }
+   				    return '';
+		        },
+        	},
 	        { header: '상태',name:'statusName',align:'center',
 	        	filter: 'select'
+	        		, formatter:({ value }) => {
+	   				    if(value=='대기'){
+	   				       return `<span class="start-action">${value}</span>`;
+	   				    }else if(value=='출고완료'){
+	   				       return `<span class="end-action">${value}</span>`;
+	   				    }else if(value=='부분출고'){
+	   				       return `<span class="del-action">${value}</span>`;
+	   				    }
+	   				    return '';
+			        },
 	        	},
 	        { header: '출고일',name:'createdDate',align:'center'},
 	        { header: '담당자',name:'empName',align:'center'},
@@ -279,18 +297,34 @@ function insertGrid(){
 	    //필드값 구성
 	    columns:[
 	    	{ header: '항목코드',name:'code',align:'center'},
-	    	{ header: '홀드상세코드',name:'holdDtlCode',align:'center'},
 	    	{ header: 'LOT',name:'lot',align:'center'},
 	        { header: '제품명',name:'itemName',align:'center'},
 	        { header: '홀드수량',name:'hdqty',align:'center'},
 	        { header: '기출고량',name:'currQty',align:'center'},
 	        { header: '미출고량',name:'reqQty',align:'center'},
 	        { header: '구분',name:'typeName',align:'center',
-	        	filter: 'select'
+	        	filter: 'select',
+	        	formatter:({ value }) => {
+				    if(value=='재고이동'){
+				       return `<span class="end-action">${value}</span>`;
+				    }else{
+				       return `<span class="start-action">${value}</span>`;
+				    }
 	        	},
-	        { header: '상태',name:'statusName',align:'center',
-	        	filter: 'select'
-	        	},
+	        },
+	        { header: '상태',name:'statusName',align:'center'
+	        	, filter: 'select'
+	        		, formatter:({ value }) => {
+    				    if(value=='홀드중'){
+    				       return `<span class="start-action">${value}</span>`;
+    				    }else if(value=='홀드완료'){
+    				       return `<span class="end-action">${value}</span>`;
+    				    }else if(value=='출고완료'){
+    				       return `<span class="del-action">${value}</span>`;
+    				    }
+    				    return '';
+		        },
+		    },
 	        { header: '등록일자',name:'createdDate',align:'center'},
 	        { header: '비고',name:'note',align:'center'}
 	    ],
@@ -308,8 +342,25 @@ function insertGrid(){
 			    	{ header: '홀드상세코드', name: 'holdDtlCode', align:'center'},
 			    	{ header: '품목명', name: 'itemName', align:'center'},
 			    	{ header: '항목코드', name: 'code', align:'center'},
-			    	{ header: '구분',name:'typeName',align:'center', filter: 'select'},
-			    	{ header: '상태',name:'statusName',align:'center', filter: 'select'},
+			    	{ header: '구분',name:'typeName',align:'center', filter: 'select'
+			    		, formatter:({ value }) => {
+						    if(value=='재고이동'){
+							       return `<span class="end-action">${value}</span>`;
+							    }else{
+							       return `<span class="start-action">${value}</span>`;
+							    }
+				        	},},
+			    	{ header: '상태',name:'statusName',align:'center', filter: 'select'
+			    		, formatter:({ value }) => {
+	    				    if(value=='홀드중'){
+	    				       return `<span class="start-action">${value}</span>`;
+	    				    }else if(value=='홀드완료'){
+	    				       return `<span class="end-action">${value}</span>`;
+	    				    }else if(value=='출고완료'){
+	    				       return `<span class="del-action">${value}</span>`;
+	    				    }
+	    				    return '';
+			        },},
 			    	{ header: '홀드수량', name: 'hdqty', align:'center', dataType: 'number'},
 			    	{ header: '기출고량', name: 'currQty', align:'center', dataType: 'number'},
 			    	{ header: '미출고량', name: 'reqQty', align:'center', dataType: 'number'},
