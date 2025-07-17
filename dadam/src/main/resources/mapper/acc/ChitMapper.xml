@@ -16,10 +16,10 @@
 		CASE
 		WHEN c.article_code LIKE 'txh-%' THEN
 		getVdrName((
-		SELECT v.vdr_code
+		SELECT MAX(v.vdr_code)
 		FROM vender v
 		WHERE v.acct_no = (
-		SELECT t.acct_no
+		SELECT MAX(t.acct_no)
 		FROM transaction t
 		WHERE t.txn_hist_code = c.article_code
 		)
@@ -49,10 +49,8 @@
 		getSubCode(c.status) AS status,
 		getSubCode(c.type) AS tType,
 		getDeptName(c.dept_code) AS deptCode,
-		getEmpName(c.phy_emp_id,
-		#{comId}) AS phyEmpId,
-		getEmpName(c.appr_emp_id, #{comId}) AS
-		apprEmpId,
+		getEmpName(c.phy_emp_id, #{comId}) AS phyEmpId,
+		getEmpName(c.appr_emp_id, #{comId}) AS apprEmpId,
 		c.note AS note,
 		'' AS acctCode,
 		'' AS iType,
@@ -101,7 +99,7 @@
 		getSubCode(i.type) AS iName,
 		a.name AS
 		aName,
-		99 AS sort_order -- 자식은 가장 마지막에 오게 정렬 (혹은 부모 따라 정렬하게 할 수도 있음)
+		99 AS sort_order
 		FROM indignation i
 		LEFT JOIN account a ON i.acct_code = a.acct_code
 		WHERE i.com_id = #{comId}
