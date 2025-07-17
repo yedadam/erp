@@ -500,9 +500,9 @@ if(pageStatus=='register'){
 	orderGrid.on('click', (ev) => {
 
 		//이 전에 선택한 행 색깔이 원래대로 돌아옴 
-		orderGrid.removeRowClassName(selectedRowKey,'row-selected'); 
-		selectedRowKey=ev.rowKey; 
-		orderGrid.addRowClassName(ev.rowKey,'row-selected'); 
+		//orderGrid.removeRowClassName(selectedRowKey,'row-selected'); 
+		//selectedRowKey=ev.rowKey; 
+		//orderGrid.addRowClassName(ev.rowKey,'row-selected'); 
 
 		const checkedRows = orderGrid.getCheckedRowKeys();	 	
 
@@ -1338,10 +1338,6 @@ if(pageStatus=='register'){
 		 			ordTot=check.totPrice; 
 			}
 		}
-		
-		
-
-
 		let supPrice = (ev.changes[0].value * ordDtlGrid.getRow(ev.changes[0].rowKey).price)*(1-vdrdiscount);  
 		let discPrice = (ev.changes[0].value * ordDtlGrid.getRow(ev.changes[0].rowKey).price)*(vdrdiscount); //할인가격 거래처정보 불러온뒤 계산 반영	
 
