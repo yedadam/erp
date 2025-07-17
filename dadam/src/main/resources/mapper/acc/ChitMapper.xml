@@ -191,8 +191,7 @@
 		#{chitDtId}
 		, #{chitCode}
 		, #{acctCode}
-		,
-		#{iType}
+		, #{iType}
 		, #{iPrice}
 		, SYSDATE
 		, #{comId}
