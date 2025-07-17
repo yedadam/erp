@@ -89,6 +89,7 @@
 		SELECT wh_code, name , type, getsubcode(type) typeName, note
 		FROM warehouse
         WHERE com_id = #{comId}
+        ORDER BY wh_code DESC
 	</select>
 	<!-- 품목,위치 -->
 	<select id="physicalWarehousedetailList" resultType="WarehouseVO" parameterType="String">
@@ -96,6 +97,7 @@
 		FROM stock st join warehouselocation whl
 						on(st.com_id = whl.com_id AND st.loc_code = whl.loc_code)
         WHERE whl.com_id = #{comId} AND whl.wh_code = #{whCode}
+        ORDER BY loc_code DESC
 	</select>
 	<!-- 등록 -->
 </mapper>
