@@ -103,7 +103,7 @@
 	<!-- 속해있는 모든 lot의 출고수량 -->
 	<select id="sumOutbound" parameterType="OutboundVO" resultType="int">
 		SELECT nvl(sum(quantity), 0)
-		FROM outbound
+		FROM holddetail
 		WHERE com_id =#{comId} AND hold_dtl_code = #{holdDtlCode}
 	</select>
 </mapper>

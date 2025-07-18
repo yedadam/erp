@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/erp/hr")
+@RequestMapping("/erp/standard")
 public class DeptViewController {
     @GetMapping({"/deptList", "/deptlist"})
     public String deptListPage() {
