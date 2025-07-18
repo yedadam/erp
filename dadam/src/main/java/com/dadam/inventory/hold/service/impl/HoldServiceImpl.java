@@ -60,10 +60,10 @@ public class HoldServiceImpl implements HoldService{
 			qty += vo.getTotqty();
 				// 입력수량이 필요수량이랑 같을경우 = 홀드완료
 			if(qty == vo.getQuantity()) {
-				vo.setHstatus("hs02");
+				vo.setHstatus("hs03");
 				vo.setShipstatus("srd05");
 			}else {
-				vo.setHstatus("hs01");
+				vo.setHstatus("hs02");
 				vo.setShipstatus("srd04");
 			}
 			// 홀드 등록
