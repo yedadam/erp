@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/badge/Java-17-007396?style=for-the-badge&logo=openjdk&logoColor=white"/>
   <img src="https://img.shields.io/badge/SpringBoot-3.2-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"/>
   <img src="https://img.shields.io/badge/Thymeleaf-3.1-005F0F?style=for-the-badge&logo=thymeleaf&logoColor=white"/>
-  <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Oracle-19c-F80000?style=for-the-badge&logo=oracle&logoColor=white"/>
 </p>
 
 ---
@@ -28,7 +28,7 @@
 |------|------|
 | 백엔드 | Java 17, Spring Boot 3.2, Spring Data JPA |
 | 프론트엔드 | Thymeleaf, HTML5, CSS3, JavaScript |
-| 데이터베이스 | MySQL |
+| 데이터베이스 | Oracle |
 | 개발환경 | IntelliJ / VS Code / Git / GitHub |
 
 ---
